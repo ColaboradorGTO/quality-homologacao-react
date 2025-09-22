@@ -10,7 +10,7 @@ import { get } from "../../../../api/funcRequest";
 import { ActionListaOrdemTransferencia } from "./actionListaOrdemTransferencia";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
-import { ActionIncluirOTModal } from "./actionIncluirModalOT/actionIncluirOTModal";
+import { ActionIncluirOTModal } from "./ActionIncluirModalOT/actionIncluirOTModal";
 import Swal from "sweetalert2";
 
 export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
