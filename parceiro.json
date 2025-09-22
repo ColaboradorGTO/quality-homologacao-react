@@ -1,0 +1,114 @@
+{
+  "Parceiro": [
+    {
+      "id": 1,
+      "label": "Selecione...",
+      "value": "0"
+    },
+    {
+      "id": 2,
+      "label": "Funcionário",
+      "value": "FUNCIONARIO"
+    },
+    {
+      "id": 3,
+      "label": "Parceiro de Negócios Apoio",
+      "value": "PN"
+    },
+    {
+      "id": 4,
+      "label": "Parceiro de Negócios PJ",
+      "value": "PN"
+    }
+  ],
+  "optionsTipoFrete": [
+    {
+      "value": "PAGO",
+      "label": "PAGO - CIF"
+    },
+    {
+      "value": "APAGAR",
+      "label": "A PAGAR - FOB"
+    }
+  ],
+  "optionsTipoPedido": [
+    {
+      "value": "VESTUARIO",
+      "label": "VESTUÁRIO"
+    },
+    {
+      "value": "CALCADOS",
+      "label": "CALÇADOS"
+    },
+    {
+      "value": "ARTIGOS",
+      "label": "ARTIGOS"
+    },
+    {
+      "value": "ACESSORIOS",
+      "label": "ACESSÓRIOS"
+    }
+  ],
+  "optionsEnviar": [
+    {
+      "value": "NE",
+      "label": "NÃO ENVIAR"
+    },
+    {
+      "value": "ET",
+      "label": "ETIQUETA"
+    },
+    {
+      "value": "AR",
+      "label": "ARQUIVO"
+    }
+  ],
+  "optionsFiscal": [
+    {
+      "value": "S",
+      "label": "Simples Nacional"
+    },
+    {
+      "value": "N",
+      "label": "Lucro Presumido"
+    },
+    {
+      "value": "R",
+      "label": "Lucro Real"
+    }
+  ],
+  "situacao": [
+    {
+      "label": "Ativo",
+      "value": "True"
+    },
+    {
+      "label": "Inativo",
+      "value": "False"
+    }
+  ],
+  "localizacao": [
+    {
+      "label": "Loja",
+      "value": "True"
+    },
+    {
+      "label": "Escritório",
+      "value": "False"
+    }
+  ],
+  "InscricaoEstadual": [
+    {
+      "label": "Contribuinte ICMS",
+      "value": "1"
+    },
+    {
+      "label": "Contribuinte Isento de IE",
+      "value": "2"
+    },
+    {
+      "label": "Não Contribuinte Com ou Sem IE",
+      "value": "9"
+    }
+  ]
+}

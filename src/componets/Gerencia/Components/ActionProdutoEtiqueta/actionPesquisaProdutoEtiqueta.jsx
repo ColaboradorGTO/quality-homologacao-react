@@ -1,0 +1,249 @@
+import { Fragment, useEffect, useState } from "react"
+import { InputField } from "../../../Buttons/Input"
+import { ActionMain } from "../../../Actions/actionMain"
+import { get } from "../../../../api/funcRequest"
+import { AiOutlineSearch } from "react-icons/ai"
+import { ActionListaProdutoEtiqueta } from "./actionListaProdutoEtiqueta"
+import { ButtonType } from "../../../Buttons/ButtonType"
+import { useNavigate } from "react-router-dom"
+import { MdOutlineLocalPrintshop } from "react-icons/md"
+import { GoDownload } from "react-icons/go"
+import { BsTrash3 } from "react-icons/bs"
+import { useQuery } from "react-query"
+import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
+import Swal from "sweetalert2"
+
+
+export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLogado }) => {
+  const [dadosListaPrecosSap, setDadosListaPrecosSap] = useState([])
+  const [descricaoProduto, setDescricaoProduto] = useState('')
+  const [codBarrasProduto, setCodBarrasProduto] = useState('')
+  const [idProduto, setIDProduto] = useState('')
+  const [empresaSelecionada, setEmpresaSelecionada] = useState('');
+  const [pageSize, setPageSize] = useState(1000);
+  const [page, setPage] = useState(1);
+  const [btnVisivel, setBtnVisivel] = useState(false);
+  const [modalImprimir, setModalImprimir] = useState(false);
+  const [produtosSelecionados, setProdutosSelecionados] = useState([]);
+  const [dadosAcumuladorEtiquetas, setDadosAcumuladorEtiquetas] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+  const [selectedIds, setSelectedIds] = useState([]);
+
+  const navigate = useNavigate();
+
+
+
+  // const { data: dadosListaPrecos = [] } = useFetchData('listas-de-precos-sap', '/listas-de-precos-sap');
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+  );
+  const { data: dadosListaPrecos = [], error: errorListaPrecos, isLoading: isLoadingListaPrecos, refetch } = useQuery(
+    'listas-de-precos-sap',
+    async () => {
+      const response = await get(`/listas-de-precos-sap`);
+
+      return response.data;
+    },
+    { enabled: true, staleTime: 60 * 60 * 1000, }
+  );
+
+  useEffect(() => {
+    if (dadosListaPrecos && usuarioLogado?.IDEMPRESA) {
+      const empresa = dadosListaPrecos.find(
+        item => item.listaPreco?.IDEMPRESA === usuarioLogado.IDEMPRESA
+      );
+      if (empresa) {
+        setEmpresaSelecionada(empresa.listaPreco?.IDRESUMOLISTAPRECO);
+      }
+    }
+  }, [dadosListaPrecos, usuarioLogado]);
+
+  const getListaProdutosSAP = async () => {
+    try {
+
+      const response = await get(`/lista-produtos-etiqueta-sap?idLista=${empresaSelecionada}&idProduto=${idProduto}&descricao=${descricaoProduto}&codBarras=${codBarrasProduto}`)
+      if (response.data) {
+        setDadosListaPrecosSap(response.data)
+      }
+      return response.data;
+    } catch (error) {
+      console.log('Erro ao buscar empresas: ', error)
+    }
+  }
+
+  // const fetchListaPrecosSap = async () => {
+  //   const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+  //   const urlBase = `/lista-produtos-etiqueta-sap?idLista=${idEmpresa}&idProduto=${idProduto}&descricao=${descricaoProduto}&codBarras=${codBarrasProduto}`;
+  //   let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+  //   urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+  //   try {
+  //       animacaoCarregamento('Carregando dados...', true);
+
+  //       const primeiraPagina = 1;
+  //       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+  //       const page = primeiraResposta.page || primeiraPagina;
+  //       const pageSize = primeiraResposta.pageSize || 1000;
+  //       const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+  //       const totalPages = Math.ceil(totalRows / pageSize);
+
+  //       let allData = [...(primeiraResposta.data || [])];
+
+  //       if (totalPages > 1) {
+  //       for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+  //           animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+  //           const responsePage = await get(`${urlApi}&page=${currentPage}`);
+  //           allData.push(...(responsePage.data || []));
+  //       }
+  //       }
+
+  //       return allData;
+  //   } catch (error) {
+  //       console.error('Erro ao buscar dados:', error);
+  //       throw error;
+  //   } finally {
+  //       fecharAnimacaoCarregamento();
+  //   }
+  // };
+
+  // const { data: dadosListaPrecosSap = [], error: errorMalotes, isLoading: isLoadingMalotes, refetch } = useQuery(
+  //     ['lista-produtos-etiqueta-sap', ],
+  //     () => fetchListaPrecosSap(),
+  //     { enabled: false, staleTime: 5 * 60 * 1000, }
+  // );
+
+  const handleClick = () => {
+    if (codBarrasProduto === '' && descricaoProduto === '' && idProduto === '') {
+      Swal.fire({
+        title: '<span style="font-size: 18px;">Digite o Identificador, Descrição ou Código de Barras do Produto!</span>',
+        html: '<span style="font-size: 16px;">Digite o Identificador, Descrição ou Código de Barras do Produto!</span>',
+        icon: 'warning',
+      })
+    } else {
+      // refetch();
+      getListaProdutosSAP();
+
+    }
+  }
+
+  const handleCancelar = (isChecked) => {
+    setSelectAll(isChecked);
+    const updatedSelectedIds = isChecked ? [] : [];
+    setSelectedIds(updatedSelectedIds);
+    setProdutosSelecionados([]);
+    Swal.fire({
+      icon: 'success',
+      title: 'Cancelado com sucesso',
+      showConfirmButton: false,
+      timer: 1500
+    })
+  }
+  const handleImprimir = () => {
+    setModalImprimir(true);
+  }
+
+  const handleAcumuladorEtiquetas = async () => {
+    if (parseFloat(produtosSelecionados.length) > 0) {
+      try {
+        setDadosAcumuladorEtiquetas(produtosSelecionados);
+        Swal.fire({
+          icon: "success",
+          title: "Dados Salvos",
+          text: "Os dados foram salvos com sucesso!",
+        })
+      } catch (error) {
+        Swal.fire({
+          icon: "error",
+          title: "Valor Inválido",
+          text: "O valor deve ser maior que 0 para imprimir etiquetas!",
+        });
+      }
+    }
+  };
+
+  return (
+
+    <Fragment>
+
+      <ActionMain
+        linkComponentAnterior={["Home"]}
+        linkComponent={[""]}
+        title="Etiquetagem"
+        subTitle={usuarioLogado?.NOFANTASIA}
+
+        InputFieldCodBarraComponent={InputField}
+        labelInputFieldCodBarra={"Lista de Preços"}
+        valueInputFieldCodBarra={usuarioLogado?.NOFANTASIA}
+        isDisabledCodBarra={true}
+
+        InputFieldComponent={InputField}
+        labelInputField={"Cód.Barras "}
+        valueInputField={codBarrasProduto}
+        onChangeInputField={(e) => setCodBarrasProduto(e.target.value)}
+        placeHolderInputFieldComponent={"Cód.Barras / Nome Produto"}
+
+        InputFieldNumeroNFComponent={InputField}
+        labelInputFieldNumeroNF={"Id. Produto"}
+        valueInputFieldNumeroNF={idProduto}
+        onChangeInputFieldNumeroNF={(e) => setIDProduto(e.target.value)}
+        placeHolderInputFieldNumeroNF={"Id. Produto"}
+
+        InputFieldDescricaoComponent={InputField}
+        labelInputFieldDescricao={"Descrição"}
+        valueInputFieldDescricao={descricaoProduto}
+        onChangeInputFieldDescricao={(e) => setDescricaoProduto(e.target.value)}
+        placeHolderInputFieldDescricao={"Descrição do Produto"}
+
+        ButtonSearchComponent={ButtonType}
+        linkNomeSearch={"Pesquisar"}
+        onButtonClickSearch={handleClick}
+        corSearch={"primary"}
+        IconSearch={AiOutlineSearch}
+
+        ButtonTypeCadastro={ButtonType}
+        linkNome={'Guardar'}
+        onButtonClickCadastro={handleAcumuladorEtiquetas}
+        corCadastro={"success"}
+        IconCadastro={GoDownload}
+        styleCadastro={{ display: btnVisivel ? 'block' : 'none' }}
+
+        ButtonTypeCancelar={ButtonType}
+        onButtonClickCancelar={handleImprimir}
+        linkCancelar={"Imprimir"}
+        corCancelar={"info"}
+        IconCancelar={MdOutlineLocalPrintshop}
+        styleCancelar={{ display: btnVisivel ? 'block' : 'none' }}
+
+        ButtonTypeVendasEstrutura={ButtonType}
+        onButtonClickVendasEstrutura={handleCancelar}
+        linkNomeVendasEstrutura={"Cancelar"}
+        corVendasEstrutura={"danger"}
+        iconVendasEstrutura={BsTrash3}
+        styleVendasEstrutura={{ display: btnVisivel ? 'block' : 'none' }}
+
+      />
+
+
+      <ActionListaProdutoEtiqueta
+        dadosListaPrecosSap={dadosListaPrecosSap}
+        btnVisivel={btnVisivel}
+        setBtnVisivel={setBtnVisivel}
+        setModalImprimir={setModalImprimir}
+        modalImprimir={modalImprimir}
+        produtosSelecionados={produtosSelecionados}
+        setProdutosSelecionados={setProdutosSelecionados}
+        dadosAcumuladorEtiquetas={dadosAcumuladorEtiquetas}
+        setDadosAcumuladorEtiquetas={setDadosAcumuladorEtiquetas}
+        selectAll={selectAll}
+        setSelectAll={setSelectAll}
+        selectedIds={selectedIds}
+        setSelectedIds={setSelectedIds}
+      />
+    </Fragment>
+  )
+}
