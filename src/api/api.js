@@ -1,8 +1,7 @@
 import axios from 'axios';
 
-const BASE_URL = "https://vercel.com/team-gto/api-node-homologacao";
+const BASE_URL = "https://api-node-homologacao.vercel.app/";
 // const BASE_URL = "http://localhost:6004";
-
 
 const axiosInstance = axios.create({
   timeout: 80000,
