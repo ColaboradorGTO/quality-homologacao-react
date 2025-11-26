@@ -98,7 +98,7 @@ export const ActionListaCampanha = ({ dadosListaCampanha }) => {
       sortable: true,
     },
     {
-      header: 'NOFANTASIA',
+      field: 'NOFANTASIA',
       header: 'Loja',
       body: row => <th style={{ color: 'blue' }}> {row.NOFANTASIA}</th>,
       sortable: true,

@@ -1,13 +1,13 @@
-import React, { Fragment} from "react"
+import React, { Fragment } from "react"
 import Modal from 'react-bootstrap/Modal';
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { FormularioCadastrar } from "./formularioCadastrar";
 
 
-export const ActionCreateCaixaModal = ({show, handleClose, dadosListaCaixa}) => {
- 
+export const ActionCreateCaixaModal = ({ show, handleClose, dadosListaCaixa, refetchListaCaixa, usuarioLogado }) => {
+
   return (
-    
+
     <Fragment>
 
       <Modal
@@ -28,8 +28,13 @@ export const ActionCreateCaixaModal = ({show, handleClose, dadosListaCaixa}) => 
         />
 
         <Modal.Body>
-      
-          <FormularioCadastrar  handleClose={handleClose} dadosListaCaixa={dadosListaCaixa}/>
+
+          <FormularioCadastrar
+            handleClose={handleClose}
+            dadosListaCaixa={dadosListaCaixa}
+            refetchListaCaixa={refetchListaCaixa}
+            usuarioLogado={usuarioLogado}
+          />
         </Modal.Body>
 
       </Modal>

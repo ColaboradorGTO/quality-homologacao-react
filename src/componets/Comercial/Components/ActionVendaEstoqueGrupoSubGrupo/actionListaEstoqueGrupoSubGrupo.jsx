@@ -137,12 +137,12 @@ export const ActionListaEstoqueVendaGrupoSubGrupo = ({ dadosGrupoSubGrupo }) => 
       GRUPO: item.vendaMarca.GRUPO,
       SUBGRUPO: item.vendaMarca.SUBGRUPO,
       qtdPosicionamento: qtdPosicionamento,
-      QTDVENDA: item.vendaMarca.QTDVENDA,
+      
       estoquePrecoVenda: estoquePrecoVenda,
       estoquePrecoCusto: estoquePrecoCusto,
       indicadorMarckup: indicadorMarckup,
       percentualEstoquePrecoVenda: percentualEstoquePrecoVenda,
-      VRTOTALLIQUIDO: item.vendaMarca.VRTOTALLIQUIDO,
+      
       percentualPrecoVenda: percentualPrecoVenda,
       cobertura: cobertura,
 
@@ -157,10 +157,10 @@ export const ActionListaEstoqueVendaGrupoSubGrupo = ({ dadosGrupoSubGrupo }) => 
       QTDESTOQUE: item.posicaoEstoqueAnterior.QTDESTOQUE,
       QTDVOUCHERS: item.posicaoEstoqueAnterior.QTDVOUCHERS,
 
-      QTDVENDAS: item.posicaoVendasAnterior.QTDVENDAS,
+      QTDVENDASPOSICAO: item.posicaoVendasAnterior.QTDVENDAS,
       QTDVOUCHERS: item.posicaoVouchersAnterior.QTDVOUCHERS,
 
-      QTDVOUCHERS: item.posicaoVouchersAtual.QTDVOUCHERS,
+      QTDVOUCHERSATUAL: item.posicaoVouchersAtual.QTDVOUCHERS,
 
       QTDESTOQUEDATA: item.posicaoEstoqueAtual.QTDESTOQUE,
       QTDVOUCHERSDATA: item.posicaoEstoqueAtual.QTDVOUCHERS,

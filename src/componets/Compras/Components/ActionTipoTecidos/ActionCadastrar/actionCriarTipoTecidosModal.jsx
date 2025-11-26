@@ -3,7 +3,7 @@ import { Modal } from "react-bootstrap"
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { FormularioCriarTecido } from "./formularioCriarTecido";
 
-export const ActionCriarTipoTecidosModal = ({ show, handleClose }) => {
+export const ActionCriarTipoTecidosModal = ({ show, handleClose, usuarioLogado, optionsModulos }) => {
 
   return (
 
@@ -24,7 +24,11 @@ export const ActionCriarTipoTecidosModal = ({ show, handleClose }) => {
         />
 
         <Modal.Body>
-          <FormularioCriarTecido handleClose={handleClose}/>
+          <FormularioCriarTecido 
+            handleClose={handleClose}
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+          />
         </Modal.Body>
 
       </Modal>

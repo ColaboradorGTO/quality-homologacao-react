@@ -4,10 +4,10 @@ import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal"
 import { FormularioEditar } from "./formularioEditar"
 
 
-export const ActionEditarEmpresa = ({ show, handleClose, dadosEditarEmpresa }) => {
- return (
+export const ActionEditarEmpresa = ({ show, handleClose, dadosEditarEmpresa, refetch, usuarioLogado }) => {
+  return (
     <Fragment>
-        <Modal
+      <Modal
         show={show}
         onHide={handleClose}
         size="lg"
@@ -15,7 +15,7 @@ export const ActionEditarEmpresa = ({ show, handleClose, dadosEditarEmpresa }) =
         tabIndx={-1}
         role="dialog"
         aria-hidden="true"
-        >
+      >
 
         <HeaderModal
           title={"Dados da Empresa"}
@@ -24,9 +24,14 @@ export const ActionEditarEmpresa = ({ show, handleClose, dadosEditarEmpresa }) =
         />
 
         <Modal.Body>
-            <FormularioEditar handleClose={handleClose} dadosEditarEmpresa={dadosEditarEmpresa} />
+          <FormularioEditar
+            handleClose={handleClose}
+            dadosEditarEmpresa={dadosEditarEmpresa}
+            refetch={refetch}
+            usuarioLogado={usuarioLogado}
+          />
         </Modal.Body>
-        </Modal>
+      </Modal>
     </Fragment>
- )
+  )
 }

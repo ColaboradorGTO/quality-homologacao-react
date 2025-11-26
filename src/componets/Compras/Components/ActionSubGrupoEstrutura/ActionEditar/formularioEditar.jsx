@@ -1,13 +1,19 @@
 import { Fragment } from "react"
 
-import { useEditarEstruturaMercadologica } from "../../../hooks/useEditarEstruturaMercadologica"
+import { useEditarEstruturaMercadologica } from "../hooks/useEditarEstruturaMercadologica"
 import Select from 'react-select';
 import { useForm } from "react-hook-form";
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 
-export const FormularioEditar = ({  handleClose, dadosDetalheSubGrupo }) => {
+export const FormularioEditar = ({  
+    handleClose, 
+    dadosDetalheSubGrupo,  
+    usuarioLogado,
+    optionsModulos,
+    handleClick  
+}) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         optionsStatus,
@@ -20,7 +26,7 @@ export const FormularioEditar = ({  handleClose, dadosDetalheSubGrupo }) => {
         dadosGrupoEstrutura,
         atualzarSubGrupoEstrutura,
     
-    } = useEditarEstruturaMercadologica({dadosDetalheSubGrupo});
+    } = useEditarEstruturaMercadologica({ handleClose, dadosDetalheSubGrupo,  usuarioLogado, optionsModulos, handleClick });
 
     return (
         <Fragment>
@@ -52,7 +58,7 @@ export const FormularioEditar = ({  handleClose, dadosDetalheSubGrupo }) => {
                                             label: `${item.CODGRUPOESTRUTURA} - ${item.DSGRUPOESTRUTURA}`
                                         }
                                     })]}
-                                onChange={(e) => setSubGrupoSelecionado(e.value)}
+                                onChange={(e) => setSubGrupoSelecionado(e)}
                             />
                         </div>
                         <div className="col-sm-6 col-xl-3">
@@ -67,7 +73,7 @@ export const FormularioEditar = ({  handleClose, dadosDetalheSubGrupo }) => {
                                         label: item.label
                                     }
                                 })}
-                                onChange={(e) => setStatusSelecionado(e.value)}
+                                onChange={(e) => setStatusSelecionado(e)}
                             />
                         </div>
                     </div>
@@ -82,7 +88,9 @@ export const FormularioEditar = ({  handleClose, dadosDetalheSubGrupo }) => {
                     corFechar={"secondary"}
 
                     ButtonTypeCadastrar={ButtonTypeModal}
+                    // onClickButtonCadastrar={() => console.log('clicou')}
                     onClickButtonCadastrar={atualzarSubGrupoEstrutura}
+                    tipoBtnCadastrar={"submit"}
                     textButtonCadastrar={"Salvar"}
                     corCadastrar={"success"}
                 />

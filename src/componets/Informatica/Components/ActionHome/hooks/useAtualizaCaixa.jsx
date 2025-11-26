@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import axios from 'axios'
 import { getDataAtual } from "../../../../../utils/dataAtual";
 
-export const useAtualizaCaixa = ({ dadosListaCaixa }) => {
+export const useAtualizaCaixa = ({ dadosListaCaixa, handleClose, refetchListaCaixa, usuarioLogado }) => {
   const [empresa, setEmpresa] = useState('');
   const [dsCaixa, setDSCaixa] = useState('');
   const [tipoEmissao, setTipoEmissao] = useState('');
@@ -17,35 +17,21 @@ export const useAtualizaCaixa = ({ dadosListaCaixa }) => {
   const [statusSelecionado, setStatusSelecionado] = useState('');
   const [statusLimpar, setStatusLimpar] = useState('');
   const [dataAlteracao, setDataAlteracao] = useState('');
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [ipUsuario, setIpUsuario] = useState('');
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
 
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
+ const getIPUsuario = async () => {
+    try {
+      const response = await axios.get('https://api.ipify.org?format=json9');
+      if (response.data && response.data.ip) {
+        return response.data.ip;
       }
-    } else {
-      navigate('/');
+      throw new Error("Resposta inválida do ipfy.org");
+    } catch (error) {
+      const responseIP2 = await axios.get('https://api.ipwho.org/me');
+      return responseIP2.data?.data?.ip;
+      
     }
-  }, [navigate]);
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
-  const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
   };
 
 
@@ -68,23 +54,24 @@ export const useAtualizaCaixa = ({ dadosListaCaixa }) => {
 
   const onSubmit = async (data) => {
     const putData = {
-      IDCAIXAWEB: dadosListaCaixa[0]?.IDCAIXAWEB,
-      DSCAIXAWEB: dsCaixa,
-      TBEMISSAOFISCAL: tipoEmissao,
-      NOIMPRESSORA: modeloImpressora,
-      DSPORTACOMUNICACAO: portaComunicacao,
-      NUSERIEPROD: numeroSerieProducao,
-      NUNFCEPROD: numeroUltimaNFCeProducao,
-      DTULTALTERACAO: dataAlteracao,
-      STTEF: tef,
-      STATUALIZA: statusSelecionado,
-      STLIMPA: statusLimpar
+      IDCAIXAWEB: Number(dadosListaCaixa[0]?.IDCAIXAWEB),
+      DSCAIXAWEB: String(dsCaixa),
+      TBEMISSAOFISCAL: String(tipoEmissao),
+      NOIMPRESSORA: String(modeloImpressora),
+      DSPORTACOMUNICACAO: String(portaComunicacao),
+      NUSERIEPROD: Number(numeroSerieProducao),
+      NUNFCEPROD: Number(numeroUltimaNFCeProducao),
+      DTULTALTERACAO: String(dataAlteracao),
+      STTEF: String(tef),
+      STATUALIZA: String(statusSelecionado),
+      STLIMPA: String(statusLimpar)
     };
 
     try {
+
       const response = await put('/lista-caixas/:id', putData);
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'success',
         title: 'Caixa atualizado com sucesso!',
         customClass: {
@@ -96,9 +83,10 @@ export const useAtualizaCaixa = ({ dadosListaCaixa }) => {
 
       const textDados = JSON.stringify(putData);
       let textoFuncao = 'INFORMATICA/EDIÇÃO DE CAIXA';
+      const ipUsuario = await getIPUsuario();
 
       const postData = {
-        IDFUNCIONARIO: usuarioLogado.id,
+        IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario,
@@ -106,13 +94,20 @@ export const useAtualizaCaixa = ({ dadosListaCaixa }) => {
 
       const responsePost = await post('/log-web', postData);
 
+      if (refetchListaCaixa && dadosListaCaixa[0]?.IDEMPRESA) {
+        await refetchListaCaixa(dadosListaCaixa[0].IDEMPRESA);
+      }
+      handleClose();
       return responsePost.data;
-    } catch (error) {
 
+
+    } catch (error) {
+      const textDados = JSON.stringify(putData);
       let textoFuncao = 'INFORMATICA/ERRO AO EDITAR DE CAIXA';
+      const ipUsuario = await getIPUsuario();
 
       const postData = {
-        IDFUNCIONARIO: usuarioLogado.id,
+        IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: '',
         IP: ipUsuario,
@@ -121,7 +116,7 @@ export const useAtualizaCaixa = ({ dadosListaCaixa }) => {
       const responsePost = await post('/log-web', postData);
 
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'error',
         title: 'Erro ao atualizar Caixa!',
         customClass: {

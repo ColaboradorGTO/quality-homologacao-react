@@ -395,7 +395,6 @@ export const ActionListaVoucherEmitido = ({ dadosVoucher, usuarioLogado, options
 
 
 
-
   return (
     <Fragment>
       <div className="panel">

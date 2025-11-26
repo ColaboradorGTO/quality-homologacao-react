@@ -13,15 +13,22 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { ActionEditarVinculoFabricanteModal } from '../ActionVincularFabricanteFornecedor/ActionEditar/actionEditarVinculoFabricanteModal';
+import { ActionEditarVinculoFornecedorFabricanteModal } from './ActionEditarVinculoFornecedor/actionEditarVincularFabricanterModal';
 import { useExcluirVinculoFabricanteFornecedor } from '../ActionVincularFabricanteFornecedor/hooks/useExluirViculoFabricanteFornecedor';
+import { mascaraCNPJ } from '../../../../utils/mascaraCNPJ';
+import Swal from 'sweetalert2';
 
 const formatarCNPJ = (cnpj) => {
   const x = cnpj.replace(/\D/g, '').match(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/);
   return !x[2] ? x[1] : x[1] + '.' + x[2] + '.' + x[3] + '/' + x[4] + (x[5] ? '-' + x[5] : '');
 };
 
-export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
+export const ActionListaFornecedores = ({ 
+  dadosFornecedoresFabricantes,
+  usuarioLogado,
+  optionsModulos,
+  handleClick
+}) => {
   const [dadosDetalheFornecedorFabricante, setDadosDetalheFornecedorFabricante] = useState([]);
   const [dadosDetalheFornecedor, setDadosDetalheFornecedor] = useState([]);
   const [dadosFornecedorSap, setDadosFornecedorSap] = useState([]);
@@ -29,7 +36,7 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
   const [modalEditarVinculo, setModalEditarVinculo] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
-  const { handleExcluir } = useExcluirVinculoFabricanteFornecedor();
+  const { handleExcluir } = useExcluirVinculoFabricanteFornecedor({usuarioLogado, optionsModulos, handleClick});
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -111,25 +118,25 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
     {
       field: 'contador',
       header: 'Nº',
-      body: row => <th>{row.contador}</th>,
+      body: row => <p style={{margin: '0px', padding: '0px', width: '100%', fontWeight: 600}}>{row.contador}</p>,
       sortable: true
     },
     {
       field: 'NUCNPJFORN',
       header: 'CNPJ',
-      body: row => <th>{row.NUCNPJFORN}</th>,
+      body: row => <p style={{margin: '0px', padding: '0px', width: '150px', fontWeight: 600}}>{mascaraCNPJ(row.NUCNPJFORN)}</p>,
       sortable: true
     },
     {
       field: 'NORAZAOFORN',
       header: 'Razão Social',
-      body: row => <th>{row.NORAZAOFORN}</th>,
+      body: row => <p style={{margin: '0px', padding: '0px', width: '200px', fontWeight: 600}}>{row.NORAZAOFORN}</p>,
       sortable: true
     },
     {
       field: 'NOFANTFORN',
       header: 'Nome Fantasia',
-      body: row => <th>{row.NOFANTFORN}</th>,
+      body: row => <p style={{margin: '0px', padding: '0px', width: '200px', fontWeight: 600}}>{row.NOFANTFORN}</p>,
       sortable: true
     },
     {
@@ -204,9 +211,11 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
                   Icon={CiEdit}
                   cor={"info"}
                   iconColor={"white"}
-                  iconSize={20}
                   onClickButton={() => clickEditarFonecedor(row)}
                   titleButton={"Editar Fornecedor"}
+                  iconSize={25}
+                  width="30px"
+                  height="30px"
                 />
               </div>
               <div className="p-1">
@@ -214,9 +223,11 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
                   Icon={CiEdit}
                   cor={"warning"}
                   iconColor={"white"}
-                  iconSize={20}
                   onClickButton={() => clickVinculoFonecedorFabricante(row)}
                   titleButton={"Editar Vínculo Fornecedor/Fabricante"}
+                  iconSize={25}
+                  width="30px"
+                  height="30px"
                 />
               </div>
               <div className="p-1">
@@ -224,9 +235,11 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
                   Icon={AiOutlineDelete}
                   cor={"danger"}
                   iconColor={"white"}
-                  iconSize={20}
                   onClickButton={() => handleExcluir(row.IDFABRICANTEFORN)}
                   titleButton={"Excluir Vínculo Fabricante/Fornecedor"}
+                  iconSize={25}
+                  width="30px"
+                  height="30px"
                 />
               </div>
               <div className="p-1">
@@ -234,9 +247,11 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
                   Icon={GrView}
                   cor={"success"}
                   iconColor={"white"}
-                  iconSize={20}
                   onClickButton={() => hanldeClickVisualizarFornecedorSap(row)}
                   titleButton={"Consultar Fornecedor SAP"}
+                  iconSize={25}
+                  width="30px"
+                  height="30px"
                 />
               </div>
             </div>
@@ -250,9 +265,11 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
                   Icon={CiEdit}
                   cor={"info"}
                   iconColor={"white"}
-                  iconSize={20}
                   onClickButton={() => clickEditarFonecedor(row)}
                   titleButton={"Editar Fornecedor"}
+                  iconSize={25}
+                  width="30px"
+                  height="30px"
                 />
               </div>
 
@@ -261,9 +278,11 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
                   Icon={GrView}
                   cor={"success"}
                   iconColor={"white"}
-                  iconSize={20}
                   onClickButton={() => hanldeClickVisualizarFornecedorSap(row)}
                   titleButton={"Consultar Fornecedor SAP"}
+                  iconSize={25}
+                  width="30px"
+                  height="30px"
                 />
               </div>
             </div>
@@ -294,14 +313,26 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
       editarFornecedor(row.IDFORNECEDOR);
     }
   };
+
   const handleVisualizarFornecedorSap = async (IDFORNECEDOR, NORAZAOFORN, NUCNPJFORN) => {
     try {
       const cnpjFormatado = formatarCNPJ(NUCNPJFORN);
-      const response = await get(`/consulta-fornecedor-sap?byId=${IDFORNECEDOR}&descFornecedor=${NORAZAOFORN}&cnpjFornecedor=${cnpjFormatado}&cnpjFornecedorSemFormatar=${NUCNPJFORN}`);
+      const response = await get(`/consulta-fornecedor-sap?nomeFornecedor=${NORAZAOFORN}&cnpjFinal=${cnpjFormatado}&cnpjFornecedorSemFormatar=${NUCNPJFORN}`);
 
       if (response.data) {
         setDadosFornecedorSap(response.data)
-   
+        Swal.fire({
+          icon: 'success',
+          title: `ID Fornecedor no SAP - ${response.data[0]?.CardCode || ''}`,
+          showConfirmButton: true,
+        })
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: `Fornecedor não Cadastrado no SAP`,
+          showConfirmButton: true,
+        })
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes da despesa: ', error);
@@ -317,7 +348,7 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
 
   const editarVinculoFornecedorFabricante = async (IDFABRICANTEFORN) => {
     try {
-      const response = await get(`/vincularFabricanteFornecedor?idFornecedorFabricante=${IDFABRICANTEFORN}`);
+      const response = await get(`/vincularFabricanteFornecedor?idFabricanteFornecedor=${IDFABRICANTEFORN}`);
 
       if (response.data && response.data.length > 0) {
         setDadosDetalheFornecedorFabricante(response.data)
@@ -340,7 +371,7 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
 
   return (
     <Fragment>
-      <div className="panel" style={{ marginTop: "5rem" }}>
+      <div className="panel">
         <div className="panel-hdr">
           <h2>Relatório Fornecedores </h2>
         </div>
@@ -355,16 +386,20 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
           />
 
         </div>
-        <div className="card mb-4" ref={dataTableRef}>
+        <div className="card " ref={dataTableRef}>
 
           <DataTable
             title="Vendas por Loja"
+            size="small"
             value={dados}
             globalFilter={globalFilterValue}
             sortOrder={-1}
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -388,16 +423,22 @@ export const ActionListaFornecedores = ({ dadosFornecedoresFabricantes }) => {
         </div>
       </div>
 
-      <ActionEditarVinculoFabricanteModal
+      <ActionEditarVinculoFornecedorFabricanteModal
         show={modalEditarVinculo}
         handleClose={() => setModalEditarVinculo(false)}
         dadosDetalheFornecedorFabricante={dadosDetalheFornecedorFabricante}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
 
       <ActionEditarFornecedorModal
         show={modalEditarFornecedor}
         handleClose={() => setModalEditarFornecedor(false)}
         dadosDetalheFornecedor={dadosDetalheFornecedor}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

@@ -2,11 +2,11 @@ import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
-import { useEstilos } from "../../../hooks/useEstilos"
 import Select from 'react-select';
 import { useForm } from "react-hook-form"
+import { useEditarEstilos } from "../Hooks/useEditarEstilos"
 
-export const FormularioEditarEstilos = ({ dadosDetalheEstilos, handleClose }) => {
+export const FormularioEditarEstilos = ({ dadosDetalheEstilos, handleClose, handleClick, usuarioLogado, optionsModulos }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         descricao,
@@ -17,12 +17,12 @@ export const FormularioEditarEstilos = ({ dadosDetalheEstilos, handleClose }) =>
         setSubGrupoSelecionado,
         dadosGrupoEstrutura,
         optionsStatus,
-        atualzarEstilo,
+        atualizarEstilo,
 
-    } = useEstilos(dadosDetalheEstilos)
+    } = useEditarEstilos({dadosDetalheEstilos, handleClose, handleClick, usuarioLogado, optionsModulos});
     return (
         <Fragment>
-            <form action="">
+            <form action="" onSubmit={handleSubmit(atualizarEstilo)}>
                 <div className="form-group">
                     <div className="row">
                         <div className="col-sm-6 col-xl-6">
@@ -42,7 +42,7 @@ export const FormularioEditarEstilos = ({ dadosDetalheEstilos, handleClose }) =>
 
                             <label htmlFor="">Grupo Estrutura *</label>
                             <Select
-                                defaultValue={subGrupoSelecionado}
+                                value={subGrupoSelecionado}
                                 options={[
                                     { value: '', label: 'Selecione...' },
                                     ...dadosGrupoEstrutura.map((item) => {
@@ -59,7 +59,7 @@ export const FormularioEditarEstilos = ({ dadosDetalheEstilos, handleClose }) =>
                             <label htmlFor="">Situação *</label>
                             <Select
 
-                                defaultValue={statusSelecionado}
+                                value={statusSelecionado}
                                 options={optionsStatus.map((item) => {
                                     return {
                                         value: item.value,
@@ -79,7 +79,7 @@ export const FormularioEditarEstilos = ({ dadosDetalheEstilos, handleClose }) =>
                     corFechar={"secondary"}
 
                     ButtonTypeCadastrar={ButtonTypeModal}
-                    onClickButtonCadastrar={''}
+                    onClickButtonCadastrar={atualizarEstilo}
                     textButtonCadastrar={"Salvar"}
                     corCadastrar={"success"}
                 />

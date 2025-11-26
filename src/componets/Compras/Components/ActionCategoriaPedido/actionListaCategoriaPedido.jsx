@@ -10,9 +10,10 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import Swal from "sweetalert2";
 
 
-export const ActionListaCategoriaPedidos = ({ dadosCategoria }) => {
+export const ActionListaCategoriaPedidos = ({ dadosCategoria, usuarioLogado, optionsModulos }) => {
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosDetalheCategoriaPedido, setDadosDetalheCategoriaPedido] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -109,9 +110,11 @@ export const ActionListaCategoriaPedidos = ({ dadosCategoria }) => {
             <ButtonTable
               titleButton={"Editar Categoria Pedido"}
               onClickButton={() => clickEditar(row)}
-              cor={"success"}
+              cor={"primary"}
               Icon={CiEdit}
-
+              iconSize={25}
+              width="30px"
+              height="30px"
             />
           </div>
         )
@@ -121,9 +124,23 @@ export const ActionListaCategoriaPedidos = ({ dadosCategoria }) => {
   ]
 
   const clickEditar = (row) => {
-    if (row && row.IDCATEGORIAPEDIDO) {
-      handleEditar(row.IDCATEGORIAPEDIDO);
+    if(optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        title: 'Erro!',
+        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para alterar a Categoria de Pedido!`,
+        icon: 'error',
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else {
+      if (row && row.IDCATEGORIAPEDIDO) {
+        handleEditar(row.IDCATEGORIAPEDIDO);
+      }
+
     }
+
   };
 
   const handleEditar = async (IDCATEGORIAPEDIDO) => {
@@ -166,6 +183,9 @@ export const ActionListaCategoriaPedidos = ({ dadosCategoria }) => {
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, 500, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -179,9 +199,9 @@ export const ActionListaCategoriaPedidos = ({ dadosCategoria }) => {
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '1rem' }}
 
               />
             ))}
@@ -193,6 +213,8 @@ export const ActionListaCategoriaPedidos = ({ dadosCategoria }) => {
         show={modalEditar}
         handleClose={() => setModalEditar(false)}
         dadosDetalheCategoriaPedido={dadosDetalheCategoriaPedido}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
       />
     </Fragment>
   )

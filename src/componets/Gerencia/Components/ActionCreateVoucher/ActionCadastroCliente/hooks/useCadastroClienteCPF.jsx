@@ -5,77 +5,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import axios from "axios";
 import { getDataAtual } from "../../../../../../utils/dataAtual";
-import { useNavigate } from "react-router-dom";
 
-async function getDadosEnderecoViaCep_API_externa(cep) {
-    const URL_VIA_CEP = 'https://viacep.com.br/ws/{CEP}/json/';
-    cep = cep.replace(/\D/g, "");
-
-    try {
-        const response = await axios.get(URL_VIA_CEP.replace('{CEP}', cep));
-        const data = response.data;
-        let { erro } = data || {};
-
-        // Se não houver erro, status é 200
-        let status = erro ? 429 : 200;
-
-        if (status !== 200) {
-            return { status: 429, message: 'CEP INVÁLIDO OU NÃO ENCONTRADO, verifique e tente novamente!' };
-        }
-
-        return { status, data };
-    } catch (respError) {
-        let status = respError?.response?.status || 500;
-        let message = respError?.response?.statusText || respError?.message || 'Erro ao consultar o CEP';
-        return { status, message };
-    }
-}
-
-async function validaCEP(cep, verificarNaApi = false) {
-    const regex = /^[0-9]{5}-?[0-9]{3}$/;
-    
-    if (!regex.test(cep)){
-        return false;
-    }
-
-    if(verificarNaApi){
-        let respCep = await getDadosEnderecoViaCep_API_externa(cep);
-
-        return !(respCep?.erro == 'true'); 
-    }
-
-    return true;
-}
-
-async function getDadosEnderecoViaCep_API_redundancia(cep) {
-    const URL_VIA_CEP = 'https://opencep.com/v1/{CEP}.json';
-    cep = cep.replace(/\D/g, "");
-
-    try {
-        const response = await axios.get(URL_VIA_CEP.replace('{CEP}', cep));
-        const data = response.data;
-        let { erro } = data || {};
-
-        // Se não houver erro, status é 200
-        let status = erro ? 429 : 200;
-
-        if (status !== 200) {
-            return { status: 429, message: 'CEP INVÁLIDO OU NÃO ENCONTRADO, verifique e tente novamente!' };
-        }
-
-        return { status, data };
-    } catch (respError) {
-        let status = respError?.response?.status || 500;
-        let message = respError?.response?.statusText || respError?.message || 'Erro ao consultar o CEP';
-        return { status, message };
-    }
-}
-
-/* 
-  Amanhã fazer a validação do cliente fisico e juridico para,
-  finalizar o cadastro do cliente. 
-  e dos vouchers na gerência.
-*/
 
 export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose, onCpf }) => {
     const [idCliente, setIdCliente] = useState('');
@@ -101,11 +31,6 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
     const [empresa, setEmpresa] = useState('');
     const [ipUsuario, setIpUsuario] = useState('');
 
-    const URL_PUBLICAWS = 'https://publica.cnpj.ws/cnpj/{CNPJ}';
-    const URL_MINHA_RECEITA = 'https://minhareceita.org/{CNPJ}';
-    const URL_RECEITAWS = 'https://www.receitaws.com.br/v1/cnpj/{CNPJ}';
-    const URL_VIA_CEP = 'https://viacep.com.br/ws/{CEP}/json/';
-    const URL_VIA_CEP_REDUNDANCIA = 'https://opencep.com/v1/{CEP}.json';
 
     useEffect(() => {
         const dataAtual = getDataAtual()
@@ -113,17 +38,23 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
 
     }, [usuarioLogado]);
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
+
+            if (!usuarioIP) {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            }
+
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
         }
-        return response.data;
-    }
+    };
 
     useEffect(() => {
         if (cep.length === 8) {
@@ -151,13 +82,13 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         ['cliente-todos', cpf],
         async () => {
             const response = await get(`/cliente-todos?numeroCpfCnpj=${removerMascaraCPF(cpf)}`);
-            console.log(response.data, 'response.data')
+            console.log("response cliente-todos", response)
             return response.data;
         },
         { enabled: cpf?.length >= 8, staleTime: 5 * 60 * 1000 }
     );
 
-    // este useEfect faz a mesma coisa que a function preenche_dados_registrados do quality em JS
+    
     useEffect(() => {
         if (optionsCPF.length > 0) {
             const cliente = optionsCPF[0];
@@ -211,56 +142,6 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         }
     }, [optionsCPF]);
 
-    async function valida_e_preenche_cep_empresa_com_API_externa(cepSemFormato, stUltimaInstancia = false) {
-        let cep = cepSemFormato?.replace(/\D/g, "");
-
-        try {
-            if (cep) {
-                // Exemplo: exibir loading (pode ser um setState ou SweetAlert2)
-                Swal.fire({
-                    title: 'Carregando dados do CEP, Aguarde...',
-                    allowOutsideClick: false,
-                    didOpen: () => Swal.showLoading()
-                });
-
-                // Função de validação de CEP (implemente se necessário)
-                const isValid = cep.length === 8; // ou use uma função validaCEP(cep)
-                if (isValid) {
-                    let resp = await getDadosEnderecoViaCep_API_externa(cep);
-                    let dadosCep = resp.status !== 200
-                        ? (await getDadosEnderecoViaCep_API_redundancia(cep)).data
-                        : resp.data;
-
-                    setEndereco(dadosCep?.logradouro || "");
-                    setBairro(dadosCep?.bairro || "");
-                    setCidade(dadosCep?.localidade || "");
-                    setEstado(dadosCep?.uf || "");
-                    setNuIBGE(dadosCep?.ibge || "");
-
-                    Swal.close();
-                } else {
-                    setBairro('');
-                    setNuIBGE('');
-                    setCidade('');
-                    setEstado('');
-                    // Notificação de erro
-                    Swal.close();
-                    if (!stUltimaInstancia) {
-                        Swal.fire('CEP Inválido', 'CEP Inválido, verifique e tente novamente!', 'error');
-                    }
-                }
-            }
-        } catch (e) {
-            setBairro('');
-            setNuIBGE('');
-            setCidade('');
-            setEstado('');
-            Swal.close();
-            if (!stUltimaInstancia) {
-                Swal.fire('Erro', e?.message || 'Erro ao tentar preencher os dados do cliente, recarregue e tente novamente!', 'error');
-            }
-        }
-    }
 
     const optionsIndicacaoIE = [
         { value: 9, label: 'Não Contribuinte Com ou Sem IE' },
@@ -336,7 +217,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 NUTELCOMERCIAL: numeroComercial,
                 NUTELCELULAR: telefoneCliente.replace(/\D/g, ""),
                 DTNASCFUNDACAO: dataNascimento,
-                IDINDICACAOIE: Number(tipoIndicacaoIE.value) || 0,
+                IDINDICACAOIE: Number(tipoIndicacaoIE.value) || 9,
                 DSINDICACAOIE: tipoIndicacaoIE?.label,
                 IDFUNCIONARIO: Number(usuarioLogado.id),
             }
@@ -345,7 +226,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             const textDados = JSON.stringify(putData)
             let textoFuncao = isUpdate ? 'VOUCHER /ATUALIZAÇÃO DE CLIENTE' : 'VOUCHER /CRIAÇÃO DE CLIENTE'
 
-
+            await getIPUsuario();
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
@@ -419,8 +300,6 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         setDataNascimento,
         telefoneCliente,
         setTelefoneCliente,
-        numeroComercial,
-        setNumeroComercial,
         email,
         setEmail,
         tipoIndicacaoIE,

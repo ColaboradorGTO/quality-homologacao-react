@@ -93,21 +93,20 @@ export const ActionListaProdutoEtiqueta = ({ dadosListaPrecosSap }) => {
       TAMANHO: item.TAMANHO,
       PRECOVENDA: item.PRECOVENDA,
       DSLISTAPRECO: item.DSLISTAPRECO,
-      DSESTILO: item.DSESTILO,
-      MARCA: item.MARCA,
+    
+  
       // TAMANHO: item.TAMANHO,  (dsProd.split(' ')).pop()).toUpperCase().replace(/[^\w\s]/gi, '')
 
 
 
-      SUBGRUPO: item.SUBGRUPO,
+      
       IDGRUPOEMPRESARIAL: item.IDGRUPOEMPRESARIAL,
       IDEMPRESA: item.IDEMPRESA,
       NOFANTASIA: item.NOFANTASIA,
-      DSLOCALEXPOSICAO: item.DSLOCALEXPOSICAO,
+     
 
       // ----------------------
-      contador,
-      IDPRODUTO: item.IDPRODUTO,
+      
       CODBARRAS: item.CODBARRAS,
       DSPRODUTO: item.DSPRODUTO,
       DSTAMANHO: item.DSTAMANHO,

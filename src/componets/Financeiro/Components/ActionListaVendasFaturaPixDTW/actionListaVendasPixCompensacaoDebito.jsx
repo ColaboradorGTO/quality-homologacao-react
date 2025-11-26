@@ -142,7 +142,6 @@ export const ActionListaVendasPIXCompensacaoDebito = ({ dadosVendasPixCompensaca
       contaCreditoSap: contaCreditoSap,
       contaDebitoSap: contaDebitoSap,
       PIX: item.PIX,
-      DATA_COMPENSACAO: item.DATA_COMPENSACAO,
       NOFANTASIA: item.NOFANTASIA,
       DATA_COMPENSACAO: item.DATA_COMPENSACAO,
       DSTIPOPAGAMENTO: `Vendas ${item.DSTIPOPAGAMENTO} ${formatMesAnoDTW(item.DATA_COMPENSACAO)} `,

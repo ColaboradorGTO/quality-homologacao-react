@@ -33,6 +33,8 @@ export const ActionImprimirAdiantamentoSalarial = ({ show, handleClose, dadosAdi
             title={"Impressão de Recibos"}
             subTitle={"Imprimir Adiantamento Salárial"}
             handleClose={handleClose}
+            
+
           />
 
           <Modal.Body>

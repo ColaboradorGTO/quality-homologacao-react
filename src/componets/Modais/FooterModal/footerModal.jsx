@@ -22,6 +22,7 @@ export const FooterModal = ({
   iconCadastrar,
   iconSizeCadastrar,
   styleCadastrar,
+  tipoBtnCadastrar,
 
   ButtonTypeCancelar,
   onClickButtonCancelar,
@@ -47,7 +48,7 @@ export const FooterModal = ({
             textButton={textButtonCadastrar}
             onClickButtonType={onClickButtonCadastrar}
             cor={corCadastrar}
-            tipo="button"
+            tipo={tipoBtnCadastrar}
             disabled={disabled}
             Icon={iconCadastrar}
             iconSize={iconSizeCadastrar}

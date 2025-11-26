@@ -1,6 +1,5 @@
 import { Fragment, useEffect, useState } from "react";
 import { ActionMain } from "../../../Actions/actionMain"
-import { ButtonSearch } from "../../../Buttons/ButtonSearch"
 import { InputField } from "../../../Buttons/Input"
 import { getDataAtual, getDataDoisMesesAtras } from "../../../../utils/dataAtual";
 import { get } from "../../../../api/funcRequest";
@@ -13,9 +12,10 @@ import { ActionPDFPedidoDetalhado } from "./comprasActionPDFPedidoDetalhado";
 import { useFetchData } from "../../../../hooks/useFetchData";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { useQuery } from "react-query";
+import { ActionEditarPedido } from "./ActionEditarPedido/actionEditarPedido";
 
 
-export const ActionPesquisaHome = () => {
+export const ActionPesquisaHome = ({usuarioLogado, ID}) => {
   const [actionHome, setActionHome] = useState(true)
   const [actionListaPedidos, setActionListaPedidos] = useState(true)
   const [actionPedidoResumido, setActionPedidoResumido] = useState(false)
@@ -30,6 +30,9 @@ export const ActionPesquisaHome = () => {
   const [numeroPedido, setNumeroPedido] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
+  const [dadosVisualizarPedido, setDadosVisualizarPedido] = useState([]);
+  const [dadosDetalhePedido, setDadosDetalhePedido] = useState([]);
+  const [actionVisualizarPedido, setActionVisualizarPedido] = useState(false); 
 
   useEffect(() => {
     const dataInicial = getDataDoisMesesAtras();
@@ -38,6 +41,15 @@ export const ActionPesquisaHome = () => {
     setDataPesquisaFim(dataFinal);
   }, [])
  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+  );
 
   const { data: dadosFonecedores = [], error: errorFornecedor, isLoading: isLoadingFornecedor } = useFetchData('fornecedores', '/fornecedores');
   const { data: dadosFabricantes = [], error: errorFabricantes, isLoading: isLoadingFabricantes } = useFetchData('fabricantes', '/fabricantes');
@@ -257,10 +269,12 @@ export const ActionPesquisaHome = () => {
         />
       )}
 
-
+      {console.log(actionHome, 'actionHome')}
+      {console.log(actionPedidoResumido, 'actionPedidoResumido')}
+      {console.log(actionListaPedidos, 'actionListaPedidos')}
       {!actionPedidoResumido && actionListaPedidos && actionHome && (
         <Fragment>
-        <div className="panel" style={{width: "100%", marginTop: '10rem' }}>
+        <div className="panel" style={{width: "100%", marginTop: '0' }}>
           <div className="panel-hdr">
             <h2>
               Lista de Pedidos <span class="fw-300"><i>Por Período</i></span>
@@ -288,7 +302,21 @@ export const ActionPesquisaHome = () => {
             />
           </div>
   
-          <ActionListaPedidos dadosPedidos={dadosPedidos} />
+          <ActionListaPedidos 
+            dadosPedidos={dadosPedidos} 
+            dadosVisualizarPedido={dadosVisualizarPedido} 
+            setDadosVisualizarPedido={setDadosVisualizarPedido}
+            setDadosDetalhePedido={setDadosDetalhePedido}
+            dadosDetalhePedido={dadosDetalhePedido} 
+            setActionVisualizarPedido={setActionVisualizarPedido}
+            actionVisualizarPedido={actionVisualizarPedido}
+            setActionPedidoResumido={setActionPedidoResumido}
+            actionHome={actionHome}
+            setActionHome={setActionHome}
+            actionListaPedidos={actionListaPedidos}
+            setActionListaPedidos={setActionListaPedidos}
+
+          />
         </div>
         </Fragment>
       )}
@@ -300,6 +328,20 @@ export const ActionPesquisaHome = () => {
 
       {actionPedidoDetalhado && (
         <ActionPDFPedidoDetalhado dadosPedidosDetalhados={dadosPedidosDetalhados}/>
+      )}
+
+      {actionVisualizarPedido && (
+
+        <ActionEditarPedido
+          usuarioLogado={usuarioLogado}
+          ID={ID}
+          dadosVisualizarPedido={dadosVisualizarPedido} 
+          dadosDetalhePedido={dadosDetalhePedido}
+          actionVisualizarPedido={actionVisualizarPedido}
+          setActionVisualizarPedido={setActionVisualizarPedido}
+          actionHome={actionHome}
+          setActionHome={setActionHome}
+        />
       )}
     </Fragment>
   )

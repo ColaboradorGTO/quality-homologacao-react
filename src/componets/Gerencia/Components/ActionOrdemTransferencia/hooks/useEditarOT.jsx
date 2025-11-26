@@ -1,13 +1,17 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { getDataAtual } from "../../../../../utils/dataAtual";
 import { get, post, put } from "../../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import axios from "axios";
 
-export const useEditarOT = ({dadosDetalheTransferencia}) => {
-  const [ajusteQuantidade, setAjusteQuantidade] = useState(0)
+export const useEditarOT = ({
+  dadosDetalheTransferencia,
+  handleClick,
+  handleClose,
+  optionsModulos,
+  usuarioLogado
+}) => {
   const [empresaOrigem, setEmpresaOrigem] = useState('')
   const [empresaDestino, setEmpresaDestino] = useState('')
   const [produto, setProduto] = useState('')
@@ -16,39 +20,38 @@ export const useEditarOT = ({dadosDetalheTransferencia}) => {
   const [quantidade, setQuantidade] = useState('')
   const [observacao, setObservacao] = useState('')
   const [linhaSelecionada, setLinhaSelecionada] = useState(null)
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [ipUsuario, setIpUsuario] = useState('');
-  const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
 
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      let usuarioIP = ipWhoisData?.ip;
+
+      if (!usuarioIP) {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      }
+
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
+    } catch (error) {
+      console.error("Erro ao buscar IP:", error);
+      return null;
     }
-    return response.data;
-  }
+  };
 
   useEffect(() => {
     const dataAtual = getDataAtual();
     setDataCadastro(dataAtual);
 
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
+    if(dadosDetalheTransferencia && dadosDetalheTransferencia.length > 0) {
+      setEmpresaOrigem(dadosDetalheTransferencia[0]?.IDEMPRESAORIGEM);
+      setEmpresaDestino(dadosDetalheTransferencia[0]?.IDEMPRESADESTINO);
     }
-  }, [navigate]);
+
+  }, []);
 
   const { data: dadosEmpresa = [], error: errorMarcas, isLoading: isLoadingMarcas } = useQuery(
     'empresas',
@@ -68,36 +71,9 @@ export const useEditarOT = ({dadosDetalheTransferencia}) => {
     { enabled: produto.length > 4, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
-  console.log(produto, "dadosProdutos")
 
 
   const onSubmit = async () => {
-    useEffect(() => {
-
-      if (usuarioLogado?.IDEMPRESA <= 0 && empresaDestino <= 0) {
-        Swal.fire({
-          title: 'A Loja de Origem e Destino devem ser Preenchidas!',
-          icon: 'info',
-          confirmButtonText: 'Ok',
-          customClass: {
-            container: 'custom-swal',
-          }
-        });
-      }
-    }, [dadosProdutos]);
-
-    if(dadosProdutos.length == 0) {
-      Swal.fire({
-        title: 'Atenção!',
-        icon: 'warning',
-        text: 'Informar os produtos da OT!',
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
-
     if(dadosProdutos.length > 200) {
       Swal.fire({
         title: 'Atenção!',
@@ -110,7 +86,7 @@ export const useEditarOT = ({dadosDetalheTransferencia}) => {
       return;
     }
 
-    const dadosDetalheot = dadosDetalheTransferencia.map((item) => ({
+    const dadosdetalheot = dadosDetalheTransferencia.map((item) => ({
       IDPRODUTO: item.IDPRODUTO,
       QTDEXPEDICAO: item.QTDEXPEDICAO,
       QTDRECEPCAO: 0,
@@ -125,16 +101,16 @@ export const useEditarOT = ({dadosDetalheTransferencia}) => {
       STSOBRA: 'False',
     }));
 
-    const nCtTotalItens = dadosDetalheot.length;
-    const nQtdTotalItens = dadosDetalheot.reduce((acc, item) => acc + item.QTDEXPEDICAO, 0);
-    const dVlrTotalVenda = dadosDetalheot.reduce((acc, item) => acc + (item.QTDEXPEDICAO * item.VLRUNITVENDA), 0);
-    const dVlrTotalCusto = dadosDetalheot.reduce((acc, item) => acc + (item.QTDEXPEDICAO * item.VLRUNITCUSTO), 0);
+    const nCtTotalItens = dadosdetalheot.length;
+    const nQtdTotalItens = dadosdetalheot.reduce((acc, item) => acc + item.QTDEXPEDICAO, 0);
+    const dVlrTotalVenda = dadosdetalheot.reduce((acc, item) => acc + (item.QTDEXPEDICAO * item.VLRUNITVENDA), 0);
+    const dVlrTotalCusto = dadosdetalheot.reduce((acc, item) => acc + (item.QTDEXPEDICAO * item.VLRUNITCUSTO), 0);
 
     const postData = {
-      IDEMPRESAORIGEM: usuarioLogado.IDEMPRESA,
-      IDEMPRESADESTINO: empresaDestino,
-      DATAEXPEDICAO: "",
-      IDOPERADOREXPEDICAO: usuarioLogado.id,
+      IDRESUMOOT: dadosDetalheTransferencia[0]?.IDRESUMOOT,
+      IDEMPRESAORIGEM: dadosDetalheTransferencia[0]?.IDEMPRESAORIGEM,
+      IDEMPRESADESTINO: dadosDetalheTransferencia[0]?.IDEMPRESADESTINO,
+      IDOPERADOREXPEDICAO: usuarioLogado?.id,
       NUTOTALITENS: nCtTotalItens,
       QTDTOTALITENS: nQtdTotalItens,
       QTDTOTALITENSRECEPCIONADO: 0,
@@ -147,19 +123,19 @@ export const useEditarOT = ({dadosDetalheTransferencia}) => {
       IDOPERADORRECEPTOR: 0,
       DSOBSERVACAO: "",
       IDUSRCANCELAMENTO: 0,
-      DTULTALTERACAO: "",
       IDSTDIVERGENCIA: 0,
       OBSDIVERGENCIA: "",
       STEMISSAONFE: "False",
       NUMERONFE: "",
       STENTRADAINVENTARIO: "False",
       QTDCONFERENCIA: 0,
-      dadosDetalheot,
-      IDRESUMOOT: dadosDetalheTransferencia[0]?.IDRESUMOOT,
       IDSTATUSOT: parseInt(1),
       IDUSRAJUSTE: 0,
       DTAJUSTE: "",
       QTDTOTALITENSAJUSTE: 0,
+      dadosdetalheot: dadosdetalheot,
+      DATAEXPEDICAO: "",
+      DTULTALTERACAO: "",
     };
 
     try {
@@ -168,9 +144,9 @@ export const useEditarOT = ({dadosDetalheTransferencia}) => {
   
       const textDados = JSON.stringify(postData);
       let textoFuncao = 'GERENCIA/EDIÇÃO OT';
-  
+      await getIPUsuario();
       const createData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
+        IDFUNCIONARIO: String(usuarioLogado?.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
@@ -184,16 +160,17 @@ export const useEditarOT = ({dadosDetalheTransferencia}) => {
         icon: 'success'
       });
   
-  
+      handleClick();
       handleClose();
       return responsePost.data;
     } catch (error) {
+       const textDados = JSON.stringify(postData);
       let textoFuncao = 'GERENCIA/ERRO AO EDITAR OT';
-  
+      await getIPUsuario();
       const createData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
+        IDFUNCIONARIO: String(usuarioLogado?.id),
         PATHFUNCAO: textoFuncao,
-        DADOS: 'GERENCIA/ERRO AO EDITAR OT',
+        DADOS: textDados,
         IP: ipUsuario
       };
   
@@ -224,8 +201,6 @@ export const useEditarOT = ({dadosDetalheTransferencia}) => {
     setQuantidade,
     observacao,
     setObservacao,
-    usuarioLogado,
-    setUsuarioLogado,
     linhaSelecionada,
     setLinhaSelecionada,
     dadosEmpresa,
@@ -233,3 +208,4 @@ export const useEditarOT = ({dadosDetalheTransferencia}) => {
     onSubmit,
   };
 };
+

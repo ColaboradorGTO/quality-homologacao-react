@@ -3,12 +3,17 @@ import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import Select from 'react-select';
-import { useCadastroCores } from "../../../hooks/useCadastroCores";
+import { useCadastroCores } from "../hooks/useCadastroCores";
 import { useForm } from "react-hook-form";
 
 
 
-export const FormularioCadastro = ({handleClose}) => {
+export const FormularioCadastro = ({
+    handleClose,
+    usuarioLogado,
+    refetchListaCores,
+    optionsModulos
+}) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         optionsStatus,
@@ -20,9 +25,7 @@ export const FormularioCadastro = ({handleClose}) => {
         setGrupoCorSelecionado,
         dadosGrupoCores,
         cadastrarCores
-    } = useCadastroCores()
-        
-
+    } = useCadastroCores({handleClose, usuarioLogado, refetchListaCores, optionsModulos})
 
     return (
         <Fragment>

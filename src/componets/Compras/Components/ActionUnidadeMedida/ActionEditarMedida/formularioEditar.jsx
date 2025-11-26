@@ -4,9 +4,15 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { useForm } from "react-hook-form"
 import Select from 'react-select';
-import { useEditarUnidadeMedida } from "../../../hooks/useEditarUnidadeMedida"
+import { useEditarUnidadeMedida } from "../hooks/useEditarUnidadeMedida"
 
-export const FormularioEditar = ({dadosDetalheUnidadeMedida, handleClose }) => {
+export const FormularioEditar = ({
+    dadosDetalheUnidadeMedida, 
+    handleClose,  
+    usuarioLogado,
+    optionsModulos,
+    handleClick  
+}) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         descricao,
@@ -18,7 +24,7 @@ export const FormularioEditar = ({dadosDetalheUnidadeMedida, handleClose }) => {
         setStatusSelecionado,
         handleEditar
         
-    } = useEditarUnidadeMedida({dadosDetalheUnidadeMedida});
+    } = useEditarUnidadeMedida({dadosDetalheUnidadeMedida, handleClose, usuarioLogado, optionsModulos, handleClick});
     
     return (
         <Fragment>
@@ -65,6 +71,7 @@ export const FormularioEditar = ({dadosDetalheUnidadeMedida, handleClose }) => {
                                 value={statusSelecionado}
                                 onChange={(e) => setStatusSelecionado(e)}
                             />
+                            
                         </div>
                     </div>
                 </div>

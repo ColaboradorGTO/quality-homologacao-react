@@ -91,7 +91,6 @@ export const ActionListaProdutosParaCadastro = ({ dadosVisualizarPedido, dadosPr
         QTDPRODUTO: item.QTDPRODUTO,
         VRCUSTO: item.VRCUSTO,
         VRVENDA: item.VRVENDA,
-        VRTOTALCUSTO: item.VRTOTALCUSTO,
 
         STEDITADOCOMPRAS: item.STEDITADOCOMPRAS,
         STMIGRADOSAP: item.STMIGRADOSAP,

@@ -1,10 +1,10 @@
-import React, { Fragment} from "react"
+import React, { Fragment } from "react"
 import Modal from 'react-bootstrap/Modal';
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { FormularioEditar } from "./formularioEditar";
 
 
-export const ActionUpdateCaixaModal = ({show, handleClose, dadosListaCaixa}) => {
+export const ActionUpdateCaixaModal = ({ show, handleClose, dadosListaCaixa, refetchListaCaixa, usuarioLogado }) => {
 
   return (
 
@@ -27,7 +27,13 @@ export const ActionUpdateCaixaModal = ({show, handleClose, dadosListaCaixa}) => 
 
         <Modal.Body>
 
-          <FormularioEditar  handleClose={handleClose} dadosListaCaixa={dadosListaCaixa} />
+          <FormularioEditar
+            handleClose={handleClose}
+            dadosListaCaixa={dadosListaCaixa}
+            refetchListaCaixa={refetchListaCaixa}
+            usuarioLogado={usuarioLogado}
+            />
+
         </Modal.Body>
 
       </Modal>

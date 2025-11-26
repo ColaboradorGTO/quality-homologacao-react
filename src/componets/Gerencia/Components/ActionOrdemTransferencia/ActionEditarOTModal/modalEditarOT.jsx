@@ -1,9 +1,16 @@
-import { Fragment} from "react"
+import { Fragment } from "react"
 import Modal from 'react-bootstrap/Modal';
 import { FormularioEditar } from "./formularioEditar";
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 
-export const ActionEditarOTModal = ({ show, handleClose, dadosDetalheTransferencia, handleClick}) => {
+export const ActionEditarOTModal = ({ 
+  show, 
+  handleClose, 
+  dadosDetalheTransferencia, 
+  handleClick,
+  optionsModulos,
+  usuarioLogado 
+}) => {
 
   return (
 
@@ -23,9 +30,11 @@ export const ActionEditarOTModal = ({ show, handleClose, dadosDetalheTransferenc
           />
 
           <Modal.Body >
-            <FormularioEditar 
-              dadosDetalheTransferencia={dadosDetalheTransferencia} 
-              handleClose={handleClose} 
+            <FormularioEditar
+              dadosDetalheTransferencia={dadosDetalheTransferencia}
+              handleClose={handleClose}
+              optionsModulos={optionsModulos}
+              usuarioLogado={usuarioLogado}
               handleClick={handleClick}
             />
           </Modal.Body>

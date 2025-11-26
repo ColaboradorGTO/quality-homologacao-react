@@ -4,9 +4,15 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { useForm } from "react-hook-form"
 import Select from 'react-select';
-import { useEditarGrupoEstruturaMercadologica } from "../../../hooks/useEditarGrupoEstruturaMercadologico"
+import { useEditarGrupoEstruturaMercadologica } from "../hooks/useEditarGrupoEstruturaMercadologico"
 
-export const FormularioEditar = ({ handleClose, dadosDetalheGrupo }) => {
+export const FormularioEditar = ({
+  handleClose, 
+  dadosDetalheGrupo,
+  usuarioLogado,
+  optionsModulos,
+  handleClick 
+ }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const {
     optionsStatus,
@@ -14,13 +20,13 @@ export const FormularioEditar = ({ handleClose, dadosDetalheGrupo }) => {
     setStatusSelecionado,
     descricao,
     setDescricao,
-    dadosGrupoEstrutura,
     atualzarGrupoEstrutura,
 
-  } = useEditarGrupoEstruturaMercadologica({ dadosDetalheGrupo });
+  } = useEditarGrupoEstruturaMercadologica({ dadosDetalheGrupo, handleClose, usuarioLogado, optionsModulos, handleClick });
   return (
     <Fragment>
       <form onSubmit={handleSubmit(atualzarGrupoEstrutura)}>
+
         <div className="form-group">
           <div className="row">
             <div className="col-sm-6 col-xl-6 ">
@@ -64,6 +70,7 @@ export const FormularioEditar = ({ handleClose, dadosDetalheGrupo }) => {
 
           ButtonTypeCadastrar={ButtonTypeModal}
           onClickButtonCadastrar={atualzarGrupoEstrutura}
+          tipoBtnCadastrar={"submit"}
           textButtonCadastrar={"Salvar"}
           corCadastrar={"success"}
         />

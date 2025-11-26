@@ -123,6 +123,12 @@ export const ActionMainNovoPedido = ({
   onChangeSelectTransportadora,
   onChangeSelectFrete,
 
+  InputCheckBoxPedido, 
+  labelCheckBoxPedido,
+  checkedCheckBoxPedido,
+  valueCheckBoxPedido,
+  onChangeCheckBoxPedido,
+  readOnlyCheckBoxTipoPedido,
 
   ButtonSearchComponent,
   ButtonTypeCadastro,
@@ -193,12 +199,12 @@ export const ActionMainNovoPedido = ({
   return (
     <Fragment>
       <form action="#" onSubmit={handleSubmit}>
-        <HeadTitleComponent
+        {/* <HeadTitleComponent
           tittuloComponent={title}
           nomeLoja={subTitle}
           linkComponentAnterior={linkComponentAnterior}
           linkComponent={linkComponent}
-        />
+        /> */}
         <div className="row">
           <div className="col-xl-12">
             <div id="panel-1" className="panel">
@@ -206,11 +212,38 @@ export const ActionMainNovoPedido = ({
 
 
                 <div className="panel-tag">
-
-
                   <div className="row">
-                    <div className="col-sm-6 col-xl-3 mt-2">
+                    {InputCheckBoxPedido && (
 
+                      <InputCheckBoxPedido 
+                        label={labelCheckBoxPedido}
+                        readOnly={readOnlyCheckBoxTipoPedido}
+                        checkedCheckBoxPedido={checkedCheckBoxPedido}
+                        valueCheckBoxPedido={valueCheckBoxPedido}
+                        onChangeCheckBoxPedido={onChangeCheckBoxPedido}
+                      />
+                    )}
+                  </div>
+                  <div className="row mt-3" >
+
+                    <div class="col-sm-6 col-md-8 col-xl-6 mt-2">
+                      <label htmlFor="">{labelSelectFornecedor}</label>
+                      {InputSelectFornecedorComponent && (
+                        <InputSelectFornecedorComponent
+                          label={labelSelectFornecedor}
+                          readOnly={readOnlyFornecedor}
+                          id={id}
+                          options={optionsFornecedores}
+                          onChange={onChangeSelectFornecedor}
+                          value={valueSelectFornecedor}
+                          defaultValue={defaultValueSelectFornecedor}
+
+                        />
+                      )}
+                    </div>
+
+                    <div className="col-sm-4 col-md-4 col-xl-3 mt-2">
+                      <label htmlFor="">{labelInputDTFim}</label>
                       {InputFieldDTInicioComponent && (
                         <InputFieldDTInicioComponent
                           label={labelInputDTInicio}
@@ -223,7 +256,9 @@ export const ActionMainNovoPedido = ({
                         />
                       )}
                     </div>
-                    <div className="col-sm-6 col-xl-3 mt-2">
+
+                    <div className="col-sm-4 col-md-4 col-xl-3 mt-2">
+                      <label htmlFor="">{labelInputDTFim}</label>
                       {InputFieldDTFimComponent && (
                         <InputFieldDTFimComponent
                           label={labelInputDTFim}
@@ -235,66 +270,14 @@ export const ActionMainNovoPedido = ({
                         />
                       )}
                     </div>
-                    <div className="col-sm-6 col-xl-3 mt-2">
-                      {InputSelectCompradorComponent && (
-                        <InputSelectCompradorComponent
-                          label={labelSelectComprador}
-                          readOnly={readOnlyComprador}
-                          id={id}
-                          options={optionsCompradores}
-                          defaultValue={defaultValueSelectComprador}
-                          onChange={onChangeSelectComprador}
-                        />
-                      )}
 
-                      {InputFieldComprador && (
-                        <InputFieldComprador
-                          label={labelInputFieldComprador}
-                          type="text"
-                          id={id}
-                          value={valueInputFieldComprador}
-                          onChange={onChangeInputFieldComprador}
-                          readOnly={readOnlyComprador}
-                        />
-                      )}
-                    </div>
-                
-                    <div className="col-sm-6 col-xl-3 mt-2">
-                      {InputSelectMarcasComponent && (
-                        <InputSelectMarcasComponent
-                          label={labelSelectMarcas}
-                          readOnly={readOnlyMarcas}
-                          id={id}
-                          options={optionsMarcas}
-                          onChange={onChangeSelectMarcas}
-                          value={valueSelectMarca}
-                          defaultValue={defaultValueSelectMarca}
-                          type="select"
-                        />
-                      )}
-                    </div>
                   </div>
-                  <hr />
 
-                  <div className="row">
-                    <div class="col-sm-6 col-xl-8 mt-2">
 
-                      {InputSelectFornecedorComponent && (
-                        <InputSelectFornecedorComponent
-                          label={labelSelectFornecedor}
-                          readOnly={readOnlyFornecedor}
-                          id={id}
-                          options={optionsFornecedores}
-                          onChange={onChangeSelectFornecedor}
-                          value={valueSelectFornecedor}
-                          defaultValue={defaultValueSelectFornecedor}
-
-                        />
-
-                      )}
-                    </div>
-                    <div class="col-sm-6 col-xl-2 mt-2">
-
+                  <div className="row mt-3">
+               
+                    <div class="col-sm-6 col-xl-6 ">
+                      <label htmlFor="">{labelSelectFiscal}</label>
                       {InputSelectFiscalComponent && (
                         <InputSelectFiscalComponent
                           label={labelSelectFiscal}
@@ -310,8 +293,8 @@ export const ActionMainNovoPedido = ({
                       )}
                     </div>
 
-                    <div class="col-sm-6 col-xl-2 mt-2">
-
+                    <div class="col-sm-6 col-xl-6 ">
+                      <label htmlFor="">{labelSelectEnviar}</label>
                       {InputSelectEnviarComponent && (
                         <InputSelectEnviarComponent
                           label={labelSelectEnviar}
@@ -326,10 +309,58 @@ export const ActionMainNovoPedido = ({
                       )}
                     </div>
                   </div>
-                  <hr />
-                  <div className="row">
-                    <div class="col-sm-6 col-xl-4 mt-3">
 
+                  <hr />
+
+                  <div className="row mt-3">
+
+                    <div className="col-sm-6 col-xl-6 ">
+                      <label htmlFor="">{labelSelectComprador}</label>
+                      {InputSelectCompradorComponent && (
+                        <InputSelectCompradorComponent
+                          label={labelSelectComprador}
+                          readOnly={readOnlyComprador}
+                          id={id}
+                          options={optionsCompradores}
+                          defaultValue={defaultValueSelectComprador}
+                          onChange={onChangeSelectComprador}
+                        />
+                      )}
+
+                      {/* {InputFieldComprador && (
+                        <InputFieldComprador
+                          label={labelInputFieldComprador}
+                          type="text"
+                          id={id}
+                          value={valueInputFieldComprador}
+                          onChange={onChangeInputFieldComprador}
+                          readOnly={readOnlyComprador}
+                        />
+                      )} */}
+                    </div>
+                
+                    <div className="col-sm-6 col-xl-6 ">
+                      <label htmlFor="">{labelSelectMarcas}</label>
+                      {InputSelectMarcasComponent && (
+                        <InputSelectMarcasComponent
+                          label={labelSelectMarcas}
+                          readOnly={readOnlyMarcas}
+                          id={id}
+                          options={optionsMarcas}
+                          onChange={onChangeSelectMarcas}
+                          value={valueSelectMarca}
+                          defaultValue={defaultValueSelectMarca}
+                          type="select"
+                        />
+                      )}
+                    </div>
+                  </div>
+
+                  <hr />
+
+                  <div className="row mt-3">
+                    <div class="col-sm-6 col-xl-4 ">
+                      <label htmlFor="">{labelSelectCondicoesPagamentos}</label>
                       {InputSelectCondicoesPagamentos && (
                         <InputSelectCondicoesPagamentos
                           label={labelSelectCondicoesPagamentos}
@@ -344,8 +375,8 @@ export const ActionMainNovoPedido = ({
                       )}
                     </div>
 
-                    <div class="col-sm-6 col-xl-4 mt-3">
-
+                    <div class="col-sm-6 col-xl-4 ">
+                      <label htmlFor="">{labelInputFieldObsFornecedor}</label>
                       {InputFieldObsFornecedor && (
                         <InputFieldObsFornecedor
                           label={labelInputFieldObsFornecedor}
@@ -360,8 +391,8 @@ export const ActionMainNovoPedido = ({
                       )}
                     </div>
 
-                    <div class="col-sm-6 col-xl-4 mt-3">
-
+                    <div class="col-sm-6 col-xl-4 ">
+                      <label htmlFor="">{labelInputFieldObsInterna}</label>
                       {InputFieldObsInterna && (
                         <InputFieldObsInterna
                           label={labelInputFieldObsInterna}
@@ -376,8 +407,8 @@ export const ActionMainNovoPedido = ({
                   </div>
                   <hr />
                   <div className="row">
-                    <div class="col-sm-6 col-xl-3 mt-3">
-
+                    <div class="col-sm-6 col-xl-4 ">
+                      <label htmlFor="">{labelSelectTipoPedido}</label>
                       {InputSelectTipoPedido && (
                         <InputSelectTipoPedido
                           label={labelSelectTipoPedido}
@@ -391,8 +422,8 @@ export const ActionMainNovoPedido = ({
                         />
                       )}
                     </div>
-                    <div class="col-sm-6 col-xl-3 mt-3">
-
+                    <div class="col-sm-6 col-xl-4">
+                      <label htmlFor="">{labelInputFieldVendedor}</label>
                       {InputFieldVendedor && (
                         <InputFieldVendedor
                           label={labelInputFieldVendedor}
@@ -404,8 +435,8 @@ export const ActionMainNovoPedido = ({
                         />
                       )}
                     </div>
-                    <div class="col-sm-6 col-xl-6 mt-3">
-
+                    <div class="col-sm-6 col-xl-4 ">
+                      <label htmlFor="">{labelInputFieldEmailVendedor}</label>
                       {InputFieldEmailVendedor && (
                         <InputFieldEmailVendedor
                           label={labelInputFieldEmailVendedor}
@@ -419,9 +450,9 @@ export const ActionMainNovoPedido = ({
                     </div>
                   </div>
                   <hr style={{}} />
-                  <div className="row">
-                    <div class="col-sm-6 col-xl-2 mt-2">
-
+                  <div className="row mt-3">
+                    <div class="col-sm-6 col-xl-2">
+                      <label htmlFor="">{labelInputFieldDesconto1}</label>
                       {InputFieldDescontoComponent1 && (
                         <InputFieldDescontoComponent1
                           label={labelInputFieldDesconto1}
@@ -433,8 +464,8 @@ export const ActionMainNovoPedido = ({
                         />
                       )}
                     </div>
-                    <div class="col-sm-6 col-xl-2 mt-2">
-
+                    <div class="col-sm-6 col-xl-2">
+                      <label htmlFor="">{labelInputFieldDesconto2}</label>
                       {InputFieldDescontoComponent2 && (
                         <InputFieldDescontoComponent2
                           label={labelInputFieldDesconto2}
@@ -447,8 +478,8 @@ export const ActionMainNovoPedido = ({
                       )}
                     </div>
 
-                    <div class="col-sm-6 col-xl-2 mt-2">
-
+                    <div class="col-sm-6 col-xl-2 ">
+                      <label htmlFor="">{labelInputFieldDesconto3}</label>
                       {InputFieldDescontoComponent3 && (
                         <InputFieldDescontoComponent3
                           label={labelInputFieldDesconto3}
@@ -461,8 +492,8 @@ export const ActionMainNovoPedido = ({
                       )}
                     </div>
 
-                    <div class="col-sm-6 col-xl-4 mt-2">
-
+                    <div class="col-sm-6 col-xl-4 ">
+                      <label htmlFor="">{labelInputFieldTotalLiq}</label>
                       {InputFieldTotalLiq && (
                         <InputFieldTotalLiq
                           label={labelInputFieldTotalLiq}
@@ -474,8 +505,8 @@ export const ActionMainNovoPedido = ({
                         />
                       )}
                     </div>
-                    <div class="col-sm-6 col-xl-2 mt-2">
-
+                    <div class="col-sm-6 col-xl-2 ">
+                      <label htmlFor="">{labelInputFieldComissao}</label>
                       {InputFieldComissao && (
                         <InputFieldComissao
                           label={labelInputFieldComissao}
@@ -489,8 +520,9 @@ export const ActionMainNovoPedido = ({
                     </div>
                   </div>
 
-                  <div className="row">
-                    <div class="col-sm-6 col-xl-8 mt-2">
+                  <div className="row mt-4">
+                    <div class="col-sm-6 col-xl-6 ">
+                      <label htmlFor="">{labelSelectTransportadora}</label>
                       {InputSelectTransportadora && (
                         <InputSelectTransportadora
                           label={labelSelectTransportadora}
@@ -506,8 +538,8 @@ export const ActionMainNovoPedido = ({
 
                     </div>
 
-                    <div class="col-sm-6 col-xl-4 mt-2">
-
+                    <div class="col-sm-6 col-xl-6 ">
+                      <label htmlFor="">{labelSelectFrete}</label>
                       {InputSelectFreteComponent && (
 
                         <InputSelectFreteComponent
@@ -525,7 +557,7 @@ export const ActionMainNovoPedido = ({
 
                   </div>
 
-                  <div className="row">
+                  <div className="row " style={{marginTop: '5rem'}}>
                     
                   {ButtonSearchComponent && (
                       <ButtonType

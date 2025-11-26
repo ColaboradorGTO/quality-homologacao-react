@@ -6,7 +6,13 @@ import { useEditarVinculoFabricanteFornecedor } from "../hooks/useEditarViculoFa
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 
 
-export const FormularioEditar = ({handleClose, dadosDetalheFornecedorFabricante}) => {
+export const FormularioEditar = ({
+    handleClose, 
+    dadosDetalheFornecedorFabricante,
+    usuarioLogado,
+    optionsModulos,
+    handleClick
+}) => {
     const {
         statusSelecionado,
         fabricante,
@@ -17,7 +23,7 @@ export const FormularioEditar = ({handleClose, dadosDetalheFornecedorFabricante}
         setFabricante,
         dadosFabricantes,
         handleEditar,
-    } = useEditarVinculoFabricanteFornecedor({dadosDetalheFornecedorFabricante})
+    } = useEditarVinculoFabricanteFornecedor({dadosDetalheFornecedorFabricante, usuarioLogado, optionsModulos, handleClick, handleClose});
 
     return (
         <Fragment>

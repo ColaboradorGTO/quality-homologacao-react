@@ -1,36 +1,17 @@
-import { Fragment, useEffect } from "react"
+import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
-import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
-import { useForm } from "react-hook-form"
-import { yupResolver } from "@hookform/resolvers/yup";
-import * as yup from "yup";
-import Select from 'react-select';
+import { useForm, Controller } from "react-hook-form"
 import { useCadastrarClienteCPF } from "../hooks/useCadastroClienteCPF"
 import { mascaraCPF } from "../../../../../utils/formatCPF"
 import { mascaraTelefone } from "../../../../../utils/mascaraTelefone"
+import FormField from "../../../../Formularios/FormField"
+import { schema } from "./schemaValidationCPF"
 
-const schema = yup.object({
-  complemento: yup.string()
-    .test('complemento-validation', 'Complemento Inválido, verifique o endereço e tente novamente!', function (value) {
-      // Se não tem valor ou está vazio, passa na validação (campo não obrigatório)
-      if (!value || value.length === 0) {
-        return true;
-      }
-
-      // Aplica a mesma lógica do jQuery
-      const regex = /^[A-Za-z0-9\s\-\/.,ºªÇçÁáÉéÍíÓóÚúÂâÊêÎîÔôÛûÀàÈèÌìÒòÙùÃãÕõÜü]*$/;
-      const isValidPattern = regex.test(value);
-      const isNotOnlyNumbers = isNaN(Number(value));
-
-      // Retorna true se atende o padrão E não é apenas números
-      return isValidPattern && isNotOnlyNumbers;
-    })
-})
 
 export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm({
-    resolver: yupResolver(schema)
+  const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+    mode: "onChange"
   });
 
   const {
@@ -80,28 +61,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
     readOnlyCpf
   } = useCadastrarClienteCPF({ usuarioLogado, optionsModulos, handleClose, onCpf });
 
-  useEffect(() => {
-    if (optionsCPF.length > 0) {
-      setIdCliente(optionsCPF[0]?.IDCLIENTE);
-      setDataCadastro(optionsCPF[0]?.DTCADASTRO);
-      setCpf(optionsCPF[0]?.NUCPFCNPJ);
-      setNomeClienteRazao(optionsCPF[0]?.DSNOMERAZAOSOCIAL);
-      setSobrenome(optionsCPF[0]?.DSAPELIDONOMEFANTASIA);
-      setDataNascimento(optionsCPF[0]?.DTNASCFUNDACAO);
-      setTelefoneCliente(optionsCPF[0]?.NUTELCELULAR);
-      setEmail(optionsCPF[0]?.EEMAIL);
-      setCep(optionsCPF[0]?.NUCEP);
-      setEndereco(optionsCPF[0]?.EENDERECO);
-      setNumero(optionsCPF[0]?.NUENDERECO);
-      setComplemento(optionsCPF[0]?.ECOMPLEMENTO);
-      setBairro(optionsCPF[0]?.EBAIRRO);
-      setNuIBGE(optionsCPF[0]?.NUIBGE);
-      setCidade(optionsCPF[0]?.ECIDADE);
-      setEstado(optionsCPF[0]?.SGUF);
-    }
-  }, [optionsCPF])
-
-  const fecharModal = () => {
+    const fecharModal = () => {
     handleClose();
     setIdCliente('');
     setTipo('');
@@ -110,7 +70,6 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
     setSobrenome('');
     setDataNascimento('');
     setTelefoneCliente('');
-    setNumeroComercial('');
     setEmail('');
     setTipoIndicacaoIE(0);
     setCep('');
@@ -123,154 +82,254 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
     setEstado('');
   }
 
-  // console.log(tipoIndicacaoIE, 'tipoIndicacaoIE.value')
+  const handleValidatedSubmit = async () => {
+    try {
+      const dadosParaValidar = {
+        cpfCliente: cpf,
+        nomeCliente: nomeClienteRazao,
+        sobrenomeCliente: sobrenome,
+        dataNascimentoCliente: dataNascimento,
+        telefoneCliente: telefoneCliente,
+        emailCliente: email,
+        cepCliente: cep,
+        enderecoCliente: endereco,
+        numeroEnderecoCliente: numero,
+        complementoCliente: complemento,
+        bairroCliente: bairro,
+        nuIBGECliente: nuIBGE,
+        cidadeCliente: cidade,
+        estadoCliente: estado
+      }
+
+      await schema.validate(dadosParaValidar, { abortEarly: false });
+
+      onSubmit();
+
+    } catch (validationError) {
+      clearErrors();
+
+
+      if (validationError.inner && validationError.inner.length > 0) {
+        validationError.inner.forEach(error => {
+          if (error.path) {
+            setError(error.path, {
+              type: 'manual',
+              message: error.message
+            });
+          }
+        });
+      }
+
+      const errorMessages = validationError.errors || [validationError.message];
+      console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+    }
+  }
+
   return (
     <Fragment>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="form-group" >
           <div className="row mt-2" style={{ width: '100%' }}>
-            <div className="col-sm-2 col-md-2 col-xl-2">
-              <InputFieldModal
-                label={"ID"}
-                type="text"
-                id={"idClienteEmpresa"}
-                readOnly={true}
-                value={idCliente}
-                onChangeModal={(e) => setIdCliente(e.target.value)}
+            <div className="col-sm-2 col-md-2 col-xl-1">
+
+              <Controller
+                name="idClienteEmpresa"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+
+                    label={"ID"}
+                    name="idClienteEmpresa"
+                    type="text"
+                    readOnly={true}
+                    value={idCliente}
+                    onChange={(e) => setIdCliente(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+
+                )}
               />
             </div>
-            <div className="col-sm-2 col-md-2 col-xl-2">
-              <InputFieldModal
-                label={"Tipo *"}
-                type="text"
-                id={"tipoClienteEmpresa"}
-                readOnly={true}
-                placeholder={"CPF"}
-                value={tipo}
-                onChangeModal={(e) => setTipo(e.target.value)}
+            <div className="col-sm-2 col-md-2 col-xl-1">
+
+              <Controller
+                name="tipoClienteEmpresa"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    label={"Tipo *"}
+                    name="tipoClienteEmpresa"
+                    type="text"
+                    placeholder={"CPF"}
+                    value={tipo}
+                    onChange={(e) => setTipo(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    readOnly={true}
+                  />
+                )}
               />
             </div>
-            <div className="col-sm-3 col-md-3 col-xl-3">
-              <InputFieldModal
-                label={"Data do Cadastro *"}
-                placeholder={"Data do Cadastro"}
-                type="text"
-                id={"dataCadastro"}
-                value={dataCadastro}
-                onChangeModal={(e) => setDataCadastro(e.target.value)}
-                readOnly={true}
+            <div className="col-sm-3 col-md-3 col-xl-2">
+
+              <Controller
+                name="dataCadastro"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    label={"Data do Cadastro *"}
+                    name="dataCadastro"
+                    type="text"
+                    placeholder={"Data do Cadastro"}
+                    value={dataCadastro}
+                    onChange={(e) => setDataCadastro(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    readOnly={true}
+                  />
+                )}
+              />
+
+            </div>
+            <div className="col-sm-5 col-md-5 col-xl-2" >
+
+              <Controller
+                name="cpfCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="cpfCliente"
+                    label={"CPF*"}
+                    placeholder={"DIGITE O CPF"}
+                    type="text"
+                    value={mascaraCPF(cpf)}
+                    onChange={(e) => setCpf(e.target.value)}
+                    readOnly={readOnlyCpf}
+                    maxLength={14}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
               />
             </div>
-            <div className="col-sm-5 col-md-5 col-xl-5" >
-              <InputFieldModal
-                label={"CPF*"}
-                placeholder={"DIGITE O CPF"}
-                type="text"
-                id={"CPFCNPJ"}
-                value={mascaraCPF(cpf)}
-                onChangeModal={(e) => setCpf(e.target.value)}
-                readOnly={readOnlyCpf}
-                maxLength={14}
-                {...register("cpf", {
-                  required: "CPF é obrigatório",
-                  pattern: {
-                    value: /^\d{3}\.\d{3}\.\d{3}-\d{2}$/,
-                    message: "CPF inválido"
-                  }
-                })}
+
+            <div className="col-sm-6 col-xl-3">
+
+              <Controller
+                name="nomeCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    label={"Nome*"}
+                    name="nomeCliente"
+                    placeholder={"DIGITE O NOME"}
+                    type="text"
+                    value={nomeClienteRazao}
+                    onChange={(e) => setNomeClienteRazao(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
+              />
+            </div>
+            <div className="col-sm-6 col-xl-3">
+
+              <Controller
+                name="sobrenomeCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    label={"Sobrenome*"}
+                    name="sobrenomeCliente"
+                    placeholder={"DIGITE O SOBRENOME"}
+                    type="text"
+                    value={sobrenome}
+                    onChange={(e) => setSobrenome(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
               />
             </div>
           </div>
 
           <div className="row mt-3">
-            <div className="col-sm-6 col-xl-6">
-              <InputFieldModal
-                label={"Nome*"}
-                placeholder={"DIGITE O NOME"}
-                type="text"
-                id={"nome"}
-                value={nomeClienteRazao.toUpperCase()}
-                onChangeModal={(e) => setNomeClienteRazao(e.target.value)}
-              />
-            </div>
-            <div className="col-sm-6 col-xl-6">
-              <InputFieldModal
-                label={"Sobrenome*"}
-                placeholder={"DIGITE O SOBRENOME"}
-                type="text"
-                id={"sobrenome"}
-                value={sobrenome.toUpperCase()}
-                onChangeModal={(e) => setSobrenome(e.target.value)}
-              />
-            </div>
 
-          </div>
-
-          <div className="row mt-3">
-
-            <div className="col-sm-6 col-md-4 col-xl-4">
-              <InputFieldModal
-                label={"Data de Nascimento*"}
-                type="date"
-                id={"dataNascimento"}
-                value={dataNascimento}
-                onChangeModal={(e) => setDataNascimento(e.target.value)}
+            <div className="col-sm-3 col-md-3 col-xl-2">
+              <Controller
+                name="dataNascimentoCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    label={"Data de Nascimento*"}
+                    name="dataNascimentoCliente"
+                    type="date"
+                    value={dataNascimento}
+                    onChange={(e) => setDataNascimento(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
               />
             </div>
 
 
-            <div className="col-sm-6 col-md-4 col-xl-4">
-              <InputFieldModal
-                label={"Telefone"}
-                placeholder={"DIGITE O TELEFONE"}
-                type="text"
-                id={"TelefoneCliente"}
-                value={mascaraTelefone(telefoneCliente.toUpperCase())}
-                onChangeModal={(e) => setTelefoneCliente(e.target.value)}
-                {...register("TelefoneCliente", {
-                  pattern: {
-                    value: /^(\(?\d{2}\)?\s?)?(\d{4,5}\-?\d{4})$/,
-                    message: "Número inválido"
-                  }
-                })}
+            <div className="col-sm-4 col-md-3 col-xl-3">
+
+              <Controller
+                name="TelefoneCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="TelefoneCliente"
+                    label={"Telefone"}
+                    placeholder={"DIGITE O TELEFONE"}
+                    type="text"
+                    id={"TelefoneCliente"}
+                    value={mascaraTelefone(telefoneCliente)}
+                    onChange={(e) => setTelefoneCliente(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
               />
             </div>
 
-            <div className="col-sm-6 col-md-4 col-xl-4">
-              <InputFieldModal
-                label={"E-mail"}
-                placeholder={"DIGITE O E-MAIL"}
-                type="email"
-                id={"email"}
-                value={email.toUpperCase()}
-                onChangeModal={(e) => setEmail(e.target.value)}
-                style={{ textTransform: "uppercase" }}
-                {...register("email", {
-                  pattern: {
-                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                    message: "Endereço de e-mail inválido"
-                  }
-                })}
+            <div className="col-sm-5 col-md-4 col-xl-4">
+
+              <Controller
+                name="emailCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="emailCliente"
+                    label={"E-mail"}
+                    placeholder={"DIGITE O E-MAIL"}
+                    type="email"
+                    id={"email"}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
               />
             </div>
 
-            <div className="col-sm-6 col-md-6 col-xl-6">
+
+            <div className="col-sm-5 col-md-5 col-xl-3">
               <label className="form-label" htmlFor={""}>Tipo Indicação IE</label>
-              <Select
-                options={[
-                  { value: 9, label: 'Não Contribuinte Com ou Sem IE' },
-                  ...optionsIndicacaoIE.map((item) => {
-                    return {
-                      value: item.value,
-                      label: item.label
-                    }
-                  })
-                ]}
-                defaultValue={[optionsIndicacaoIE[0].value]}
-                value={tipoIndicacaoIE.value}
-                onChange={(e) => setTipoIndicacaoIE(e.value)}
-                isDisabled={true}
-              />
+
+              <select
+                className="select2 form-control select2-hidden-accessible"
+                value={tipoIndicacaoIE}
+                onChange={(e) => setTipoIndicacaoIE(Number(e.target.value))}
+                id={"tipoIndicacaoIE"}
+                disabled={true}
+              >
+                <option value={9}>{'Não Contribuinte Com ou Sem IE'}</option>
+              </select>
             </div>
           </div>
         </div>
@@ -278,100 +337,167 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
         <div className="form-group" >
           <div className="row">
             <div className="col-sm-2 cold-md-2 col-xl-2">
-              <InputFieldModal
-                label={"CEP*"}
-                placeholder={"DIGITE O CEP"}
-                type="text"
-                id={"NuCEP"}
-                value={cep}
-                onChangeModal={(e) => setCep(e.target.value)}
+
+              <Controller
+                name="cepCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="cepCliente"
+                    label={"CEP*"}
+                    placeholder={"DIGITE O CEP"}
+                    type="text"
+                    id={"NuCEP"}
+                    value={cep}
+                    onChange={(e) => setCep(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
               />
             </div>
             <div className="col-sm-4 cold-md-4 col-xl-4">
-              <InputFieldModal
-                label={"Endereço*"}
-                placeholder={"DIGITE O ENDEREÇO"}
-                type="text"
-                id={"Endereco"}
-                value={endereco.toUpperCase()}
-                onChangeModal={(e) => setEndereco(e.target.value)}
+
+              <Controller
+                name="enderecoCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="enderecoCliente"
+                    label={"Endereço*"}
+                    placeholder={"DIGITE O ENDEREÇO"}
+                    type="text"
+                    id={"Endereco"}
+                    value={endereco}
+                    onChange={(e) => setEndereco(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
               />
             </div>
-            <div className="col-sm-1 cold-md-2 col-xl-2">
-              <InputFieldModal
-                label={"Número*"}
-                placeholder={"DIGITE O NÚMERO"}
-                type="text"
-                id={"NuEndereco"}
-                value={numero.toUpperCase()}
-                onChangeModal={(e) => setNumero(e.target.value)}
+            <div className="col-sm-2 cold-md-2 col-xl-2">
+
+              <Controller
+                name="numeroEnderecoCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name={"numeroEnderecoCliente"}
+                    label={"Número*"}
+                    placeholder={"NÚMERO"}
+                    type="text"
+                    id={"NuEndereco"}
+                    value={numero}
+                    onChange={(e) => setNumero(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
               />
             </div>
-            <div className="col-sm-5 cold-md-5 col-xl-4">
-              <InputFieldModal
-                label={"Complemento"}
-                placeholder={"DIGITE O COMPLEMENTO"}
-                type="text"
-                id={"Complemento"}
-                value={complemento?.toUpperCase()}
-                onChangeModal={(e) => setComplemento(e.target.value)}
-                {...register("complemento")}
+            <div className="col-sm-4 cold-md-4 col-xl-4">
+
+              <Controller
+                name="complementoCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="complementoCliente"
+                    label={"Complemento*"}
+                    placeholder={"DIGITE O COMPLEMENTO"}
+                    type="text"
+                    id={"Complemento"}
+                    value={complemento}
+                    onChange={(e) => setComplemento(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                  />
+                )}
               />
-              {errors.complemento && (
-                <span className="text-danger">{errors.complemento.message}</span>
-              )}
             </div>
           </div>
 
           <div className="row mt-3" >
             <div className="col-sm-4 cold-md-4 col-xl-4">
-              <InputFieldModal
-                label={"Bairro*"}
-                placeholder={"DIGITE O BAIRRO"}
-                type="text"
-                id={"Bairro"}
-                value={bairro.toUpperCase()}
-                {...register("bairro", {
-                  pattern: {
-                    value: /^[a-zA-ZÀ-ÿ\s]+$/,
-                    message: "Bairro inválido"
-                  }
-                })}
-                onChangeModal={(e) => setBairro(e.target.value)}
-                readOnly={true}
+
+              <Controller
+                name="bairroCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="bairroCliente"
+                    label={"Bairro*"}
+                    placeholder={"DIGITE O BAIRRO"}
+                    type="text"
+                    id={"Bairro"}
+                    value={bairro}
+                    onChange={(e) => setBairro(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    readOnly={true}
+                  />
+                )}
               />
             </div>
             <div className="col-sm-2 cold-md-2 col-xl-2">
-              <InputFieldModal
-                label={"Nº IBGE*"}
-                placeholder={"DIGITE O Nº IBGE"}
-                type="text"
-                id={"NuIBGE"}
-                value={nuIBGE}
-                onChangeModal={(e) => setNuIBGE(e.target.value)}
-                readOnly={true}
+              <Controller
+                name="nuIBGECliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="nuIBGECliente"
+                    label={"Nº IBGE*"}
+                    placeholder={"DIGITE O Nº IBGE"}
+                    type="text"
+                    id={"NuIBGE"}
+                    value={nuIBGE}
+                    onChange={(e) => setNuIBGE(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    readOnly={true}
+                  />
+                )}
               />
             </div>
             <div className="col-sm-4 cold-md-4 col-xl-4">
-              <InputFieldModal
-                label={"Cidade*"}
-                placeholder={"DIGITE A CIDADE"}
-                type="text"
-                id={"Cidade"}
-                value={cidade.toUpperCase()}
-                onChangeModal={(e) => setCidade(e.target.value)}
-                readOnly={true}
+              <Controller
+                name="cidadeCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="cidadeCliente"
+                    label={"Cidade*"}
+                    placeholder={"DIGITE A CIDADE"}
+                    type="text"
+                    id={"Cidade"}
+                    value={cidade}
+                    onChange={(e) => setCidade(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    readOnly={true}
+                  />
+                )}
               />
             </div>
             <div className="col-sm-2 cold-md-2 col-xl-2">
-              <InputFieldModal
-                label={"Estado*"}
-                placeholder={"ESTADO(UF)"}
-                type="text"
-                id={"estado"}
-                value={estado.toUpperCase()}
-                onChangeModal={(e) => setEstado(e.target.value)}
-                readOnly={true}
+              <Controller
+                name="estadoCliente"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="estadoCliente"
+                    label={"Estado*"}
+                    placeholder={"ESTADO(UF)"}
+                    type="text"
+                    id={"estado"}
+                    value={estado}
+                    onChange={(e) => setEstado(e.target.value)}
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    readOnly={true}
+                  />
+                )}
               />
             </div>
           </div>
@@ -381,7 +507,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
       <FooterModal
         ButtonTypeConfirmar={ButtonTypeModal}
         textButtonConfirmar={"Confirmar"}
-        onClickButtonConfirmar={onSubmit}
+        onClickButtonConfirmar={handleValidatedSubmit}
         corConfirmar="success"
 
         ButtonTypeFechar={ButtonTypeModal}

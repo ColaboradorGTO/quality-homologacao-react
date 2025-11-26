@@ -3,13 +3,16 @@ import { Modal } from "react-bootstrap"
 import { FormularioEditar } from "./formularioEditar";
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 
-
-export const ActionEditarUnidadeMedidaModal = ({ show, handleClose, dadosDetalheUnidadeMedida }) => {
-
-  
+export const ActionEditarUnidadeMedidaModal = ({ 
+  show, 
+  handleClose, 
+  dadosDetalheUnidadeMedida,
+  usuarioLogado,
+  optionsModulos,
+  handleClick 
+}) => {
 
   return (
-
     <Fragment>
 
       <Modal
@@ -26,9 +29,14 @@ export const ActionEditarUnidadeMedidaModal = ({ show, handleClose, dadosDetalhe
           handleClose={handleClose}
         />
 
-
         <Modal.Body>
-          <FormularioEditar dadosDetalheUnidadeMedida={dadosDetalheUnidadeMedida} handleClose={handleClose} />
+          <FormularioEditar 
+            dadosDetalheUnidadeMedida={dadosDetalheUnidadeMedida} 
+            handleClose={handleClose} 
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+            handleClick={handleClick}  
+          />
         </Modal.Body>
 
       </Modal>

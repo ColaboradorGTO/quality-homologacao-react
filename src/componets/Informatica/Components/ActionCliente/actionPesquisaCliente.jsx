@@ -29,8 +29,8 @@ export const ActionPesquisaCliente = () => {
     },
     { staleTime: 5 * 60 * 1000 }
   );
-  
- 
+
+
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
     ['listaEmpresaComercial', marcaSelecionada],
     async () => {
@@ -47,43 +47,37 @@ export const ActionPesquisaCliente = () => {
     if (marcaSelecionada) {
       refetchEmpresas();
     }
-  }, [marcaSelecionada, refetchEmpresas]); 
+  }, [marcaSelecionada, refetchEmpresas]);
+
 
   const fetchListaCliente = async () => {
+    const urlBase = `/lista-cliente?idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&descCliente=${dsCliente}&cpf=${cpfCnpj}&tpCliente=${tipoClienteSelecionado}&status=${statusSelecionado}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      
-      const urlApi = `/lista-cliente?idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&descCliente=${dsCliente}&cpf=${cpfCnpj}&tpCliente=${tipoClienteSelecionado}&status=${statusSelecionado}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-       
-        return response.data;
       }
-  
+
+      return allData;
+
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -96,8 +90,8 @@ export const ActionPesquisaCliente = () => {
     { enabled: false, staleTime: 5 * 60 * 1000 }
   );
 
- 
   
+
   const handleChangeEmpresa = (e) => {
     const selectedEmpresa = optionsEmpresas.find(empresa => empresa.IDEMPRESA === e.value);
     setEmpresaSelecionadaNome(selectedEmpresa.NOFANTASIA);
@@ -144,7 +138,7 @@ export const ActionPesquisaCliente = () => {
 
     <Fragment>
 
-     <ActionMain
+      <ActionMain
         linkComponentAnterior={["Home"]}
         linkComponent={["Clientes"]}
         title="Listagem de Clientes"
@@ -152,11 +146,11 @@ export const ActionPesquisaCliente = () => {
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Empresa"}
         optionsEmpresas={[
-          {value: '', label: 'Selecione uma empresa'},
+          { value: '', label: 'Selecione uma empresa' },
           ...optionsEmpresas.map((item) => ({
             value: item.IDEMPRESA,
             label: item.NOFANTASIA
-          
+
           }))
         ]}
         valueSelectEmpresa={empresaSelecionada}
@@ -165,10 +159,10 @@ export const ActionPesquisaCliente = () => {
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marca"}
         optionsMarcas={[
-          {value: '', label: 'Selecione uma Marca'},
+          { value: '', label: 'Selecione uma Marca' },
           ...optionsMarcas.map((item) => ({
             value: item.IDGRUPOEMPRESARIAL,
-            label: item.GRUPOEMPRESARIAL
+            label: item.DSGRUPOEMPRESARIAL
           }))
         ]}
         valueSelectMarca={marcaSelecionada}
@@ -209,8 +203,8 @@ export const ActionPesquisaCliente = () => {
         IconSearch={AiOutlineSearch}
 
       />
-   
-   
+
+
       <ActionListaCliente dadosCliente={dadosCliente} />
 
     </Fragment>

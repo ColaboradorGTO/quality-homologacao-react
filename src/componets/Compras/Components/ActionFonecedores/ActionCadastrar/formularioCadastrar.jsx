@@ -1,13 +1,16 @@
 import { Fragment } from "react"
-import { useCadastrarFornecedor } from "../hooks/useCadastrarFornecedor"
+import { useCadastrarAlterarFornecedor } from "../hooks/useCadastrarAlterarFornecedor"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
-import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import Select from 'react-select';
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
+import FormField from "../../../../Formularios/FormField"
+import { schema } from "./schema/useCadastrarSchema"
 
-export const FormularioCadastrar = ({handleClose }) => {
-    const { register, handleSubmit, errors } = useForm();
+export const FormularioCadastrar = ({handleClose, usuarioLogado, optionsModulos, handleClick }) => {
+    const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+        mode: "onChange"
+    });
 
     const {
         cnpj,
@@ -71,201 +74,395 @@ export const FormularioCadastrar = ({handleClose }) => {
         optionsFiscal,
         dadosTransportadora,
         dadosCondicoesPagamento,
-        handleCadastrar,
-    } = useCadastrarFornecedor(handleClose)
+        handleFechar,
+        onSubmit,
+    } = useCadastrarAlterarFornecedor({handleClose, usuarioLogado, optionsModulos, handleClick });
 
+    
+    const handleValidatedSubmit = async () => {
+        try {
+            const dadosParaValidar = {
+                cnpjFornecedor: cnpj,
+                inscricaoEstadualFornecedor: inscricaoEstadual,
+                inscricaoMunicipalFornecedor: inscricaoMunicipal,
+                razaoSocialFornecedor: razaoSocial,
+                nomeFantasiaFornecedor: nomeFantasia,
+                cepFornecedor: cep,
+                enderecoFornecedor: endereco,
+                numeroFornecedor: numero,
+                complementoFornecedor: complemento,
+                bairroFornecedor: bairro,
+                cidadeFornecedor: cidade,
+                ufFornecedor: uf,
+                numeroIBGEFornecedor: numeroIBGE,
+                nomeRepresentanteFornecedor: nomeRepresentante,
+                emailFornecedor: email,
+                telefone1Fornecedor: telefone1,
+                telefone2Fornecedor: telefone2,
+                telefone3Fornecedor: telefone3,
+                vendedorFornecedor: vendedor,
+                emailVendedorFornecedor: emailVendedor,
+            }
+
+            await schema.validate(dadosParaValidar, { abortEarly: false });
+
+            onSubmit();
+
+        } catch (validationError) {
+            clearErrors();
+
+
+            if (validationError.inner && validationError.inner.length > 0) {
+                validationError.inner.forEach(error => {
+                    if (error.path) {
+                        setError(error.path, {
+                            type: 'manual',
+                            message: error.message
+                        });
+                    }
+                });
+            }
+
+            const errorMessages = validationError.errors || [validationError.message];
+            console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+        }
+    }
     return (
         <Fragment>
-             <form onSubmit={handleSubmit(handleCadastrar)}>
+             <form onSubmit={handleSubmit(handleValidatedSubmit)}>
                 <div className="form-group">
                     <div className="row">
                         <div className="col-sm-4 col-xl-4">
+                            <Controller
+                                name="cnpjFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"CNPJ *"}
+                                        name="cnpjFornecedor"
+                                        type="text"
+                                        value={cnpj}
+                                        onChange={(e) => setCnpj(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
 
-                            <InputFieldModal
-                                label={"CNPJ *"}
-                                type={"text"}
-                                id={"cnpjforn"}
-                                value={cnpj}
-                                onChangeModal={(e) => setCnpj(e.target.value)}
+                                )}
                             />
                         </div>
                         <div className="col-sm-4 col-xl-4">
-                            <InputFieldModal
-                                label={"Insc. Estadual"}
-                                type={"text"}
-                                id={"inscestadualforn"}
-                                value={inscricaoEstadual}
-                                onChangeModal={(e) => setInscricaoEstadual(e.target.value)}
+                            <Controller 
+                                name="inscricaoEstadualFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Insc. Estadual"}
+                                        name="inscricaoEstadualFornecedor"
+                                        type="text"
+                                        value={inscricaoEstadual}
+                                        onChange={(e) => setInscricaoEstadual(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                         <div className="col-sm-4 col-xl-4">
-                            <InputFieldModal
-                                label={"Insc. Municipal"}
-                                type={"text"}
-                                id={"inscmuniforn"}
-                                value={inscricaoMunicipal}
-                                onChangeModal={(e) => setInscricaoMunicipal(e.target.value)}
+                            <Controller 
+                                name="inscricaoMunicipalFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Insc. Municipal"}
+                                        name="inscricaoMunicipalFornecedor"
+                                        type="text"
+                                        value={inscricaoMunicipal}
+                                        onChange={(e) => setInscricaoMunicipal(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
+                   
                         </div>
                     </div>
                 </div>
                 <div className="form-group">
                     <div className="row">
                         <div className="col-sm-6 col-xl-4">
-
-                            <InputFieldModal
-                                label={"Razão Social *"}
-                                type={"text"}
-                                id={"razaoforn"}
-                                value={razaoSocial}
-                                onChangeModal={(e) => setRazaoSocial(e.target.value)}
+                            <Controller
+                                name="razaoSocialFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Razão Social *"}
+                                        name="razaoSocialFornecedor"
+                                        type="text"
+                                        value={razaoSocial}
+                                        onChange={(e) => setRazaoSocial(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                         <div className="col-sm-6 col-xl-4">
-
-                            <InputFieldModal
-                                label={"Nome Fantasia *"}
-                                type={"text"}
-                                id={"fantasiaforn"}
-                                value={nomeFantasia}
-                                onChangeModal={(e) => setNomeFantasia(e.target.value)}
+                            <Controller
+                                name="nomeFantasiaFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Nome Fantasia *"}
+                                        name="nomeFantasiaFornecedor"
+                                        type="text"
+                                        value={nomeFantasia}
+                                        onChange={(e) => setNomeFantasia(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
+
                         </div>
                     </div>
                 </div>
                 <div className="form-group">
                     <div className="row">
                         <div className="col-sm-3 col-xl-2">
-
-                            <InputFieldModal
-                                label={"CEP *"}
-                                type={"text"}
-                                id={"cepforn"}
-                                value={cep}
-                                onChangeModal={(e) => setCep(e.target.value)}
+                            <Controller 
+                                name="cepFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"CEP *"}
+                                        name="cepFornecedor"
+                                        type="text"
+                                        value={cep}
+                                        onChange={(e) => setCep(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
+                    
                         </div>
                         <div className="col-sm-3 col-xl-5">
-                            <InputFieldModal
-                                label={"Endereço *"}
-                                type={"text"}
-                                id={"enderecoforn"}
-                                value={endereco}
-                                onChangeModal={(e) => setEndereco(e.target.value)}
+                            <Controller
+                                name="enderecoFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Endereço *"}
+                                        name="enderecoFornecedor"
+                                        type="text"
+                                        value={endereco}
+                                        onChange={(e) => setEndereco(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                         <div className="col-sm-3 col-xl-2">
-
-                            <InputFieldModal
-                                label={"Nº *"}
-                                type={"text"}
-                                id={"numeroendforn"}
-                                value={numero}
-                                onChangeModal={(e) => setNumero(e.target.value)}
+                            <Controller
+                                name="numeroFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Nº *"}
+                                        name="numeroFornecedor"
+                                        type="text"
+                                        value={numero}
+                                        onChange={(e) => setNumero(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                         <div className="col-sm-3 col-xl-3">
-                            <InputFieldModal
-                                label={"Complemento"}
-                                type={"text"}
-                                id={"complementoendforn"}
-                                value={complemento}
-                                onChangeModal={(e) => setComplemento(e.target.value)}
+                            <Controller
+                                name="complementoFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Complemento"}
+                                        name="complementoFornecedor"
+                                        type="text"
+                                        value={complemento}
+                                        onChange={(e) => setComplemento(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-
                         </div>
                     </div>
                 </div>
                 <div className="form-group">
                     <div className="row">
                         <div className="col-sm-3 col-xl-4">
-                            <InputFieldModal
-                                label={"Bairro *"}
-                                type={"text"}
-                                id={"bairroforn"}
-                                value={bairro}
-                                onChangeModal={(e) => setBairro(e.target.value)}
+                            <Controller
+                                name="bairroFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Bairro *"}
+                                        name="bairroFornecedor"
+                                        type="text"
+                                        value={bairro}
+                                        onChange={(e) => setBairro(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                         <div className="col-sm-3 col-xl-4">
-                            <InputFieldModal
-                                label={"Cidade *"}
-                                type={"text"}
-                                id={"cidadeforn"}
-                                value={cidade}
-                                onChangeModal={(e) => setCidade(e.target.value)}
-                            />
-                        </div>
-                        <div className="col-sm-3 col-xl-2">
-                            <InputFieldModal
-                                label={"UF *"}
-                                type={"text"}
-                                id={"ufforn"}
-                                value={uf}
-                                onChangeModal={(e) => setUf(e.target.value)}
-                            />
-                        </div>
-                        <div className="col-sm-3 col-xl-2">
-                            <InputFieldModal
-                                label={"Nº IBGE *"}
-                                type={"text"}
-                                id={"nibgeforn"}
-                                value={numeroIBGE}
-                                onChangeModal={(e) => setNumeroIBGE(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div className="form-group">
-                    <div className="row">
-                        <div className="col-sm-6 col-xl-6">
-                            <InputFieldModal
-                                label={"Nome Representante *"}
-                                type={"text"}
-                                id={"nomerepreforn"}
-                                value={nomeRepresentante}
-                                onChangeModal={(e) => setNomeRepresentante(e.target.value)}
-                            />
-                        </div>
-                        <div className="col-sm-6 col-xl-6">
-                            <InputFieldModal
-                                label={"E-mail"}
-                                type={"text"}
-                                id={"emailforn"}
-                                value={email}
-                                onChangeModal={(e) => setEmail(e.target.value)}
-                            />
-                        </div>
-                    </div>
-                </div>
-                <div className="form-group">
-                    <div className="row">
-                        <div className="col-sm-3 col-xl-3">
-                            <InputFieldModal
-                                label={"Telefone 1 *"}
-                                type={"text"}
-                                id={"tel1forn"}
-                                value={telefone1}
-                                onChangeModal={(e) => setTelefone1(e.target.value)}
+                            <Controller 
+                                name="cidadeFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Cidade *"}
+                                        name="cidadeFornecedor"
+                                        type="text"
+                                        value={cidade}
+                                        onChange={(e) => setCidade(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
 
                         </div>
+                        <div className="col-sm-3 col-xl-2">
+                            <Controller
+                                name="ufFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"UF *"}
+                                        name="ufFornecedor"
+                                        type="text"
+                                        value={uf}
+                                        onChange={(e) => setUf(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            />
+                        </div>
+                        <div className="col-sm-3 col-xl-2">
+                            <Controller
+                                name="numeroIBGEFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Nº IBGE *"}
+                                        name="numeroIBGEFornecedor"
+                                        type="text"
+                                        value={numeroIBGE}
+                                        onChange={(e) => setNumeroIBGE(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            />
+  
+                        </div>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="row">
+                        <div className="col-sm-6 col-xl-6">
+                            <Controller
+                                name="nomeRepresentanteFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Nome Representante *"}
+                                        name="nomeRepresentanteFornecedor"
+                                        type="text"
+                                        value={nomeRepresentante}
+                                        onChange={(e) => setNomeRepresentante(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            />
+            
+                        </div>
+                        <div className="col-sm-6 col-xl-6">
+                            <Controller
+                                name="emailFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"E-mail"}
+                                        name="emailFornecedor"
+                                        type="text"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="form-group">
+                    <div className="row">
                         <div className="col-sm-3 col-xl-3">
-                            <InputFieldModal
-                                label={"Telefone 2"}
-                                type={"text"}
-                                id={"tel2forn"}
-                                value={telefone2}
-                                onChangeModal={(e) => setTelefone2(e.target.value)}
+                            <Controller
+                                name="telefone1Fornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Telefone 1 *"}
+                                        name="telefone1Fornecedor"
+                                        type="text"
+                                        value={telefone1}
+                                        onChange={(e) => setTelefone1(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                         <div className="col-sm-3 col-xl-3">
-                            <InputFieldModal
-                                label={"Telefone 3"}
-                                type={"text"}
-                                id={"tel3forn"}
-                                value={telefone3}
-                                onChangeModal={(e) => setTelefone3(e.target.value)}
+                            <Controller
+                                name="telefone2Fornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Telefone 2"}
+                                        name="telefone2Fornecedor"
+                                        type="text"
+                                        value={telefone2}
+                                        onChange={(e) => setTelefone2(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            />
+                        </div>
+                        <div className="col-sm-3 col-xl-3">
+                            <Controller
+                                name="telefone3Fornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Telefone 3"}
+                                        name="telefone3Fornecedor"
+                                        type="text"
+                                        value={telefone3}
+                                        onChange={(e) => setTelefone3(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                         <div className="col-sm-3 col-xl-3">
@@ -356,24 +553,39 @@ export const FormularioCadastrar = ({handleClose }) => {
                             />
                         </div>
                         <div className="col-sm-4 col-xl-3">
-
-                            <InputFieldModal
-                                label={"Vendedor"}
-                                type={"text"}
-                                id={"novendedor"}
-                                value={vendedor}
-                                onChangeModal={(e) => setVendedor(e.target.value)}
+                            <Controller
+                                name="vendedorFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Vendedor"}
+                                        name="vendedorFornecedor"
+                                        type="text"
+                                        value={vendedor}
+                                        onChange={(e) => setVendedor(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                         <div className="col-sm-4 col-xl-6">
-
-                            <InputFieldModal
-                                label={"E-mail Vendedor"}
-                                type={"text"}
-                                id={"emailvendedor"}
-                                value={emailVendedor}
-                                onChangeModal={(e) => setEmailVendedor(e.target.value)}
+                            <Controller
+                                name="emailVendedorFornecedor"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"E-mail Vendedor"}
+                                        name="emailVendedorFornecedor"
+                                        type="text"
+                                        value={emailVendedor}
+                                        onChange={(e) => setEmailVendedor(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
+                            
                         </div>
 
                     </div>
@@ -413,12 +625,13 @@ export const FormularioCadastrar = ({handleClose }) => {
                 </div>
                 <FooterModal
                     ButtonTypeFechar={ButtonTypeModal}
-                    onClickButtonFechar={handleClose}
+                    onClickButtonFechar={handleFechar}
                     textButtonFechar={"Fechar"}
                     corFechar={"secondary"}
 
                     ButtonTypeCadastrar={ButtonTypeModal}
-                    onClickButtonCadastrar={handleCadastrar}
+                    onClickButtonCadastrar
+                    tipoBtnCadastrar={"submit"}
                     textButtonCadastrar={"Salvar"}
                     corCadastrar={"success"}
                 />

@@ -28,6 +28,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
   const [actionPrincipalVisivel, setActionPrincipalVisivel] = useState(true);
   const [tabelaVisivel, setTabelaVisivel] = useState(true);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -193,6 +194,17 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
     },
   ]
 
+  const refetchListaCaixa = async (IDEMPRESA) => {
+  try {
+    const response = await get(`/lista-caixas?idEmpresa=${IDEMPRESA}`);
+    if (response.data) {
+      setDadosListaCaixa(response.data);
+    }
+  } catch (error) {
+    console.error('Erro ao recarregar lista de caixas:', error);
+  }
+};
+
   const handleEditarEmpresa = async (IDEMPRESA) => {
     try {
       const response = await get(`/listaEmpresas?idEmpresa=${IDEMPRESA}`);
@@ -224,6 +236,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
       return;
     }
   }
+  
   const handleAtualizarEmpresa = async (IDEMPRESA) => {
     try {
       const response = await get(`/lista-caixas?idEmpresa=${IDEMPRESA}`);
@@ -274,6 +287,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
     }
   }
 
+
   const handleClickCaixa = (row) => {
     if (optionsModulos[0]?.ALTERAR === 'True') {
       if (row.IDEMPRESA) {
@@ -292,7 +306,6 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
       return;
     }
   }
-
   return (
 
     <Fragment>
@@ -301,6 +314,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
           <div className="panel-hdr">
             <h2>Lista de Empresas</h2>
           </div>
+  
           <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
             <HeaderTable
               globalFilterValue={globalFilterValue}
@@ -319,6 +333,9 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
               sortOrder={-1}
               paginator={true}
               rows={10}
+              selectionMode="single"
+              selection={rowSelection}
+              onSelectionChange={(e) => setRowSelection(e.value)}
               rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
               paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
               currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
@@ -353,6 +370,8 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
         handleClose={() => setModalEditarEmpresa(false)}
         dadosListaCaixa={dadosListaCaixa}
         dadosAtualizaEmpresa={dadosAtualizaEmpresa}
+        usuarioLogado={usuarioLogado}
+        refetchListaCaixa={refetchListaCaixa}
       />
 
       <InformaticaActionCertificadoModal
@@ -367,6 +386,8 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
           setActionVisivel={setActionVisivel}
           setTabelaVisivel={setTabelaVisivel}
           setActionListaCaixaVisivel={setActionListaCaixaVisivel}
+          refetchListaCaixa={refetchListaCaixa}
+          usuarioLogado={usuarioLogado}
         />
 
       )}

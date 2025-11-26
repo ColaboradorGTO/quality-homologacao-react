@@ -1,15 +1,19 @@
 import React, { Fragment } from "react"
 import Select from 'react-select';
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { useAtualizaCaixa } from "../hooks/useAtualizaCaixa";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal";
 import { useCriarCaixaPDV } from "../hooks/useCriarCaixaPDV";
+import { AlertError } from "../../../../Inputs/alertError";
+import FormField from "../../../../Formularios/FormField";
+import { schema } from "./schemaCreateCaixa";
 
-
-export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa, refetchListaCaixa, usuarioLogado }) => {
+  const { handleSubmit, formState: { errors }, clearErrors, control, setError } = useForm({
+    mode: "onChange"
+  });
   const {
     empresa,
     setEmpresa,
@@ -33,18 +37,52 @@ export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
     setStatusLimpar,
     dataAlteracao,
     setDataAlteracao,
-    usuarioLogado,
     atualizacaoDiario,
     optionsNota,
     optionsImpressoras,
     onSubmit
-  } = useCriarCaixaPDV({ dadosListaCaixa })
+  } = useCriarCaixaPDV({ dadosListaCaixa, handleClose, refetchListaCaixa, usuarioLogado });
 
+
+  const handleValidatedSubmit = async () => {
+    try {
+      const dadosParaValidar = {
+        nomeCaixa: dsCaixa,
+        tipoDeEmissao: tipoEmissao,
+        modeloDeImpressora: modeloImpressora,
+        portaDeComunicacao: portaComunicacao,
+        numeroDeSerieProducao: numeroSerieProducao,
+        numeroDeUltimaNFCeProducao: numeroUltimaNFCeProducao,
+        tefSchema: tef,
+        statusAtualizarSchema: statusSelecionado,
+        statusLimparSchema: statusLimpar
+      };
+
+      await schema.validate(dadosParaValidar, { abortEarly: false });
+      onSubmit(dadosParaValidar);
+    } catch (validationError) {
+      console.error('❌ Erro de validação:', validationError);
+
+      clearErrors();
+      if (validationError.inner && validationError.inner.length > 0) {
+        validationError.inner.forEach(error => {
+          if (error.path) {
+            setError(error.path, {
+              type: 'manual',
+              message: error.message
+            });
+          }
+        });
+      }
+      const errorMessages = validationError.errors || [validationError.message];
+      console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+    }
+  }
   return (
 
     <Fragment>
 
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(handleValidatedSubmit)}>
 
         <div className="form-group">
 
@@ -62,13 +100,21 @@ export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
               />
             </div>
             <div className="col-sm-6 col-md-6 col-xl-6">
-              <InputFieldModal
-                type="text"
-                className="form-control input"
-                label="Nº - Descrição do Caixa"
-                readOnly={false}
-                value={dsCaixa}
-                onChangeModal={(e) => setDSCaixa(e.target.value)}
+
+              <Controller
+                name="nomeCaixa"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="nomeCaixa"
+                    label={"Nº - Descrição do Caixa"}
+                    type="text"
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    value={dsCaixa}
+                    onChangeModal={(e) => setDSCaixa(e.target.value)}
+                  />
+                )}
               />
             </div>
           </div>
@@ -94,6 +140,13 @@ export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
                 value={optionsNota.find(option => option.value === tipoEmissao)}
                 onChange={(selectedOption) => setTipoEmissao(selectedOption?.value)}
               />
+              {errors.tipoDeEmissao && (
+                <AlertError
+                  error={errors.tipoDeEmissao?.value || errors.tipoDeEmissao}
+                  onClose={clearErrors}
+                  fieldName="tipoDeEmissao"
+                />
+              )}
             </div>
             <div className="col-sm-6 col-md-4 col-xl-4">
               <label className="form-label" htmlFor="modimpressao">Modelos de Impressoras</label>
@@ -109,15 +162,30 @@ export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
                 value={optionsImpressoras.find(option => option.value === modeloImpressora)}
                 onChange={(selectedOption) => setModeloImpressora(selectedOption?.value)}
               />
+              {errors.modeloDeImpressora && (
+                <AlertError
+                  error={errors.modeloDeImpressora?.value || errors.modeloDeImpressora}
+                  onClose={clearErrors}
+                  fieldName="modeloDeImpressora"
+                />
+              )}
             </div>
             <div className="col-sm-6 col-md-3 col-xl-3">
-              <InputFieldModal
-                type="text"
-                className="form-control input"
-                label="Porta Comunicação"
-                readOnly={false}
-                value={portaComunicacao}
-                onChangeModal={(e) => setPortaComunicacao(e.target.value)}
+
+              <Controller
+                name="portaDeComunicacao"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="portaDeComunicacao"
+                    label={"Porta Comunicação"}
+                    type="text"
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    value={portaComunicacao}
+                    onChangeModal={(e) => setPortaComunicacao(e.target.value)}
+                  />
+                )}
               />
             </div>
           </div>
@@ -125,23 +193,38 @@ export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
         <div className="form-group">
           <div className="row">
             <div className="col-sm-6 col-md-3 col-xl-3">
-              <InputFieldModal
-                type="text"
-                className="form-control input"
-                readOnly={false}
-                label="Nº Série Produção"
-                value={numeroSerieProducao}
-                onChangeModal={(e) => setNumeroSerieProducao(e.target.value)}
+
+              <Controller
+                name="numeroDeSerieProducao"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="numeroDeSerieProducao"
+                    label={"Nº Série Produção"}
+                    type="text"
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    value={numeroSerieProducao}
+                    onChangeModal={(e) => setNumeroSerieProducao(e.target.value)}
+                  />
+                )}
               />
             </div>
             <div className="col-sm-6 col-md-3 col-xl-3">
-              <InputFieldModal
-                type="text"
-                className="form-control input"
-                readOnly={false}
-                value={numeroUltimaNFCeProducao}
-                onChangeModal={(e) => setNumeroUltimaNFCeProducao(e.target.value)}
-                label="Nº Última NFCe Produção"
+              <Controller
+                name="numeroDeUltimaNFCeProducao"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="numeroDeUltimaNFCeProducao"
+                    label={"Nº Última NFCe Produção"}
+                    type="text"
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    value={numeroUltimaNFCeProducao}
+                    onChangeModal={(e) => setNumeroUltimaNFCeProducao(e.target.value)}
+                  />
+                )}
               />
             </div>
             <div className="col-sm-6 col-md-2 col-xl-2">
@@ -158,6 +241,13 @@ export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
                 value={atualizacaoDiario.find(option => option.value === tef)}
                 onChange={(selectedOption) => setTef(selectedOption?.value)}
               />
+              {errors.tefSchema && (
+                <AlertError
+                  error={errors.tefSchema?.value || errors.tefSchema}
+                  onClose={clearErrors}
+                  fieldName="tefSchema"
+                />
+              )}
             </div>
             <div className="col-sm-6 col-md-2 col-xl-2">
               <label className="form-label" htmlFor="statualiza">Atualizar</label>
@@ -172,6 +262,13 @@ export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
                 value={atualizacaoDiario.find(option => option.value === statusSelecionado)}
                 onChange={(selectedOption) => setStatusSelecionado(selectedOption?.value)}
               />
+              {errors.statusAtualizarSchema && (
+                <AlertError
+                  error={errors.statusAtualizarSchema?.value || errors.statusAtualizarSchema}
+                  onClose={clearErrors}
+                  fieldName="statusAtualizarSchema"
+                />
+              )}
             </div>
             <div className="col-sm-6 col-md-2 col-xl-2">
               <label className="form-label" htmlFor="stlimpa">Limpar</label>
@@ -187,6 +284,13 @@ export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
                 value={atualizacaoDiario.find(option => option.value === statusLimpar)}
                 onChange={(selectedOption) => setStatusLimpar(selectedOption?.value)}
               />
+              {errors.statusLimparSchema && (
+                <AlertError
+                  error={errors.statusLimparSchema?.value || errors.statusLimparSchema}
+                  onClose={clearErrors}
+                  fieldName="statusLimparSchema"
+                />
+              )}
             </div>
           </div>
         </div>
@@ -194,7 +298,7 @@ export const FormularioCadastrar = ({ show, handleClose, dadosListaCaixa }) => {
         <FooterModal
           ButtonTypeCadastrar={ButtonTypeModal}
           textButtonCadastrar={"Atualizar"}
-          onClickButtonCadastrar={onSubmit}
+          onClickButtonCadastrar={handleValidatedSubmit}
           corCadastrar="success"
 
           ButtonTypeFechar={ButtonTypeModal}

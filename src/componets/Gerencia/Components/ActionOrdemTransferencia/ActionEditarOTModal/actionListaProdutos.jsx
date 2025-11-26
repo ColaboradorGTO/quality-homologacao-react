@@ -10,7 +10,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { formatMoeda } from "../../../../../utils/formatMoeda";
 
-export const ActionListaProdutos = ({dadosProdutos}) => {
+export const ActionListaProdutos = ({dadosDetalheTransferencia}) => {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const dataTableRef = useRef();
 
@@ -56,8 +56,8 @@ export const ActionListaProdutos = ({dadosProdutos}) => {
         doc.save('controle_transferencia.pdf');
     };
 
-
-    const [dados, setDados] = useState(dadosProdutos.map((item, index) => {
+    console.log(dadosDetalheTransferencia, 'dadosDetalheTransferencia')
+    const dados = dadosDetalheTransferencia.map((item, index) => {
         let contador = index + 1;
         let quantidade = 1;
         return {
@@ -66,8 +66,8 @@ export const ActionListaProdutos = ({dadosProdutos}) => {
             IDEMPRESAORIGEM: item.IDEMPRESAORIGEM,
             NUCODBARRAS: item.NUCODBARRAS,
             DSNOME: item.DSNOME,
-            PRECOVENDA: item.PRECOVENDA,
-            PRECOCUSTO: item.PRECOCUSTO,
+            VLRUNITVENDA: item.VLRUNITVENDA,
+            VLRUNITCUSTO: item.VLRUNITCUSTO,
             QTDEXPEDICAO: parseInt(item.QTDEXPEDICAO),
             QTDRECEPCAO: parseInt(item.QTDRECEPCAO),
             QTDDIFERENCA: parseInt(item.QTDDIFERENCA),
@@ -78,7 +78,7 @@ export const ActionListaProdutos = ({dadosProdutos}) => {
             quantidade,
             contador
         }
-    }))
+    })
     
     const colunasDetalheTransferencia = [
         {
@@ -100,9 +100,15 @@ export const ActionListaProdutos = ({dadosProdutos}) => {
             sortable: true,
         },
         {
-            field: 'PRECOVENDA',
+            field: 'VLRUNITCUSTO',
+            header: 'R$ Custo',
+            body: row => <th>{formatMoeda(row.VLRUNITCUSTO)}</th>,
+            sortable: true,
+        },
+        {
+            field: 'VLRUNITVENDA',
             header: 'R$ Venda',
-            body: row => <th>{formatMoeda(row.PRECOVENDA)}</th>,
+            body: row => <th>{formatMoeda(row.VLRUNITVENDA)}</th>,
             sortable: true,
         },
         {
@@ -116,43 +122,49 @@ export const ActionListaProdutos = ({dadosProdutos}) => {
             header: 'Opções',
             button: true,
             body: (row) => {
-                return (
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-around",
-                            alignItems: "center",
-                            width: "100%"
-                        }}
-                    >
-                        <div className="mr-2">
+                if(row.IDSTATUSOT === 1) {
+                    return (
+                        <div
+                            style={{
+                                display: "flex",
+                                justifyContent: "space-around",
+                                alignItems: "center",
+                                width: "100%"
+                            }}
+                        >
+                            <div className="mr-2">
 
-                            <ButtonTable
-                                titleButton={"Diminuir Quantidade"}
-                                onClickButton={() => handleDiminuirQuantidade(row)}
-                                Icon={FaMinus}
-                                iconSize={16}
-                                iconColor={"#fff"}
-                                cor={"info"}
-            
-                            />
+                                <ButtonTable
+                                    titleButton={"Diminuir Quantidade"}
+                                    onClickButton={() => handleDiminuirQuantidade(row)}
+                                    Icon={FaMinus}
+                                    iconSize={16}
+                                    iconColor={"#fff"}
+                                    cor={"info"}
+                                    width="30px"
+                                    height="30px"
+                                />
+                            </div>
+
+                            <div>
+
+                                <ButtonTable
+                                    titleButton={"Excluir Produto"}
+                                    onClickButton={() => handleExcluirProduto(row)}
+                                    Icon={FaRegTrashAlt}
+                                    iconSize={16}
+                                    iconColor={"#fff"}
+                                    cor={"danger"}
+                                    width="30px"
+                                    height="30px"
+                                />
+                            </div>
                         </div>
 
-                        <div>
-
-                            <ButtonTable
-                                titleButton={"Excluir Produto"}
-                                onClickButton={() => handleExcluirProduto(row)}
-                                Icon={FaRegTrashAlt}
-                                iconSize={16}
-                                iconColor={"#fff"}
-                                cor={"danger"}
-                    
-                            />
-                        </div>
-                    </div>
-
-                )
+                    )
+                } else {
+                    return <div></div>
+                }
             }
         }
     ]
@@ -161,7 +173,7 @@ export const ActionListaProdutos = ({dadosProdutos}) => {
         setDados((prevDados) =>
             prevDados.map((item) => {
                 if (item.IDPRODUTO === row.IDPRODUTO) {
-                    return { ...item, quantidade: Math.max(item.quantidade - 1, 0) }; // Não permitir quantidade negativa
+                    return { ...item, quantidade: Math.max(item.quantidade - 1, 0) }; 
                 }
                 return item;
             })

@@ -1,12 +1,9 @@
 import { Fragment } from "react"
 import Modal from 'react-bootstrap/Modal';
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
-import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
-import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
-import { ActionListaProdutos } from "./actionListaProdutos";
 import { FormularioIncuirOT } from "./formularioIncluirOT";
 
-export const ActionIncluirOTModal = ({ show, handleClose }) => {
+export const ActionIncluirOTModal = ({ show, handleClose, handleClick, usuarioLogado, optionsModulos }) => {
 
   return (
 
@@ -19,20 +16,19 @@ export const ActionIncluirOTModal = ({ show, handleClose }) => {
         <div className="modal-content">
           <HeaderModal
             title="Controle Ordem de Transferência"
-            subtitle="Nome da Loja"
+            subTitle="Nome da Loja"
             handleClose={handleClose}
           />
           <Modal.Body >
-            <FormularioIncuirOT />
+            <FormularioIncuirOT
+              handleClick={handleClick}
+              handleClose={handleClose}
+              usuarioLogado={usuarioLogado}
+              optionsModulos={optionsModulos}
+            />
             
           </Modal.Body>
 
-          <FooterModal
-            ButtonTypeFechar={ButtonTypeModal}
-            textButtonFechar={"Fechar"}
-            onClickButtonFechar={handleClose}
-            corFechar={"secondary"}
-          />
         </div>
       </Modal>
     </Fragment>

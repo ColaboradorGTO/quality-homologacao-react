@@ -243,7 +243,6 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
       NOFANTASIA: item.NOFANTASIA,
       QTD_CLIENTE: item.QTD_CLIENTE,
       QTD_PRODUTO: item.QTD_PRODUTO,
-      VRTOTALVENDA: item.VRTOTALVENDA,
       valorTotalLiquido: valorTotalLiquido,
       VRRECVOUCHER: item.VRRECVOUCHER,
       VALORDESCONTO: item.VALORDESCONTO,

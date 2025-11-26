@@ -12,7 +12,7 @@ import { useQuery } from "react-query";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { useForm } from "react-hook-form";
 
-export const ActionUpdateDescontoFuncionarioModal = ({ show, handleClose, dadosDescontoFuncionarios }) => {
+export const ActionUpdateDescontoFuncionarioModal = ({ show, handleClose, dadosDescontoFuncionarios, handleClick }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [empresa, setEmpresa] = useState('');
   const [cpf, setCpf] = useState('');
@@ -77,18 +77,19 @@ export const ActionUpdateDescontoFuncionarioModal = ({ show, handleClose, dadosD
       setEmpresa(dadosDescontoFuncionarios[0]?.NOFANTASIA);
       setCpf(dadosDescontoFuncionarios[0]?.NUCPF);
       setFuncionario(dadosDescontoFuncionarios[0]?.NOFUNCIONARIO);
-      setPercentualDesconto(dadosDescontoFuncionarios[0]?.PERCDESCUSUAUTORIZADO);
+      setPercentualDesconto(dadosDescontoFuncionarios[0]?.PERCDESCUSUAUTORIZADO || "0" );
+      
     }
     
   }, [dadosDescontoFuncionarios]);
   const onSubmit = async (data) => {
     const putData = {
-      DTINICIODESC: dataInicioDesconto,
-      DTFIMDESC: dataFimDesconto,
-      PERCDESCUSUAUTORIZADO: percentualDesconto,
-      TXTMOTIVODESCONTO: motivoDesconto,
-      IDFUNCALTERACAO: usuarioLogado?.ID,
-      ID: dadosDescontoFuncionarios[0]?.ID,
+      DTINICIODESC: String(dataInicioDesconto),
+      DTFIMDESC: String(dataFimDesconto),
+      PERCDESCUSUAUTORIZADO:percentualDesconto ? Number(percentualDesconto) : 0,
+      TXTMOTIVODESCONTO:String(motivoDesconto),
+      IDFUNCALTERACAO: Number(usuarioLogado?.id),
+      ID: Number(dadosDescontoFuncionarios[0]?.ID),
 
     }
 
@@ -108,14 +109,16 @@ export const ActionUpdateDescontoFuncionarioModal = ({ show, handleClose, dadosD
       const textDados = JSON.stringify(putData)
       const textoFuncao = 'RH/ATUALIZAR DESCONTO FUNCIONARIO AUTORIZADO';
   
-  
+      
       const createData = {
-        IDFUNCIONARIO: usuarioLogado.id,
+        IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
       }
   
+      handleClick()
+      handleClose()
       const responsePost = await post('/log-web', createData)
   
       
@@ -147,7 +150,7 @@ export const ActionUpdateDescontoFuncionarioModal = ({ show, handleClose, dadosD
     }
   
     // Atualize o estado ou faça o que for necessário com o valor formatado
-    console.log(valor);
+   // console.log(valor);
   };
   
 
@@ -294,5 +297,6 @@ export const ActionUpdateDescontoFuncionarioModal = ({ show, handleClose, dadosD
 
       </Modal>
     </Fragment>
+    
   )
 }

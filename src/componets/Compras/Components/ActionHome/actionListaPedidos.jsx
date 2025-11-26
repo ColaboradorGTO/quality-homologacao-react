@@ -8,7 +8,6 @@ import { AiOutlineDelete } from 'react-icons/ai';
 import { CiEdit } from 'react-icons/ci';
 import { formatMoeda } from '../../../../utils/formatMoeda';
 import { Fragment, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import HeaderTable from '../../../Tables/headerTable';
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
@@ -18,16 +17,26 @@ import { get } from '../../../../api/funcRequest';
 import { ActionPDFPedidoSemPreco } from './ActionPDFSemPreco/actionPDFPedidoSemPreco';
 import { ActionPDFPedido } from './ActionPDF/actionPDFPedido';
 import { toFloat } from '../../../../utils/toFloat';
-import { ActionNovoPedido } from '../ActionNovoPedido/actionNovoPedido';
+import { ActionPesquisaNovoPedido } from '../ActionNovoPedido/actionPesquisaNovoPedido';
+import { set } from 'react-hook-form';
 
-export const ActionListaPedidos = ({ dadosPedidos }) => {
+export const ActionListaPedidos = ({ 
+  dadosPedidos, 
+  dadosVisualizarPedido, 
+  setDadosVisualizarPedido,
+  setDadosDetalhePedido,
+  dadosDetalhePedido,
+  setActionVisualizarPedido,
+  setActionPedidoResumido,
+  actionHome,
+  setActionHome,
+  actionVisualizarPedido,
+  actionPedidoResumido,
+}) => {
   const [modalPedidoNota, setModalPedidoNota] = useState(false);
   const [modalPedidoNotaSemPreco, setModalPedidoNotaSemPreco] = useState(false);
   const [dadosPedido, setDadosPedido] = useState([]);
   const [dadosPedidoSemPreco, setDadosPedidoSemPreco] = useState([]);
-  const [dadosDetalhePedido, setDadosDetalhePedido] = useState([]);
-  const [dadosVisualizarPedido, setDadosVisualizarPedido] = useState([]);
-  const [actionVsualizarPedido, setActionVisualizarPedido] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
 
@@ -207,7 +216,7 @@ export const ActionListaPedidos = ({ dadosPedidos }) => {
                   cor={"primary"}
                   iconColor={"white"}
                   iconSize={20}
-                  onClickButton
+                  onClickButton={() => handleClickVisualizarPedido(row)}
                   titleButton={"Editar Pedido"}
                 />
               </div>
@@ -254,7 +263,7 @@ export const ActionListaPedidos = ({ dadosPedidos }) => {
                   cor={"primary"}
                   iconColor={"white"}
                   iconSize={20}
-                  onClickButton
+                  onClickButton={() => handleClickVisualizarPedido(row)}
                   titleButton={"Editar Pedido"}
                 />
               </div>
@@ -505,7 +514,11 @@ export const ActionListaPedidos = ({ dadosPedidos }) => {
           setDadosDetalhePedido(responseDetlhe.data)
           // console.log(responseDetlhe.data, "responseDetalhe.data")
           setActionVisualizarPedido(true)
-          // setTabelaPedidoPeriodo(false)
+          setActionHome(false)
+          setActionPedidoResumido(false)
+          console.log(actionHome, 'actionHome')
+          console.log(actionPedidoResumido, 'actionPedidoResumido')
+          console.log(actionVisualizarPedido, 'actionListaPedidos')
         }
       } catch (error) {
         console.log(error, "não foi possivel pegar os dados da tabela ")
@@ -522,7 +535,7 @@ export const ActionListaPedidos = ({ dadosPedidos }) => {
    
   return (
     <Fragment>
-      <div className="panel">
+      <div className="">
         
         <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
           <HeaderTable
@@ -581,13 +594,7 @@ export const ActionListaPedidos = ({ dadosPedidos }) => {
         dadosDetalhePedido={dadosDetalhePedido}
       />
 
-      {actionVsualizarPedido && (
-
-        <ActionNovoPedido
-          dadosVisualizarPedido={dadosVisualizarPedido}
-          dadosDetalhePedido={dadosDetalhePedido}
-        />
-      )}
+      
     </Fragment>
   )
 }

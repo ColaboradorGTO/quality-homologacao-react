@@ -11,7 +11,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
-export const ActionListaUnidadeMedida = ({ dadosUnidadeMedidas }) => {
+export const ActionListaUnidadeMedida = ({ dadosUnidadeMedidas, usuarioLogado, optionsModulos, handleClick }) => {
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosDetalheUnidadeMedida, setDadosDetalheUnidadeMedida] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -60,7 +60,7 @@ export const ActionListaUnidadeMedida = ({ dadosUnidadeMedidas }) => {
 
   const dados = dadosUnidadeMedidas.map((item, index) => {
     let contador = index + 1;
-
+    
     return {
       contador,
       DSUNIDADE: item.DSUNIDADE,
@@ -114,11 +114,12 @@ export const ActionListaUnidadeMedida = ({ dadosUnidadeMedidas }) => {
             <ButtonTable
               titleButton={"Editar Unidade de Medida"}
               onClickButton={() => clickEditar(row)}
-              cor={"success"}
+              cor={"primary"}
               Icon={CiEdit}
               iconSize={22}
               iconColor={"#fff"}
-
+              width="35px"
+              height="35px"
             />
           </div>
         )
@@ -135,7 +136,7 @@ export const ActionListaUnidadeMedida = ({ dadosUnidadeMedidas }) => {
 
   const handleEditar = async (IDUNIDADEMEDIDA) => {
     try {
-      const response = await get(`/unidades-de-medidas?idUnidadeMedida=${IDUNIDADEMEDIDA}`);
+      const response = await get(`/unidades-de-Medidas?idUnidadeMedida=${IDUNIDADEMEDIDA}`);
       setDadosDetalheUnidadeMedida(response.data);
       setModalEditar(true)
     } catch (error) {
@@ -146,7 +147,7 @@ export const ActionListaUnidadeMedida = ({ dadosUnidadeMedidas }) => {
   return (
     <Fragment>
 
-      <div className="panel" style={{ marginTop: "4rem" }}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>Relatório de Unidades de Medidas</h2>
         </div>
@@ -171,6 +172,9 @@ export const ActionListaUnidadeMedida = ({ dadosUnidadeMedidas }) => {
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -184,19 +188,23 @@ export const ActionListaUnidadeMedida = ({ dadosUnidadeMedidas }) => {
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '1rem' }}
 
               />
             ))}
           </DataTable>
         </div>
       </div>
+
       <ActionEditarUnidadeMedidaModal
         show={modalEditar}
         handleClose={() => setModalEditar(false)}
         dadosDetalheUnidadeMedida={dadosDetalheUnidadeMedida}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

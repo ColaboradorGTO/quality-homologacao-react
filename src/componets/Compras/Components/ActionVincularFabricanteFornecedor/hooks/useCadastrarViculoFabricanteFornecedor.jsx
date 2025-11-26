@@ -1,64 +1,55 @@
 import Swal from "sweetalert2";
-import { post, put } from "../../../../../api/funcRequest";
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { post } from "../../../../../api/funcRequest";
+import { useState } from "react";
 import axios from "axios";
-import { getDataHoraAtual } from "../../../../../utils/dataAtual";
-import { useFetchData } from "../../../../../hooks/useFetchData";
-import { toFloat } from "../../../../../utils/toFloat";
 
-export const useCadastrarVinculoFabricanteFornecedor = () => {
-    const [statusSelecionado, setStatusSelecionado] = useState(null)
-    const [fabricanteSelecionado, setFabricanteSelecionado] = useState('')
-    const [fornecedorSelecionado, setFornecedorSelecionado] = useState('')
-    const [data, setData] = useState('')
-    const [usuarioLogado, setUsuarioLogado] = useState(null);
+
+export const useCadastrarVinculoFabricanteFornecedor = ({
+    dadosVinculosFornecedores, 
+    usuarioLogado, 
+    optionsModulos, 
+    fabricanteSelecionado, 
+    fornecedorSelecionado,
+    refetchVinculos
+}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const dataAtual = getDataHoraAtual()
-        setData(dataAtual)
-    },[])
-
-    
-    const optionsStatus = [
-        { value: 'True', label: 'ATIVO' },
-        { value: 'False', label: 'INATIVO' }
-    ]
-
-    useEffect(() => {
-        const usuarioArmazenado = localStorage.getItem('usuario');
-
-        if (usuarioArmazenado) {
-            try {
-                const parsedUsuario = JSON.parse(usuarioArmazenado);
-                setUsuarioLogado(parsedUsuario);;
-            } catch (error) {
-                console.error('Erro ao parsear o usuário do localStorage:', error);
-            }
-        } else {
-            navigate('/');
-        }
-    }, [navigate]);
-
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
 
-    const { data: dadosFabricantes = [], error: errorFabricantes, isLoading: isLoadingFabricantes } = useFetchData('fabricantes', '/fabricantes');
- 
+        if (!usuarioIP) {
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
-    const handleCadastrar = async () => {
+    const handleCadastrarVinculo = async () => {
+        if(optionsModulos[0]?.CRIAR == 'False') {
+            Swal.fire({
+                title: 'Erro!',
+                text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para criar o Vínculo!`,
+                icon: 'error',
+                customClass: {
+                    container: 'custom-swal',
+                },
+            });
+            return;
+        }
+        
+
         if (fornecedorSelecionado === '') {
             Swal.fire({
                 position: 'center',
@@ -90,19 +81,62 @@ export const useCadastrarVinculoFabricanteFornecedor = () => {
         }
 
 
-        const postData = [{
-            IDFABRICANTE: toFloat(fabricanteSelecionado.value),
-            IDFORNECEDOR: toFloat(fornecedorSelecionado.value),
-            STATIVO: 'True',
-        }]
         try {
+            await refetchVinculos();
+            
+            if(dadosVinculosFornecedores && dadosVinculosFornecedores.length > 0) {
+                let vinculosJaExistentes = false;
 
-            const response = await post('/cadastro-fabricantes', postData)
+                for(let i = 0; i < dadosVinculosFornecedores.length; i++) {
+                    const registro = dadosVinculosFornecedores[i];
+                    if(registro.IDFABRICANTE === parseInt(fabricanteSelecionado) && registro.IDFORNECEDOR === parseInt(fornecedorSelecionado)) {
+                        vinculosJaExistentes = true;
+                        break;
+                    }
+                }
+    
+                if(vinculosJaExistentes) {
+                    Swal.fire({
+                        position: 'center',
+                        icon: 'error',
+                        title: `Fornecedor já vinculado ao fabricante selecionado!`,
+                        type: 'warning',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        customClass: {
+                            container: 'custom-swal',
+                        }
+                    });
+                    return;
+                }
+            }
+            
+            
+            const postData = {
+                IDFABRICANTE: parseInt(fabricanteSelecionado),
+                IDFORNECEDOR: parseInt(fornecedorSelecionado),
+                STATIVO: 'True',
+            }
 
+            const response = await post('/cadastrar-fabricante-fornecedor', postData)
+
+            
+            const textDados = JSON.stringify(postData)
+            let textFuncao = 'COMPRAS/VINCULO DO FABRICANTE AO FORNECEDOR';
+            const ipUsuario = await getIPUsuario();
+            const createtLog = {
+                IDFUNCIONARIO: String(usuarioLogado.id),
+                PATHFUNCAO: textFuncao,
+                DADOS: textDados,
+                IP: ipUsuario
+            }
+            
+            await post('/log-web', createtLog)
+            
             Swal.fire({
                 position: 'center',
                 icon: 'success',
-                title: 'Cadastro com sucesso!',
+                title: 'Vínculo realizado com sucesso!',
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
@@ -110,45 +144,41 @@ export const useCadastrarVinculoFabricanteFornecedor = () => {
                 }
             })
 
+            refetchVinculos();
+            return response.data;
+        } catch (error) {
+            const postData = {
+                IDFABRICANTE: parseInt(fabricanteSelecionado.value),
+                IDFORNECEDOR: parseInt(fornecedorSelecionado.value),
+                STATIVO: 'True',
+            }
             const textDados = JSON.stringify(postData)
-            let textFuncao = 'COMPRAS/CADASTRO DE FABRICANTE';
-
+            let textFuncao = 'COMPRAS/ERROA AO CRIAR VINCULO DO FABRICANTE AO FORNECEDOR';
+            const ipUsuario = await getIPUsuario();
             const createtLog = {
-                IDFUNCIONARIO: usuarioLogado.id,
+                IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
+            
+            await post('/log-web', createtLog)
 
-            const responseLog = await post('/log-web', createtLog)
-
-
-            return responseLog.data;
-        } catch (error) {
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'error',
-                title: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.',
+                title: 'Ocorreu um erro ao vincular os dados.',
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
                     container: 'custom-swal',
                 },
             });
-            console.error('Erro ao criar categoria pedido:', error);
+            console.error('Erro ao criar vínculo:', error);
         }
     }
 
     return {
-        statusSelecionado,
-        fabricanteSelecionado,
-        fornecedorSelecionado,
-        setFabricanteSelecionado,
-        setFornecedorSelecionado,
-        data,
-        optionsStatus,
-        setStatusSelecionado,
-        dadosFabricantes,
-        handleCadastrar
+        handleCadastrarVinculo
     }
 }

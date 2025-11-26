@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom";
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
 import { ButtonType } from "../../../Buttons/ButtonType";
@@ -7,26 +6,21 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { AiOutlineSearch } from "react-icons/ai";
 import { MdAdd } from "react-icons/md";
 import { get } from "../../../../api/funcRequest";
-import { ActionListaOrdemTransferencia } from "./actionListaOrdemTransferencia";
+import { ActionListaOrdemTransferencia } from "./ActionListaOrdemTransferencia";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { ActionIncluirOTModal } from "./ActionIncluirModalOT/actionIncluirOTModal";
 import Swal from "sweetalert2";
 
+
 export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
-  const [dataFimEntrega, setDataFimEntrega] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [valueLojaOrigem, setValueLojaOrigem] = useState('')
-  const [ajusteQuantidade, setAjusteQuantidade] = useState(0)
-  const [rotinaSelecionada, setRotinaSelecionada] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
-
-  
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -57,14 +51,6 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
     },
     { staleTime: 5 * 60 * 1000 }
   );
-  // const { data: dadosMovimentacao = [], error: errorMovimentacao, isLoading: isLoadingMovimentacao } = useQuery(
-  //   'rotinaMovimentacao',
-  //   async () => {
-  //     const response = await get(`/rotinaMovimentacao`);
-  //     return response.data;
-  //   },
-  //   { staleTime: 5 * 60 * 1000 }
-  // );
 
   const fetchListaConferencia = async () => {
     const urlBase = `/resumo-ordem-transferencia?idTipoFiltro=2&idEmpresaOrigem=${usuarioLogado?.IDEMPRESA}&idEmpresaDestino=${-empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
@@ -102,9 +88,7 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
   const { data: dadosConferencia = [], error: errorVouchers, isLoading: isLoadingVouchers, refetch: refetchListaConferencia } = useQuery(
     ['resumo-ordem-transferencia'],
     () => fetchListaConferencia(),
-    {
-      enabled: false, 
-    }
+    { enabled: false, }
   );
 
 
@@ -120,7 +104,7 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
   }
 
   const showModal = () => {
-    if(optionsModulos[0]?.CRIAR == 'False') {
+    if(optionsModulos[0]?.CRIAR == 'True') {
 
       setModalVisivel(true)
     } else {
@@ -168,19 +152,6 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
         onChangeSelectEmpresa={handleSelectEmpresa}
         valueSelectEmpresa={empresaSelecionada}
 
-        // InputSelectGrupoComponent={InputSelectAction}
-        // labelSelectGrupo={"Rotina"}    
-        // optionsGrupos={[
-        //   {value: '', label: 'Selecione a Rotina'},
-        //   ...dadosMovimentacao.map((item) => {
-        //     return {
-        //       value: item.IDROTINA,
-        //       label: item.DESCROTINA
-        //     }
-        //   })
-        // ]}
-        // valueSelectGrupo={rotinaSelecionada}
-        // onChangeSelectGrupo={e => setRotinaSelecionada(e.value)}
 
         ButtonSearchComponent={ButtonType}
         onButtonClickSearch={handleClick}
@@ -208,6 +179,7 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
         handleClose={() => setModalVisivel(false)}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
 
     </Fragment>

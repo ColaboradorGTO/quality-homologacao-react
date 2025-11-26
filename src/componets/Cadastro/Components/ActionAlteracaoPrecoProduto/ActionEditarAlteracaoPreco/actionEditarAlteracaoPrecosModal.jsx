@@ -88,7 +88,7 @@ export const ActionEditarAlteracaoPrecosModal = ({ show, handleClose, dadosDetal
       STATIVO: statusSelecionado,
     }
 
-    const response = await put('/atualizarSubGrupoEstrutura', postData)
+    const response = await put('/sub-grupo-estrutura/:id', postData)
       .then(response => {
 
         // Limpar os campos do formulário
@@ -128,7 +128,6 @@ export const ActionEditarAlteracaoPrecosModal = ({ show, handleClose, dadosDetal
     return {
 
       contador,
-      IDRESUMOALTERACAOPRECOPRODUTO: item.produto.IDRESUMOALTERACAOPRECOPRODUTO,
       IDRESUMOALTERACAOPRECOPRODUTO: item.produto.IDRESUMOALTERACAOPRECOPRODUTO,
       IDPRODUTO: item.produto.IDPRODUTO,
       DTCADASTRO: item.produto.DTCADASTRO,

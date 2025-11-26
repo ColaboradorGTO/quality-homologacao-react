@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useRef, useState } from "react"
-import { useAuth } from "../Providers/AuthContext";;
 import { IoMdArrowBack } from "react-icons/io";
 import { useNavigate } from "react-router-dom";
 import { get } from "../api/funcRequest";
@@ -9,10 +8,7 @@ import { InputListaMenus } from "../componets/ActionPermissoes/inputListaMenus";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../utils/animationCarregamento";
 import { ButtonType } from "../componets/Buttons/ButtonType";
 import { FaAngleDown, FaRegSave } from "react-icons/fa";
-// import { Funcoes } from '../../funcoes.json';
-import { TreeSelect } from 'primereact/treeselect';
 import { useEditarPermissaoUsuario } from "../componets/ActionPermissoes/hooks/useEditarPermissaoUsuario";
-import { useForm } from "react-hook-form";
 import { AiOutlineClear } from "react-icons/ai";
 import { Menu } from "primereact/menu";
 import { Button } from "primereact/button";

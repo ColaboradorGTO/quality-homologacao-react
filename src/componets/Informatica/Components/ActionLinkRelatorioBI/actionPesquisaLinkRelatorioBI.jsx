@@ -7,14 +7,14 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { MdAdd } from "react-icons/md";
 import { GoUpload } from "react-icons/go";
 import { ActionListaLinkRelatorioBi } from "./actionListaLinkRelatorioBI";
-import { ActionCadastrarRelatorioBIModal } from "./actionCadastrarRelatorioBIModal";
+import { ActionCadastrarRelatorioBIModal } from "./actionCadastrar/actionCadastrarRelatorioBIModal";
 import { ActionImportarRelatorioBIModal } from "./actionImportarRelatorioBIModal";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import Swal from "sweetalert2";
 
 
-export const ActionPesquisaLinkRelatorioBi = ({usuarioLogado, ID}) => {
+export const ActionPesquisaLinkRelatorioBi = ({ usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(true);
   const [modalCadastro, setModalCadastro] = useState(false);
   const [modalImportarRelatorio, setModalImportarRelatorio] = useState(false);
@@ -34,7 +34,7 @@ export const ActionPesquisaLinkRelatorioBi = ({usuarioLogado, ID}) => {
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
-  
+
 
   const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresa } = useQuery(
     'listaEmpresasIformatica',
@@ -49,15 +49,49 @@ export const ActionPesquisaLinkRelatorioBi = ({usuarioLogado, ID}) => {
 
 
   const fetchListaRelatorio = async () => {
+    const urlBase = `/linkRelatorioBI?idRelatorio=${relatorioSelecionado}&idEmpresa=${empresaSelecionada}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      
+      animacaoCarregamento('Carregando dados...', true);
+                                            
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+      for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
+      }
+      }
+
+      return allData;
+  
+    } catch (error) {
+      console.error('Erro ao buscar dados da api', error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
+  };
+
+/*   const fetchListaRelatorio = async () => {
+    try {
+
       const urlApi = `/linkRelatorioBI?idRelatorio=${relatorioSelecionado}&idEmpresa=${empresaSelecionada}`;
       const response = await get(urlApi);
-      
+
       if (response.data.length && response.data.length === pageSize) {
         let allData = [...response.data];
         animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
+
         async function fetchNextPage(currentPage) {
           try {
             currentPage++;
@@ -73,30 +107,30 @@ export const ActionPesquisaLinkRelatorioBi = ({usuarioLogado, ID}) => {
             throw error;
           }
         }
-  
+
         await fetchNextPage(currentPage);
         return allData;
       } else {
-       
+
         return response.data;
       }
-  
+
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
-  };
+  }; */
 
   const { data: dadosBI = [], error: erroCliente, isLoading: isLoadingCliente, refetch: refetchListaRelatorio } = useQuery(
-    'lista-cliente',
+    ['lista-cliente', relatorioSelecionado, empresaSelecionada, currentPage, pageSize],
     () => fetchListaRelatorio(relatorioSelecionado, empresaSelecionada, currentPage, pageSize),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   );
 
 
-  
+
   const { data: dadosRelatorios = [], error: errorrRelatorio, isLoading: isLoadingRelatorio, refetch } = useQuery(
     'relatorioInformaticaBI',
     async () => {
@@ -131,26 +165,22 @@ export const ActionPesquisaLinkRelatorioBi = ({usuarioLogado, ID}) => {
         icon: 'warning',
         confirmButtonText: 'OK'
       });
-    }  
-}
+    }
+  }
 
   const handleImportarRelatorio = () => {
     setModalImportarRelatorio(true)
   }
 
   const handleTabelaVisivel = () => {
-    setCurrentPage(+1)
-    refetchListaRelatorio(empresaSelecionada)
+
+    refetchListaRelatorio()
     setTabelaVisivel(true)
- 
+
   }
 
-
   return (
-
     <Fragment>
-
-
       <ActionMain
         linkComponentAnterior={["Home"]}
         linkComponent={["Relatório BI"]}
@@ -165,7 +195,7 @@ export const ActionPesquisaLinkRelatorioBi = ({usuarioLogado, ID}) => {
             value: item.IDEMPRESA,
             label: item.NOFANTASIA
           })
-        )]}
+          )]}
         valueSelectEmpresa={empresaSelecionada}
         onChangeSelectEmpresa={handlChangeEmpresa}
 
@@ -177,7 +207,7 @@ export const ActionPesquisaLinkRelatorioBi = ({usuarioLogado, ID}) => {
             value: item.IDRELATORIOBI,
             label: item.DSRELATORIOBI
           })
-        )]}
+          )]}
         valueSelectGrupo={relatorioSelecionado}
         onChangeSelectGrupo={handleChangeRelatorio}
 
@@ -201,18 +231,28 @@ export const ActionPesquisaLinkRelatorioBi = ({usuarioLogado, ID}) => {
 
       />
 
-      <ActionListaLinkRelatorioBi dadosBI={dadosBI} />
-     
-      <ActionCadastrarRelatorioBIModal 
+      <ActionListaLinkRelatorioBi
+        dadosBI={dadosBI}
+        handleTabelaVisivel={handleTabelaVisivel}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
+      />
+
+      <ActionCadastrarRelatorioBIModal
         show={modalCadastro}
         handleClose={() => setModalCadastro(false)}
+        refetchListaRelatorio={refetchListaRelatorio}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
       />
 
       <ActionImportarRelatorioBIModal
         show={modalImportarRelatorio}
         handleClose={() => setModalImportarRelatorio(false)}
         optionsModulos={optionsModulos}
+
       />
+
     </Fragment>
   )
 }

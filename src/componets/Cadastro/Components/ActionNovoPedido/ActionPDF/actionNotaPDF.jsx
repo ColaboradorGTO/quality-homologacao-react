@@ -110,7 +110,6 @@ export const ActionNotaPDF = ({ dadosPedido, dadosDetalhesPedidos }) => {
             OBSPEDIDO2: item.OBSPEDIDO2,
             DTFECHAMENTOPEDIDO: item.DTFECHAMENTOPEDIDO,
             DTCADASTRO: item.DTCADASTRO,
-            TPARQUIVO: item.TPARQUIVO,
             STDISTRIBUIDO: item.STDISTRIBUIDO,
             STAGRUPAPRODUTO: item.STAGRUPAPRODUTO,
             NUTOTALITENS: item.NUTOTALITENS,

@@ -1,4 +1,4 @@
-import React, { Fragment, useRef, useState} from "react"
+import React, { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { jsPDF } from 'jspdf';
@@ -10,6 +10,7 @@ import HeaderTable from "../../../Tables/headerTable";
 export const ActionListaVendasContigencia = ({ dadosVendasContigencia }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
+  const [rowSelection, setRowSelection] = useState(null);
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -74,43 +75,43 @@ export const ActionListaVendasContigencia = ({ dadosVendasContigencia }) => {
     {
       field: 'contador',
       header: 'Nº',
-      body: row => <th style={{color: 'blue'}}>{row.contador}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.contador}</th>,
       sortable: true,
     },
     {
       field: 'NOFANTASIA',
       header: 'Loja',
-      body: row => <th style={{color: 'blue'}}>{row.NOFANTASIA}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.NOFANTASIA}</th>,
       sortable: true,
     },
     {
       field: 'DTHORAFECHAMENTO',
       header: 'DT Venda',
-      body: row => <th style={{color: 'blue'}}>{row.DTHORAFECHAMENTO}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.DTHORAFECHAMENTO}</th>,
       sortable: true,
     },
     {
       field: 'IDVENDA',
       header: 'Nº Venda',
-      body: row => <th style={{color: 'blue'}}>{row.IDVENDA}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.IDVENDA}</th>,
       sortable: true,
     },
     {
       field: 'DSCAIXA',
       header: 'Caixa',
-      body: row => <th style={{color: 'blue'}}>{row.DSCAIXA}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.DSCAIXA}</th>,
       sortable: true,
     },
     {
       field: 'NFE_INFNFE_IDE_NNF',
       header: 'Nº NF',
-      body: row => <th style={{color: 'blue'}}>{row.NFE_INFNFE_IDE_NNF}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.NFE_INFNFE_IDE_NNF}</th>,
       sortable: true,
     },
     {
       field: 'PROTNFE_INFPROT_XMOTIVO',
       header: 'Motivo',
-      body: row => <th style={{color: 'blue'}}>{row.PROTNFE_INFPROT_XMOTIVO}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.PROTNFE_INFPROT_XMOTIVO}</th>,
       sortable: true,
     },
 
@@ -143,6 +144,9 @@ export const ActionListaVendasContigencia = ({ dadosVendasContigencia }) => {
             sortOrder={-1}
             paginator={true}
             rows={10}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"

@@ -16,7 +16,7 @@ export const ActionListaVendasPIX = ({ dadosVendasPix, optionsModulos, usuarioLo
   const [selectAll, setSelectAll] = useState(false); 
   const [selectedIds, setSelectedIds] = useState([]);
   const dataTableRef = useRef();
-  const { handleDetalhar } = useHandleDetalhar({usuarioLogado, optionsModulos, usuarioLogado, handleClickVendasPix});
+  const { handleDetalhar } = useHandleDetalhar({usuarioLogado, optionsModulos, handleClickVendasPix});
 
 
   const onGlobalFilterChange = (e) => {

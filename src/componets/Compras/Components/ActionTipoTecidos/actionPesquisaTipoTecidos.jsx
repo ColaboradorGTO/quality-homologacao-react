@@ -1,4 +1,4 @@
-import { Fragment,  useState } from "react"
+import { Fragment, useState } from "react"
 import { get } from "../../../../api/funcRequest";
 import { InputField } from "../../../Buttons/Input";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
@@ -10,61 +10,64 @@ import { ActionListaTipoTecidos } from "./actionListaTipoTecidos";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { ActionCriarTipoTecidosModal } from "./ActionCadastrar/actionCriarTipoTecidosModal";
+import Swal from "sweetalert2";
 
 
-export const ActionPesquisaTiposTecidos = () => {
-  const [descricao, setDescricao] = useState(''); 
+export const ActionPesquisaTiposTecidos = ({ usuarioLogado, ID }) => {
+  const [descricao, setDescricao] = useState('');
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [tecidoSelecionado, setTecidoSelecionado] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
 
- 
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+  );
+
   const fetchListaTecidos = async () => {
+    const urlBase = `/tipoTecidos?idTecido=${tecidoSelecionado}&descricao=${descricao}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      const urlApi = `/tipo-tecido?idTecido=${tecidoSelecionado}&descricaoTecido=${descricao}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-        
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
-  
+
   const { data: dadosTecidos = [], error: errorAdiantamento, isLoading: isLoadingAdiantamento, refetch } = useQuery(
-    ['tipo-tecido', tecidoSelecionado, descricao, currentPage, pageSize],
-    () => fetchListaTecidos(tecidoSelecionado, descricao,  currentPage, pageSize),
-    { enabled: true  }
+    ['tipoTecidos', tecidoSelecionado, descricao, currentPage, pageSize],
+    () => fetchListaTecidos(tecidoSelecionado, descricao, currentPage, pageSize),
+    { enabled: true }
   )
 
 
@@ -72,25 +75,24 @@ export const ActionPesquisaTiposTecidos = () => {
     setTecidoSelecionado(e.value)
   }
 
+  const abreModalCadastro = () => {
+    if(optionsModulos[0]?.CRIAR === 'True') {
+      setModalVisivel(true)
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Atenção',
+        text: `${usuarioLogado?.NOFUNCIONARIO} Você não tem permissão para cadastrar um novo tipo de tecido.`,
+      });
+      return;
+    }
+  }
+
   const handlePesquisar = () => {
     setCurrentPage(prevPage => prevPage + 1)
     refetch()
     setTabelaVisivel(true)
   }
-
-  const handleModal = () => {
-    setModalVisivel(true)
-  }
-
-  const handleClose = () => {
-    setModalVisivel(false)
-  }
-
-
-  const optionsF = [
-    { value: '1', label: 'Ativo' },
-    { value: '2', label: 'Inativo' }
-  ]
 
 
   return (
@@ -111,8 +113,8 @@ export const ActionPesquisaTiposTecidos = () => {
         optionsSubGrupos={[
           { value: '', label: 'Selecione...' },
           ...dadosTecidos.map((item) => {
-            return { 
-              value: item.IDTPTECIDO, 
+            return {
+              value: item.IDTPTECIDO,
               label: `${item.DSTIPOTECIDO}`
             }
           })
@@ -120,28 +122,34 @@ export const ActionPesquisaTiposTecidos = () => {
         labelSelectSubGrupo={"Por Tipo de Tecido"}
         valueSelectSubGrupo={tecidoSelecionado}
         onChangeSelectSubGrupo={handleChangeTecido}
-        
+
         ButtonSearchComponent={ButtonType}
-        linkNomeSearch={"Pesquisar Cores"}
+        linkNomeSearch={"Pesquisar Tipos de Tecidos"}
         onButtonClickSearch={handlePesquisar}
         IconSearch={AiOutlineSearch}
         corSearch={"primary"}
 
         ButtonTypeCadastro={ButtonType}
-        linkNome={"Cadastrar Cores"}
-        onButtonClickCadastro={handleModal}
+        linkNome={"Cadastrar Tipo de Tecido"}
+        onButtonClickCadastro={abreModalCadastro}
         IconCadastro={MdAdd}
         corCadastro={"success"}
 
       />
 
       {tabelaVisivel && (
-        <ActionListaTipoTecidos dadosTecidos={dadosTecidos} />
+        <ActionListaTipoTecidos
+          dadosTecidos={dadosTecidos}
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}
+        />
       )}
 
       <ActionCriarTipoTecidosModal
-        show={modalVisivel} 
-        handleClose={(e) => setModalVisivel(true)} 
+        show={modalVisivel}
+        handleClose={() => setModalVisivel(false)}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
       />
     </Fragment>
   )

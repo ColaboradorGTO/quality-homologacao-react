@@ -1,33 +1,22 @@
 import { Fragment } from "react"
-import { MdOutlineLocalPrintshop, MdOutlineAttachMoney,MdClose, MdPix, MdMoneyOff, MdFormatListBulleted, MdOutlineCreateNewFolder } from "react-icons/md";
+import { MdOutlineLocalPrintshop, MdOutlineAttachMoney,MdClose, MdPix, MdMoneyOff, MdFormatListBulleted, MdOutlineCreateNewFolder, MdOutlineSend, MdOutlineCloudUpload } from "react-icons/md";
 import { CiEdit, CiPower } from "react-icons/ci";
-import { GrView } from "react-icons/gr";
-import { GrFormView } from "react-icons/gr";
+import { GrView, GrFormView, GrCertificate, GrDocumentDownload, GrDocumentPdf } from "react-icons/gr";;
 import { BsCash } from "react-icons/bs";
 import { GiClothes, GiTakeMyMoney } from "react-icons/gi";
-import { FaBalanceScale, FaBalanceScaleLeft, FaUnlink} from "react-icons/fa";
 import { FaScaleUnbalanced, FaCcMastercard } from "react-icons/fa6";
 import { FcCurrencyExchange } from "react-icons/fc";
-import { FaRegTrashAlt,FaRegSave } from "react-icons/fa"
 import { FiSend } from "react-icons/fi";
-import { GrCertificate } from "react-icons/gr";
-import { FaCashRegister, FaUserAltSlash, FaUserTimes,FaExclamation } from "react-icons/fa";
+import { FaProductHunt, FaCashRegister, FaUserAltSlash, FaUserTimes, FaExclamation, FaMinus, FaRegBuilding, FaRegTrashAlt, FaRegSave, FaBalanceScale, FaBalanceScaleLeft, FaUnlink } from "react-icons/fa";
 import { AiOutlineDelete, AiOutlineCloseCircle, AiOutlineArrowLeft } from "react-icons/ai";
 import { IoIosAdd } from "react-icons/io";
-import { FaProductHunt } from "react-icons/fa";
 import { FaCheck } from "react-icons/fa6";
 import { GoDownload } from "react-icons/go";
-import { GrDocumentPdf } from "react-icons/gr";
-import { BsTrash3 } from "react-icons/bs";
-import { FaMinus } from "react-icons/fa";
-import { MdOutlineSend } from "react-icons/md";
-import { SiSap } from "react-icons/si";
-import { FaRegBuilding } from "react-icons/fa";
+import { BsTrash3, BsFiletypePdf } from "react-icons/bs";
+import { SiSap, SiMicrosoftexcel } from "react-icons/si";
 import { FcProcess } from "react-icons/fc";
-import { GrDocumentDownload } from "react-icons/gr"
 import { FaTruckFast } from "react-icons/fa6";
-import { SiMicrosoftexcel } from "react-icons/si";
-import { BsFiletypePdf } from "react-icons/bs";
+
 
 export const ButtonTable = ({
   onClickButton, 
@@ -80,14 +69,18 @@ export const ButtonTable = ({
         disabled={disabledBTN}
         type="button"
         className={`${btnClasses} ${className}`}
-        style={{ alignItems: "center", fontSize: "22px", width, height }}
+        style={{ alignItems: "center", fontSize: textFontSize, width, height, display: 'block' }}
         onClick={onClickButton}
         title={titleButton}
         id={id}
       >
-        {Icon && <Icon size={iconSize} color={iconColor} />}
-        {/* {textButton} */}
-        <span style={{ fontSize: textFontSize }}>{textButton}</span>
+        <div style={{ alignItems: "center",  display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2px', width: '100%' }}>
+
+          {Icon && <Icon size={iconSize} color={iconColor} />}
+          <p style={{ fontSize: textFontSize, margin: '0px', padding: '0px', lineHeight: '0px' }}>
+            {textButton}
+          </p>
+        </div>  
       </button>
     </Fragment>
   )

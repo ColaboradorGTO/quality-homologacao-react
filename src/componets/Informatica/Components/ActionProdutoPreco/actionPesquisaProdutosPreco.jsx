@@ -50,50 +50,40 @@ export const ActionPesquisaProdutosPreco = () => {
   }, [marcaSelecionada, refetchEmpresas]);
 
 
-  const fetchProdutoSap = async () => {
+    const fetchProdutoSap = async () => {
+    const urlBase = `/produto-preco-novo?idEmpresa=${empresaSelecionada}&dsProduto=${codBarra}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
+      animacaoCarregamento('Carregando dados...', true);
+                                            
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      const urlApi = `/produto-preco-novo?idEmpresa=${empresaSelecionada}&dsProduto=${codBarra}`;
-      const response = await get(urlApi);
+      let allData = [...(primeiraResposta.data || [])];
 
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-
-        async function fetchNextPage(page) {
-          try {
-            const rows = response.rows || response.data.length || 0;
-            const totalPages = Math.ceil(rows / pageSize);
-            console.log('Total de páginas:', totalPages);
-            page++;
-            setCurrentPage(page);
-            // animacaoCarregamento(`Carregando... Página ${page} de ${totalPages}`, true);
-            const responseNextPage = await get(`${urlApi}&page=${page}`);
-            if (responseNextPage.data.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(page);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
-        }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
+      if (totalPages > 1) {
+      for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
+      }
       }
 
+      return allData;
+  
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
+   
 
   const { data: dadosProdutosSap = [], error: erroQuebra, isLoading: isLoadingQuebra, refetch: refetchProdutoSap } = useQuery(
     '/produto-preco-novo',
@@ -102,54 +92,40 @@ export const ActionPesquisaProdutosPreco = () => {
   );
 
 
-  const fetchProdutosQuality = async () => {
+      const fetchProdutosQuality = async () => {
+    const urlBase = `produtoQuality?descricaoProduto=${codBarra}&idEmpresa=${empresaSelecionada}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
+      animacaoCarregamento('Carregando dados...', true);
+                                            
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      const urlApi = `produtoQuality?descricaoProduto=${codBarra}&idEmpresa=${empresaSelecionada}`;
-      const response = await get(urlApi);
+      let allData = [...(primeiraResposta.data || [])];
 
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        // animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-
-        async function fetchNextPage(page) {
-          try {
-            const rows = response.rows || response.data.length || 0;
-            const totalPages = Math.ceil(rows / pageSize);
-
-            // page++;
-            setCurrentPage((prevPage) => {
-              const nextPage = prevPage + 1;
-              // animacaoCarregamento(`Carregando... Página ${page} de ${totalPages}`, true);
-              return nextPage;
-            });
-            const responseNextPage = await get(`${urlApi}&page=${page}`);
-            if (responseNextPage.data.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(page + 1);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
-        }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
+      if (totalPages > 1) {
+      for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
+      }
       }
 
+      return allData;
+  
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
+
 
   const { data: dadosProdutosQuality = [], error: erroQuality, isLoading: isLoadingQuality, refetch: refetchProdutosQuality } = useQuery(
     'produtoQuality',
@@ -202,38 +178,40 @@ export const ActionPesquisaProdutosPreco = () => {
         linkComponentAnterior={["Home"]}
         linkComponent={["Produtos - Preços "]}
         title="Produtos - Preços Informática"
+
         subTitle={empresaSelecionadaNome}
 
         InputSelectEmpresaComponent={InputSelectAction}
-        optionsEmpresas={[
-          { value: '', label: 'Selecione uma loja' },
-          ...optionsEmpresas.map((empresa) => ({
-            value: empresa.IDEMPRESA,
-            label: empresa.NOFANTASIA,
-          }))
-        ]}
+          optionsEmpresas={[
+            { value: '', label: 'Selecione uma loja' },
+            ...optionsEmpresas.map((empresa) => ({
+              value: empresa.IDEMPRESA,
+              label: empresa.NOFANTASIA,
+            }))
+          ]}
         labelSelectEmpresa={"Empresa"}
         valueSelectEmpresa={empresaSelecionada}
         onChangeSelectEmpresa={handleChangeEmpresa}
 
+
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marcas"}
-        optionsMarcas={[
-          { value: '', label: 'Selecione uma Marca' },
-          ...optionsMarcas.map((empresa) => ({
-            value: empresa.IDGRUPOEMPRESARIAL,
-            label: empresa.GRUPOEMPRESARIAL,
+          optionsMarcas={[
+            { value: '', label: 'Selecione uma Marca' },
+            ...optionsMarcas.map((empresa) => ({
+              value: empresa.IDGRUPOEMPRESARIAL,
+              label: empresa.DSGRUPOEMPRESARIAL,
 
-          }))
-        ]}
+            }))
+          ]}
         valueSelectMarca={marcaSelecionada}
         onChangeSelectMarcas={handleSelectMarcas}
+
 
         InputFieldCodBarraComponent={InputField}
         labelInputFieldCodBarra={"Código de Barras / Nome Produto"}
         onChangeInputFieldCodBarra={handleInputChange}
         valueInputFieldCodBarra={codBarra}
-
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Produtos / Preços Quality"}

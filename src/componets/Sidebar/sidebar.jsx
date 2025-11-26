@@ -178,7 +178,7 @@ export const MenuSidebarAdmin = ({componentToShow, handleShowComponent }) => {
         <div className="page-logo" style={{justifyContent: 'space-around'}} >
           <a href="#" className="page-logo-link press-scale-down d-flex align-items-center position-relative" data-toggle="modal" data-target="#modal-shortcut">
             {/* <img src="img/logo.png" alt="SoftQuality SAP" aria-roledescription="logo SoftQuality" /> */}
-            <span className="page-logo-text mr-1">SoftQuality SAP </span>
+            <span className="page-logo-text mr-1">SoftQuality SAP  </span>
             {/* <span className="position-absolute text-white opacity-50 small pos-top pos-right mr-2 mt-n2"></span> */}
             {/* <i className="fal fa-angle-down d-inline-block ml-1 fs-lg color-primary-300"></i> */}
             {/* <FaAngleDown className="fal fa-angle-down d-inline-block ml-1 fs-lg color-primary-300" size={0} colo="#fff" />  */}

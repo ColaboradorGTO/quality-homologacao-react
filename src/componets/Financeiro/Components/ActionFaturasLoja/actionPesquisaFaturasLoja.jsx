@@ -12,8 +12,10 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { useFetchData } from "../../../../hooks/useFetchData"
 import { ActionImportacaoArquivo } from "./actionImportacaoArquivo"
+import { IoMdCheckmark } from "react-icons/io"
+import { useConferirTodasFaturas } from "./hooks/useConfeririTodasFaturas"
 
-export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
+export const ActionPesquisaFaturasLoja = ({ usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [actionArquivo, setActionArquivo] = useState(false);
   const [actionMain, setActionMain] = useState(true);
@@ -23,8 +25,8 @@ export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [codigoFatura, setCodigoFatura] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(1000)
   const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(true)
+  const [selectedItems, setSelectedItems] = useState([]);
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -52,9 +54,9 @@ export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
 
     try {
-      
-     animacaoCarregamento('Carregando dados...', true);
-        
+
+      animacaoCarregamento('Carregando dados...', true);
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -79,9 +81,9 @@ export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
     } finally {
       fecharAnimacaoCarregamento();
     }
-   
+
   }
-  const {data: dadosDetalheFatura = [], error: erroFatura, isLoading: isLoadingFatura, refetch: refetchFatura} = useQuery(
+  const { data: dadosDetalheFatura = [], error: erroFatura, isLoading: isLoadingFatura, refetch: refetchFatura } = useQuery(
     'detalhe-faturas',
     () => fetchFatura(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
@@ -93,7 +95,7 @@ export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
-        
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -112,16 +114,16 @@ export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
       }
 
       return allData;
-  
+
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
-   
+
   }
-  const {data: dadosVendaMarcaPeriodo = [], error: erroVendaMarcaPeriodo, isLoading: isLoadingVendaMarcaPeriodo, refetch: refetchVendaMarcaPeriodo} = useQuery(
+  const { data: dadosVendaMarcaPeriodo = [], error: erroVendaMarcaPeriodo, isLoading: isLoadingVendaMarcaPeriodo, refetch: refetchVendaMarcaPeriodo } = useQuery(
     'vendas-marca-periodo',
     () => fetchVendaMarcaPeriodo(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
@@ -131,9 +133,10 @@ export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
     'menus-usuario-excecao',
     async () => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      console.log(response.data, 'response.data');
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const handleChangeEmpresa = (e) => {
@@ -144,29 +147,65 @@ export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
 
 
   const handleClick = () => {
-    if(empresaSelecionada || codigoFatura) {
-      setTabelaVisivel(true)
-      setIsLoadingPesquisa(true);
-      setCurrentPage(prevPage => prevPage +1); 
-      refetchFatura()
+    setTabelaVisivel(true)
+    setIsLoadingPesquisa(true);
+    setCurrentPage(prevPage => prevPage + 1);
+    refetchFatura()
+    // if(empresaSelecionada || codigoFatura) {
 
-  
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'Selecione uma empresa!',
-      });
-    }
+
+    // } else {
+    //   Swal.fire({
+    //     icon: 'error',
+    //     title: 'Oops...',
+    //     text: 'Selecione uma empresa!',
+    //   });
+    // }
   }
   const handleClickConciliar = () => {
-    setCurrentPage(+1); 
+    setCurrentPage(+1);
     refetchVendaMarcaPeriodo()
     setActionArquivo(true)
     setActionMain(false)
     setTabelaVisivel(false)
   }
 
+  const {
+    conferirTodas
+  } = useConferirTodasFaturas({ optionsModulos, usuarioLogado, handleClick, selectedItems });
+
+  const conferirTodasSelecionadas = () => {
+
+    if (selectedItems.length === 0) {
+      Swal.fire({
+        position: 'center',
+        icon: 'warning',
+        title: 'Nenhuma fatura selecionada, selecione e tente novamente!',
+        text: 'Nenhuma fatura selecionada, selecione e tente novamente!',
+        showConfirmButton: true,
+        timer: 6000,
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else if (optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> você não tem permissão para conferir a fatura.`,
+        showConfirmButton: true,
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else {
+      conferirTodas();
+    }
+
+  }
 
   return (
 
@@ -217,18 +256,32 @@ export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
           onButtonClickCadastro={handleClickConciliar}
           corCadastro={"info"}
           IconCadastro={AiOutlineSearch}
+
+          ButtonTypeCancelar={ButtonType}
+          linkCancelar={"Conferir Todos"}
+          onButtonClickCancelar={conferirTodasSelecionadas}
+          corCancelar={"warning"}
+          IconCancelar={IoMdCheckmark}
+          styleCancelar
         />
       )}
 
       {tabelaVisivel && (
 
-        <div className="card">
-          <ActionListaFaturasLoja dadosDetalheFatura={dadosDetalheFatura} optionsModulos={optionsModulos}/>
-        </div>
+
+        <ActionListaFaturasLoja
+          dadosDetalheFatura={dadosDetalheFatura}
+          optionsModulos={optionsModulos}
+          usuarioLogado={usuarioLogado}
+          handleClick={handleClick}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
+        />
+
       )}
 
       {actionArquivo && (
-        <ActionImportacaoArquivo 
+        <ActionImportacaoArquivo
           dadosVendaMarcaPeriodo={dadosVendaMarcaPeriodo}
           actionArquivo={actionArquivo}
           setActionArquivo={setActionArquivo}
@@ -236,8 +289,7 @@ export const ActionPesquisaFaturasLoja = ({usuarioLogado, ID}) => {
           setActionMain={setActionMain}
         />
       )}
-   
+
     </Fragment>
   )
 }
-

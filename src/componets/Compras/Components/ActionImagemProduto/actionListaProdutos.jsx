@@ -14,8 +14,13 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useExcluirImagemProduto } from "./hooks/useExluirImagemProduto";
 
-export const ActionListaImagemProduto = ({ dadosProdutos }) => {
-  const { handleExcluir } = useExcluirImagemProduto();
+export const ActionListaProduto = ({ 
+  dadosProdutos,
+  usuarioLogado,
+  optionsModulos,
+  handleClick
+ }) => {
+  const { handleExcluir } = useExcluirImagemProduto({usuarioLogado, optionsModulos, handleClick});
   const [dadosDetalheProdutos, setDadosDetalheProdutos] = useState([])
   const [modalDetalhe, setModalDetalhe] = useState(false)
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -126,9 +131,11 @@ export const ActionListaImagemProduto = ({ dadosProdutos }) => {
                 Icon={GrView}
                 cor={"info"}
                 iconColor={"white"}
-                iconSize={18}
                 onClickButton={(e) => clickDetalheProduto(row)}
                 titleButton={"Detalher Produtos da Imagem"}
+                iconSize={25}
+                width="35px"
+                height="35px"
               />
             </div>
 
@@ -137,14 +144,13 @@ export const ActionListaImagemProduto = ({ dadosProdutos }) => {
                 Icon={BsTrash3}
                 cor={"danger"}
                 iconColor={"white"}
-                iconSize={18}
                 onClickButton={() => handleExcluir(row.IDIMAGEM, 'False')}
                 titleButton={"Cancelar Imagem do Produto"}
+                iconSize={25}
+                width="35px"
+                height="35px"
               />
             </div>
-
-
-
           </div>
         )
       },
@@ -169,16 +175,10 @@ export const ActionListaImagemProduto = ({ dadosProdutos }) => {
     }
   }
 
-  const handleClickDelete = (row) => {
-    if (row && row.IDIMAGEMPRODUTO) {
-      handleDelete(row.IDIMAGEMPRODUTO);
-    }
-  }
-
 
   return (
     <Fragment>
-      <div className="panel" style={{ marginTop: "5rem" }}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>Relatório dos Produtos </h2>
         </div>
@@ -202,6 +202,9 @@ export const ActionListaImagemProduto = ({ dadosProdutos }) => {
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -229,6 +232,9 @@ export const ActionListaImagemProduto = ({ dadosProdutos }) => {
         show={modalDetalhe}
         handleClose={() => setModalDetalhe(false)}
         dadosDetalheProdutos={dadosDetalheProdutos}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

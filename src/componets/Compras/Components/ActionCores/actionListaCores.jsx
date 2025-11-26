@@ -11,7 +11,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
-export const ActionListaCores = ({ dadosCores }) => {
+export const ActionListaCores = ({ dadosCores, usuarioLogado, optionsModulos, refetchListaCores }) => {
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosDetalheCores, setDadosDetalheCores] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -113,11 +113,12 @@ export const ActionListaCores = ({ dadosCores }) => {
             <ButtonTable
               titleButton={"Editar Cores"}
               onClickButton={() => clickEditar(row)}
-              cor={"success"}
+              cor={"primary"}
               Icon={CiEdit}
-              iconSize={22}
+              iconSize={25}
               iconColor={"#fff"}
-
+              width="35px"
+              height="35px"
             />
           </div>
         )
@@ -170,6 +171,9 @@ export const ActionListaCores = ({ dadosCores }) => {
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 50, 100, 500, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -197,6 +201,9 @@ export const ActionListaCores = ({ dadosCores }) => {
         show={modalEditar}
         handleClose={() => setModalEditar(false)}
         dadosDetalheCores={dadosDetalheCores}
+        usuarioLogado={usuarioLogado}
+        refetchListaCores={refetchListaCores}
+        optionsModulos={optionsModulos}
       />
     </Fragment>
   )

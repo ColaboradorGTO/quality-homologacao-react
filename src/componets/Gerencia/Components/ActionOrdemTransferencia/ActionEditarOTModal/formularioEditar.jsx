@@ -2,12 +2,17 @@ import { Fragment } from "react"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { FaRegSave } from "react-icons/fa"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
-import { useSalvarOT } from "../hooks/useSalvarOT"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { useForm } from "react-hook-form"
-import Select from "react-select"
 import { ActionListaProdutos } from "./actionListaProdutos"
-export const FormularioEditar = ({ handleClose, dadosDetalheTransferencia, handleClick }) => {
+import { useEditarOT } from "../hooks/useEditarOT"
+export const FormularioEditar = ({ 
+    handleClose, 
+    dadosDetalheTransferencia, 
+    handleClick,
+    optionsModulos,
+    usuarioLogado 
+}) => {
     const { register, handleSubmit, errors } = useForm();
     const {
         empresaOrigem,
@@ -17,10 +22,9 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTransferencia, handl
         produto,
         setProduto,
         dadosProdutos,
-        usuarioLogado,
         dadosEmpresa,
         onSubmit,
-    } = useSalvarOT({handleClick});
+    } = useEditarOT({ handleClick, handleClose, dadosDetalheTransferencia, optionsModulos, usuarioLogado });
 
     return (
         <Fragment>
@@ -36,16 +40,13 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTransferencia, handl
                         />
                     </div>
                     <div className="col-sm-6 col-xl-6" data-select2-id="735">
-                       <label htmlFor=""> Loja Destino</label>
-                        <Select
-                            closeMenuOnSelect={false}
-                            options={dadosEmpresa?.map((item) => ({
-                                value: item.IDEMPRESA,
-                                label: item.NOFANTASIA
-                            }
-                            ))}
-                            value={dadosEmpresa?.find(option => option.value === empresaDestino)}
-                            onChange={(e) => setEmpresaDestino(e.value)}
+                      
+                        <InputFieldModal
+                            label={"Loja Destino"}
+                            type="text"
+                            readOnly={true}
+                            value={dadosDetalheTransferencia[0]?.EMPRESADESTINO}
+                            onChangeModal={(e) => setEmpresaDestino(e.target.value)}
                         />
                     </div>
                 </div>
@@ -58,10 +59,11 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTransferencia, handl
                             type="text"
                             value={produto}
                             onChangeModal={(e) => setProduto(e.target.value)}
+                            readOnly={dadosDetalheTransferencia[0]?.IDSTATUSOT != 1}
                         />
                     </div>
                 </div>
- 
+
 
                 <div className="row mt-4">
                     <div className="col-sm-8 col-xl-8">
@@ -71,7 +73,8 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTransferencia, handl
                             textButton={"Salvar"}
                             cor={"info"}
                             className={"mr-4"}
-                            onClickButtonType={onSubmit}
+                            type="submit"
+                            buttonDisabled={dadosDetalheTransferencia[0]?.IDSTATUSOT != 1}
 
                         />
                     </div>
@@ -80,7 +83,7 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTransferencia, handl
                     </div>
                 </div>
 
-                <ActionListaProdutos dadosProdutos={dadosProdutos} />
+                <ActionListaProdutos dadosDetalheTransferencia={dadosDetalheTransferencia} />
                 <FooterModal
                     ButtonTypeFechar={ButtonTypeModal}
                     textButtonFechar={"Fechar"}

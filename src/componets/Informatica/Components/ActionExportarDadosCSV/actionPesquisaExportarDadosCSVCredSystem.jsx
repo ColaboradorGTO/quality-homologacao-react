@@ -29,7 +29,7 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
     const dataFim = getDataAtual();
     setDataPesquisaInicio(dataInicio);
     setDataPesquisaFim(dataFim);
-  
+
   }, []);
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch } = useQuery(
@@ -45,44 +45,39 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
   );
 
   const fetchListaVendas = async () => {
+    const urlBase = `/vendas-loja-informatica?status=False&idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      
-      const urlApi = `/vendas-loja-informatica?status=False&idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}&pageSize=${pageSize}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-        return response.data;
       }
-  
+
+      return allData;
+
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
+
 
   const { data: dadosVendasLoja = [], error: erroVendas, isLoading: isLoadingVendas, refetch: refetchListaVendas } = useQuery(
     'vendas-loja-informatica',
@@ -91,39 +86,33 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
   );
 
   const fetchListaClientes = async () => {
+    const urlBase = `/lista-cliente-credsystem?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      
-      const urlApi = `/lista-cliente-credsystem?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquiaFim=${dataPesquisaFim}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}&pageSize=${pageSize}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-        return response.data;
       }
-  
+
+      return allData;
+
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -168,9 +157,9 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
     }
   })
 
-  const exportToExcelCliente = () => {
-    const worksheet = XLSX.utils.json_to_sheet(dadosCliente);
-    const workbook = XLSX.utils.book_new();
+  const exportToExcelCliente = (dados, nomeArquivo) => {
+    // const worksheet = XLSX.utils.json_to_sheet(dados);
+    // const workbook = XLSX.utils.book_new();
     const header = [
       'BAIRRO_RESIDNCL',
       'CEP_RESIDNCL',
@@ -200,6 +189,16 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
       'SEXO_CLIENTE',
       'TP_END_RESIDNCL'
     ];
+
+    const dadosCliente = dados.map((item) => {
+      const linha = {};
+      header.forEach((col) => {
+        linha[col] = item[col] ?? '';
+      });
+      return linha;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(dadosCliente, { header });
     worksheet['!cols'] = [
       { wpx: 200, caption: 'BAIRRO_RESIDNCL' },
       { wpx: 100, caption: 'CEP_RESIDNCL' },
@@ -229,22 +228,25 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
       { wpx: 100, caption: 'SEXO_CLIENTE' },
       { wpx: 100, caption: 'TP_END_RESIDNCL' }
     ];
-    XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
+    /*     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista Cliente CredSystem');
+        XLSX.writeFile(workbook,  `${nomeArquivo}.xlsx`); */
+    const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista Cliente CredSystem');
-    XLSX.writeFile(workbook, 'lista_cliente_credSystem.xlsx');
+    XLSX.writeFile(workbook, `${nomeArquivo}.xlsx`);
   };
 
 
   const fetchListaPagamentos = async () => {
     try {
-      
-      const urlApi = `/lista-meio-pagamento-credsystem?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquiaFim=${dataPesquisaFim}`;
+
+      const urlApi = `/lista-meio-pagamento-credsystem?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
       const response = await get(urlApi);
-      
+
       if (response.data.length && response.data.length === pageSize) {
         let allData = [...response.data];
         animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
+
         async function fetchNextPage(currentPage) {
           try {
             currentPage++;
@@ -260,13 +262,13 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
             throw error;
           }
         }
-  
+
         await fetchNextPage(currentPage);
         return allData;
       } else {
         return response.data;
       }
-  
+
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
@@ -282,22 +284,22 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
   );
 
   const dadosPagamentos = dadosListaPagamentos.map((item) => {
-      return {
-        COD_CUPOM: item.COD_CUPOM,
-        COD_LOJA_PRC_CRD: item.COD_LOJA_PRC_CRD,
-        CPF_CLIENTE: item.CPF_CLIENTE,
-        DT_COMPRA: item.DT_COMPRA,
-        DT_INCLUSAO_DW: item.DT_INCLUSAO_DW,
-        NOME_EMP_FIDELDD: item.NOME_EMP_FIDELDD,
-        NOME_PARC_CRED: item.NOME_PARC_CRED,
-        TP_PAGTO: item.TP_PAGTO,
-        VL_COMPRA: item.VL_COMPRA
-      }
+    return {
+      COD_CUPOM: item.COD_CUPOM,
+      COD_LOJA_PRC_CRD: item.COD_LOJA_PRC_CRD,
+      CPF_CLIENTE: item.CPF_CLIENTE,
+      DT_COMPRA: item.DT_COMPRA,
+      DT_INCLUSAO_DW: item.DT_INCLUSAO_DW,
+      NOME_EMP_FIDELDD: item.NOME_EMP_FIDELDD,
+      NOME_PARC_CRED: item.NOME_PARC_CRED,
+      TP_PAGTO: item.TP_PAGTO,
+      VL_COMPRA: item.VL_COMPRA
+    }
   });
 
-  const exportToExcelPagamento = () => {
-    const worksheet = XLSX.utils.json_to_sheet(dadosPagamentos);
-    const workbook = XLSX.utils.book_new();
+  const exportToExcelPagamento = (dadosCliente, nomeArquivo) => {
+    // const worksheet = XLSX.utils.json_to_sheet(dadosCliente);
+    //const workbook = XLSX.utils.book_new();
     const header = [
       'COD_CUPOM',
       'COD_LOJA_PRC_CRD',
@@ -309,6 +311,15 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
       'TP_PAGTO',
       'VL_COMPRA'
     ];
+
+    const dadosClienteMeioPagamento = dadosCliente.map((item) => {
+      const linha = {};
+      header.forEach((col) => {
+        linha[col] = item[col] ?? '';
+      });
+      return linha;
+    });
+    const worksheet = XLSX.utils.json_to_sheet(dadosClienteMeioPagamento, { header });
     worksheet['!cols'] = [
       { wpx: 100, caption: 'COD_CUPOM' },
       { wpx: 150, caption: 'COD_LOJA_PRC_CRD' },
@@ -320,21 +331,25 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
       { wpx: 100, caption: 'TP_PAGTO' },
       { wpx: 100, caption: 'VL_COMPRA' }
     ];
-    XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
+    /*     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Meio Pagamento CredSystem');
+        XLSX.writeFile(workbook, `${nomeArquivo}.xlsx`); */
+    const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Meio Pagamento CredSystem');
-    XLSX.writeFile(workbook, 'lista_meio_pagamento_credSystem.xlsx');
+    XLSX.writeFile(workbook, `${nomeArquivo}.xlsx`);
+
   };
 
   const fetchListaParceria = async () => {
     try {
-      
+
       const urlApi = `/lista-parceria-credsystem?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
       const response = await get(urlApi);
-      
+
       if (response.data.length && response.data.length === pageSize) {
         let allData = [...response.data];
         animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
+
         async function fetchNextPage(currentPage) {
           try {
             currentPage++;
@@ -350,14 +365,14 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
             throw error;
           }
         }
-  
+
         await fetchNextPage(currentPage);
         return allData;
       } else {
-       
+
         return response.data;
       }
-  
+
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
@@ -387,15 +402,15 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
       PRODUTO: item.PRODUTO,
       QUANTIDADE: item.QUANTIDADE,
       SUBGRUPO_PRODUTO: item.SUBGRUPO_PRODUTO,
-      TOTAL_VENDA:  item.TOTAL_VENDA,
+      TOTAL_VENDA: item.TOTAL_VENDA,
       VALOR_UNITARIO: item.VALOR_UNITARIO,
       XPROD: item.XPROD
     }
   });
 
-  const exportToExcelParceria = () => {
-    const worksheet = XLSX.utils.json_to_sheet(dadosParceria);
-    const workbook = XLSX.utils.book_new();
+  const exportToExcelParceria = (dados, nomeArquivo) => {
+    //const worksheet = XLSX.utils.json_to_sheet(dados);
+    //const workbook = XLSX.utils.book_new();
     const header = [
       'ADMINISTRADORA',
       'AVC',
@@ -414,6 +429,16 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
       'VALOR_UNITARIO',
       'XPROD'
     ];
+
+    const dadosClienteParceria = dados.map((item) => {
+      const linha = {};
+      header.forEach((col) => {
+        linha[col] = item[col] ?? '';
+      });
+      return linha;
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(dadosClienteParceria, { header });
     worksheet['!cols'] = [
       { wpx: 100, caption: 'ADMINISTRADORA' },
       { wpx: 100, caption: 'AVC' },
@@ -432,12 +457,15 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
       { wpx: 100, caption: 'VALOR_UNITARIO' },
       { wpx: 100, caption: 'XPROD' }
     ];
-    XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Parceria CredSystem');
-    XLSX.writeFile(workbook, 'parceria_credSystem.xlsx');
+    /*     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
+        XLSX.utils.book_append_sheet(workbook, worksheet, 'Parceria CredSystem');
+        XLSX.writeFile(workbook, `${nomeArquivo}.xlsx`); */
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista Cliente CredSystem');
+    XLSX.writeFile(workbook, `${nomeArquivo}.xlsx`);
   };
 
-  
+
   const handleChangeEmpresa = (e) => {
     const selectedEmpresa = optionsEmpresas.find(empresa => empresa.IDEMPRESA === e.value);
     setEmpresaSelecionadaNome(selectedEmpresa.NOFANTASIA);
@@ -450,58 +478,141 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
     setTabelaVisivel(true);
   }
 
+  /*   const handleClickCadastro = async () => {
+      setCurrentPage((prevPage) => prevPage + 1);
+  
+      const clientes = await refetchListaClientes();
+  
+      if(clientes.data.length) {
+        exportToExcelCliente(clientes.data);
+        console.log('clientes', clientes.data);
+      } else {
+        Swal.fire({
+          position: 'center',
+          icon: 'info',
+          title: 'Não há dados para o periodo selecionado! Tente novamente',
+          customClass: {
+            container: 'custom-swal',
+          },
+          showConfirmButton: false,
+          timer: 3000,
+        });
+      }
+    } */
+
   const handleClickCadastro = async () => {
-    setCurrentPage((prevPage) => prevPage + 1);
+    animacaoCarregamento('Buscando dados de clientes...', true);
 
-    const clientes = await refetchListaClientes();
+    const { data } = await refetchListaClientes();
 
-    if(clientes.data.length) {
-      exportToExcelCliente(clientes.data);
-      console.log('clientes', clientes.data);
+    fecharAnimacaoCarregamento();
+
+    if (data && data.length) {
+      const { value: nomeArquivo } = await Swal.fire({
+        title: 'Nome do arquivo',
+        input: 'text',
+        inputLabel: 'Digite o nome do arquivo a ser baixado',
+        inputPlaceholder: 'Ex: lista_clientes_credsystem',
+        showCancelButton: true,
+        confirmButtonText: 'Baixar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+          if (!value) return 'Digite o nome do arquivo a ser baixado';
+        }
+      })
+
+      if (nomeArquivo) {
+        exportToExcelCliente(data, nomeArquivo);
+      }
     } else {
       Swal.fire({
         position: 'center',
         icon: 'info',
-        title: 'Não há dados para o periodo selecionado! Tente novamente',
-        customClass: {
-          container: 'custom-swal',
-        },
+        title: 'Não há dados para o período selecionado! Tente novamente',
         showConfirmButton: false,
         timer: 3000,
       });
     }
-  }
+  };
+
+
+  /*  const handleClickPagamento = async () => {
+     setCurrentPage((prevPage) => prevPage + 1);
+ 
+     const pagamentos = await refetchListaPagamentos();
+ 
+     if(pagamentos.data.length) {
+       exportToExcelPagamento(pagamentos.data);
+       console.log('pagamentos', pagamentos.data);
+     } else {
+       Swal.fire({
+         position: 'center',
+         icon: 'info',
+         title: 'Não há dados para o periodo selecionado! Tente novamente',
+         customClass: {
+           container: 'custom-swal',
+         },
+         showConfirmButton: false,
+         timer: 3000,
+       });
+     }
+   } */
 
   const handleClickPagamento = async () => {
-    setCurrentPage((prevPage) => prevPage + 1);
+    animacaoCarregamento('Buscando dados de pagamentos...', true);
 
-    const pagamentos = await refetchListaPagamentos();
+    const { data } = await refetchListaPagamentos();
 
-    if(pagamentos.data.length) {
-      exportToExcelPagamento(pagamentos.data);
-      console.log('pagamentos', pagamentos.data);
+    fecharAnimacaoCarregamento();
+
+    if (data && data.length) {
+      const { value: nomeArquivo } = await Swal.fire({
+        title: 'Nome do arquivo',
+        input: 'text',
+        inputLabel: 'Digite o nome do arquivo a ser baixado',
+        inputPlaceholder: 'Ex: lista_pagamentos',
+        showCancelButton: true,
+        confirmButtonText: 'Baixar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+          if (!value) return 'Digite o nome do arquivo a ser baixado';
+        }
+      })
+      if (nomeArquivo) {
+        exportToExcelPagamento(data, nomeArquivo);
+      }
     } else {
       Swal.fire({
         position: 'center',
         icon: 'info',
-        title: 'Não há dados para o periodo selecionado! Tente novamente',
-        customClass: {
-          container: 'custom-swal',
-        },
+        title: 'Não há dados para o período selecionado! Tente novamente',
         showConfirmButton: false,
         timer: 3000,
       });
     }
-  }
+  };
 
   const handleClickParceria = async () => {
     setCurrentPage((prevPage) => prevPage + 1);
 
     const parceria = await refetchListaParceria();
 
-    if(parceria.data.length) {
-      exportToExcelParceria(parceria.data);
-      console.log(parceria.data, 'parceria.data');
+    if (parceria.data.length) {
+      const { value: nomeArquivo } = await Swal.fire({
+        title: 'Nome do arquivo',
+        input: 'text',
+        inputLabel: 'Digite o nome do arquivo a ser baixado',
+        inputPlaceholder: 'Ex: lista_parcerias',
+        showCancelButton: true,
+        confirmButtonText: 'Baixar',
+        cancelButtonText: 'Cancelar',
+        inputValidator: (value) => {
+          if (!value) return 'Digite o nome do arquivo a ser baixado';
+        }
+      })
+      if (nomeArquivo) {
+        exportToExcelParceria(parceria.data, nomeArquivo);
+      }
     } else {
       Swal.fire({
         position: 'center',
@@ -538,7 +649,7 @@ export const ActionPesquisaExportarDadosCSVCredSystem = () => {
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Empresa"}
         optionsEmpresas={[
-          {value: '', label: 'Selecione a Empresa'},
+          { value: '', label: 'Selecione a Empresa' },
           ...optionsEmpresas.map((item) => ({
             value: item.IDEMPRESA,
             label: item.NOFANTASIA

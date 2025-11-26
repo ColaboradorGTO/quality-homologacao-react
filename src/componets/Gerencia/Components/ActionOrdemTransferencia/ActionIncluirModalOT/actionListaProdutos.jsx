@@ -1,4 +1,5 @@
-import { Fragment, useRef, useState } from "react"
+
+import { Fragment, useRef, useState } from "react";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { useReactToPrint } from "react-to-print";
@@ -9,9 +10,12 @@ import HeaderTable from "../../../../Tables/headerTable";
 import { FaMinus, FaRegTrashAlt } from "react-icons/fa";
 import { ButtonTable } from "../../../../ButtonsTabela/ButtonTable";
 
-export const ActionListaProdutos = ({ dadosProdutos }) => {
+
+export const ActionListaProdutos = ({ 
+  dadosProdutosTabela,
+  setDadosProdutosTabela,
+}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [size] = useState('small')
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -24,15 +28,16 @@ export const ActionListaProdutos = ({ dadosProdutos }) => {
   });
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(dados);
+    const worksheet = XLSX.utils.json_to_sheet(dadosProdutosTabela);
     const workbook = XLSX.utils.book_new();
-    const header = ['Produto', 'Cód Barras', 'Descrição', 'R$ Venda', 'R$ Custo'];
+    const header = ['Produto', 'Cód Barras', 'Descrição', 'R$ Venda', 'R$ Custo', 'QTD'];
     worksheet['!cols'] = [
       { wpx: 100, caption: 'Produto' },
       { wpx: 100, caption: 'Cód Barras' },
       { wpx: 250, caption: 'Descrição' },
       { wpx: 100, caption: 'R$ Venda' },
       { wpx: 100, caption: 'R$ Custo' },
+      { wpx: 50, caption: 'QTD' },
     ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Produtos Controle');
@@ -42,14 +47,14 @@ export const ActionListaProdutos = ({ dadosProdutos }) => {
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['Produto', 'Cód Barras', 'Descrição', 'R$ Venda', 'R$ Custo']],
-      body: dados.map(item => [
+      head: [['Produto', 'Cód Barras', 'Descrição', 'R$ Venda', 'R$ Custo', 'QTD']],
+      body: dadosProdutosTabela.map(item => [
         item.IDPRODUTO,
         item.NUCODBARRAS,
         item.DSNOME,
         item.PRECOVENDA,
         item.PRECOCUSTO,
-
+        item.qtd
       ]),
       horizontalPageBreak: true,
       horizontalPageBreakBehaviour: 'immediately'
@@ -57,17 +62,19 @@ export const ActionListaProdutos = ({ dadosProdutos }) => {
     doc.save('produtos_controle_transferencia.pdf');
   };
 
-  const dados = dadosProdutos.map((item, index) => {
+  const dados = dadosProdutosTabela.map((item, index) => {
     let contador = index + 1;
+    let qtd = 1
     return {
       IDPRODUTO: item.IDPRODUTO,
       NUCODBARRAS: item.NUCODBARRAS,
       DSNOME: item.DSNOME,
       PRECOVENDA: item.PRECOVENDA,
       PRECOCUSTO: item.PRECOCUSTO,
-      contador
-    }
+      qtd
+    };
   });
+
 
   const colunasConferencia = [
     {
@@ -101,7 +108,13 @@ export const ActionListaProdutos = ({ dadosProdutos }) => {
       sortable: true,
     },
     {
-      field: 'NUCODBARRAS',
+      field: 'qtd',
+      header: 'QTD',
+      body: row => <th>{row.qtd}</th>,
+      sortable: true,
+    },
+    {
+      field: 'IDPRODUTO',
       header: 'Opções',
       body: (row) => {
 
@@ -117,27 +130,50 @@ export const ActionListaProdutos = ({ dadosProdutos }) => {
           >
             <ButtonTable
               titleButton={"Diminuir Quantidade"}
-              onClickButton={() => handleClickDetalhar(row)}
+              onClickButton={() => handleRemoverProduto(row)}
               Icon={FaMinus}
-              iconSize={16}
+              iconSize={20}
               iconColor={"#fff"}
-              cor={"warning"}
+              cor={"info"}
               disabledBTN={[1, 2].indexOf(row.IDSTATUSOT) >= 0}
+              width="30px"
+              height="30px"
             />
             <ButtonTable
               titleButton={"Excluir Produto"}
-              onClickButton={() => handleClickDetalhar(row)}
+              onClickButton={() => handleExcluirProduto(row)}
               Icon={FaRegTrashAlt}
-              iconSize={16}
+              iconSize={20}
               iconColor={"#fff"}
               cor={"danger"}
               disabledBTN={row.IDSTATUSOT === 1}
+              width="30px"
+              height="30px"
             />
           </div>
         );
       }
     }
   ]
+
+  const handleExcluirProduto = (produto) => {
+    setDadosProdutosTabela(prev =>
+      prev.filter(item => item.IDPRODUTO !== produto.IDPRODUTO)
+    );
+  };
+
+  const handleRemoverProduto = (produto) => {
+    setDadosProdutosTabela(prev =>
+      prev
+        .map(item =>
+          item.IDPRODUTO === produto.IDPRODUTO
+            ? { ...item, qtd: item.qtd > 1 ? item.qtd - 1 : item.qtd }
+            : item
+        )
+        .filter(item => item.IDPRODUTO !== produto.IDPRODUTO || item.qtd > 0)
+    );
+  };
+ 
 
   return (
     <Fragment>
@@ -162,11 +198,14 @@ export const ActionListaProdutos = ({ dadosProdutos }) => {
             title="Lista de Produtos"
             value={dados}
             globalFilter={globalFilterValue}
-            size={size}
+            size="small"
             sortOrder={-1}
             paginator={true}
             rows={10}
             rowsPerPageOptions={[5, 10, 20, 50]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}

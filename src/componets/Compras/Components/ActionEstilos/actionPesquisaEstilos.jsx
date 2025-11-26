@@ -12,7 +12,7 @@ import { MdAdd } from "react-icons/md";
 import { ActionCadastrarEstilosModal } from "./ActionCadastrarEstilos/actionCadastrarEstilosModal";
 
 
-export const ActionPesquisaEstilos = () => {
+export const ActionPesquisaEstilos = ({usuarioLogado, ID}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [descricao, setDescricao] = useState("")
@@ -20,7 +20,16 @@ export const ActionPesquisaEstilos = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
   
-   
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+  );
+
   const fetchListaEstilos = async () => {
     try {
       const urlApi = `/listaEstilos?idEstilo=${estiloSelecionado}&descricao=${descricao}`;
@@ -62,7 +71,7 @@ export const ActionPesquisaEstilos = () => {
   };
   
   const { data: dadosEstilos = [], error: errorAdiantamento, isLoading: isLoadingAdiantamento, refetch: refetchListaEstilos } = useQuery(
-    ['tipo-tecido', estiloSelecionado, descricao, currentPage, pageSize],
+    ['listaEstilos', estiloSelecionado, descricao, currentPage, pageSize],
     () => fetchListaEstilos(estiloSelecionado, descricao,  currentPage, pageSize),
     { enabled: true  }
   )
@@ -71,7 +80,20 @@ export const ActionPesquisaEstilos = () => {
     setEstiloSelecionado(e.value)
   }
 
-  const handlePesquisar = () => {
+  const abreModalCadastro = () => {
+    if(optionsModulos[0]?.CRIAR === 'True') {
+      setModalVisivel(true)
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Atenção',
+        text: `${usuarioLogado?.NOFUNCIONARIO} Você não tem permissão para cadastrar um novo tipo de tecido.`,
+      });
+      return;
+    }
+  }
+
+  const handleClick = () => {
     setCurrentPage(prevPage => prevPage + 1)
     refetchListaEstilos()
     setTabelaVisivel(true)
@@ -107,24 +129,31 @@ export const ActionPesquisaEstilos = () => {
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar Estilos"}
-        onButtonClickSearch={handlePesquisar}
+        onButtonClickSearch={handleClick}
         IconSearch={AiOutlineSearch}
         corSearch={"primary"}
 
         ButtonTypeCadastro={ButtonType}
-        onButtonClickCadastro={() => setModalVisivel(true)}
+        onButtonClickCadastro={abreModalCadastro}
         linkNome={"Cadastrar Estilos"}
         corCadastro={"success"}
         IconCadastro={MdAdd}
       />
 
       {tabelaVisivel && (
-        <ActionListaEstilos dadosEstilos={dadosEstilos} />
+        <ActionListaEstilos 
+          dadosEstilos={dadosEstilos} 
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}
+          handleClick={handleClick}  
+        />
       )}
 
       <ActionCadastrarEstilosModal 
         show={modalVisivel} 
         handleClose={(e) => setModalVisivel(false)} 
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
       />
     </Fragment>
   )

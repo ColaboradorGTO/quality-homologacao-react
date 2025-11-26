@@ -1,26 +1,32 @@
-import { useEffect } from "react";
+
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { post, put } from "../../../../../api/funcRequest";
 
 
-export const useCancelarOT = (row, usuarioLogado, optionsModulos) => {
+export const useCancelarOT = (usuarioLogado, optionsModulos) => {
     const [ipUsuario, setIpUsuario] = useState('');
-    const navigate = useNavigate();
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
 
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-        setIpUsuario(response.data.ip);
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
+
+            if (!usuarioIP) {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            }
+
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
         }
-        return response.data;
-    }
+    };
+    
 
     const handleCancelar = async (row) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
@@ -37,8 +43,8 @@ export const useCancelarOT = (row, usuarioLogado, optionsModulos) => {
         }
         const putData = {
           IDSTATUSOT: parseInt(2),
-          IDRESUMOT: row.IDRESUMOT,
-          IDUSRCANCELAMENTO: usuarioLogado?.id,
+          IDRESUMOT: parseInt(row.IDRESUMOT),
+          IDUSRCANCELAMENTO: parseInt(usuarioLogado?.id),
         };
     
         Swal.fire({
@@ -60,7 +66,7 @@ export const useCancelarOT = (row, usuarioLogado, optionsModulos) => {
                 await put('/resumo-ordem-transferencia/:id', putData);
                 const textDados = JSON.stringify(putData);
                 let textoFuncao = 'GERENCIA/CANCELAR OT';
-            
+                await getIPUsuario();
                 const createData = {
                     IDFUNCIONARIO: String(usuarioLogado.id),
                     PATHFUNCAO: textoFuncao,
@@ -82,7 +88,7 @@ export const useCancelarOT = (row, usuarioLogado, optionsModulos) => {
                 return responsePost.data;
             } catch (error) {
                 let textoFuncao = 'GERENCIA/ERRO AO CANCELAR OT';
-            
+                await getIPUsuario();
                 const createData = {
                     IDFUNCIONARIO: String(usuarioLogado.id),
                     PATHFUNCAO: textoFuncao,

@@ -21,9 +21,8 @@ export const ActionDetalheModalEmpresa = ({ show, handleClose, dadosDetalhesEmpr
                 <Modal.Body>
                     <FormularioDetalhar
                         dadosDetalhesEmpresa={dadosDetalhesEmpresa}
+                        handleClose={handleClose}
                     />
-
-
                 </Modal.Body>
 
 

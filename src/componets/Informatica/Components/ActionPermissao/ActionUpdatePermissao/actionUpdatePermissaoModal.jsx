@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal"
 import { FormularioEditar } from "./fomurlarioEditar";
 
-export const ActionUpdatePermissaoModal = ({show, handleClose, handleClick, dadosEditarPermissao}) => {
+export const ActionUpdatePermissaoModal = ({show, handleClose, handleClick, dadosEditarPermissao, usuarioLogado}) => {
    
     return (
         <Fragment>
@@ -26,10 +26,12 @@ export const ActionUpdatePermissaoModal = ({show, handleClose, handleClick, dado
 
 
                 <Modal.Body>
+                    
                 <FormularioEditar 
                     dadosEditarPermissao={dadosEditarPermissao} 
                     handleClose={handleClose} 
                     handleClick={handleClick}
+                    
                 />
 
                 </Modal.Body>

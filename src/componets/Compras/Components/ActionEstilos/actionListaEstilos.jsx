@@ -11,7 +11,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
-export const ActionListaEstilos = ({dadosEstilos}) => {
+export const ActionListaEstilos = ({dadosEstilos, handleClick, usuarioLogado, optionsModulos}) => {
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosDetalheEstilos, setDadosDetalheEstilos] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -166,11 +166,15 @@ export const ActionListaEstilos = ({dadosEstilos}) => {
           <DataTable
             title="Estilos"
             value={dados}
+            globalFilter={globalFilterValue}
             size="small"
             sortOrder={-1}
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 50, 100, 500, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -198,6 +202,9 @@ export const ActionListaEstilos = ({dadosEstilos}) => {
         show={modalEditar} 
         handleClose={() => setModalEditar(false)} 
         dadosDetalheEstilos={dadosDetalheEstilos} 
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

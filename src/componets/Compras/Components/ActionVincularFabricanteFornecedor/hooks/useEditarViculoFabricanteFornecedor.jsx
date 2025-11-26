@@ -27,32 +27,27 @@ export const useEditarVinculoFabricanteFornecedor = ({dadosDetalheFornecedorFabr
         { value: 'False', label: 'INATIVO' }
     ]
 
-    useEffect(() => {
-        const usuarioArmazenado = localStorage.getItem('usuario');
-
-        if (usuarioArmazenado) {
-            try {
-                const parsedUsuario = JSON.parse(usuarioArmazenado);
-                setUsuarioLogado(parsedUsuario);;
-            } catch (error) {
-                console.error('Erro ao parsear o usuário do localStorage:', error);
-            }
-        } else {
-            navigate('/');
-        }
-    }, [navigate]);
-
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
+
+        if (!usuarioIP) {
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const { data: dadosFabricantes = [], error: errorFabricantes, isLoading: isLoadingFabricantes } = useFetchData('fabricantes', '/fabricantes');
 
@@ -65,7 +60,7 @@ export const useEditarVinculoFabricanteFornecedor = ({dadosDetalheFornecedorFabr
 
  
 
-    const handleEditar = async () => {
+    const handleEditarVinculo = async () => {
         if (fabricante === '') {
             Swal.fire({
                 position: 'center',
@@ -79,16 +74,29 @@ export const useEditarVinculoFabricanteFornecedor = ({dadosDetalheFornecedorFabr
         }
 
 
-        const postData = [{
+        const postData = {
             IDFABRICANTEFORN: dadosDetalheFornecedorFabricante[0]?.IDFABRICANTEFORN,
             IDFABRICANTE: dadosDetalheFornecedorFabricante[0]?.IDFABRICANTE,
             IDFORNECEDOR: fornecedorSelecionado.value,
             STATIVO: statusSelecionado.value,
-        }]
+        }
         try {
 
-            const response = await put('/fabricantes/:id', postData)
+            const response = await put('/fabricante-fornecedor/:id', postData)
 
+            
+            const textDados = JSON.stringify(postData)
+            let textFuncao = 'COMPRAS/VINCULO DE FABRICANTE / FORNECEDOR';
+            const ipUsuario = await getIPUsuario();
+            const createtLog = {
+                IDFUNCIONARIO: usuarioLogado.id,
+                PATHFUNCAO: textFuncao,
+                DADOS: textDados,
+                IP: ipUsuario
+            }
+            
+            await post('/log-web', createtLog)
+            
             Swal.fire({
                 position: 'center',
                 icon: 'success',
@@ -100,21 +108,20 @@ export const useEditarVinculoFabricanteFornecedor = ({dadosDetalheFornecedorFabr
                 }
             })
 
+            return response.data;
+        } catch (error) {
             const textDados = JSON.stringify(postData)
-            let textFuncao = 'COMPRAS/CADASTRO DE FABRICANTE';
-
+            let textFuncao = 'COMPRAS/ERRO AO VINCULAR FABRICANTE / FORNECEDOR';
+            const ipUsuario = await getIPUsuario();
             const createtLog = {
                 IDFUNCIONARIO: usuarioLogado.id,
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
+            
+            const response = await post('/log-web', createtLog)
 
-            const responseLog = await post('/log-web', createtLog)
-
-
-            return responseLog.data;
-        } catch (error) {
             Swal.fire({
                 position: 'top-end',
                 icon: 'error',
@@ -126,6 +133,7 @@ export const useEditarVinculoFabricanteFornecedor = ({dadosDetalheFornecedorFabr
                 },
             });
             console.error('Erro ao criar categoria pedido:', error);
+            return response.data;
         }
     }
 
@@ -139,6 +147,6 @@ export const useEditarVinculoFabricanteFornecedor = ({dadosDetalheFornecedorFabr
         setStatusSelecionado,
         setFabricante,
         dadosFabricantes,
-        handleEditar,
+        handleEditarVinculo,
     }
 }

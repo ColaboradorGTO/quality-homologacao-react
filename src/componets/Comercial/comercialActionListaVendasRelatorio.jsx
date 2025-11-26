@@ -332,7 +332,7 @@ export const ComercialActionListVendasRelatorioGeral  = () => {
       NOFANTASIA: item.NOFANTASIA,
       QTD_CLIENTE: item.QTD_CLIENTE,
       QTD_PRODUTO: item.QTD_PRODUTO,
-      VRTOTALVENDA: item.VRTOTALVENDA,
+     
       VRRECVOUCHER: item.VRRECVOUCHER,
       VALORDESCONTO: item.VALORDESCONTO,
       VRCUSTOTOTAL: item.VRCUSTOTOTAL,

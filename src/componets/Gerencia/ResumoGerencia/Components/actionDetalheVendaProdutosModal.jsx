@@ -125,13 +125,13 @@ export const ActionDetalheVendaProdutosModal = ({ dadosProdutoModal, show, handl
     {
       field: 'STCANCELADO',
       header: 'Situação',
-      body: row => <th>{row.STCANCELADO == 'True' ? 'ATIVO' : 'INATIVO'}</th>,
+      body: row => <th>{row.STCANCELADO == "False" ? "ATIVO" : "CANCELADO"}</th>,
       sortable: true,
     },
     {
       field: 'STTROCA',
       header: 'Troca',
-      body: row => <th>{row.STTROCA}</th>,
+      body: row => <th>{row.STTROCA == "False" ? "NÃO" : "SIM"}</th>,
       sortable: true,
     }
   ]

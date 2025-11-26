@@ -3,7 +3,13 @@ import { Modal } from "react-bootstrap"
 import { FormularioCadastro } from "./formularioCadastro"
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal"
 
-export const ActionCadastroEstruturaModal = ({ show, handleClose }) => {
+export const ActionCadastroEstruturaModal = ({ 
+  show, 
+  handleClose, 
+  usuarioLogado, 
+  optionsModulos, 
+  handleClick 
+}) => {
 
   return (
 
@@ -24,7 +30,12 @@ export const ActionCadastroEstruturaModal = ({ show, handleClose }) => {
         />
 
         <Modal.Body>
-          <FormularioCadastro handleClose={handleClose} />
+          <FormularioCadastro 
+            handleClose={handleClose} 
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+            handleClick={handleClick}  
+          />
         </Modal.Body>
 
       </Modal>

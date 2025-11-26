@@ -12,6 +12,7 @@ import Swal from 'sweetalert2';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { ActionFaturaListaVendasPIXCompensacao } from "./actionListaFaturaVendasPixCompensacao"
 import { ActionFaturaListaVendasPIX } from "./actionListaFaturaVendasPix"
+import { set } from "date-fns"
 
 
 
@@ -231,8 +232,8 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
 
       <ActionMain
         linkComponentAnterior={["Home"]}
-        linkComponent={["Lista de Vendas e Faturas PIX"]}
-        title="Vendas / Faturas PIX por Período"
+        linkComponent={["Faturas PIX"]}
+        title="Faturas PIX DTW por Período"
 
         InputFieldDTInicioAComponent={InputField}
         labelInputDTInicioA={"Data Início"}
@@ -255,35 +256,28 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
         onChangeInputFieldDTFimB={(e) => setDataCompensacaoFim(e.target.value)}
         
         InputSelectMarcasComponent={InputSelectAction}
-        labelSelectMarcas={"Por Marca"}
+        labelSelectMarcas={"Empresa"}
         optionsMarcas={[
-          ...optionsMarcas.map((empresa) => ({
-            value: empresa.IDGRUPOEMPRESARIAL,
-            label: empresa.GRUPOEMPRESARIAL,
-
-          }))
-        ]}
-        valueSelectMarca={marcaSelecionada}
-        onChangeSelectMarcas={handleSelectMarca}
-
-
-        MultSelectEmpresaComponent={MultSelectAction}
-        optionsMultSelectEmpresa={[
-          { value: '0', label: 'Selecione uma loja' },
           ...optionsEmpresas.map((empresa) => ({
             value: empresa.IDEMPRESA,
             label: empresa.NOFANTASIA,
           }))
         ]}
-        labelMultSelectEmpresa={"Empresa"}
-        valueMultSelectEmpresa={[empresaSelecionada[0]]}
-        onChangeMultSelectEmpresa={handleEmpresaChange}
+        valueSelectMarca={empresaSelecionada}
+        onChangeSelectMarcas={(e) => setMarcaSelecionada(e.value)}
 
-        InputFieldComponent={InputField}
-        labelInputField={"Empresas  Livre"}
-        placeHolderInputFieldComponent={"Empresas Livres"}
-        valueInputField={empresaLivre}
-        onChangeInputField={(e) => setEmpresaLivre(e.target.value)}
+
+        InputSelectEmpresaComponent={InputSelectAction}
+        optionsEmpresas={[
+          { value: '0', label: 'Selecione uma loja' },
+          ...optionsMarcas.map((empresa) => ({
+            value: empresa.IDGRUPOEMPRESARIAL,
+            label: empresa.DSGRUPOEMPRESARIAL,
+          }))
+        ]}
+        labelSelectEmpresa={"Por Marca"}
+        valueSelectEmpresa={marcaSelecionada}
+        onChangeSelectEmpresa={(e) => setMarcaSelecionada(e.value)}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Faturas PIX "}

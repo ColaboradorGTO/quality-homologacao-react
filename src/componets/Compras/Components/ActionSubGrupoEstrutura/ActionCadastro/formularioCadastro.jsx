@@ -2,12 +2,12 @@ import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
-import { useCadastrarEstruturaMercadologica } from "../../../hooks/useCadastrarEstruturaMercadologica"
+import { useCadastrarEstruturaMercadologica } from "../hooks/useCadastrarEstruturaMercadologica"
 import Select from 'react-select';
 import { useForm } from "react-hook-form"
 
 
-export const FormularioCadastro = ({  handleClose }) => {
+export const FormularioCadastro = ({  handleClose, usuarioLogado, optionsModulos, handleClick }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         optionsStatus,
@@ -19,8 +19,8 @@ export const FormularioCadastro = ({  handleClose }) => {
         setSubGrupoSelecionado,
         dadosGrupoEstrutura,
         cadastrarSubGrupoEstrutura,
-    } = useCadastrarEstruturaMercadologica()
-
+    } = useCadastrarEstruturaMercadologica({handleClose, usuarioLogado, optionsModulos, handleClick })
+ 
 
     return (
         <Fragment>

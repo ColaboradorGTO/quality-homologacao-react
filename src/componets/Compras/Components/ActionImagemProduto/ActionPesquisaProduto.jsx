@@ -6,56 +6,60 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { ButtonType } from "../../../Buttons/ButtonType"
 import { AiOutlineSearch } from "react-icons/ai"
 import { MdAdd } from "react-icons/md"
-import { ActionListaImagemProduto } from "./actionListaProdutos"
+import { ActionListaProduto } from "./actionListaProdutos"
 import { ActionCadastroImagemProdutoModal } from "./ActionCadastrar/cadastroImagemProdutoModal"
 import { useFetchData } from "../../../../hooks/useFetchData"
 import { useQuery } from "react-query"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 
 
-export const ActionPesquisaProduto = () => {
+export const ActionPesquisaProduto = ({usuarioLogado, ID}) => {
   const [referencia, setReferencia] = useState('');
   const [fabricanteSelecionado, setFabricanteSelecionado] = useState('');
   const [estruturaSelecionada, setEstruturaSelecionada] = useState('');
+  const [pedido, setPedido] = useState('');
   const [modalCadastro, setModalCadastro] = useState(false)
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+ 
+
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+  );
 
   const fetchListaProdutos = async () => {
+    const urlBase = `/imagemProdutos?nuRefImagemProduto=${referencia}&idFabricante=${fabricanteSelecionado}&idSubGrupoEstrutura=${estruturaSelecionada}&idPedido=${pedido}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-    
-      const urlApi = `/imagemProdutos?nuRefImagemProduto=${referencia}&idFabricante=${fabricanteSelecionado}&idSubGrupoEstrutura=${estruturaSelecionada}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-        
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -63,9 +67,9 @@ export const ActionPesquisaProduto = () => {
   };
     
   const { data: dadosProdutos = [], error: errorProdutos, isLoading: isLoadingProdutos, refetch: refetchListaProdutos } = useQuery(
-    ['imagemProdutos', referencia, fabricanteSelecionado, estruturaSelecionada, currentPage, pageSize],
-    () => fetchListaProdutos(referencia, fabricanteSelecionado, estruturaSelecionada, currentPage, pageSize),
-    { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    ['imagemProdutos'],
+    () => fetchListaProdutos(),
+    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   )
 
   const { data: dadosMercadoria = [], error: errorFornecedor, isLoading: isLoadingFornecedor } = useFetchData('subGrupoEstrutura', '/subGrupoEstrutura');
@@ -94,10 +98,17 @@ export const ActionPesquisaProduto = () => {
         linkComponentAnterior={["Home"]}
         linkComponent={["Lista de Imagens de Produtos"]}
 
+        InputFieldCodBarraComponent={InputField}
+        labelInputFieldCodBarra={"Por Pedido"}
+        valueInputFieldCodBarra={pedido}
+        onChangeInputFieldCodBarra={(e) => setPedido(e.target.value)}
+        placeHolderInputFieldCodBarra={"Número do Pedido"}
+
         InputFieldComponent={InputField}
         labelInputField={"Por Referência"}
         valueInputField={referencia}
         onChangeInputField={(e) => setReferencia(e.target.value)}
+        placeHolderInputFieldComponent={"Número da Referência"}
 
         InputSelectFornecedorComponent={InputSelectAction}
         optionsFornecedores={[
@@ -137,11 +148,19 @@ export const ActionPesquisaProduto = () => {
         IconCadastro={MdAdd}
       />
 
-      <ActionListaImagemProduto dadosProdutos={dadosProdutos}/>
+      <ActionListaProduto 
+        dadosProdutos={dadosProdutos}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}  
+      />
      
       <ActionCadastroImagemProdutoModal 
         show={modalCadastro}
         handleClose={() => setModalCadastro(false)}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

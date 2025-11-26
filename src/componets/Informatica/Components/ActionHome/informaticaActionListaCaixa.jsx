@@ -17,11 +17,20 @@ import { MdOutlineArrowBackIos } from "react-icons/md";
 import { ActionCreateCaixaModal } from "./ActionCreateCaixaModal/actionCreateCaixaModal";
 
 
-export const InformaticaActionListCaixa = ({dadosListaCaixa, setActionVisivel, setTabelaVisivel, setActionListaCaixaVisivel }) => {
+export const InformaticaActionListCaixa = ({
+  dadosListaCaixa,
+  setActionVisivel,
+  setTabelaVisivel,
+  setActionListaCaixaVisivel,
+  refetchListaCaixa,
+  usuarioLogado
+}) => {
+
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalCadastrarVisivel, setModalCadastrarVisivel] = useState()
   const [caixaSelecionadoTabela, setCaixaSelecionadoTabela] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -58,14 +67,14 @@ export const InformaticaActionListCaixa = ({dadosListaCaixa, setActionVisivel, s
     const workbook = XLSX.utils.book_new();
     const header = ['ID Caixa', 'Descrição', 'Porta', 'Lote NFCe Prod', 'última NFCe Prod', 'Versão PDV', 'Tipo TEF', 'Status']
     worksheet['!cols'] = [
-      { wpx: 70,  caption: 'ID Caixa'},
-      { wpx: 200, caption: 'Descrição'},
-      { wpx: 70,  caption: 'Porta'},
-      { wpx: 70,  caption: 'Lote NFCe Prod'},
-      { wpx: 70,  caption: 'última NFCe Prod'},
-      { wpx: 70,  caption: 'Versão PDV'},
-      { wpx: 70,  caption: 'Tipo TEF'},
-      { wpx: 70,  caption: 'Status'}
+      { wpx: 70, caption: 'ID Caixa' },
+      { wpx: 200, caption: 'Descrição' },
+      { wpx: 70, caption: 'Porta' },
+      { wpx: 70, caption: 'Lote NFCe Prod' },
+      { wpx: 70, caption: 'última NFCe Prod' },
+      { wpx: 70, caption: 'Versão PDV' },
+      { wpx: 70, caption: 'Tipo TEF' },
+      { wpx: 70, caption: 'Status' }
     ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista Caixa Empresa');
@@ -175,18 +184,19 @@ export const InformaticaActionListCaixa = ({dadosListaCaixa, setActionVisivel, s
   const handleDetalhar = async (IDCAIXAWEB) => {
 
     try {
-      const response = await get(`/lista-caixas?idCaixa=${IDCAIXAWEB}`);
+      const response = await get(`/lista-caixas?idCaixaWeb=${IDCAIXAWEB}`);
       if (response.data) {
         setCaixaSelecionadoTabela(response.data)
-        console.log(response.data, 'dadosBI')
         setModalVisivel(true)
       }
       return response.data;
-      
+
     } catch (error) {
       console.log('Erro ao buscar empresas: ', error)
     }
   }
+
+
 
   const handleClickDetalhar = (row) => {
     if (row.IDCAIXAWEB) {
@@ -247,6 +257,9 @@ export const InformaticaActionListCaixa = ({dadosListaCaixa, setActionVisivel, s
             sortOrder={-1}
             paginator={true}
             rows={10}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
@@ -272,17 +285,21 @@ export const InformaticaActionListCaixa = ({dadosListaCaixa, setActionVisivel, s
           </DataTable>
         </div>
       </div>
-      <ActionUpdateCaixaModal 
+      <ActionUpdateCaixaModal
         show={modalVisivel}
         handleClose={() => setModalVisivel(false)}
-        dadosListaCaixa={dadosListaCaixa}
+        dadosListaCaixa={caixaSelecionadoTabela}
+        refetchListaCaixa={refetchListaCaixa}
+        usuarioLogado={usuarioLogado}
       />
 
-     <ActionCreateCaixaModal
+      <ActionCreateCaixaModal
         show={modalCadastrarVisivel}
         handleClose={() => setModalCadastrarVisivel(false)}
         dadosListaCaixa={dadosListaCaixa}
-     />
+        refetchListaCaixa={refetchListaCaixa}
+        usuarioLogado={usuarioLogado}
+      />
     </Fragment>
   )
 }

@@ -7,14 +7,15 @@ import { GoDownload } from "react-icons/go";
 import { ActionListaEmpresas } from "./actionListaEmpresas";
 import { useQuery } from "react-query";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
+
 import axios from "axios";
 
-export const InformaticaActionHome = ({usuarioLogado, ID}) => {
+export const InformaticaActionHome = ({ usuarioLogado, ID }) => {
   const [clickContador, setClickContador] = useState(0);
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
-  const [actionVisivel, setActionVisivel] = useState(true);  
+  const [actionVisivel, setActionVisivel] = useState(true);
   const [ipUsuario, setIpUsuario] = useState('');
+
 
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
@@ -23,21 +24,27 @@ export const InformaticaActionHome = ({usuarioLogado, ID}) => {
 
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
 
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data);
-    }
-    return response.data;
-  }
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      let usuarioIP = ipWhoisData?.ip;
 
+      if (!usuarioIP) {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      }
+
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
+    } catch (error) {
+      console.error("Erro ao buscar IP:", error);
+      return null;
+    }
+  };
 
   const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch } = useQuery(
     'listaEmpresasIformatica',
@@ -49,7 +56,7 @@ export const InformaticaActionHome = ({usuarioLogado, ID}) => {
   );
 
   const atualizarDiariaEmpresa = async () => {
-    if(optionsModulos[0]?.ALTERAR === 'False')  {
+    if (optionsModulos[0]?.ALTERAR === 'False') {
       Swal.fire({
         position: 'center',
         icon: 'error',
@@ -60,47 +67,50 @@ export const InformaticaActionHome = ({usuarioLogado, ID}) => {
       })
       return;
     }
-
-    const putData = {
-      STATUALIZA: 'True',
-    }
-
-    const response = await put('/atualizar-todos-caixa', putData)
-    const textDados = JSON.stringify(putData);
-    let textFuncao = 'INFORMATICA/ATUALIZAR TODOS OS CAIXA';
-
-    const postData = {
-      IDFUNCIONARIO: usuarioLogado.id,
-      PATHFUNCAO: textFuncao,
-      DADOS: textDados,
-      IP: ipUsuario
-    }
-
-
-    const responseLog = await post('/logWeb', postData)
     try {
+
+      const putData = {
+        STATUALIZA: 'True',
+      }
+
+      const response = await put('/atualizar-todos-caixa', putData)
+      const textDados = JSON.stringify(putData);
+      let textFuncao = 'INFORMATICA/ATUALIZAR TODOS OS CAIXA';
+
+      const ipUsuario = await getIPUsuario();
+      const postData = {
+        IDFUNCIONARIO: String(usuarioLogado.id),
+        PATHFUNCAO: textFuncao,
+        DADOS: textDados,
+        IP: ipUsuario
+      }
+
+      const responseLog = await post('/log-web', postData)
+
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'success',
         title: 'Caixas atualizado com sucesso!',
         showConfirmButton: false,
         timer: 1500
       })
 
-   
+      return responseLog.data;
+
     } catch (error) {
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'error',
         title: 'Erro ao atualizar Caixas!',
         showConfirmButton: false,
         timer: 1500
       });
 
-      console.log(error)
+      console.error('Erro na atualização:', error);
+      return null;
+
     }
 
-    return responseLog.data;
   }
 
   const handleClick = () => {
@@ -116,7 +126,7 @@ export const InformaticaActionHome = ({usuarioLogado, ID}) => {
 
     <Fragment>
 
-      {actionVisivel && ( 
+      {actionVisivel && (
         <>
           <ActionMain
             linkComponentAnterior={["Home"]}
@@ -146,11 +156,11 @@ export const InformaticaActionHome = ({usuarioLogado, ID}) => {
 
         </>
       )}
-      
-      <ActionListaEmpresas 
-        dadosEmpresas={dadosEmpresas} 
+
+      <ActionListaEmpresas
+        dadosEmpresas={dadosEmpresas}
         setActionVisivel={setActionVisivel}
-        optionsModulos={optionsModulos}  
+        optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}
       />
     </Fragment>

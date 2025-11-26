@@ -8,7 +8,8 @@ import { FooterMain } from "../componets/Footer";
 import { get } from "../api/funcRequest";
 import { useQuery } from "react-query";
 
-const ActionPesquisaFuncionarios = lazy(() => import("../componets/Informatica/Components/ActionFuncionarios/actionPesquisaFuncionarios").then(module => ({ default: module.ActionPesquisaFuncionarios })));
+
+const ActionPesquisaFuncionarios = lazy(() => import("../componets/RH/components/ActionFuncionarios/actionPesquisaFuncionarios").then(module => ({ default: module.ActionPesquisaFuncionarios })));
 
 export const DashBoardRecursosHumanos = ({}) => {
   const [actionVisivel, setActionVisivel] = useState(true);
@@ -17,6 +18,7 @@ export const DashBoardRecursosHumanos = ({}) => {
   const selectedModule = JSON.parse(storedModule);
   const [componentToShow, setComponentToShow] = useState("");
   const navigate = useNavigate();
+
 
   function handleShowComponent(componentName) {
     setComponentToShow(componentName);
@@ -37,6 +39,7 @@ export const DashBoardRecursosHumanos = ({}) => {
     }
   }, [navigate]);
 
+
   useEffect(() => {
 
   }, [usuarioLogado]);
@@ -51,6 +54,7 @@ export const DashBoardRecursosHumanos = ({}) => {
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
   );
 
+
   const permissaoUsuario = selectedModule.menuPai.menuFilho;
   const {   
     ID, 
@@ -64,7 +68,7 @@ export const DashBoardRecursosHumanos = ({}) => {
   let component = null;
 
   switch (componentToShow) {
-    case "/informatica/ActionPesquisaFuncionarios":
+    case "/recursosHumanos/ActionPesquisaFuncionarios":
       component = <ActionPesquisaFuncionarios usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     default:
@@ -95,7 +99,10 @@ export const DashBoardRecursosHumanos = ({}) => {
                     <div className="panel-container show">
                       <div className="panel-content">
                         <Suspense fallback={<div>Loading...</div>}>
-                        {actionVisivel && !componentToShow && (<ActionPesquisaFuncionarios />)}
+                        {usuarioLogado && actionVisivel && !componentToShow && (
+                          <ActionPesquisaFuncionarios usuarioLogado={usuarioLogado} ID={ID} />
+                        )}
+
 
                           {componentToShow && component}
                         </Suspense>

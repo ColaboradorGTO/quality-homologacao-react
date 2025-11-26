@@ -229,7 +229,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({dadosAdiantamentoFuncionario
 
       <ActionImprimirAdiantamentoSalarial 
         show={modalImprimirVisivel} 
-        handleClose={(e) => setModalImprimirVisivel(e)} 
+        handleClose={() => setModalImprimirVisivel(false)} 
         dadosAdiantamentoSalarialFuncionarios={dadosAdiantamentoSalarialFuncionarios}
       />
     </Fragment>

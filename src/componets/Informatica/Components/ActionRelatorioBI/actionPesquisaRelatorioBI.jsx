@@ -4,19 +4,19 @@ import { ActionMain } from "../../../Actions/actionMain"
 import { get } from "../../../../api/funcRequest";
 import { MdAdd } from "react-icons/md";
 import { ActionListaRelatorioBi } from "./actionListaRelatorioBI";
-import { ActionCadastrarRelatorioBIModal } from "./actionCadastrarRelatorioBIModal";
+import { ActionCadastrarRelatorioBIModal } from "./ActionCadastrar/actionCadastrarRelatorioBIModal";
 import { useQuery } from "react-query";
 import Swal from "sweetalert2";
 
-export const ActionPesquisaRelatorioBI = ({usuarioLogado, ID}) => {
+export const ActionPesquisaRelatorioBI = ({ usuarioLogado, ID }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
-  
+
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
     async () => {
-        const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
 
-        return response.data;
+      return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
@@ -34,7 +34,7 @@ export const ActionPesquisaRelatorioBI = ({usuarioLogado, ID}) => {
 
 
   const handleModalCadastro = () => {
-    if(optionsModulos[0]?.CRIAR == 'True') {
+    if (optionsModulos[0]?.CRIAR == 'True') {
       setModalVisivel(true)
     } else {
       Swal.fire({
@@ -53,7 +53,7 @@ export const ActionPesquisaRelatorioBI = ({usuarioLogado, ID}) => {
         linkComponentAnterior={["Home"]}
         linkComponent={["Relatório BI"]}
         title="Listagem dos Relatórios do BI"
-     
+
 
         ButtonTypeCadastro={ButtonType}
         linkNome={"Cadastrar Relatório BI"}
@@ -63,9 +63,21 @@ export const ActionPesquisaRelatorioBI = ({usuarioLogado, ID}) => {
 
       />
 
-      <ActionListaRelatorioBi dadosBI={dadosBI} optionsModulos={optionsModulos} />
+      <ActionListaRelatorioBi
+        dadosBI={dadosBI}
+        optionsModulos={optionsModulos}
+        refetch={refetch}
+        usuarioLogado={usuarioLogado}
 
-      <ActionCadastrarRelatorioBIModal show={modalVisivel} handleClose={() => setModalVisivel(false)} />
+      />
+
+      <ActionCadastrarRelatorioBIModal
+        show={modalVisivel}
+        handleClose={() => setModalVisivel(false)}
+        refetch={refetch}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+      />
     </Fragment>
   )
 }

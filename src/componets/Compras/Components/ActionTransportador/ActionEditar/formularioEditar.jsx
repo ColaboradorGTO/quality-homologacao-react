@@ -1,50 +1,171 @@
 import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
-import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
+import { useForm, Controller } from "react-hook-form"
+import Select from 'react-select';
+import { useEditarTransportadora } from "../hooks/useEditarTransportadora"
+import FormField from "../../../../Formularios/FormField"
+import { schema } from "./schema/useEditarSchema"
+import { mascaraCNPJ } from "../../../../../utils/mascaraCNPJ"
 
-export const FormularioEditar = ({ handleClose, dadosDetalheTranspotador }) => {
+
+export const FormularioEditar = ({
+    handleClose, 
+    dadosDetalheTranspotador, 
+    usuarioLogado,
+    optionsModulos,
+    handleClick
+}) => {
+    const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+        mode: "onChange"
+    });
+    const {
+        statusSelecionado,
+        setStatusSelecionado,
+        cnpj,
+        setCnpj,
+        inscricaoEstadual,
+        setInscricaoEstadual,
+        inscricaoMunicipal,
+        setInscricaoMunicipal,
+        razaoSocial,
+        setRazaoSocial,
+        nomeFantasia,
+        setNomeFantasia,
+        cep,
+        setCep,
+        endereco,
+        setEndereco,
+        numero,
+        setNumero,
+        complemento,
+        setComplemento,
+        bairro,
+        setBairro,
+        cidade,
+        setCidade,
+        uf,
+        setUf,
+        numeroIBGE,
+        setNumeroIBGE,
+        nomeRepresentante,
+        setNomeRepresentante,
+        email,
+        setEmail,
+        telefone1,
+        setTelefone1,
+        telefone2,
+        setTelefone2,
+        telefone3,
+        setTelefone3,
+        optionsStatus,
+        onSubmit,
+    } = useEditarTransportadora({ handleClose, dadosDetalheTranspotador, usuarioLogado, optionsModulos, handleClick });
+   
+     const handleValidatedSubmit = async () => {
+        try {
+          const dadosParaValidar = {
+            cnpjTransportador: cnpj,
+            inscricaoEstadualTransportador: inscricaoEstadual,
+            inscricaoMunicipalTransportador: inscricaoMunicipal,
+            razaoSocialTransportador: razaoSocial,
+            nomeFantasiaTransportador: nomeFantasia,
+            cepTransportador: cep,
+            enderecoTransportador: endereco,
+            numeroTransportador: numero,
+            complementoTransportador: complemento,
+            bairroTransportador: bairro,
+            cidadeTransportador: cidade,
+            ufTransportador: uf,
+            numIbgeTransportador: numeroIBGE,
+            nomeRepresentanteTransportador: nomeRepresentante,
+            emailTransportador: email,
+            telefoneTransportador1: telefone1,
+            telefoneTransportador2: telefone2,
+            telefoneTransportador3: telefone3,
+          }
+    
+          await schema.validate(dadosParaValidar, { abortEarly: false });
+    
+          onSubmit();
+    
+        } catch (validationError) {
+          clearErrors();
+    
+    
+          if (validationError.inner && validationError.inner.length > 0) {
+            validationError.inner.forEach(error => {
+              if (error.path) {
+                setError(error.path, {
+                  type: 'manual',
+                  message: error.message
+                });
+              }
+            });
+          }
+    
+          const errorMessages = validationError.errors || [validationError.message];
+          console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+        }
+      }
+
     return (
         <Fragment>
-            <form>
+            <form onSubmit={handleSubmit(handleValidatedSubmit)}>
 
                 <div className="form-group">
                     <div className="row">
                         <div className="col-sm-4 col-xl-4">
-
-                            <InputFieldModal
-                                label={"CNPJ *"}
-                                type={"text"}
-                                id={"cnpjFornecedor"}
-                                placeholder={"00.000.000/0000-00"}
-                                value={dadosDetalheTranspotador[0]?.NUCNPJ}
-                                {...register("cnpjFornecedor", { required: "Verique o campo CNPJ mínimo 14 Dígito(s) " })}
-                                required={true}
-                                minLength={14}
+                            <Controller
+                                name="cnpjTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"CNPJ"}
+                                        name="cnpjTransportador"
+                                        type="text"
+                                        value={mascaraCNPJ(cnpj)}
+                                        onChange={(e) => setCnpj(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                
+                                )}
                             />
-                            {errors.cnpjFornecedor && <span role="alert">{errors.cnpjFornecedor.message}</span>}
                         </div>
                         <div className="col-sm-4 col-xl-4">
-                            <InputFieldModal
-                                label={"Insc. Estadual"}
-                                type={"text"}
-                                id={"inscestadualforn"}
-                                value={dadosDetalheTranspotador[0]?.NUINSCESTADUAL}
-                                {...register("inscestadualforn", { required: "Campo obrigatório Informe a Inscrição Estadual" })}
-                                required={true}
-                            />
-                            {errors.inscestadualforn && <span role="alert">{errors.inscestadualforn.message}</span>}
+                            <Controller 
+                                name="inscricaoEstadualTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Inscrição Estadual"}
+                                        name="inscricaoEstadualTransportador"
+                                        type="text"
+                                        value={inscricaoEstadual}
+                                        onChange={(e) => setInscricaoEstadual(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            /> 
                         </div>
                         <div className="col-sm-4 col-xl-4">
-                            <InputFieldModal
-                                label={"Insc. Municipal"}
-                                type={"text"}
-                                id={"inscmuniforn"}
-                                value={dadosDetalheTranspotador[0]?.NUINSCMUNICIPAL}
-                                {...register("inscmuniforn", { required: "Campo obrigatório Informe a Inscrição Municipal" })}
-                                required={true}
+                            <Controller 
+                                name="inscricaoMunicipalTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Inscrição Municipal"}
+                                        name="inscricaoMunicipalTransportador"
+                                        type="text"
+                                        value={inscricaoMunicipal}
+                                        onChange={(e) => setInscricaoMunicipal(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-                            {errors.inscmuniforn && <span role="alert">{errors.inscmuniforn.message}</span>}
                         </div>
                     </div>
                 </div>
@@ -52,27 +173,39 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTranspotador }) => {
                     <div className="row">
                         <div className="col-sm-6 col-xl-4">
 
-                            <InputFieldModal
-                                label={"Razão Social *"}
-                                type={"text"}
-                                id={"razaoforn"}
-                                value={dadosDetalheTranspotador[0]?.NORAZAOSOCIAL}
-                                {...register("razaoforn", { required: "Campo obrigatório Informe a Razão Social do Transportador" })}
-                                required={true}
+                            <Controller 
+                                name="razaoSocialTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Razão Social *"}
+                                        name="razaoSocialTransportador"
+                                        type="text"
+                                        value={razaoSocial}
+                                        onChange={(e) => setRazaoSocial(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-                            {errors.razaoforn && <span role="alert">{errors.razaoforn.message}</span>}
                         </div>
                         <div className="col-sm-6 col-xl-4">
 
-                            <InputFieldModal
-                                label={"Nome Fantasia *"}
-                                type={"text"}
-                                id={"fantasiaforn"}
-                                value={dadosDetalheTranspotador[0]?.NOFANTASIA}
-                                {...register("fantasiaforn", { required: "Campo obrigatório Informe o Nome Fantasia do Transportador" })}
-                                required={true}
+                            <Controller 
+                                name="nomeFantasiaTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Nome Fantasia *"}
+                                        name="nomeFantasiaTransportador"
+                                        type="text"
+                                        value={nomeFantasia}
+                                        onChange={(e) => setNomeFantasia(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-                            {errors.fantasiaforn && <span role="alert">{errors.fantasiaforn.message}</span>}
                         </div>
                     </div>
                 </div>
@@ -80,46 +213,72 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTranspotador }) => {
                     <div className="row">
                         <div className="col-sm-3 col-xl-2">
 
-                            <InputFieldModal
-                                label={"CEP *"}
-                                type={"text"}
-                                id={"cepforn"}
-                                value={dadosDetalheTranspotador[0]?.NUCEP}
-                                {...register("cepforn", { required: "Campo obrigatório Informe o CEP" })}
-                                required={true}
+                            <Controller 
+                                name="cepTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"CEP *"}
+                                        name="cepTransportador"
+                                        type="text"
+                                        value={cep}
+                                        onChange={(e) => setCep(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-                            {errors.cepforn && <span role="alert">{errors.cepforn.message}</span>}
                         </div>
                         <div className="col-sm-3 col-xl-5">
-                            <InputFieldModal
-                                label={"Endereço *"}
-                                type={"text"}
-                                id={"enderecoforn"}
-                                value={dadosDetalheTranspotador[0]?.EENDERECO}
-                                {...register("enderecoforn", { required: "Campo obrigatório Informe o Endereço do Transportador" })}
-                                required={true}
+                            <Controller 
+                                name="enderecoTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Endereço *"}
+                                        name="enderecoTransportador"
+                                        type="text"
+                                        value={endereco}
+                                        onChange={(e) => setEndereco(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-                            {errors.enderecoforn && <span role="alert">{errors.enderecoforn.message}</span>}
                         </div>
                         <div className="col-sm-3 col-xl-2">
 
-                            <InputFieldModal
-                                label={"Nº *"}
-                                type={"text"}
-                                id={"numeroendforn"}
-                                value={dadosDetalheTranspotador[0]?.ENUMERO}
-                                {...register("numeroendforn", { required: "Campo obrigatório Informe o Número do Endereço do Transportador" })}
-                                required={true}
+                            <Controller 
+                                name="numeroTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Nº *"}
+                                        name="numeroTransportador"
+                                        type="text"
+                                        value={numero}
+                                        onChange={(e) => setNumero(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-                            {errors.numeroendforn && <span role="alert">{errors.numeroendforn.message}</span>}
                         </div>
                         <div className="col-sm-3 col-xl-3">
-                            <InputFieldModal
-                                label={"Complemento"}
-                                type={"text"}
-                                id={"complementoendforn"}
-                                value={dadosDetalheTranspotador[0]?.ECOMPLEMENTO}
-                                {...register("complementoendforn")}
+                            <Controller 
+                                name="complementoTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Complemento"}
+                                        name="complementoTransportador"
+                                        type="text"
+                                        value={complemento}
+                                        onChange={(e) => setComplemento(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
 
                         </div>
@@ -128,44 +287,71 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTranspotador }) => {
                 <div className="form-group">
                     <div className="row">
                         <div className="col-sm-3 col-xl-4">
-                            <InputFieldModal
-                                label={"Bairro *"}
-                                type={"text"}
-                                id={"bairroforn"}
-                                value={dadosDetalheTranspotador[0]?.EBAIRRO}
-                                {...register("bairroforn", { required: "Campo obrigatório Informe o Bairro" })}
-                                required={true}
+                            <Controller 
+                                name="bairroTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Bairro *"}
+                                        name="bairroTransportador"
+                                        type="text"
+                                        value={bairro}
+                                        onChange={(e) => setBairro(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-                            {errors.bairroforn && <span role="alert">{errors.bairroforn.message}</span>}
                         </div>
                         <div className="col-sm-3 col-xl-4">
-                            <InputFieldModal
-                                label={"Cidade *"}
-                                type={"text"}
-                                id={"cidadeforn"}
-                                value={dadosDetalheTranspotador[0]?.ECIDADE}
-                                {...register("cidadeforn", { required: "Campo obrigatório Informe a Cidade do Transportador" })}
-                                required={true}
+                            <Controller 
+                                name="cidadeTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Cidade *"}
+                                        name="cidadeTransportador"
+                                        type="text"
+                                        value={cidade}
+                                        onChange={(e) => setCidade(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-                            {errors.cidadeforn && <span role="alert">{errors.cidadeforn.message}</span>}
                         </div>
                         <div className="col-sm-3 col-xl-2">
-                            <InputFieldModal
-                                label={"UF *"}
-                                type={"text"}
-                                id={"ufforn"}
-                                value={dadosDetalheTranspotador[0]?.SGUF}
-                                {...register("ufforn", { required: "Campo obrigatório Informe a UF" })}
-                                required={true}
+                            <Controller 
+                                name="ufTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"UF *"}
+                                        name="ufTransportador"
+                                        type="text"
+                                        value={uf}
+                                        onChange={(e) => setUf(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-                            {errors.ufforn && <span role="alert">{errors.ufforn.message}</span>}
                         </div>
                         <div className="col-sm-3 col-xl-2">
-                            <InputFieldModal
-                                label={"Nº IBGE *"}
-                                type={"text"}
-                                id={"nibgeforn"}
-                                value={dadosDetalheTranspotador[0]?.NUIBGE}
+                            <Controller 
+                                name="numIbgeTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Nº IBGE"}
+                                        name="numIbgeTransportador"
+                                        type="text"
+                                        value={numeroIBGE}
+                                        onChange={(e) => setNumeroIBGE(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                     </div>
@@ -173,19 +359,37 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTranspotador }) => {
                 <div className="form-group">
                     <div className="row">
                         <div className="col-sm-6 col-xl-6">
-                            <InputFieldModal
-                                label={"Nome Representante *"}
-                                type={"text"}
-                                id={"nomerepreforn"}
-                                value={dadosDetalheTranspotador[0]?.NOREPRESENTANTE}
+                            <Controller 
+                                name="nomeRepresentanteTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Nome do Representante *"}
+                                        name="nomeRepresentanteTransportador"
+                                        type="text"
+                                        value={nomeRepresentante}
+                                        onChange={(e) => setNomeRepresentante(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                         <div className="col-sm-6 col-xl-6">
-                            <InputFieldModal
-                                label={"E-mail"}
-                                type={"text"}
-                                id={"emailforn"}
-                                value={dadosDetalheTranspotador[0]?.EEMAIL}
+                            <Controller 
+                                name="emailTransportador"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"E-mail *"}
+                                        name="emailTransportador"
+                                        type="text"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
                         </div>
                     </div>
@@ -193,29 +397,58 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTranspotador }) => {
                 <div className="form-group">
                     <div className="row">
                         <div className="col-sm-3 col-xl-3">
-                            <InputFieldModal
-                                label={"Telefone 1 *"}
-                                type={"text"}
-                                id={"tel1forn"}
-                                value={dadosDetalheTranspotador[0]?.NUTELEFONE1}
+                            <Controller 
+                                name="telefoneTransportador1"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Telefone 1 *"}
+                                        name="telefoneTransportador1"
+                                        type="text"
+                                        value={telefone1}
+                                        onChange={(e) => setTelefone1(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
 
                         </div>
                         <div className="col-sm-3 col-xl-3">
-                            <InputFieldModal
-                                label={"Telefone 2"}
-                                type={"text"}
-                                id={"tel2forn"}
-                                value={dadosDetalheTranspotador[0]?.NUTELEFONE2}
+                            <Controller 
+                                name="telefoneTransportador2"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Telefone 2"}
+                                        name="telefoneTransportador2"
+                                        type="text"
+                                        value={telefone2}   
+                                        onChange={(e) => setTelefone2(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
+
                         </div>
                         <div className="col-sm-3 col-xl-3">
-                            <InputFieldModal
-                                label={"Telefone 3"}
-                                type={"text"}
-                                id={"tel3forn"}
-                                value={dadosDetalheTranspotador[0]?.NUTELEFONE3}
+                            <Controller 
+                                name="telefoneTransportador3"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Telefone 3"}
+                                        name="telefoneTransportador3"
+                                        type="text"
+                                        value={telefone3}
+                                        onChange={(e) => setTelefone3(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
+
                         </div>
 
                         <div className="col-sm-6 col-xl-3">
@@ -243,6 +476,7 @@ export const FormularioEditar = ({ handleClose, dadosDetalheTranspotador }) => {
 
                     ButtonTypeCadastrar={ButtonTypeModal}
                     onClickButtonCadastrar
+                    tipoBtnCadastrar={"submit"}
                     textButtonCadastrar={"Salvar"}
                     corCadastrar={"success"}
                 />

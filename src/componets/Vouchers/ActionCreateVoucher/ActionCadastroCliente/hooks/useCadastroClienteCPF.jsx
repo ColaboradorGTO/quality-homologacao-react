@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import axios from "axios";
 import { getDataAtual } from "../../../../../utils/dataAtual";
-import { useNavigate } from "react-router-dom";
+
 
 export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose, onCpf }) => {
     const [idCliente, setIdCliente] = useState('');
@@ -30,7 +30,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
     const [cpfFuncionario, setCpfFuncionario] = useState('');
     const [empresa, setEmpresa] = useState('');
     const [ipUsuario, setIpUsuario] = useState('');
-    const navigate = useNavigate();
+
 
     useEffect(() => {
         const dataAtual = getDataAtual()
@@ -38,17 +38,23 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
 
     }, [usuarioLogado]);
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
+
+            if (!usuarioIP) {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            }
+
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
         }
-        return response.data;
-    }
+    };
 
     useEffect(() => {
         if (cep.length === 8) {
@@ -76,34 +82,52 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         ['cliente-todos', cpf],
         async () => {
             const response = await get(`/cliente-todos?numeroCpfCnpj=${removerMascaraCPF(cpf)}`);
-            console.log(response.data, 'response.data')
+            console.log("response cliente-todos", response)
             return response.data;
         },
         { enabled: cpf?.length >= 8, staleTime: 5 * 60 * 1000 }
     );
 
+    
     useEffect(() => {
         if (optionsCPF.length > 0) {
-            setIdCliente(optionsCPF[0]?.IDCLIENTE);
-            setEmpresa(optionsCPF[0]?.IDEMPRESA);
-            setDataCadastro(optionsCPF[0]?.DTCADASTRO);
-            setCpf(optionsCPF[0]?.NUCPFCNPJ);
-            setNomeClienteRazao(optionsCPF[0]?.DSNOMERAZAOSOCIAL);
-            setSobrenome(optionsCPF[0]?.DSAPELIDONOMEFANTASIA);
-            setDataNascimento(optionsCPF[0]?.DTNASCFUNDACAO);
-            setTelefoneCliente(optionsCPF[0]?.NUTELCELULAR);
-            setEmail(optionsCPF[0]?.EEMAIL);
-            setCep(optionsCPF[0]?.NUCEP);
-            setEndereco(optionsCPF[0]?.EENDERECO);
-            setNumero(optionsCPF[0]?.NUENDERECO);
-            setComplemento(optionsCPF[0]?.ECOMPLEMENTO);
-            setBairro(optionsCPF[0]?.EBAIRRO);
-            setNuIBGE(optionsCPF[0]?.NUIBGE);
-            setCidade(optionsCPF[0]?.ECIDADE);
-            setEstado(optionsCPF[0]?.SGUF);
-        }
+            const cliente = optionsCPF[0];
+            setIdCliente(cliente?.IDCLIENTE || "");
+            setEmpresa(cliente?.IDEMPRESA || "");
+            setDataCadastro(cliente?.DTCADASTRO || cliente?.DTULTALTERACAO?.split(" ")[0] || "");
+            setCpf(cliente?.NUCPFCNPJ || "");
+            setTipo(cliente?.TPCLIENTE || "");
+            setDataNascimento(cliente?.DTNASCFUNDACAO ? cliente.DTNASCFUNDACAO.split(" ")[0] : "");
+            setTelefoneCliente(cliente?.NUTELCELULAR || "");
+            setEmail(cliente?.EEMAIL || "");
+            setCep(cliente?.NUCEP || "");
+            setEndereco(cliente?.EENDERECO || "");
+            setNumero(cliente?.NUENDERECO || "");
+            setComplemento(cliente?.ECOMPLEMENTO || "");
+            setBairro(cliente?.EBAIRRO || "");
+            setNuIBGE(cliente?.NUIBGE || "");
+            setCidade(cliente?.ECIDADE || "");
+            setEstado(cliente?.SGUF || "");
+            setNumeroComercial(cliente?.NUTELCOMERCIAL || "");
+            setTipoIndicacaoIE(cliente?.IDINDICACAOIE || (cliente?.SGUF == "DF" ? 2 : 9));
 
-    }, [optionsCPF])
+            // Separar nome e sobrenome para CPF
+            if (cliente?.NUCPFCNPJ?.length <= 11) {
+                let nome = cliente?.DSNOMERAZAOSOCIAL || "";
+                let sobrenome = "";
+                const partes = nome.split(" ");
+                if (partes.length > 1) {
+                    sobrenome = partes.pop();
+                    nome = partes.join(" ");
+                }
+                setNomeClienteRazao(nome);
+                setSobrenome(sobrenome);
+            } else {
+                setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL || "");
+                setSobrenome(cliente?.DSNOMERAZAOSOCIAL || "");
+            }
+        }
+    }, [optionsCPF]);
 
     useEffect(() => {
         if (optionsCPF && optionsCPF.length > 0) {
@@ -121,13 +145,13 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
 
     const optionsIndicacaoIE = [
         { value: 9, label: 'Não Contribuinte Com ou Sem IE' },
-        { value: 1, label: 'Contribuinte ICMS' },
-        { value: 2, label: 'Contribuinte Isento de IE' },
     ]
+    // { value: 1, label: 'Contribuinte ICMS' },
+    // { value: 2, label: 'Contribuinte Isento de IE' },
 
     const readOnlyCpf = optionsCPF && optionsCPF.length > 0;
 
-    console.log(tipoIndicacaoIE.value, 'tipoIndicacaoIE.value')
+
     const onSubmit = async () => {
         try {
             if (nomeClienteRazao == '') {
@@ -193,7 +217,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 NUTELCOMERCIAL: numeroComercial,
                 NUTELCELULAR: telefoneCliente.replace(/\D/g, ""),
                 DTNASCFUNDACAO: dataNascimento,
-                IDINDICACAOIE: Number(tipoIndicacaoIE.value) || 0,
+                IDINDICACAOIE: Number(tipoIndicacaoIE.value) || 9,
                 DSINDICACAOIE: tipoIndicacaoIE?.label,
                 IDFUNCIONARIO: Number(usuarioLogado.id),
             }
@@ -202,7 +226,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             const textDados = JSON.stringify(putData)
             let textoFuncao = isUpdate ? 'VOUCHER /ATUALIZAÇÃO DE CLIENTE' : 'VOUCHER /CRIAÇÃO DE CLIENTE'
 
-
+            await getIPUsuario();
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
@@ -276,8 +300,6 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         setDataNascimento,
         telefoneCliente,
         setTelefoneCliente,
-        numeroComercial,
-        setNumeroComercial,
         email,
         setEmail,
         tipoIndicacaoIE,

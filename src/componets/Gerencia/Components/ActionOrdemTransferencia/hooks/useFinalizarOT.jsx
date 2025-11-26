@@ -4,23 +4,29 @@ import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
 
 
-export const useFinalizarOT = ({row, usuarioLogado, optionsModulos}) => {
+export const useFinalizarOT = ({usuarioLogado, optionsModulos, handleClick}) => {
     const [ipUsuario, setIpUsuario] = useState('');
     
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-        setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
 
+            if (!usuarioIP) {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            }
+
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
+        }
+    };
     const handleFinalizarOT = async (row) => {
+        console.log('row finaliza OT', row);
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 title: 'Atenção',
@@ -35,7 +41,7 @@ export const useFinalizarOT = ({row, usuarioLogado, optionsModulos}) => {
         }
         const putData = {
             IDSTATUSOT: parseInt(6),
-            IDRESUMOT: row.IDRESUMOT,
+            IDRESUMOOT: row.IDRESUMOOT,
             IDOPERADORRECEPTOR: usuarioLogado?.id,
             QTDCONFERENCIA: row.QTDCONFERENCIA,
         };
@@ -59,7 +65,7 @@ export const useFinalizarOT = ({row, usuarioLogado, optionsModulos}) => {
                 await put('/resumo-ordem-transferencia/:id', putData);
                 const textDados = JSON.stringify(putData);
                 let textoFuncao = 'GERENCIA/FINALIZAR OT';
-            
+                await getIPUsuario();
                 const createData = {
                     IDFUNCIONARIO: String(usuarioLogado.id),
                     PATHFUNCAO: textoFuncao,
@@ -81,7 +87,7 @@ export const useFinalizarOT = ({row, usuarioLogado, optionsModulos}) => {
                 return responsePost.data;
             } catch (error) {
                 let textoFuncao = 'GERENCIA/ERRO AO FINALIZAR OT';
-            
+                await getIPUsuario();
                 const createData = {
                     IDFUNCIONARIO: String(usuarioLogado.id),
                     PATHFUNCAO: textoFuncao,

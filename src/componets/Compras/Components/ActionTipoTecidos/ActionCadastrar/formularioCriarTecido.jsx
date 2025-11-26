@@ -4,9 +4,9 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { useForm } from "react-hook-form"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import Select from 'react-select';
-import { useCriarTipoTecido } from "../../../hooks/useCriarTipoTecidos"
+import { useCriarTipoTecido } from "../hooks/useCriarTipoTecidos"
 
-export const FormularioCriarTecido = ({ show, handleClose }) => {
+export const FormularioCriarTecido = ({ show, handleClose, usuarioLogado, optionsModulos }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         descricao,
@@ -15,7 +15,7 @@ export const FormularioCriarTecido = ({ show, handleClose }) => {
         setStatusSelecionado,
         optionsStatus,
         handleCriar,
-    } = useCriarTipoTecido();
+    } = useCriarTipoTecido({ handleClose, usuarioLogado, optionsModulos });
 
     return (
         <Fragment>
@@ -59,7 +59,7 @@ export const FormularioCriarTecido = ({ show, handleClose }) => {
                     corFechar={"secondary"}
 
                     ButtonTypeCadastrar={ButtonTypeModal}
-                    onClickButtonCadastrar={handleCriar}
+                    tipoBtnCadastrar="submit"
                     textButtonCadastrar={"Salvar"}
                     corCadastrar={"success"}
                 />

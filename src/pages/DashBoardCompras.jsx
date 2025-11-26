@@ -12,7 +12,7 @@ const ActionPesquisaHome = lazy(() => import("../componets/Compras/Components/Ac
 const ActionPDFPedidoResumido = lazy(() => import("../componets/Compras/Components/ActionHome/comprasActionPDFPedidoResumido").then(module => ({ default: module.ActionPDFPedidoResumido })));
 const ActionPDFPedidoDetalhado = lazy(() => import("../componets/Compras/Components/ActionHome/comprasActionPDFPedidoDetalhado").then(module => ({ default: module.ActionPDFPedidoDetalhado })));
 const ActionPesquisaProduto = lazy(() => import("../componets/Compras/Components/ActionImagemProduto/ActionPesquisaProduto").then(module => ({ default: module.ActionPesquisaProduto })));
-// const ActionPesquisaNovoPedido = lazy(() => import("../componets/Compras/Components/ActionNovoPedido/actionPesquisaNovoPedido").then(module => ({ default: module.ActionPesquisaNovoPedido })));
+const ActionPesquisaNovoPedido = lazy(() => import("../componets/Compras/Components/ActionNovoPedido/actionPesquisaNovoPedido").then(module => ({ default: module.ActionPesquisaNovoPedido })));
 const ActionPesquisaFornecedor = lazy(() => import("../componets/Compras/Components/ActionFonecedores/actionPesquisaFornecedor").then(module => ({ default: module.ActionPesquisaFornecedor })));
 const ActionPesquisaFabricante = lazy(() => import("../componets/Compras/Components/ActionFabricantes/actionPesquisaFabricante").then(module => ({ default: module.ActionPesquisaFabricante })));
 const ActionPesquisaTransportador = lazy(() => import("../componets/Compras/Components/ActionTransportador/actionPesquisaTransportador").then(module => ({ default: module.ActionPesquisaTransportador })));
@@ -24,6 +24,8 @@ const ActionPesquisaUnidadeMedida = lazy(() => import("../componets/Compras/Comp
 const ActionPesquisaCores = lazy(() => import("../componets/Compras/Components/ActionCores/actionPesquisaCores").then(module => ({ default: module.ActionPesquisaCores })));
 const ActionPesquisaEstilos = lazy(() => import("../componets/Compras/Components/ActionEstilos/actionPesquisaEstilos").then(module => ({ default: module.ActionPesquisaEstilos })));
 const ActionPesquisaTiposTecidos = lazy(() => import("../componets/Compras/Components/ActionTipoTecidos/actionPesquisaTipoTecidos").then(module => ({ default: module.ActionPesquisaTiposTecidos })));
+const ActionPesquisaProdutosEntreFiliais = lazy(() => import("../componets/Compras/Components/ProdutosFiliais/actionPesquisaProdutosEntreFiliais").then(module => ({ default: module.ActionPesquisaProdutosEntreFiliais })));
+const ActionPesquisaProdutosPorPedido = lazy(() => import("../componets/Compras/Components/ProdutosPorPedido/actionPesquisaProdutosPedidos").then(module => ({ default: module.ActionPesquisaProdutosPorPedido })));
 
 export const DashBoardCompras = () => {
   const [usuarioLogado, setUsuarioLogado] = useState(null);
@@ -68,60 +70,77 @@ export const DashBoardCompras = () => {
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
   );
 
+  const permissaoUsuario = selectedModule.menuPai.menuFilho;
+  const {   
+    ID, 
+  } = permissaoUsuario.map(item => ({
+    ID: item.ID,
+  })).reduce((acc, curr) => {
+    return { ...acc, ...curr };
+  }, {});
+
+
   let component = null;
 
   switch (componentToShow) {
     case "/compras/ActionPesquisaHome":
-      component = <ActionPesquisaHome />
+      component = <ActionPesquisaHome usuarioLogado={usuarioLogado} ID={ID} />
       break;
-    // case "/compras/ActionPesquisaNovoPedido":
-    //   component = <ActionPesquisaNovoPedido />;
-    //   break;
+    case "/compras/ActionPesquisaNovoPedido":
+      component = <ActionPesquisaNovoPedido usuarioLogado={usuarioLogado} ID={ID} />;
+      break;
     case "/compras/ActionPesquisaProduto":
-      component = <ActionPesquisaProduto />;
+      component = <ActionPesquisaProduto usuarioLogado={usuarioLogado} ID={ID} />;
       break;
-    // case "/compras/ComprasActionListaDistribuicaoMercadoria":
-    //   component = <ComprasActionListaDistribuicaoMercadoria />;
-    //   break;
+    case "/compras/ComprasActionListaDistribuicaoMercadoria":
+      component = <ComprasActionListaDistribuicaoMercadoria />;
+      break;
     case "/compras/ActionPesquisaFornecedor":
-      component = <ActionPesquisaFornecedor />;
+      component = <ActionPesquisaFornecedor usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/compras/ActionPesquisaFabricante":
-      component = <ActionPesquisaFabricante />;
+      component = <ActionPesquisaFabricante usuarioLogado={usuarioLogado} ID={ID} />;
       break;
 
     case "/compras/ActionPesquisaTransportador":
-      component = <ActionPesquisaTransportador />;
+      component = <ActionPesquisaTransportador usuarioLogado={usuarioLogado} ID={ID} />;
       break;
+          
     case "/compras/ActionPesquisaCondicaoPagamento":
-      component = <ActionPesquisaCondicaoPagamento />;
+      component = <ActionPesquisaCondicaoPagamento usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/compras/ActionPesquisaCategoriaPedido":
-      component = <ActionPesquisaCategoriaPedido />;
+      component = <ActionPesquisaCategoriaPedido usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/compras/ActionPesquisaGrupoEstrutura":
-      component = <ActionPesquisaGrupoEstrutura />;
+      component = <ActionPesquisaGrupoEstrutura usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/compras/ActionPesquisaSubGrupoEstrutura":
-      component = <ActionPesquisaSubGrupoEstrutura />;
+      component = <ActionPesquisaSubGrupoEstrutura usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/compras/ActionPesquisaUnidadeMedida":
-      component = <ActionPesquisaUnidadeMedida />;
+      component = <ActionPesquisaUnidadeMedida usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/compras/ActionPesquisaCores":
-      component = <ActionPesquisaCores />;
+      component = <ActionPesquisaCores usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/compras/ActionPesquisaEstilos":
-      component = <ActionPesquisaEstilos />;
+      component = <ActionPesquisaEstilos usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/compras/ActionPesquisaTiposTecidos":
-      component = <ActionPesquisaTiposTecidos />;
+      component = <ActionPesquisaTiposTecidos usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/compras/ActionPDFPedidoResumido":
       component = <ActionPDFPedidoResumido />
       break;
     case "/compras/ActionPDFPedidoDetalhado":
       component = <ActionPDFPedidoDetalhado />
+      break;
+    case "/compras/ActionPesquisaProdutosEntreFiliais":
+      component = <ActionPesquisaProdutosEntreFiliais />
+      break;
+    case "/compras/ActionPesquisaProdutosPorPedido":
+      component = <ActionPesquisaProdutosPorPedido />
       break;
     default:
       component = null;

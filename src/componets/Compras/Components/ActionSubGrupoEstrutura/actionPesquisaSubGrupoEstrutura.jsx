@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useState } from "react"
 import { get } from "../../../../api/funcRequest"
 import { AiOutlineSearch } from "react-icons/ai"
 import { InputField } from "../../../Buttons/Input"
@@ -10,9 +10,10 @@ import { ActionListaSubGrupoEstrutura } from "./actionListaSubGrupoEstrutura"
 import { ActionCadastroEstruturaModal } from "./ActionCadastro/actionCadastroEstruturaModal"
 import { useQuery } from "react-query"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
+import Swal from "sweetalert2"
 
 
-export const ActionPesquisaSubGrupoEstrutura = () => {
+export const ActionPesquisaSubGrupoEstrutura = ({usuarioLogado, ID }) => {
   const [descricao, setDescricao] = useState("")
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
@@ -20,40 +21,44 @@ export const ActionPesquisaSubGrupoEstrutura = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
 
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+  );
+
   const fetchListaSubGrupo = async () => {
+    const urlBase = `/subGrupoEstrutura?idSubGrupoEstrutura=${subGrupoSelecionado}&descricao=${descricao}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      const urlApi = `/subGrupoEstrutura?idSubGrupoEstrutura=${subGrupoSelecionado}&descricao=${descricao}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-        
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -69,13 +74,27 @@ export const ActionPesquisaSubGrupoEstrutura = () => {
   const handleChangeSubGrupo = (e) => {
     setSubGrupoSelecionado(e.value)
   }
-  const handlePesquisar = () => {
+  const handleClick = () => {
     setCurrentPage(prevPage => prevPage + 1)
     refetchListaSubGrupo()
     setTabelaVisivel(true)
   }
 
-
+  const handleCriar = () => {
+    if(optionsModulos[0]?.CRIAR == 'False') {
+      Swal.fire({
+        title: 'Erro!',
+        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para criar SubGrupo de Estrutura Mercadológica!`,
+        icon: 'error',
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else {
+      setModalVisivel(true)
+    }
+  }
   return (
 
     <Fragment>
@@ -108,25 +127,34 @@ export const ActionPesquisaSubGrupoEstrutura = () => {
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar SubGrupo Estruturas"}
-        onButtonClickSearch={handlePesquisar}
+        onButtonClickSearch={handleClick}
         IconSearch={AiOutlineSearch}
         corSearch={"primary"}
         
         ButtonTypeCadastro={ButtonType}
         linkNome={"Cadastrar SubGrupo Estruturas"}
-        onButtonClickCadastro={() => setModalVisivel(true)}
+        onButtonClickCadastro={handleCriar}
         IconCadastro={MdAdd}
         corCadastro={"success"}
 
-
-
       />
 
-      {tabelaVisivel && (
-        <ActionListaSubGrupoEstrutura dadosSubGrupo={dadosSubGrupo} />
-      )}
+      
+      <ActionListaSubGrupoEstrutura 
+        dadosSubGrupo={dadosSubGrupo} 
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos} 
+        handleClick={handleClick}  
+      />
+      
 
-      <ActionCadastroEstruturaModal show={modalVisivel} handleClose={handleClose} />
+      <ActionCadastroEstruturaModal 
+        show={modalVisivel} 
+        handleClose={() => setModalVisivel(false)} 
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
+      />
     </Fragment>
   )
 }

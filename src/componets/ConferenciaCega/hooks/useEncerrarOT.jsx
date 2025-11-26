@@ -44,7 +44,7 @@ export const useEncerrarOT = (dadosEncerrarOT) => {
       Swal.fire({
         title: 'Atenção!',
         type: 'warning',
-        title: 'Necessário preencher o Motivo!',
+        text: 'Necessário preencher o Motivo!',
         icon: 'warning'
       });
       return;
@@ -54,7 +54,7 @@ export const useEncerrarOT = (dadosEncerrarOT) => {
       Swal.fire({
         title: 'Atenção!',
         type: 'warning',
-        title: 'Necessário preencher a Observação!',
+        text: 'Necessário preencher a Observação!',
         icon: 'warning'
       });
       return;

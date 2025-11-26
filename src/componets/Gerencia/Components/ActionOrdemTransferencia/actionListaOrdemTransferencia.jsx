@@ -1,39 +1,43 @@
 import { Fragment, useEffect, useRef, useState } from "react"
-import { useNavigate } from "react-router-dom";
 import { CiEdit } from "react-icons/ci";
-import { FaCheck, FaExclamation, FaFileInvoiceDollar} from "react-icons/fa";
+import { FaFileInvoiceDollar} from "react-icons/fa";
 import Swal from 'sweetalert2';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
-import { MdOutlineLocalPrintshop } from "react-icons/md";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 import { BsTrash3 } from "react-icons/bs";
-import { get, put } from "../../../../api/funcRequest";
+import { get } from "../../../../api/funcRequest";
 import { ActionEditarOTModal } from "./ActionEditarOTModal/modalEditarOT";
 import { useCancelarOT } from "./hooks/useCancelarOT";
 import { useEmitirNFE } from "./hooks/useEmitirNFE";
 import { useFinalizarOT } from "./hooks/useFinalizarOT";
-// import { ActionImprimirEtiquetaOT } from "./actionImprimirEtiquetaOT";
-// import { ActionObservacaoOT } from "./actionObservacaoOT";
+import { ActionImprimirEtiquetaOT } from "./actionImprimirEtiquetaOT";
+import { ActionObservacaoOT } from "./actionObservacaoOT";
+import { ActionEditarFaturamentoOTModal } from "./ActionVisualizarOT/actionEditarFaturamentoOTModal";
+import { ActionConfeirirOTModal } from "./ActionConferirModal/modalConferirOT";
+import { FiNavigation } from "react-icons/fi";
 
-// import { ActionEditarFaturamentoOTModal } from "./ActionVisualizarOT/actionEditarFaturamentoOTModal";
 
-
-export const ActionListaOrdemTransferencia = ({ dadosConferencia, empresaSelecionada, optionsModulos, usuarioLogado, handleClick  }) => {
+export const ActionListaOrdemTransferencia = ({ 
+  dadosConferencia, 
+  optionsModulos, 
+  usuarioLogado, 
+  handleClick  
+}) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
   const [modalObservacao, setModalObservacao] = useState(false);
   const [modalImprimirOT, setModalImprimirOT] = useState(false);
+  const [modalConferirOT, setModalConferirOT] = useState(false);
   const [dadosDetalheTransferencia, setDadosDetalheTransferencia] = useState([]);
   const [dadosImprimirOT, setDadosImprimirOT] = useState([]);
   const [dadosObservacaoOT, setDadosObservacaoOT] = useState([]);
   const [valueLojaOrigem, setValueLojaOrigem] = useState('')
-  const [ajusteQuantidade, setAjusteQuantidade] = useState(0)
   const [rowSelection, setRowSelection] = useState(null);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
@@ -85,10 +89,6 @@ export const ActionListaOrdemTransferencia = ({ dadosConferencia, empresaSelecio
     });
     doc.save('controle_transferencia.pdf');
   };
-
-
-
-
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -189,7 +189,7 @@ export const ActionListaOrdemTransferencia = ({ dadosConferencia, empresaSelecio
                   height="35px"
                   iconColor={"#fff"}
                   cor={"info"}
-                  disabledBTN={row.IDSTATUSOT != 1}
+                  // disabledBTN={[1, 2].indexOf(row.IDSTATUSOT) >= 0}
                 />
               </div>
 
@@ -218,7 +218,7 @@ export const ActionListaOrdemTransferencia = ({ dadosConferencia, empresaSelecio
                   height="35px"
                   iconColor={"#fff"}
                   cor={"success"}
-
+                  disabledBTN={row.IDSTATUSOT != 1}
                 />
               </div>
             </div>
@@ -226,35 +226,35 @@ export const ActionListaOrdemTransferencia = ({ dadosConferencia, empresaSelecio
           );
         } else {
           return (
-            <Fragment>
+           
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "space-between",
                   alignItems: "center",
                   width: "15rem",
+                  
                 }}
               >
                 
                 <ButtonTable
                   titleButton={"Conferir OT"}
-                  onClickButton={() => handleClickEdit(row)}
+                  onClickButton={() => handleClickConferir(row)}
                   Icon={CiEdit}
                   iconSize={20}
                   width="35px"
                   height="35px"
                   iconColor={"#fff"}
                   cor={"primary"}
-                  // disabledBTN={row.IDSTATUSOT >= 0 }
+                  disabledBTN={[1, 2].indexOf(row.IDSTATUSOT) >= 0 }
                 />
-              </div>
+              
 
               {[3, 5].indexOf(row.IDSTATUSOT) >= 0 ? (
-                <div>
+               <div style={{marginLeft: '10px'}}>
                   <ButtonTable
                     titleButton={"Finalizar Recebimento OT"}
                     onClickButton={() => handleFinalizarOT(row)}
-                    Icon={MdOutlineLocalPrintshop}
+                    Icon={FiNavigation}
                     iconSize={20}
                     width="35px"
                     height="35px"
@@ -262,11 +262,12 @@ export const ActionListaOrdemTransferencia = ({ dadosConferencia, empresaSelecio
                     cor={"warning"}
                     disabledBTN={row.NUMERONOTASEFAZ === ''}
                   />
-                </div>
+
+               </div>
               ) : (
                 <></>
               )}
-            </Fragment>
+            </div>
           )
         } 
       }
@@ -301,6 +302,34 @@ export const ActionListaOrdemTransferencia = ({ dadosConferencia, empresaSelecio
     }
   };
 
+  const handleConferir = async (IDRESUMOOT) => {
+    try {
+      const response = await get(`/detalhe-ordem-transferencia?idResumoOT=${IDRESUMOOT}`)
+
+      if (response.data && response.data.length > 0) {
+        setDadosDetalheTransferencia(response.data);
+        setModalConferirOT(true);
+      }
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar detalhes da venda: ', error);
+    }
+  }
+
+  const handleClickConferir = (row) => {
+    if(optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Atenção',
+        text: 'Você não tem permissão para conferir esta Ordem de Transferência.',
+        confirmButtonColor: '#7352A5',
+      });
+      return;
+    } else if (row && row.IDRESUMOOT) {
+      handleConferir(row.IDRESUMOOT);
+
+    }
+  }
   const handleStatusNota = async (IDRESUMOOT) => {
 
     try {
@@ -437,7 +466,7 @@ export const ActionListaOrdemTransferencia = ({ dadosConferencia, empresaSelecio
         usuarioLogado={usuarioLogado}
         handleClick={handleClick}
       />
-{/* 
+
       <ActionEditarFaturamentoOTModal
         show={modalVisivel}
         handleClose={() => setModalVisivel(false)}
@@ -454,7 +483,13 @@ export const ActionListaOrdemTransferencia = ({ dadosConferencia, empresaSelecio
         show={modalObservacao}
         handleClose={() => setModalObservacao(false)}
         dadosObservacaoOT={dadosObservacaoOT}
-      /> */}
+      /> 
+
+      <ActionConfeirirOTModal 
+        show={modalConferirOT}
+        handleClose={() => setModalConferirOT(false)}
+        dadosDetalheTransferencia={dadosDetalheTransferencia}
+      />
     </Fragment>
   )
 }

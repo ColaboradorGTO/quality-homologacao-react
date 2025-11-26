@@ -17,6 +17,8 @@ export const useEditarPerfilPermissaoUsuario = ({dadosEditarPermissao, handleClo
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [ipUsuario, setIpUsuario] = useState('');
+  const [idMenuFilho, setIdMenuFilho] = useState('');
+  const [nomeMenuFilho, setNomeMenuFilho] = useState('');
   const navigate = useNavigate();
 
 
@@ -35,18 +37,19 @@ export const useEditarPerfilPermissaoUsuario = ({dadosEditarPermissao, handleClo
     }
   }, [navigate]);
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    try {
+      const response = await axios.get('https://api.ipify.org?format=json9');
+      if (response.data && response.data.ip) {
+        return response.data.ip;
+      }
+      throw new Error("Resposta inválida do ipfy.org");
+    } catch (error) {
+      const responseIP2 = await axios.get('https://api.ipwho.org/me');
+      return responseIP2.data?.data?.ip;
+      
     }
-    return response.data;
-  }
-
+  };
 
   useEffect(() => {
 
@@ -58,12 +61,13 @@ export const useEditarPerfilPermissaoUsuario = ({dadosEditarPermissao, handleClo
       setNivel3(dadosEditarPermissao[0]?.N3 == 'True' ? 'Sim' : 'Não');
       setNivel4(dadosEditarPermissao[0]?.N4 == 'True' ? 'Sim' : 'Não');
       setAdministrador(dadosEditarPermissao[0]?.ADMINISTRADOR == 'True' ? 'Sim' : 'Não');
+      setIdMenuFilho(dadosEditarPermissao[0]?.IDMENUFILHO);
     }
 
   }, [])
 
 
-  const submit = async (data) => {
+  const onSubmit = async (data) => {
     if (isSubmitting) return; 
 
     setIsSubmitting(true); 
@@ -85,7 +89,7 @@ export const useEditarPerfilPermissaoUsuario = ({dadosEditarPermissao, handleClo
 
       const textDados = JSON.stringify(payload);
       const textoFuncao = 'PERFIL PERMISSÕES/ALTERAÇÃO DE PERMISSÕES';
-
+      const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
@@ -136,7 +140,9 @@ export const useEditarPerfilPermissaoUsuario = ({dadosEditarPermissao, handleClo
     administrador,
     setAdministrador,
     usuarioLogado,
-    submit,
+    onSubmit,
     isSubmitting,
+    idMenuFilho,
+    setIdMenuFilho,
   }
 }

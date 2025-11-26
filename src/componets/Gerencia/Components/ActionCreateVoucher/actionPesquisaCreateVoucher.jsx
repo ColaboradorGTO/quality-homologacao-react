@@ -28,7 +28,6 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
   const [marcaSelecionado, setMarcaSelecionado] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [dadosDetalheVoucherSelecionado, setDadosDetalheVoucherSelecionado] = useState([])
-  const [isQueryData, setIsQueryData] = useState(false);
   const [modalVoucher, setModalVoucher] = useState(true);
 
 
@@ -60,7 +59,6 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
- 
   const fetchListaVouchers = async () => {
     let numeroVoucherFormatado = numeroVoucher;
     if (numeroVoucherFormatado) {
@@ -76,7 +74,7 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
     const dataInicio = !numeroVoucher ? (dataPesquisaInicio || dataPesquisaInicio) : '';
     const dataFim = !numeroVoucher ? (dataPesquisaFim || dataPesquisaFim) : '';
     const urlBase = `/detalheVoucherDados?dataPesquisaInicio=${dataInicio}&dataPesquisaFim=${dataFim}&dadosVoucher=${numeroVoucherFormatado}&idSubGrupoEmpresa=${idGrupoEmpresarial}&idEmpresa=${idEmpresa}`;
-    console.log(idGrupoEmpresarial, 'idGrupoEmpresarial')
+   
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -156,7 +154,7 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
   );
 
   const handleClick = () => {
-    setIsQueryData(true);
+    
     setTabelaVisivel(true);
     setTabelaVendasClientes(false);
     setTabelaVisivelVoucherSelecionados(false);
@@ -170,6 +168,7 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
   const handleClickCadastro = () => {
     if(optionsModulos[0]?.CRIAR == 'True'){
       setActionPrincipal(false);
+      setTabelaVisivel(false);
       setActionSecundaria(true);
     } else {
       Swal.fire({
@@ -250,6 +249,7 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
               setActionPrincipal={setActionPrincipal}
               optionsModulos={optionsModulos}
               usuarioLogado={usuarioLogado}
+              refetchListaVouchers={refetchListaVouchers}
           />
         </div>
       )}

@@ -28,6 +28,9 @@ export const ActionMain = ({
 
   readOnlyDescricao,
   readOnlyPendencia,
+  readOnlyVendaCPFCNPJ,
+  readOnlyTelefone,
+
   valueSelectEmpresa,
   valueSelectMarca,
   valueSelectUF,
@@ -45,12 +48,18 @@ export const ActionMain = ({
   valueSelectCampanha,
   valueSelectTipoPedido,
   valueSelectPendencia,
+
+  valueSelectLoja,
+  defaultValueSelectEmpresa,
+  defaultValueSelectSubGrupo,
+
   
   defaultOptionsEmpresasAsync,
   defaultOptionsMarcaAsync,
   defaultOptionsFornecedoresAsync,
   defaultOptionsFabricantesAsync,
   defaultOptionsCompradoresAsync,
+
 
   valueSelectEmpresaAsync,
   valueSelectMarcaAsync,
@@ -68,6 +77,8 @@ export const ActionMain = ({
   defaultValueMultSelectGrupo,
 
   defaultValueSelectFornecedor,
+  defaultValueSelectGrupo,
+  defaultValueSelectMarca,
   
   isMultiSelectGrupo,
   isMultiSelectMarca,
@@ -104,7 +115,8 @@ export const ActionMain = ({
   valueInputFieldCidade,
   valueInputFieldSerie,
   valueInputFieldSearch, 
-  
+  valueInputFieldOR,
+  valueInputFieldOT,
 
   valueTextAreaFieldComponent,
   
@@ -140,6 +152,8 @@ export const ActionMain = ({
   onChangeInputFieldCidade,
   onChangeInputFieldSerie,
   onChangeInputFieldSearch,
+  onChangeInputFieldOR,
+  onChangeInputFieldOT,
 
   onChangeSelectEmpresa,
   onChangeSelectMarcas,
@@ -277,6 +291,9 @@ export const ActionMain = ({
   InputFieldObsInterna,
   InputFieldVendedor,
   InputFieldEmailVendedor,
+  InputFieldORComponent,
+  InputFieldOTComponent,
+
   InputFieldSearch,
 
   InputFieldTotalAntesDescontoComponent,
@@ -407,6 +424,8 @@ export const ActionMain = ({
   labelInputFieldComissao,
   labelInputFieldTotalLiq,
   labelInputFieldTelefone,
+  labelInputFieldOR,
+  labelInputFieldOT,
 
   labelTextAreaField,
   labelInputFieldTotalAntesDesconto,
@@ -422,6 +441,7 @@ export const ActionMain = ({
   labelInputFieldSaldo,
   labelInputFieldValorAplicado,
   labelInputFieldSearch,
+  labelInputQuantidade,
 
   placeHolderInputFieldDescricao,
   placeHolderInputFieldComponent,
@@ -431,7 +451,9 @@ export const ActionMain = ({
   placeHolderInputFieldTelefone,
   placeHolderInputFieldVendaCPFCNPJ,
   placeHolderInputFieldQuantidade,
-  
+  placeHolderInputFieldOR,
+  placeHolderInputFieldOT,
+
   labelMultSelectGrupo,
   labelMultSelectSubGrupo,
   labelMultSelectMarca,
@@ -508,10 +530,14 @@ export const ActionMain = ({
   // labelSelectSituacao,
 
   styleSituacao, 
+  styleInputQuantidade,
+  styleSubGrupo,
   id,
 
   isDisabledEmpresa,
   isDisabledCodBarra,
+  isDisabledGrupo,
+  isDisabledMarca,
 
   btnVisivelEstrutura,
   
@@ -522,6 +548,9 @@ export const ActionMain = ({
   styleSearch,
   styleCadastro,
   styleSalvar,
+  styleInputFieldOR,
+  styleInputFieldOT,
+  stylesGrupo,
   // Funções
 
   onButtonClickSearch,
@@ -929,7 +958,7 @@ export const ActionMain = ({
                         id={id}
                         options={optionsEmpresas}
                         value={valueSelectEmpresa}
-                        defaultValue={[valueSelectEmpresa]}
+                        defaultValue={[defaultValueSelectEmpresa]}
                         onChange={onChangeSelectEmpresa}
                         filtroOptions={optionsEmpresas}
                         // isVisible={styleEmpresa}
@@ -941,7 +970,9 @@ export const ActionMain = ({
                       <InputSelectGrupoComponent
                         label={labelSelectGrupo}
                         nome={nomeSelectGrupo}
-                       
+                        isVisible={stylesGrupo}
+                        defaultValue={[defaultValueSelectGrupo]}
+                        isDisabled={isDisabledGrupo}
                         options={optionsGrupos}
                         value={valueSelectGrupo}
                         onChange={onChangeSelectGrupo}
@@ -952,10 +983,11 @@ export const ActionMain = ({
                       <InputSelectSubGrupoComponent
                         label={labelSelectSubGrupo}
                         nome="idmarca"
-                       
                         options={optionsSubGrupos}
+                        defaultValue={[defaultValueSelectSubGrupo]}
                         value={valueSelectSubGrupo}
                         onChange={onChangeSelectSubGrupo}
+                         isDisabled={styleSubGrupo}
                       />
                     )}
 
@@ -968,7 +1000,8 @@ export const ActionMain = ({
                         options={optionsMarcas}
                         onChange={onChangeSelectMarcas}
                         value={valueSelectMarca}
-                        
+                        defaultValue={[defaultValueSelectMarca]}
+                        isDisabled={isDisabledMarca}
                         type="select"
                       />
                     )}
@@ -1216,7 +1249,29 @@ export const ActionMain = ({
 
 
                     {/* Inputs Text */}
+                    {InputFieldORComponent && (
+                      <InputFieldORComponent
+                        label={labelInputFieldOR}
+                        type="number"
+                        name="dtcodbarra"
+                        value={valueInputFieldOR}
+                        onChange={onChangeInputFieldOR}
+                        placeHolder={placeHolderInputFieldOR}
+                        style={styleInputFieldOR}
+                      />
+                    )}
 
+                    {InputFieldOTComponent && (
+                      <InputFieldOTComponent
+                        label={labelInputFieldOT}
+                        type="number"
+                        name="dtcodbarra"
+                        value={valueInputFieldOT}
+                        onChange={onChangeInputFieldOT}
+                        placeHolder={placeHolderInputFieldOT}
+                        style={styleInputFieldOT}
+                      />
+                    )}
 
                     {InputFieldCodBarraComponent && (
                       <InputFieldCodBarraComponent
@@ -1275,6 +1330,7 @@ export const ActionMain = ({
                         value={valueInputQuantidade}
                         onChange={onChangeInputQuantidade}
                         placeHolder={placeHolderInputFieldQuantidade}
+                        style={styleInputQuantidade}
                       />
                     )}
                     {InputFieldVendaCPFCNPJComponent && (
@@ -1285,6 +1341,7 @@ export const ActionMain = ({
                         id={id}
                         value={valueInputFieldVendaCPFCNPJ}
                         placeHolder={placeHolderInputFieldVendaCPFCNPJ}
+                        readOnly={readOnlyVendaCPFCNPJ}
                       />
                     )}
                      {InputFieldTelefoneComponent && (
@@ -1294,6 +1351,7 @@ export const ActionMain = ({
                         placeHolder={placeHolderInputFieldTelefone}
                         value={valueInputFieldTelefone}
                         onChange={onChangeInputFieldTelefone}
+                        readOnly={readOnlyTelefone}
                       />
                     )}
                     {InputFieldSerieComponent && (

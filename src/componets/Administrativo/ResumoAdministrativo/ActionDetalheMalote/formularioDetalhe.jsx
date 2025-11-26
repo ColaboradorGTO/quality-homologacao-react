@@ -61,7 +61,8 @@ export const FormularioDetalheMalote = ({ dadosDetalhesMalote, dadosPendenciasMa
   const showReenviado = !!DATAHORAREENVIADO;
   const showPendencias = PENDENCIAS?.length > 0 || STATUSMALOTE === 'Devolvido' || STATUSMALOTE !== 'Conferido';
   const isReadOnly = STATUSMALOTE !== 'Devolvido';
-
+  console.log('dadosPendenciasMalotes', dadosPendenciasMalotes[0]);
+  console.log(dadosDetalhesMalote[0], 'dadosDetalhesMalote');
   const enviarDadosMalote = (idMalote) => {
 
  
@@ -86,7 +87,7 @@ export const FormularioDetalheMalote = ({ dadosDetalhesMalote, dadosPendenciasMa
       <div>
 
         <div style={{ width: '30%' }}>
-          <label htmlFor="" style={{ fontWeight: 900, fontSize: '16px', fontWeight: 900, }}>Histórico:</label>
+          <label htmlFor="" style={{ fontWeight: 900, fontSize: '16px', }}>Histórico:</label>
           <Select
             options={selectOptions}
             value={selectOptions.find(opt => opt.value === historicoSelecionado) || defaultOption}

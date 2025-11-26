@@ -25,7 +25,7 @@ import { ActionEditarFuncionario } from "./ActionEditar/actionEditarFuncionario"
 import { useDesligarFuncionario } from "./hooks/useDesligarFuncionario";
 import { useAtivarFuncionario } from "./hooks/useAtivarFuncionario";
 
-export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usuarioLogado }) => {
+export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usuarioLogado, handleClick }) => {
   const [modalAlterarFuncionarioVisivel, setModalAlterarFuncionarioVisivel] = useState(false);
   const [modalDescontoVisivel, setModalDescontoVisivel] = useState(false);
   const [dadosAtualizarFuncionarios, setDadosAtualizarFuncionarios] = useState([]);
@@ -33,14 +33,17 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [data, setData] = useState('');
   const dataTableRef = useRef();
-  const {handleDesligarFuncionario} = useDesligarFuncionario({})
-  const {handleAtivarFuncionario} = useAtivarFuncionario({})
+  const [rowSelection, setRowSelection] = useState(null);
+  const { handleDesligarFuncionario } = useDesligarFuncionario({ optionsModulos, usuarioLogado, handleClick })
+  const { handleAtivarFuncionario } = useAtivarFuncionario({ optionsModulos, usuarioLogado, handleClick })
+
+
 
   useEffect(() => {
     const dataAtualCampo = getDataAtual();
     setData(dataAtualCampo);
-  },[])
-  
+  }, [])
+
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -58,7 +61,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       body: dados.map(item => [
         item.contador,
         item.NUCPF,
-        item.NOFUNCIONARIO, 
+        item.NOFUNCIONARIO,
         item.NOLOGIN,
         item.DSFUNCAO,
         item.STLOJA == 'True' ? 'Loja' : 'Escritório',
@@ -100,7 +103,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
 
   const dados = dadosFuncionarios.map((item, index) => {
     let contador = index + 1;
-    
+
     return {
       contador,
       NUCPF: item.NUCPF,
@@ -115,7 +118,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       DTDEMISSAO: item.DTDEMISSAO,
       ID: item.ID,
       IDFUNCIONARIO: item.IDFUNCIONARIO,
-     
+
     };
   });
 
@@ -138,7 +141,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       field: 'NOFUNCIONARIO',
       header: 'Funcionário',
       body: row => (
-        <div style={{width: '200px'}}>
+        <div style={{ width: '200px' }}>
 
           <th>{row.NOFUNCIONARIO}</th>
         </div>
@@ -188,11 +191,11 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       field: 'DSTIPO',
       header: 'Tipo',
       body: (row) => (
-        <div style={{width: '150px'}}>
+        <div style={{ width: '150px' }}>
 
-        <th>
-          {row.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO'}
-        </th>
+          <th>
+            {row.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO'}
+          </th>
         </div>
       ),
       sortable: true,
@@ -234,7 +237,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       field: 'ID',
       header: 'Opções',
       body: (row) => {
-        if(row.STATIVO == 'True')  {
+        if (row.STATIVO == 'True') {
           return (
             <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
               <div className="p-1">
@@ -270,7 +273,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
                 <ButtonTable
                   titleButton={"Inativar"}
                   // textButton={"Inativar"}
-                  onClickButton={() => handleAtivarFuncionario(row)}
+                  onClickButton={() => handleAtivarFuncionario(row, false)}
                   Icon={FaUserAltSlash}
                   iconSize={30}
                   iconColor={"#fff"}
@@ -301,22 +304,22 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         } else {
           return (
             <div className="p-1">
-            <ButtonTable
-              titleButton={"ativar"}
-              textButton={"Ativar"}
-              onClickButton={() => handleAtivarFuncionario(row)}
-              Icon={FaCheck}
-              iconSize={30}
-              width="35px"
-              height="35px"
-              iconColor={"#fff"}
-              cor={"danger"}
-            />
+              <ButtonTable
+                titleButton={"ativar"}
+                textButton={"Ativar"}
+                onClickButton={() => handleAtivarFuncionario(row, true)}
+                Icon={FaCheck}
+                iconSize={25}
+                width="35px"
+                height="35px"
+                iconColor={"#fff"}
+                cor={"danger"}
+              />
 
-          </div>
+            </div>
           )
         }
-    },
+      },
       sortable: true,
     },
 
@@ -336,8 +339,9 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
     }
   };
 
+
   const handleClickEdit = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDFUNCIONARIO) {
         handleEdit(row.IDFUNCIONARIO);
       }
@@ -359,7 +363,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       const response = await get(`/funcionarios-loja?byId=${IDFUNCIONARIO}`)
       if (response.data) {
         setDadosDescontoFuncionarios(response.data)
-        console.log(response, 'dadosDescontoFuncionarios')
         setModalDescontoVisivel(true);
       }
     } catch (error) {
@@ -368,7 +371,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
   };
 
   const handleClickDesconto = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDFUNCIONARIO) {
         handleDesconto(row.IDFUNCIONARIO);
       }
@@ -385,146 +388,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
     }
   };
 
-
-
-  // const handleDesligarFuncionario = async (row) => {
-  //   if(optionsModulos[0]?.ALTERAR == 'False') {
-  //     Swal.fire({
-  //       title: 'Acesso Negado',
-  //       text: 'Você não tem permissão para acessar esta funcionalidade.',
-  //       icon: 'warning',
-  //       timer: 3000,
-  //       customClass: {
-  //         container: 'custom-swal',
-  //       }
-  //     })
-  //     return;
-  //   }
-
-  //   const putData = {
-  //     DATAULTIMAALTERACAO: data,
-  //     STATIVO: 'False',
-  //     DATA_DEMISSAO :data,
-  //     ID: row.ID
-  //   }
-    
-
-  //   try {
-  //     const response = await put('/inativar-funcionario', putData)
-
-  //     Swal.fire({
-  //       title: 'Atualização',
-  //       text: 'Atualizção Realizada com Sucesso',
-  //       icon: 'success',
-  //       timer: 3000,
-  //       customClass: {
-  //         container: 'custom-swal',
-  //       }
-  //     })
-
-  //     const textDados = JSON.stringify(putData)
-  //     let status = putData.STATIVO;
-  //     let textoFuncao;
-  //     if(status =='True'){
-  //       textoFuncao = 'INFORMATICA/ATIVA DESLIGAMENTO DE FUNCIONARIO';
-  //     }else{
-  //         textoFuncao = 'INFORMATICA/DESLIGAMENTO DE FUNCIONARIO';
-  //     }
-  
-  
-  //     const createData = {
-  //       IDFUNCIONARIO: usuarioLogado.id,
-  //       PATHFUNCAO: textoFuncao,
-  //       DADOS: textDados,
-  //       IP: ipUsuario
-  //     }
-  
-  //     const responsePost = await post('/log-web', createData)
-  
-      
-  //     return responsePost.data;
-  //   } catch (error) {
-  //     Swal.fire({
-  //       title: 'Erro ao Atualizar',
-  //       text: 'Erro ao Tentar Atualizar',
-  //       icon: 'error',
-  //       timer: 3000,
-  //       customClass: {
-  //         container: 'custom-swal',
-  //       }
-  //     })
-  //     console.error('Erro ao parsear o usuário do localStorage:', error);
-  //   }
-  // }
-
-  // const handleAtivarFuncionario = async (row) => {
-  //   if(optionsModulos[0]?.ALTERAR == 'False') {
-  //     Swal.fire({
-  //       title: 'Acesso Negado',
-  //       text: 'Você não tem permissão para acessar esta funcionalidade.',
-  //       icon: 'warning',
-  //       timer: 3000,
-  //       customClass: {
-  //         container: 'custom-swal',
-  //       }
-  //     })
-  //     return;
-  //   }
-  //   const putData = {
-  //     DATAULTIMAALTERACAO: data,
-  //     STATIVO: 'True',
-  //     DATA_DEMISSAO: '',
-  //     ID: row.ID
-  //   }
-  //   try {
-  //     const response = await put('/inativar-funcionario', putData)
-      
-
-  //     Swal.fire({
-  //       title: 'Atualização',
-  //       text: 'Atualizção Realizada com Sucesso',
-  //       icon: 'success',
-  //       timer: 3000,
-  //       customClass: {
-  //         container: 'custom-swal',
-  //       }
-  //     })
-
-  //     const textDados = JSON.stringify(putData)
-  //     let status = putData.STATIVO;
-  //     let textoFuncao;
-  //     if(status === 'True'){
-  //       textoFuncao = 'INFORMATICA/ATIVA DESLIGAMENTO DE FUNCIONARIO';
-  //     } else {
-  //       textoFuncao = 'INFORMATICA/DESLIGAMENTO DE FUNCIONARIO';
-  //     }
-  
-  //     const createData = {
-  //       IDFUNCIONARIO: usuarioLogado.id,
-  //       PATHFUNCAO: textoFuncao,
-  //       DADOS: textDados,
-  //       IP: ipUsuario
-  //     }
-  
-  //     const responsePost = await post('/log-web', createData)
-  
-      
-  //     return responsePost.data;
-  //   } catch (error) {
-  //     Swal.fire({
-  //       title: 'Erro ao Atualizar',
-  //       text: 'Erro ao Tentar Atualizar',
-  //       icon: 'error',
-  //       timer: 3000,
-  //       customClass: {
-  //         container: 'custom-swal',
-  //       }
-  //     })
-  //     console.error('Erro ao parsear o usuário do localStorage:', error);
-  //   }
-  // }
-  
-  
   return (
 
     <Fragment>
@@ -554,6 +417,9 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
             sortOrder={-1}
             paginator={true}
             rows={10}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
@@ -573,7 +439,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
                 sortable={coluna.sortable}
                 headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '1rem', border: '1px solid #e9e9e9'}}
+                bodyStyle={{ fontSize: '1rem', border: '1px solid #e9e9e9' }}
               />
             ))}
           </DataTable>
@@ -582,11 +448,12 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       </div>
 
 
-      <ActionEditarFuncionario 
-         show={modalAlterarFuncionarioVisivel}
-         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
-         dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
-      /> 
+      <ActionEditarFuncionario
+        show={modalAlterarFuncionarioVisivel}
+        handleClose={() => setModalAlterarFuncionarioVisivel(false)}
+        dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
+        handleClick={handleClick}
+      />
       {/* <ActionUpdateFuncionarioModal
         show={modalAlterarFuncionarioVisivel}
         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
@@ -598,6 +465,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         show={modalDescontoVisivel}
         handleClose={() => setModalDescontoVisivel(false)}
         dadosDescontoFuncionarios={dadosDescontoFuncionarios}
+        handleClick={handleClick}
       />
 
     </Fragment>

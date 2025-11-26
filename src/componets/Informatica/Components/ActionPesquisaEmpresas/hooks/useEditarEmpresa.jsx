@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export const useEditarEmpresa = ({ dadosEditarEmpresa }) => {
+export const useEditarEmpresa = ({ dadosEditarEmpresa, handleClose, refetch, usuarioLogado }) => {
     const [grupoEmpresa, setGrupoEmpresa] = useState('');
     const [situacao, setSituacao] = useState('');
     const [dataCriacao, setDataCriacao] = useState('');
@@ -17,43 +17,28 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa }) => {
     const [uf, setUF] = useState('');
     const [email, setEmail] = useState('');
     const [telefone, setTelefone] = useState('')
-    const [usuarioLogado, setUsuarioLogado] = useState(null);
     const [ipUsuario, setIpUsuario] = useState('');
-    const navigate = useNavigate();
-
+ 
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
-
-    useEffect(() => {
-        getIPUsuario()
-    }, [usuarioLogado])
-
-    useEffect(() => {
-        const usuarioArmazenado = localStorage.getItem('usuario');
-
-        if (usuarioArmazenado) {
-            try {
-                const parsedUsuario = JSON.parse(usuarioArmazenado);
-                setUsuarioLogado(parsedUsuario);;
-            } catch (error) {
-                console.error('Erro ao parsear o usuário do localStorage:', error);
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
+            if (!usuarioIP) {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
             }
-        } else {
-            navigate('/');
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
         }
-
-    }, [navigate]);
-
+    };
 
     useEffect(() => {
         if (dadosEditarEmpresa) {
             setGrupoEmpresa(dadosEditarEmpresa[0]?.IDGRUPOEMPRESARIAL == 1 ? "TO - TESOURA DE OURO" : dadosEditarEmpresa[0]?.IDGRUPOEMPRESARIAL == 2 ? "MG - MAGAZINE" : dadosEditarEmpresa[0]?.IDGRUPOEMPRESARIAL == 3 ? "YO - YORUS" : dadosEditarEmpresa[0]?.IDGRUPOEMPRESARIAL == 4 ? "FC - FREE CENTER" : "");
-            setSituacao(dadosEditarEmpresa[0]?.STATIVO == "True" ? "ATIVO" : dadosEditarEmpresa[0]?.STATIVO == "False" ? "INATIVO" : "");
+            setSituacao(dadosEditarEmpresa[0]?.STATIVO == "True" || dadosEditarEmpresa[0]?.STATIVO == "ATIVO" ? "ATIVO" : dadosEditarEmpresa[0]?.STATIVO == "False" ? "INATIVO" : "");
             setDataCriacao(dadosEditarEmpresa[0]?.DTULTATUALIZACAO);
             setNomeFantasia(dadosEditarEmpresa[0]?.NOFANTASIA);
             setCep(dadosEditarEmpresa[0]?.NUCEP)
@@ -66,6 +51,7 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa }) => {
             setTelefone(dadosEditarEmpresa[0]?.NUTELCOMERCIAL)
         }
     }, [])
+
     const onSubmit = async (data) => {
 
         const putData = {
@@ -107,7 +93,9 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa }) => {
 
         try {
 
-            const response = await put('/empresas/:id', putData)
+            const usuarioIP = await getIPUsuario();
+
+            const response = await put(`/empresas/:id`, putData)
 
             const textDados = JSON.stringify(putData);
             let textoFuncao = 'GERENCIA / EDIÇÃO DA EMPRESA';
@@ -116,7 +104,7 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa }) => {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: usuarioIP
             };
 
             const responsePost = await post('/log-web', createData)
@@ -130,16 +118,20 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa }) => {
                     container: 'custom-swal',
                 }
             })
+            handleClose();
+            refetch();
 
             return responsePost.data
         } catch (error) {
+
+            const usuarioIP = await getIPUsuario();
             let textoFuncao = 'GERENCIA /ERRO NA EDIÇÃO DA EMPRESA';
 
             const createData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: '',
-                IP: ipUsuario
+                IP: usuarioIP
             };
 
             const responsePost = await post('/log-web', createData)
@@ -183,7 +175,8 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa }) => {
         setEmail,
         telefone,
         setTelefone,
-        onSubmit
+        onSubmit,
+        ipUsuario
 
     }
 }

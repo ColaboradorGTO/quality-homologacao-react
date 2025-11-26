@@ -1,14 +1,11 @@
 import { useEffect, useState } from "react"
-import { post, put } from "../../../api/funcRequest"
-import { useNavigate } from "react-router-dom"
+import { post, put } from "../../../../../api/funcRequest"
 import axios from "axios"
 import Swal from 'sweetalert2'
 import { getDataHoraAtual } from "../../../../../utils/dataAtual"
-import { get } from "../../../../../api/funcRequest"
-import { useQuery } from "react-query"
 
 
-export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
+export const useEditarTransportadora = ({handleClose, dadosDetalheTranspotador, usuarioLogado, optionsModulos, handleClick }) => {
     const [statusSelecionado, setStatusSelecionado] = useState('')
     const [cnpj, setCnpj] = useState('')
     const [inscricaoEstadual, setInscricaoEstadual] = useState('')
@@ -29,11 +26,10 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
     const [telefone2, setTelefone2] = useState('')
     const [telefone3, setTelefone3] = useState('')
     const [data, setData] = useState('')
-    const [usuarioLogado, setUsuarioLogado] = useState(null);
     const [ipUsuario, setIpUsuario] = useState('');
 
-    const navigate = useNavigate();
-        useEffect(() => {
+   
+    useEffect(() => {
         const dataAtual = getDataHoraAtual()
         setData(dataAtual)
     },[])
@@ -44,38 +40,28 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
         { value: 'False', label: 'INATIVO' }
     ]
 
-    const optionsTipoCategoria = [
-        { value: 'VESTUARIO', label: 'VESTUARIO' },
-        { value: 'CALCADOS', label: 'CALCADOS' },
-        { value: 'ARTIGOS', label: 'ARTIGOS' },
-    ]
+   const getIPUsuario = async () => {
+        let usuarioIP = null;
 
-    useEffect(() => {
-        const usuarioArmazenado = localStorage.getItem('usuario');
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
 
-        if (usuarioArmazenado) {
+        if (!usuarioIP) {
             try {
-                const parsedUsuario = JSON.parse(usuarioArmazenado);
-                setUsuarioLogado(parsedUsuario);;
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
             } catch (error) {
-                console.error('Erro ao parsear o usuário do localStorage:', error);
+                console.error("Erro ao buscar IP via ipify.org:", error);
             }
-        } else {
-            navigate('/');
         }
-    }, [navigate]);
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
-    const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
 
     useEffect(() => {
         setStatusSelecionado({value: dadosDetalheTranspotador[0]?.STATIVO, label: dadosDetalheTranspotador[0]?.STATIVO == 'True' ? 'ATIVO' : 'INATIVO'})
@@ -102,13 +88,27 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
 
  
 
-    const handleEditar = async () => {
+    const onSubmit = async () => {
+        if(optionsModulos[0]?.ALTERAR == 'False') {
+            Swal.fire({
+                title: 'Erro!',
+                text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para alterar a Transportadora!`,
+                customClass: {
+                    container: 'custom-swal',
+                },
+            });
+            return;
+        }
+        
         if (cnpj == '' || cnpj.length < 14) {
             Swal.fire({
                 position: 'center',
                 icon: 'error',
                 title: `CNPJ Incompleto, Faltam "${14 - cnpj.length}" Dígito(s)!`,
                 text: `Favor Verificar o CNPJ!`,
+                customClass: {
+                    container: 'custom-swal',
+                },
                 type: 'warning',
                 showConfirmButton: false,
                 timer: 1500
@@ -121,6 +121,9 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                 position: 'center',
                 icon: 'error',
                 title: 'Razão Social não pode ser vazia!',
+                customClass: {
+                    container: 'custom-swal',
+                },
                 showConfirmButton: false,
                 timer: 1500
             });
@@ -132,6 +135,9 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                 position: 'center',
                 icon: 'error',
                 title: 'Informe o Nome Fantasia do Transportador!',
+                customClass: {
+                    container: 'custom-swal',
+                },
                 showConfirmButton: false,
                 timer: 1500
             });
@@ -143,6 +149,9 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                 position: 'center',
                 icon: 'error',
                 title: 'Informe o Endereço do Transportador!',
+                customClass: {
+                    container: 'custom-swal',
+                },
                 showConfirmButton: false,
                 timer: 1500
             });
@@ -154,6 +163,9 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                 position: 'center',
                 icon: 'error',
                 title: 'Informe o Número do Endereço do Transportador!',
+                customClass: {
+                    container: 'custom-swal',
+                },
                 showConfirmButton: false,
                 timer: 1500
             });
@@ -165,6 +177,9 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                 position: 'center',
                 icon: 'error',
                 title: 'Informe o Bairro do Transportador!',
+                customClass: {
+                    container: 'custom-swal',
+                },
                 showConfirmButton: false,
                 timer: 1500
             });
@@ -176,6 +191,9 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                 position: 'center',
                 icon: 'error',
                 title: 'Informe a Cidade do Transportador!',
+                customClass: {
+                    container: 'custom-swal',
+                },
                 showConfirmButton: false,
                 timer: 1500
             });
@@ -187,6 +205,9 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                 position: 'center',
                 icon: 'error',
                 title: 'Informe o Estado do Transportador!',
+                customClass: {
+                    container: 'custom-swal',
+                },
                 showConfirmButton: false,
                 timer: 1500
             });
@@ -198,15 +219,18 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                 position: 'center',
                 icon: 'error',
                 title: 'Informe o CEP do Transportador!',
+                customClass: {
+                    container: 'custom-swal',
+                },
                 showConfirmButton: false,
                 timer: 1500
             });
             return;
         }
-        const postData = [{
-            IDTRANSPORTADORA: dadosDetalheTranspotador[0]?.IDTRANSPORTADORA,
-            IDGRUPOEMPRESARIAL: dadosDetalheTranspotador[0]?.IDGRUPOEMPRESARIAL,
-            IDSUBGRUPOEMPRESARIAL: dadosDetalheTranspotador[0]?.IDSUBGRUPOEMPRESARIAL,
+        const postData = {
+            IDTRANSPORTADORA: parseInt(dadosDetalheTranspotador[0]?.IDTRANSPORTADORA),
+            IDGRUPOEMPRESARIAL: dadosDetalheTranspotador[0]?.IDGRUPOEMPRESARIAL == null ? 1 : dadosDetalheTranspotador[0]?.IDGRUPOEMPRESARIAL,
+            IDSUBGRUPOEMPRESARIAL: dadosDetalheTranspotador[0]?.IDSUBGRUPOEMPRESARIAL == null ? 1 : dadosDetalheTranspotador[0]?.IDSUBGRUPOEMPRESARIAL,
             NORAZAOSOCIAL: razaoSocial,
             NOFANTASIA: nomeFantasia,
             NUCNPJ: cnpj,
@@ -223,16 +247,29 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
             EEMAIL: email,
             NUTELEFONE1: telefone1,
             NUTELEFONE2: telefone2,
-            NUTELEFONE3: telefone3,
-            NOREPRESENTANTE: nomeRepresentante,
+            NUTELEFONE3: telefone3 || '',
+            NOREPRESENTANTE: nomeRepresentante || '',
             DTCADASTRO: data,
             DTULTATUALIZACAO: data,
-            STATIVO: statusSelecionado,
-        }]
+            STATIVO: statusSelecionado?.value,
+        }
         try {
 
             const response = await put('/transportador/:id', postData)
 
+            
+            const textDados = JSON.stringify(postData)
+            let textFuncao = 'COMPRAS/CADASTRO DE TRANSPORTADORA';
+            const ipUsuario = await getIPUsuario();
+            const createtLog = {
+                IDFUNCIONARIO: String(usuarioLogado.id),
+                PATHFUNCAO: textFuncao,
+                DADOS: textDados,
+                IP: ipUsuario
+            }
+            
+            await post('/log-web', createtLog)
+            
             Swal.fire({
                 position: 'center',
                 icon: 'success',
@@ -243,24 +280,23 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                     container: 'custom-swal',
                 }
             })
-
+            handleClick();
+            handleClose();
+            return response.data;
+        } catch (error) {
             const textDados = JSON.stringify(postData)
-            let textFuncao = 'COMPRAS/CADASTRO-EDIÇÃO DE TRANSPORTADORA';
-
+            let textFuncao = 'COMPRAS/ERRO AO ALTERAR TRANSPORTADORA';
+            const ipUsuario = await getIPUsuario();
             const createtLog = {
-                IDFUNCIONARIO: usuarioLogado.id,
+                IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
 
             const responseLog = await post('/log-web', createtLog)
-
-
-            return responseLog.data;
-        } catch (error) {
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'error',
                 title: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.',
                 showConfirmButton: false,
@@ -269,7 +305,7 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
                     container: 'custom-swal',
                 },
             });
-            console.error('Erro ao criar categoria pedido:', error);
+            console.error('Erro ao editar transportadora:', error);
         }
     }
 
@@ -312,10 +348,7 @@ export const useEditarTransportadora = ({dadosDetalheTranspotador}) => {
         setTelefone2,
         telefone3,
         setTelefone3,
-        data,
-        setData,
         optionsStatus,
-        optionsTipoCategoria,
-        handleEditar,
+        onSubmit,
     }
 }

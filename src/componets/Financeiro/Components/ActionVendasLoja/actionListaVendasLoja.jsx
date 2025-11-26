@@ -203,8 +203,6 @@ export const ActionListaVendasLoja = ({ dadosVendasLoja }) => {
     return {
       DTHORAFECHAMENTO: item.DTHORAFECHAMENTO,
       NOFANTASIA: item.NOFANTASIA,
-      DTHORAFECHAMENTO: item.DTHORAFECHAMENTO,
-      NOFANTASIA: item.NOFANTASIA,
       VALORTOTALDINHEIRO: item.totais?.VALORTOTALDINHEIRO,
       VALORTOTALCARTAO: item.totais?.VALORTOTALCARTAO,
       VALORTOTALPOS: item.totais?.VALORTOTALPOS,

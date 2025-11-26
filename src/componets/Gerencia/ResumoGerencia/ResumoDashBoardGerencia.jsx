@@ -159,7 +159,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
     async () => {
       const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
-        const response = await get(`/resumoVendaGerencia?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}`);
+        const response = await get(`/resumoVendaGerencia?idEmpresa=${idEmpresa}&dataPesquisa=${dataPesquisa}`);
         return response.data;
 
       }

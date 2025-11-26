@@ -13,14 +13,8 @@ import { DashBoardMarketing } from "../pages/DashBoardMarketing";
 import { Fragment, useEffect, useState } from "react";
 import AuthProvider from "../Providers/AuthContext";
 import { Home } from "../pages/Home";
-import { Modulo } from "../pages/Modulo";
 import { DashBoardComprasDM } from "../pages/DashBoardComprasDm";
 import { DashBoardEtiquetagem } from "../pages/DashBoardEtiquetagem";
-
-import { SidebarProviderCopia } from "../componets/Sidebar/SidebarContextCopia";
-import PrivateRoute from "./PrivateRoute";
-import { useQuery } from "react-query";
-import { get } from "../api/funcRequest";
 import { DashBoardMalotes } from "../pages/DashBoardMalotes";
 import { DashBoardVoucher } from "../pages/DashBoardVoucher";
 import { DashBoardPromocao } from "../pages/DashBoardPromocao";
@@ -28,7 +22,7 @@ import { Permissoes } from "../pages/Permissoes";
 import { ModuloTeste } from "../pages/ModuloTeste";
 import { DashBoardRecursosHumanos } from "../pages/DashBoardRecursosHumanos";
 import { DashBoardResumoVendas } from "../pages/DashBoardResumoVendas";
-
+import { DashBoardMenus } from "../pages/DashBoardMenus";
 
 export const RoutesMain = () => {
   const [componentToShow, setComponentToShow] = useState("");
@@ -45,6 +39,8 @@ export const RoutesMain = () => {
   useEffect(() => {
 
   }, [usuarioLogado]);
+
+ 
 
   const handleShowComponent = (componentName) => {
     setComponentToShow(componentName);
@@ -64,15 +60,17 @@ export const RoutesMain = () => {
         <Route path="/DashBoardMarketing" element={ <DashBoardMarketing componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
         <Route path="/DashBoardPermissoes" element={<Permissoes  />  } />
         <Route path="/DashBoardMalotes" element={<DashBoardMalotes componentToShow={componentToShow} handleShowComponent={handleShowComponent}   /> } />  
-    
         <Route path="/DashBoardVouchers" element={<DashBoardVoucher componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
+        <Route path="/DashBoardMenus" element={<DashBoardMenus componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
+        <Route path="/DashBoardCompras" element={<DashBoardCompras componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
+    
+        {/* <Route path="/DashBoardPromocao" element={usuarioLogado ? <DashBoardPromocao componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/>}  /> */}
 
         <Route path="/DashBoardResumoVendas" element={<DashBoardResumoVendas componentToShow={componentToShow} handleShowComponent={handleShowComponent}  />  } />
 
         <Route path="/DashBoardExpedicao" element={usuarioLogado ? <DashBoardExpedicao componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
         <Route path="/DashBoardConferenciaCega" element={usuarioLogado ? <DashBoardConferenciaCega componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/>} />
         <Route path="/DashBoardCadastro" element={usuarioLogado ? <DashBoardCadastro componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/>} />
-        <Route path="/DashBoardCompras" element={usuarioLogado ? <DashBoardCompras componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
         <Route path="/DashBoardComprasDM" element={usuarioLogado ? <DashBoardComprasDM componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
         <Route path="/DashBoardComercial" element={usuarioLogado ? <DashBoardComercial componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
         <Route path="/DashBoardEtiquetagem" element={usuarioLogado ? <DashBoardEtiquetagem componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />

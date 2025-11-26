@@ -245,7 +245,6 @@ export const ActionListaConsultaVouchers = ({dadosVoucher, usuarioLogado, option
       DSCAIXADESTINO: item.DSCAIXADESTINO,
       IDUSRLIBERACAOCRIACAO: item.IDUSRLIBERACAOCRIACAO,
       NOFUNCIONARIOLIBERACAOCRIACAO: item.NOFUNCIONARIOLIBERACAOCRIACAO,
-      DSCAIXADESTINO: item.DSCAIXADESTINO,
       IDUSRLIBERACAOCONSUMO: item.IDUSRLIBERACAOCONSUMO,
       NOFUNCIONARIOLIBERACAOCONSUMO: item.NOFUNCIONARIOLIBERACAOCONSUMO,
       NUVOUCHER: item.NUVOUCHER,
@@ -591,7 +590,7 @@ export const ActionListaConsultaVouchers = ({dadosVoucher, usuarioLogado, option
         icon: 'error',
         title: 'Acesso Negado',
         text: 'Você não tem permissão para editar o voucher.',
-        timer: 3000,
+        timer: 5000,
       });
     }  
   }

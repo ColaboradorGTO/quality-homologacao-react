@@ -1,27 +1,47 @@
-import { Fragment, useRef, useState } from "react"
+import { Fragment, useEffect, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { dataFormatada } from "../../../../utils/dataFormatada";
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { CiEdit } from "react-icons/ci";
 import { get } from "../../../../api/funcRequest";
-import { ActionEditarFaturaModal } from "./actionEditarFaturaModal";
+import { ActionEditarFaturaModal } from "./EditarFatura/actionEditarFaturaModal";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
-import { BsTrash3 } from "react-icons/bs";
 import Swal from "sweetalert2";
+import { Checkbox } from "primereact/checkbox";
+import { useConferirFatura } from "./hooks/useConfeririFatura";
+import { IoMdCheckmark } from "react-icons/io";
 
 
-export const ActionListaFaturasLoja = ({ dadosDetalheFatura, optionsModulos }) => {
+export const ActionListaFaturasLoja = ({ 
+  dadosDetalheFatura, 
+  optionsModulos, 
+  usuarioLogado, 
+  handleClick, 
+  selectedItems,
+  setSelectedItems
+
+}) => {
   const [modalFaturaVisivel, setModalFaturaVisivel] = useState(false);
   const [dadosDetalheFaturaCaixa, setDadosDetalheFaturaCaixa] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [btnVisivel, setBtnVisivel] = useState(false);
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(10);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
+  const {
+    conferir
+  } = useConferirFatura({ optionsModulos, usuarioLogado, handleClick, selectedItems });
+  
+
+  
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
@@ -66,8 +86,6 @@ export const ActionListaFaturasLoja = ({ dadosDetalheFatura, optionsModulos }) =
       { wpx: 200, caption: 'Recebedor' },
       { wpx: 150, caption: 'Situação' },
       { wpx: 150, caption: 'PIX' },
-
-
     ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Faturas Loja Período');
@@ -88,23 +106,27 @@ export const ActionListaFaturasLoja = ({ dadosDetalheFatura, optionsModulos }) =
       STPIX: item.STPIX == 'True' ? 'SIM' : 'NÃO',
     }
   });
+
   const dados = dadosDetalheFatura.map((item, index) => {
     let contador = index + 1;
-
+    let status = 'CANCELADO'
     return {
-      NOFANTASIA: item.NOFANTASIA,
-      DTPROCESSAMENTO: item.DTPROCESSAMENTO,
-      IDMOVIMENTOCAIXAWEB: item.IDMOVIMENTOCAIXAWEB,
-      DSCAIXA: item.DSCAIXA,
-      NUCODAUTORIZACAO: item.NUCODAUTORIZACAO,
-      VRRECEBIDO: item.VRRECEBIDO,
-      NOFUNCIONARIO: item.NOFUNCIONARIO,
-      STCANCELADO: item.STCANCELADO,
-      STPIX: item.STPIX,
-
       IDDETALHEFATURA: item.IDDETALHEFATURA,
+      NOFANTASIA: item.NOFANTASIA,
+      DSCAIXA: item.DSCAIXA,
+      DTPROCESSAMENTO: ` ${item.DTPROCESSAMENTO} - ${item.HRPROCESSAMENTO}`,
       HRPROCESSAMENTO: item.HRPROCESSAMENTO,
+      NUCODAUTORIZACAO: item.NUCODAUTORIZACAO,
+      NOFUNCIONARIO: item.NOFUNCIONARIO,
+      VRRECEBIDO: item.VRRECEBIDO,
+      STCANCELADO: item.STCANCELADO,
+      IDMOVIMENTOCAIXAWEB: item.IDMOVIMENTOCAIXAWEB,
+      STPIX: item.STPIX,
+      STCONFERIDOFATURA: item.STCONFERIDOFATURA,
+      DOCENTRY_SAP_CONTAS_A_RECEBER: item.DOCENTRY_SAP_CONTAS_A_RECEBER,
+      IDCONSOLIDACAOFATURA: item.IDCONSOLIDACAOFATURA,
       IDMOVCAIXA: item.IDMOVCAIXA,
+      status
 
     }
   });
@@ -117,24 +139,130 @@ export const ActionListaFaturasLoja = ({ dadosDetalheFatura, optionsModulos }) =
     return total;
   }
 
+  useEffect(() => {
+    const itensSelecionaveis = dados.filter(item =>
+      item.STCANCELADO === 'False' && item.STCONFERIDOFATURA !== 'True' && item.IDDETALHEFATURA
+    );
+
+    const dadosPaginaAtual = dados.slice(first, first + rows);
+    const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
+      item.STCANCELADO === 'False' && item.STCONFERIDOFATURA !== 'True' && item.IDDETALHEFATURA
+    );
+
+    if (selectedItems.length === 0) {
+      setSelectAllChecked(false);
+    } else if (
+      selectedItems.length === itensSelecionaveis.length ||
+      (selectedItems.length === itensSelecionaveisPaginaAtual.length &&
+        itensSelecionaveisPaginaAtual.length > 0 &&
+        itensSelecionaveisPaginaAtual.every(item =>
+          selectedItems.some(selected => selected.IDDETALHEFATURA === item.IDDETALHEFATURA)
+        ))
+    ) {
+      setSelectAllChecked(true);
+    } else {
+      setSelectAllChecked(false);
+    }
+
+  }, [selectedItems, dados, first, rows]);
+
+  const onSelectAllChange = (e) => {
+    if (e.checked) {
+      Swal.fire({
+        icon: 'question',
+        title: 'Selecione o modo de seleção',
+        text: 'Deseja selecionar todos da tabela ou somente o que está em tela?',
+        showConfirmButton: true,
+        showCancelButton: true,
+        showCloseButton: true,
+        confirmButtonText: 'Todos os registros',
+        cancelButtonText: 'Apenas o que está tela',
+        cancelButtonColor: '#2196F3',
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const itensSelecionaveis = dados.filter(item =>
+            item.STCANCELADO === 'False' && item.STCONFERIDOFATURA !== 'True' && item.IDDETALHEFATURA
+          );
+          setBtnVisivel(true);
+          setSelectedItems([...itensSelecionaveis]);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          const dadosPaginaAtual = dados.slice(first, first + rows);
+
+          const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
+            item.STCANCELADO === 'False' && item.STCONFERIDOFATURA !== 'True' && item.IDDETALHEFATURA
+          );
+          setBtnVisivel(true);
+          setSelectedItems([...itensSelecionaveisPaginaAtual]);
+        } else {
+          setBtnVisivel(false);
+          setSelectedItems([]);
+        }
+      });
+    } else {
+      setBtnVisivel(false);
+      setSelectedItems([]);
+    }
+  };
+
   const colunasListaFatura = [
+    {
+      field: 'Selecione',
+      selectionMode: 'multiple',
+      body: (rowData) => {
+        // ========== VARIÁVEIS DE CONTROLE ==========
+        const stAtivo = rowData.STCANCELADO === 'False';
+        const stConferido = rowData.STCONFERIDOFATURA === 'True';
+
+        // ========== Só mostra checkbox se ATIVA e NÃO CONFERIDA ==========
+        if (!stAtivo || stConferido) {
+          return <td></td>;
+        }
+
+        return (
+          <td>
+            <div className="custom-control custom-checkbox">
+              <Checkbox
+                inputId={`chk-${rowData.IDDETALHEFATURA}`}
+                checked={selectedItems.some(
+                  item => item.IDDETALHEFATURA === rowData.IDDETALHEFATURA
+                )}
+                onChange={(e) => {
+                  let _selectedItems = [...selectedItems];
+
+                  if (e.checked) {
+                    _selectedItems.push(rowData);
+                  } else {
+                    _selectedItems = _selectedItems.filter(
+                      item => item.IDDETALHEFATURA !== rowData.IDDETALHEFATURA
+                    );
+                  }
+
+                  setSelectedItems(_selectedItems);
+                }}
+              />
+            </div>
+          </td>
+        );
+      },
+      sortable: true,
+    },
     {
       field: 'NOFANTASIA',
       header: 'Empresa',
       body: row => <th style={{}}>  {row.NOFANTASIA} </th>,
       sortable: true,
-
     },
     {
       field: 'DTPROCESSAMENTO',
       header: 'Data Recebimento',
-      body: row => <th style={{}}>  {row.DTPROCESSAMENTO}  {row.HRPROCESSAMENTO} </th>,
+      body: row => <th style={{}}>  {row.DTPROCESSAMENTO}  </th>,
       sortable: true,
     },
     {
       field: 'IDMOVIMENTOCAIXAWEB',
       header: 'Nº Movimento Caixa',
-      body: row => <th style={{}}>  {row.IDMOVCAIXA}</th>,
+      body: row => <th style={{}}>  {row.IDMOVIMENTOCAIXAWEB}</th>,
       sortable: true,
     },
     {
@@ -166,11 +294,19 @@ export const ActionListaFaturasLoja = ({ dadosDetalheFatura, optionsModulos }) =
     {
       field: 'STCANCELADO',
       header: 'Situação',
-      body: row => (
-        <th style={{ color: row.STCANCELADO == 'False' ? 'blue' : 'red' }}>
-          {row.STCANCELADO == 'False' ? 'Ativo' : 'Cancelado'}
-        </th>
-      ),
+      body: row => {
+        if (row.STCANCELADO == 'False') {
+          return <th style={{ color: 'blue' }}>ATIVO / {row.STCONFERIDOFATURA == 'True' ? 'CONFERIDO' : <th style={{ color: 'red' }}>NÃO CONFERIDO</th>} {row.IDCONSOLIDACAOFATURA ? ' / CONSOLIDADO' : ''}</th>
+
+        } else {
+          return (
+
+            <th style={{ color: 'red' }}>
+              NÃO CONFERIDO  {row.IDCONSOLIDACAOFATURA ? ' / CONSOLIDADO ' : ''}
+            </th>
+          )
+        }
+      },
     },
     {
       field: 'STPIX',
@@ -182,44 +318,71 @@ export const ActionListaFaturasLoja = ({ dadosDetalheFatura, optionsModulos }) =
       ),
     },
     {
+      field: 'IDDETALHEFATURA',
       header: 'Opções',
       button: true,
-      width: '10%',
-      body: (row) => (
-        <div className="p-1 "
-          style={{ justifyContent: "space-between", display: "flex" }}
-        >
-          <div className="p-1">
-            <ButtonTable
-              titleButton={"Editar Fatura"}
-              cor={"primary"}
-              Icon={CiEdit}
-              onClickButton={() => handleClickEditar(row)}
-              iconSize={25}
-              width="30px"
-              height="30px"
-            />
+      width: '100%',
+      body: (row) => {
+        const stAtivo = row.STCANCELADO === 'False';
+        const stConferido = row.STCONFERIDOFATURA === 'True';
+        const stMigrado = row.DOCENTRY_SAP_CONTAS_A_RECEBER > 0;
+
+        if (stMigrado) {
+          return <td></td>;
+        }
+
+
+        if (!stAtivo) {
+          return <td></td>;
+        }
+
+
+        if (stConferido) {
+          return <td></td>;
+        }
+
+        return (
+
+          <div className="p-1 " style={{ justifyContent: "space-between", display: "flex", width: "100%" }}>
+            {/* Botão Editar (Amarelo) */}
+            <div className="p-1">
+              <ButtonTable
+                titleButton="Editar Fatura"
+                textButton={"Editar"}
+                cor="warning"
+                Icon={CiEdit}
+                onClickButton={() => handleClickEditar(row)}
+                iconSize={20}
+                width="50px"
+                height="50px"
+              />
+            </div>
+
+            {/* Botão Conferir (Verde) */}
+            <div className="p-1">
+              <ButtonTable
+                titleButton="Conferir Fatura"
+                textButton={"Conferir"}
+                cor="success"
+                Icon={IoMdCheckmark}
+                onClickButton={() => conferir(row)}
+                iconSize={20}
+                width="50px"
+                height="50px"
+              />
+            </div>
           </div>
-          <div className="p-1">
-            <ButtonTable
-              titleButton={"Cancelar Fatura"}
-              cor={"danger"}
-              Icon={BsTrash3}
-              onClickButton
-              iconSize={25}
-              width="30px"
-              height="30px"
-            />
-          </div>
-        </div>
-      ),
+
+        );
+      },
+
     },
 
   ]
 
   const handleEditar = async (IDDETALHEFATURA) => {
     try {
-      const response = await get(`/detalhe-Fatura-id?idFatura=${IDDETALHEFATURA}`);
+      const response = await get(`/detalhe-Faturas?idDetalheFatura=${IDDETALHEFATURA}`);
 
       if (response.data && response.data.length > 0) {
         setDadosDetalheFaturaCaixa(response.data);
@@ -230,7 +393,6 @@ export const ActionListaFaturasLoja = ({ dadosDetalheFatura, optionsModulos }) =
       console.error('Erro ao buscar detalhes da despesa: ', error);
     }
   };
-
 
   const handleClickEditar = (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
@@ -257,48 +419,71 @@ export const ActionListaFaturasLoja = ({ dadosDetalheFatura, optionsModulos }) =
   return (
 
     <Fragment>
-      <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-        <HeaderTable
-          globalFilterValue={globalFilterValue}
-          onGlobalFilterChange={onGlobalFilterChange}
-          handlePrint={handlePrint}
-          exportToExcel={exportToExcel}
-          exportToPDF={exportToPDF}
-        />
-      </div>
-      <div className="card" ref={dataTableRef}>
-        <DataTable
-          title="Vendas por Loja"
-          value={dados}
-          globalFilter={globalFilterValue}
-          size="small"
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
-          filterDisplay="menu"
-          sortOrder={-1}
-          paginator={true}
-          rows={10}
-          rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
-          showGridlines
-          stripedRows
-          emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
-        >
-          {colunasListaFatura.map(coluna => (
-            <Column
-              key={coluna.field}
-              field={coluna.field}
-              header={coluna.header}
+      <div className="panel">
+        <div className="panel-hdr">
+          <h2>Lista de Faturas </h2>
+        </div>
+        <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
 
-              body={coluna.body}
-              footer={coluna.footer}
-              sortable={coluna.sortable}
-              headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-              footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-              bodyStyle={{ fontSize: '0.8rem', }}
+          <HeaderTable
+            globalFilterValue={globalFilterValue}
+            onGlobalFilterChange={onGlobalFilterChange}
+            handlePrint={handlePrint}
+            exportToExcel={exportToExcel}
+            exportToPDF={exportToPDF}
+          />
+        </div>
 
+        <div style={{ width: "100%", display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+
+          <div className="custom-control custom-checkbox">
+            <Checkbox
+              checked={selectAllChecked}
+              onChange={onSelectAllChange}
             />
-          ))}
-        </DataTable>
+            <span>
+              {selectAllChecked ? "Desmarcar Todos" : "Marcar Todos"}
+            </span>
+          </div>
+
+        </div>
+        <div className="card" ref={dataTableRef}>
+          <DataTable
+            title="Vendas por Loja"
+            value={dados}
+            globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
+            sortOrder={-1}
+            paginator={true}
+            rows={10}
+            rowsPerPageOptions={[10, 20, 50, 100, 200, 300, 500, dados.length]}
+            showGridlines
+            stripedRows
+            emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
+          >
+            {colunasListaFatura.map(coluna => (
+              <Column
+                key={coluna.field}
+                field={coluna.field}
+                header={coluna.header}
+
+                body={coluna.body}
+                footer={coluna.footer}
+                sortable={coluna.sortable}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '0.8rem', }}
+
+              />
+            ))}
+          </DataTable>
+        </div>
       </div>
       <ActionEditarFaturaModal
         show={modalFaturaVisivel}
@@ -309,4 +494,3 @@ export const ActionListaFaturasLoja = ({ dadosDetalheFatura, optionsModulos }) =
     </Fragment>
   )
 }
-

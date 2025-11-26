@@ -19,7 +19,11 @@ export const ActionEditarFaturamentoOTModal = ({show, handleClose, dadosDetalheT
         />
 
         <Modal.Body>
-          <FormularioVisualizar handleClose={handleClose} dadosDetalheTransferencia={dadosDetalheTransferencia} />
+          <FormularioVisualizar 
+            handleClose={handleClose} 
+            dadosDetalheTransferencia={dadosDetalheTransferencia} 
+            
+          />
         </Modal.Body>
     
       </Modal>

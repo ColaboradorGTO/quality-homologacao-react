@@ -4,9 +4,9 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { useForm } from "react-hook-form"
 import Select from 'react-select';
-import { useCadastroUnidadeMedida } from "../../../hooks/useCadastroUnidadeMedida"
+import { useCadastroUnidadeMedida } from "../hooks/useCadastroUnidadeMedida"
 
-export const FormularioCadatro = ({ handleClose }) => {
+export const FormularioCadatro = ({ handleClose, usuarioLogado, refetchListaUnidadesMedidas, optionsModulos }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         statusSelecionado,
@@ -17,7 +17,7 @@ export const FormularioCadatro = ({ handleClose }) => {
         setSigla,
         optionsStatus,
         handleCadastro
-    } = useCadastroUnidadeMedida();
+    } = useCadastroUnidadeMedida({ handleClose, usuarioLogado, refetchListaUnidadesMedidas, optionsModulos });
     
     return (
         <Fragment>

@@ -8,8 +8,8 @@ import Select from 'react-select';
 import { Fragment } from 'react';
 import { useImportarCSVBI } from './hooks/useImportarCSVBI';
 
-export const ActionImportarRelatorioBIModal = ({ show, handleClose, relatorioSelecionadoTabela,optionsModulos }) => {
-  const { register, handleSubmit, errors } = useForm();
+export const ActionImportarRelatorioBIModal = ({ show, handleClose, relatorioSelecionadoTabela, optionsModulos }) => {
+  const { register, handleSubmit, formState: { errors } } = useForm();
   const {
     linkRelatorioBI,
     setLinkRelatorioBI,
@@ -17,7 +17,7 @@ export const ActionImportarRelatorioBIModal = ({ show, handleClose, relatorioSel
     file,
     setFile,
     onSubmitArquivo
-  } = useImportarCSVBI({optionsModulos, handleClose})
+  } = useImportarCSVBI({ optionsModulos, handleClose })
 
 
   return (
@@ -43,13 +43,16 @@ export const ActionImportarRelatorioBIModal = ({ show, handleClose, relatorioSel
           <form onSubmit={handleSubmit(onSubmitArquivo)}>
             <div className="form-group">
               <div className="row">
-               
+
                 <div className="col-sm-6">
                   <label className="form-label" htmlFor={""}>Relatório</label>
 
                   <Select
                     closeMenuOnSelect={false}
-                    defaultValue={relatorioSelecionadoTabela?.DSRELATORIOBI || ''}
+                    defaultValue={
+                      relatorioSelecionadoTabela
+                        ? { value: relatorioSelecionadoTabela.IDRELATORIOBI, label: relatorioSelecionadoTabela.DSRELATORIOBI }
+                        : null}
                     isMulti
                     options={dadosBI.map((item) => ({
                       value: item.IDRELATORIOBI,
@@ -57,7 +60,7 @@ export const ActionImportarRelatorioBIModal = ({ show, handleClose, relatorioSel
                     }))}
                   />
                 </div>
-                
+
                 <div className="col-sm-6">
                   <InputFieldModal
                     label={"Arquivo CSV/XLSX"}

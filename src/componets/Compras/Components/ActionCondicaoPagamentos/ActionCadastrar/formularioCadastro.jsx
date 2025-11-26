@@ -4,9 +4,14 @@ import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { useForm } from "react-hook-form"
 import Select from 'react-select';
-import { useCadastrarCondicaoPagamento } from "../../../hooks/useCadastrarCondicaoPagamento";
+import { useCadastrarCondicaoPagamento } from "../hooks/useCadastrarCondicaoPagamento";
 
-export const FormularioCadastro = ({ handleClose }) => {
+export const FormularioCadastro = ({ 
+    handleClose,
+    usuarioLogado,
+    optionsModulos,
+    handleClick 
+}) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         statusSelecionado,
@@ -27,7 +32,7 @@ export const FormularioCadastro = ({ handleClose }) => {
         optionsParcelado,
         dadosTipoDocumentos,
         cadastrar,
-    } = useCadastrarCondicaoPagamento({})
+    } = useCadastrarCondicaoPagamento({handleClose, usuarioLogado, optionsModulos, handleClick});
     return (
         <Fragment>
             <form onSubmit={handleSubmit(cadastrar)}>

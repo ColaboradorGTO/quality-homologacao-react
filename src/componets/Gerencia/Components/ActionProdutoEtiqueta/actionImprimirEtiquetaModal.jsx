@@ -5,6 +5,7 @@ import { ReactBarcode } from 'react-jsbarcode';
 import { ButtonTypeModal } from "../../../Buttons/ButtonTypeModal";
 import { MdOutlineLocalPrintshop } from "react-icons/md";
 import { isValidEAN13 } from "../../../../utils/isValidEAN13";
+import { enviarZPLParaImpressora } from "../../../../utils/labelPrinterService";
 import Swal from "sweetalert2";
 
 const chunkArray = (array, size) => {
@@ -18,127 +19,128 @@ const chunkArray = (array, size) => {
 export const ActionImprimirEtiquetaModal = ({ copias, produtosSelecionados, dadosAcumuladorEtiquetas }) => {
   const dataTableRef = useRef();
 
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    if (!printWindow) return; 
 
-    printWindow.document.write(`
-      <html>
-        <head>
-          <title>Lista de Etiquetas</title>
-          <style>
-              body {       
-                  font-family: 'Roboto', sans-serif !important;
-                  font-size: 13px;
-                  letter-spacing: -0.05px !important;
-                  margin: 1px !important;
-                  transform: rotate(0deg);
-                  transform-origin: center;
-                }
+  const handlePrintZPL = async () => {
+    try {
+      // Início da página ZPL
+      let startPageLabel = `
+        ^XA
+        ^MD10
+        ^FWN
+        ^PW850
+        ^LL320
+        ^CI28
+      `;
+      let endPageLabel = '^XZ';
+      let dataLabelsZPLToPrint = startPageLabel;
+      let contador = 0;
 
-                @media print{
-                
-                    @page {
-                            size: 11.5cm 8.5cm; 
-                            margin: -3cm;
-                            orientation: portrait;
-                        }
-                        
-                      #codBarrasEtiqueta{
-                          width: 100% !important;
-                          height: 100px !important;
-                      }
+      // Processa cada etiqueta do acumulador
+      for (let i = 0; i < etiquetas.length; i++) {
+        let { 
+          DSNOME: descricaoProd, 
+          DSESTILO: estiloProd, 
+          TAMANHO: tamanhoProd, 
+          PRECOVENDA: precoVenda, 
+          NUCODBARRAS: codBarras, 
+          quantidade: qtdEtiqueta, 
+          DSLOCALEXPOSICAO: localExpProd, 
+          DSLISTAPRECO: listaPreco, 
+          MARCA: marcaProd 
+        } = etiquetas[i];
 
-                    .etiqueta-page {
-                        display: flex;
-                        flex-wrap: wrap;
-                        align-content: flex-start;
-                        margin: 2px;
-                        width: 100%;
-                        height: 95%;
-                        padding: 0;
-                    }
+        // Limpa e converte dados para ZPL (remove acentos e caracteres especiais)
+        descricaoProd = descricaoProd?.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || '';
+        estiloProd = estiloProd?.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || '';
+        localExpProd = localExpProd?.toString().normalize("NFD").replace(/[\u0300-\u036f]/g, "") || '';
+        tamanhoProd = tamanhoProd?.toString().toUpperCase() || '';
+        precoVenda = formatMoeda(precoVenda || 0);
+        codBarras = codBarras?.toString() || '';
+        qtdEtiqueta = parseInt(qtdEtiqueta || 1);
 
-                    .etiqueta-card {
-                        width: 26.3% ;
-                        height: 100%;
-                        margin-right: 7%;
-                        margin-bottom: 0;
-                        padding: 29% 0 0 0 !important;
-                        box-sizing: border-box;
-                        display: flex;
-                        flex-direction: column;
-                        justify-content: left;
-                        align-items: left;
-                        page-break-after: always;
-                    }
+        // Valida código de barras EAN13
+        if (!isValidEAN13(`${codBarras}`)) {
+          console.error(`❌ Código de barras inválido: ${codBarras}`);
+          throw new Error(`O código de barras(${codBarras}) do produto(${descricaoProd}) da linha: ${i + 1} está em formato inválido, entre em contato com o departamento de cadastro de produtos`);
+        }
 
-                    .dsProd{
-                        width: 103% !important;
-                        height: 35% !important;
-                        margin: 0 0 2px 4px  !important;
-                    }
-
-                    .dsProd p{
-                        font-size: 1.3em !important;
-                        letter-spacing: -0.5px !important;
-                        margin: 0 0 0 3px !important;
-                    }
-
-                    .divTamanho{
-                        display: flex;
-                        margin: 0 2px -0.9375em 2px;
-                    }
-                      
-                      .tamanhoDesc{
-                          font-weight: bold;
-                      }
-                      
-                    .tamanho{
-                        border: 1px solid black;
-                        text-align: center;
-                        padding: 2px !important;
-                    }
+        // Para cada quantidade de etiqueta solicitada
+        for (let j = 0; j < qtdEtiqueta; j++) {
+          let priceLength = precoVenda.length;
+          let ajustePositionPrice = priceLength > 7 ? (priceLength - 7) * 15 : 0;
+          let ajusteFontSizePrice = priceLength <= 11 ? 0 : 5;
+          let positionDefault = (contador * 280);
+          let positionPrice = 135 + (contador * 280) - ajustePositionPrice;
+          let positionTamanho = 10 + (contador * 280);
+          let positionCodBars = 30 + (contador * 280);
+          let fontSizePrice = 35 - ajusteFontSizePrice;
+          let widthBorder = tamanhoProd.length > 3 ? '75' : '50';
+          let abrirMaisUmaPagina = (j + 1) < qtdEtiqueta || (i + 1) < etiquetas.length;
 
 
-                    .preco{
-                        font-size: 1.8em !important;
-                        font-weight: bold;
-                        letter-spacing: -2px !important;
-                        display: flex !important;
-                        justify-content: flex-end !important;
-                        align-items: flex-end !important;
-                        width: 100% !important;
-                        margin-right: -12% !important;
-                        margin-bottom: -6px !important;
-                    }
+          // Adiciona comandos ZPL para a etiqueta (sem quebras de linha desnecessárias)
+          dataLabelsZPLToPrint += `^FO${positionDefault},120^A0N,20,30^FB255,4,2,L,0^FD${descricaoProd}^FS`;
+          dataLabelsZPLToPrint += `^FO${positionDefault},205^A0N,20,25^FB255,3,2,L,0^FD${estiloProd}^FS`;
+          dataLabelsZPLToPrint += `^FO${positionDefault},245^A0N,20,25^FB255,3,2,L,0^FD${localExpProd}^FS`;
+          dataLabelsZPLToPrint += `^FO${positionDefault},285^GB${widthBorder},50,3^FS`;
+          dataLabelsZPLToPrint += `^FO${positionDefault},265^A0N,22^FDTAM^FS`;
+          dataLabelsZPLToPrint += `^FO${positionPrice},300^A0,${fontSizePrice}^FD${precoVenda}^FS`;
+          dataLabelsZPLToPrint += `^FO${positionTamanho},300^A0N,22^FD${tamanhoProd}^FS`;
+          dataLabelsZPLToPrint += `^BY1.6,3,500`;
+          dataLabelsZPLToPrint += `^FO${positionCodBars},340`;
+          dataLabelsZPLToPrint += `^BEN,55,Y,N`;
+          dataLabelsZPLToPrint += `^FD${codBarras}^FS`;
 
-                    .svgEtiqueta{ 
-                        width: 110%
-                    }
+          contador++;
 
-                    h2{
-                        font-size: 1.31em !important;
-                        margin: 0% !important;
-                    }
-                }
-          </style>
-        </head>
-        <body>
-          <div>${dataTableRef.current.innerHTML}</div>
-          <script>
-            window.onload = function() {
-              window.print();
-              window.onafterprint = function() { window.close(); };
-            };
-          </script>
-        </body>
-      </html>
-    `);
+          // Se completou 3 etiquetas por página, finaliza página
+          if (contador === 3) {
+            dataLabelsZPLToPrint += endPageLabel;
 
-    printWindow.document.close();
-  };
+            if (abrirMaisUmaPagina) {
+              dataLabelsZPLToPrint += startPageLabel;
+            }
 
+            contador = 0;
+          }
+        }
+      }
+
+      // Finaliza última página se necessário
+      if (contador !== 0) {
+        dataLabelsZPLToPrint += endPageLabel;
+      }
+
+      // Limpa formatação e cria comandos finais
+      const comandosZPLFinais = dataLabelsZPLToPrint
+        .replace(/^[ \t]+/gm, '')
+        .replace(/^\s*$/gm, '')
+        .replace(/\n+/g, '\n')  // Remove múltiplas quebras de linha
+        .trim();
+
+      // Validação final antes de enviar
+      if (comandosZPLFinais.length < 10) {
+        throw new Error('Comandos ZPL muito curtos - possível erro na geração');
+      }
+
+      if (!comandosZPLFinais.includes('^XA') || !comandosZPLFinais.includes('^XZ')) {
+        throw new Error('Estrutura ZPL inválida - faltam comandos de início/fim');
+      }
+
+      // Envia para impressora via WebSocket
+      await enviarZPLParaImpressora(comandosZPLFinais);
+
+    } catch (error) {
+      console.error('❌ Erro ao gerar/imprimir comandos ZPL:', error);
+      
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro na Impressão ZPL',
+        text: error.message || 'Erro desconhecido ao processar etiquetas',
+        confirmButtonText: 'OK'
+      });
+    }
+  }
 
   const etiquetas = Array.isArray(dadosAcumuladorEtiquetas) ? dadosAcumuladorEtiquetas.map((item, index) => {
     let contador = index + 1;
@@ -152,32 +154,14 @@ export const ActionImprimirEtiquetaModal = ({ copias, produtosSelecionados, dado
       DSLISTAPRECO: item.DSLISTAPRECO, 
       IDPRODUTO: item.IDPRODUTO,
       MARCA: item.MARCA,
-      DSLOCALEXPOSICAO: item.DSLOCALEXPOSICAO
+      DSLOCALEXPOSICAO: item.DSLOCALEXPOSICAO,
+      quantidade: item.quantidade || 1 
     }
   }) : [];
 
   const etiquetasPorPagina = chunkArray(etiquetas, 3);
   const totalPaginas = etiquetasPorPagina.length;
 
-  const Toast = Swal.mixin({
-    toast: true,
-    position: "center",
-    showConfirmButton: false,
-    timer: 5000,
-    timerProgressBar: true,
-    customClass: {container: 'custom-swal'},
-    didOpen: (toast) => {
-      toast.onmouseenter = Swal.stopTimer;
-      toast.onmouseleave = Swal.resumeTimer;
-    }
-  });
-
-  if (!isValidEAN13(`${etiquetas?.NUCODBARRAS}`)) {
-    Toast.fire({
-      icon: "error",
-      title: `O código de barras (${etiquetas[0]?.NUCODBARRAS}) do produto (${etiquetas[0]?.DSNOME}) da linha: ${1} está em formato inválido, entre em contato com o departamento de cadastro de produtos`
-    });
-  }
 
   return (
     <Fragment>
@@ -187,14 +171,16 @@ export const ActionImprimirEtiquetaModal = ({ copias, produtosSelecionados, dado
           <p >Qtd Etiquetas: <b>{dadosAcumuladorEtiquetas.length + ' ' + 'unidades'} </b></p>
         </div>
 
-        <ButtonTypeModal
-          textButton={"Imprimir"}
-          onClickButtonType={handlePrint}
-          cor={"primary"}
-          Icon={MdOutlineLocalPrintshop}
-          iconSize={20}
-
-        />
+        <div className="d-flex gap-2">
+          
+          <ButtonTypeModal
+            textButton={"Imprimir"}
+            onClickButtonType={handlePrintZPL}
+            cor={"info"}
+            Icon={MdOutlineLocalPrintshop}
+            iconSize={20}
+          />
+        </div>
       </header>
 
       <div ref={dataTableRef}>
@@ -249,7 +235,7 @@ export const ActionImprimirEtiquetaModal = ({ copias, produtosSelecionados, dado
                       Código de barras inválido: {etiqueta?.NUCODBARRAS}
                     </p>
                   )}
-                  {console.log(etiqueta?.NUCODBARRAS, 'etiqueta?.NUCODBARRAS')}
+                  
                 </div>
               </div>
             ))}

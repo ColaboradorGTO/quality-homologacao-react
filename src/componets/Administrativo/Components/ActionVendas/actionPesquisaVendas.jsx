@@ -6,7 +6,6 @@ import { get } from "../../../../api/funcRequest"
 import { ActionListaVendas } from "./actionListaVendas"
 import { AiOutlineSearch } from "react-icons/ai"
 import { useQuery } from "react-query"
-import Swal from "sweetalert2"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 
 export const ActionPesquisaVendas = () => {

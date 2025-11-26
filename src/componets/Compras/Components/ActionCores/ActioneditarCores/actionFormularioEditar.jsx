@@ -4,9 +4,15 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import Select from 'react-select';
 import { useForm } from "react-hook-form";
-import { useEditarCores } from "../../../hooks/useEditarCores";
+import { useEditarCores } from "../hooks/useEditarCores";
 
-export const FormularioEditar = ({ handleClose, dadosDetalheCores }) => {
+export const FormularioEditar = ({ 
+    handleClose, 
+    dadosDetalheCores, 
+    usuarioLogado, 
+    optionsModulos,
+    refetchListaCores 
+}) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         optionsStatus,
@@ -18,7 +24,7 @@ export const FormularioEditar = ({ handleClose, dadosDetalheCores }) => {
         setGrupoCorSelecionado,
         dadosGrupoCores,
         atualzarCores,
-    } = useEditarCores({ dadosDetalheCores })
+    } = useEditarCores({ dadosDetalheCores, usuarioLogado, optionsModulos, refetchListaCores });
  
     return (
         <Fragment>

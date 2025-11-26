@@ -4,9 +4,9 @@ import { useForm } from "react-hook-form"
 import Select from 'react-select';
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
-import { useCadastrarCategoriaPedido } from "../../../hooks/useCadastrarCategoriaPedido";
+import { useCadastrarCategoriaPedido } from "../hooks/useCadastrarCategoriaPedido";
 
-export const FormularioCadastrar = ({handleClose}) => {
+export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos, handleClick}) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         optionsStatus,
@@ -18,16 +18,15 @@ export const FormularioCadastrar = ({handleClose}) => {
         tipoCategoriaSelecionado,
         setTipoCategoriaSelecionado,
         cadastrar
-    } = useCadastrarCategoriaPedido();
+    } = useCadastrarCategoriaPedido({handleClose, usuarioLogado, optionsModulos, handleClick});
 
+   
     return (
         <Fragment>
             <form onSubmit={handleSubmit(cadastrar)}>
                 <div className="form-group">
                     <div className="row">
-
                         <div className="col-sm-6 col-lg-6">
-
                             <InputFieldModal
                                 label={"Descrição *"}
                                 type={"text"}
@@ -44,14 +43,14 @@ export const FormularioCadastrar = ({handleClose}) => {
 
                             <label htmlFor="">Tipo Categoria *</label>
                             <Select
-                                value={tipoCategoriaSelecionado}
                                 options={optionsTipoCategoria.map((item) => {
                                     return {
                                         value: item.value,
                                         label: item.label
                                     }
                                 })}
-                                onChangeModal={(e) => setTipoCategoriaSelecionado(e)}
+                                defaultValue={tipoCategoriaSelecionado}
+                                onChange={(e) => setTipoCategoriaSelecionado(e)}
                             />
                         </div>
 
@@ -76,8 +75,6 @@ export const FormularioCadastrar = ({handleClose}) => {
                         </div>
                     </div>
                 </div>
-
-
                 <FooterModal
                     ButtonTypeFechar={ButtonTypeModal}
                     onClickButtonFechar={handleClose}

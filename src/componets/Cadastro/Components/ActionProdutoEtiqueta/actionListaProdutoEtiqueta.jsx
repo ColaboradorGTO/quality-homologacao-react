@@ -17,8 +17,8 @@ export const ActionListaProdutoEtiqueta = ({ dadosListaPrecosSap }) => {
     return {
       IDPRODUTO: item.IDPRODUTO,
       DSNOME: item.DSNOME,
-      SUBGRUPO: item.SUBGRUPO,
-      DSESTILO: item.DSESTILO,
+    
+ 
       NUCODBARRAS: item.NUCODBARRAS,
       MARCA: item.MARCA,
       // TAMANHO: item.TAMANHO,  (dsProd.split(' ')).pop()).toUpperCase().replace(/[^\w\s]/gi, '')
@@ -28,16 +28,15 @@ export const ActionListaProdutoEtiqueta = ({ dadosListaPrecosSap }) => {
       IDEMPRESA: item.IDEMPRESA,
       DSLISTAPRECO: item.DSLISTAPRECO,
       NOFANTASIA: item.NOFANTASIA,
-      DSLOCALEXPOSICAO: item.DSLOCALEXPOSICAO,
+      
 
       // ----------------------
-      IDPRODUTO: item.IDPRODUTO,
+      
       DSPRODUTO: item.DSPRODUTO,
       SUBGRUPO: item.SUBGRUPO,
       DSESTILO: item.DSESTILO,
       DSTAMANHO: item.DSTAMANHO,
       CODBARRAS: item.CODBARRAS,
-      MARCA: item.MARCA,
       VRUNITLIQDETALHEPEDIDO: item.VRUNITLIQDETALHEPEDIDO,
       IDSUBGRUPOEMPRESARIAL: item.IDSUBGRUPOEMPRESARIAL,
       DSLOCALEXPOSICAO: item.DSLOCALEXPOSICAO,

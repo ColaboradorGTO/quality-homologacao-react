@@ -95,7 +95,6 @@ export const ActionListaVendas = ({ dadosVendasLoja }) => {
     };
   });
 
-  console.log(dados, "dados")
   useEffect(() => {
     const totalVendas = calcularTotalVendas();
     setTotalVRTOTALPAGO(totalVendas);

@@ -70,7 +70,6 @@ export const ActionEditarProdutoImagemModal = ({ show, handleClose, dadosDetalhe
       contador,
       NUCODBARRAS: item.NUCODBARRAS,
       DSNOME: item.DSNOME,
-      IDIMAGEM: item.IDIMAGEM,
       IMAGEM: item.IMAGEM,
       
       IDPRODUTO: item.IDPRODUTO,

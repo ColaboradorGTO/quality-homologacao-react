@@ -4,9 +4,9 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { useForm } from "react-hook-form"
 import Select from 'react-select';
-import { useCadastrarGrupoEstruturaMercadologica } from "../../../hooks/useCadastrarGrupoEstruturaMercadologico"
+import { useCadastrarGrupoEstruturaMercadologica } from "../hooks/useCadastrarGrupoEstruturaMercadologico"
 
-export const FormularioCadastro = ({handleClose }) => {
+export const FormularioCadastro = ({handleClose, usuarioLogado, optionsModulos, handleClick }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
       optionsStatus,
@@ -17,7 +17,7 @@ export const FormularioCadastro = ({handleClose }) => {
       dadosGrupoEstrutura,
       cadastrarGrupoEstrutura,
   
-  } = useCadastrarGrupoEstruturaMercadologica();
+  } = useCadastrarGrupoEstruturaMercadologica({handleClose, usuarioLogado, optionsModulos, handleClick});
 
     return (
         <Fragment>

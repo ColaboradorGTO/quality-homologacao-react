@@ -10,8 +10,9 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import Swal from "sweetalert2";
 
-export const ActionListaSubGrupoEstrutura = ({ dadosSubGrupo }) => {
+export const ActionListaSubGrupoEstrutura = ({ dadosSubGrupo, usuarioLogado, optionsModulos, handleClick }) => {
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosDetalheSubGrupo, setDadosDetalheSubGrupo] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -114,11 +115,12 @@ export const ActionListaSubGrupoEstrutura = ({ dadosSubGrupo }) => {
             <ButtonTable
               titleButton={"Editar Estrutura Mercadológica"}
               onClickButton={() => clickEditar(row)}
-              cor={"success"}
+              cor={"primary"}
               Icon={CiEdit}
               iconSize={22}
               iconColor={"#fff"}
-
+              width="35px"
+              height="35px"
             />
           </div>
         )
@@ -128,8 +130,21 @@ export const ActionListaSubGrupoEstrutura = ({ dadosSubGrupo }) => {
   ]
 
   const clickEditar = (row) => {
-    if (row && row.IDSUBGRUPOESTRUTURA) {
-      handleEditar(row.IDSUBGRUPOESTRUTURA);
+    if(optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        title: 'Erro!',
+        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para alterar a SubGrupo de Estrutura Mercadológica!`,
+        icon: 'error',
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else {
+
+      if (row && row.IDSUBGRUPOESTRUTURA) {
+        handleEditar(row.IDSUBGRUPOESTRUTURA);
+      }
     }
   };
 
@@ -145,7 +160,7 @@ export const ActionListaSubGrupoEstrutura = ({ dadosSubGrupo }) => {
 
   return (
     <Fragment>
-      <div className="panel" style={{marginTop: '8rem'}}>
+      <div className="panel" >
         <div className="panel-hdr">
             <h2>Relatórios - Sub Grupos Estruturas</h2>
           </div>
@@ -169,7 +184,10 @@ export const ActionListaSubGrupoEstrutura = ({ dadosSubGrupo }) => {
             sortOrder={-1}
             paginator={true}
             rows={10}
-            rowsPerPageOptions={[5, 10, 20, 50, 100]}
+            rowsPerPageOptions={[5, 10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -183,9 +201,9 @@ export const ActionListaSubGrupoEstrutura = ({ dadosSubGrupo }) => {
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '1rem' }}
 
               />
             ))}
@@ -196,6 +214,9 @@ export const ActionListaSubGrupoEstrutura = ({ dadosSubGrupo }) => {
         show={modalEditar}
         handleClose={() => setModalEditar(false)}
         dadosDetalheSubGrupo={dadosDetalheSubGrupo} 
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

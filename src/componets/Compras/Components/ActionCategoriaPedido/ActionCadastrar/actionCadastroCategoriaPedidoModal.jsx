@@ -1,13 +1,12 @@
-import { Fragment, useState } from "react"
+import { Fragment } from "react"
 import { Modal } from "react-bootstrap"
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal"
 import { FormularioCadastrar } from "./formularioCadastrar"
 
 
-export const ActionCadastroCategoriaPedidoModal = ({ show, handleClose }) => {
+export const ActionCadastroCategoriaPedidoModal = ({ show, handleClose, usuarioLogado, optionsModulos, handleClick }) => {
 
   return (
-
     <Fragment>
 
       <Modal
@@ -17,22 +16,21 @@ export const ActionCadastroCategoriaPedidoModal = ({ show, handleClose }) => {
         size="xl"
         centered
       >
-
         <HeaderModal
           title={"Categoria de Pedidos"}
           subTitle={"Inclusão de Categoria de Pedidos"}
           handleClose={handleClose}
         />
 
-
         <Modal.Body>
-          <FormularioCadastrar handleClose={handleClose}/>
+          <FormularioCadastrar 
+            handleClose={handleClose}
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+            handleClick={handleClick}  
+          />
         </Modal.Body>
-
-
       </Modal>
-
     </Fragment>
   )
 }
-

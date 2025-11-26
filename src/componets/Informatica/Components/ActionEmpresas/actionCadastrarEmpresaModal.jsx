@@ -105,7 +105,6 @@ export const ActionCadastrarEmpresaModal = ({ show, handleClose }) => {
                 {errors.data && <span className="text-danger">{errors.data.message}</span>}
             </div>
 
-
           </div>
 
           <div className="row mt-3">

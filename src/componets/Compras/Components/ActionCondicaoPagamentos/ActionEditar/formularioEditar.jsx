@@ -4,10 +4,16 @@ import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { useForm } from "react-hook-form"
 import Select from 'react-select';
-import { useEditarCondicaoPagamento } from "../../../hooks/useEditarCondicaoPagamento";
+import { useEditarCondicaoPagamento } from "../hooks/useEditarCondicaoPagamento";
 
 
-export const FormularioEditar = ({ handleClose, dadosDetalheCondPagamento }) => {
+export const FormularioEditar = ({ 
+    handleClose, 
+    dadosDetalheCondPagamento,
+    usuarioLogado,
+    optionsModulos,
+    handleClick
+ }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         statusSelecionado,
@@ -27,9 +33,10 @@ export const FormularioEditar = ({ handleClose, dadosDetalheCondPagamento }) => 
         condPagamento,
         setCondPagamento,
         optionsStatus,
+        optionsParcelado,
         dadosTipoDocumentos,
         handleEditar
-    } = useEditarCondicaoPagamento({dadosDetalheCondPagamento});
+    } = useEditarCondicaoPagamento({dadosDetalheCondPagamento, handleClose, usuarioLogado, optionsModulos, handleClick});
 
     return (
         <Fragment >
@@ -55,14 +62,14 @@ export const FormularioEditar = ({ handleClose, dadosDetalheCondPagamento }) => 
 
                             <label htmlFor="">Parcelado *</label>
                             <Select
-                                options={optionsStatus.map((item) => {
+                                options={optionsParcelado.map((item) => {
                                     return {
                                         value: item.value,
                                         label: item.label
                                     }
                                 })}
                                 value={parceladoSelecionado}
-                                onChangeModal={setParceladoSelecionado}
+                                onChange={(e) => setParceladoSelecionado(e)}
                             />
                         </div>
                         <div className="col-sm-6 col-lg-3">
@@ -136,7 +143,7 @@ export const FormularioEditar = ({ handleClose, dadosDetalheCondPagamento }) => 
                                     }
                                 })}
                                 value={statusSelecionado}
-                                onChange={(e) => setStatusSelecionado(e.value)}
+                                onChange={(e) => setStatusSelecionado(e)}
                             />
                         </div>
                     </div>

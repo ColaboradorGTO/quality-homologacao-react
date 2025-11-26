@@ -1,190 +1,156 @@
-import { Fragment, useEffect } from "react"
-import { useQuery } from "react-query";
-import Swal from "sweetalert2";
+import { Fragment } from "react"
 import { useSalvarOT } from "../hooks/useSalvarOT";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { FaRegSave } from "react-icons/fa";
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal";
 import Select from 'react-select';
 import { ActionListaProdutos } from "./actionListaProdutos";
+import FormField from "../../../../Formularios/FormField";
+import { schema } from './schemaValidationIncluirOT';
+import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
+import { AlertError } from "../../../../Inputs/alertError";
 
-export const FormularioIncuirOT = () => {
-    const { register, handleSubmit, errors } = useForm();
-    const {
-      empresaOrigem,
-      setEmpresaOrigem,
-      empresaDestino,
-      setEmpresaDestino,
-      produto,
-      setProduto,
-      dataEntrega,
-      setDataEntrega,
-      quantidade,
-      setQuantidade,
-      observacao,
-      setObservacao,
-      usuarioLogado,
-      setUsuarioLogado,
-      linhaSelecionada,
-      setLinhaSelecionada,
-      dadosEmpresa,
-      // dadosProdutos,
-      onSubmit,
-    } = useSalvarOT();
+export const FormularioIncuirOT = ({ handleClose, handleClick, usuarioLogado, optionsModulos }) => {
+  const { handleSubmit, formState: { errors }, clearErrors, control, setError } = useForm({
+    mode: "onChange"
+  });
 
-    // const { data: dadosEmpresa = [], error: errorMarcas, isLoading: isLoadingMarcas } = useQuery(
-    //     'empresas',
-    //     async () => {
-    //       const response = await get(`/empresas`);
-    //       return response.data;
-    //     },
-    //     { staleTime: 5 * 60 * 1000 }
-    //   );
+  const {
+    empresaOrigem,
+    setEmpresaOrigem,
+    empresaDestino,
+    setEmpresaDestino,
+    produto,
+    setProduto,
+    dadosEmpresa,
+    dadosProdutosTabela,
+    setDadosProdutosTabela,
+    produtoSalvo,
+    setProdutoSalvo,
+    onSubmit,
+  } = useSalvarOT({ handleClick, handleClose, usuarioLogado, optionsModulos });
 
-    const { data: dadosProdutos = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
-        ['funcionarios-loja', produto],
-        async () => {
-          const response = await get(`/listaProdutos?idEmpresa=${usuarioLogado?.IDEMPRESA}&dsProduto=${produto} `);
-          return response.data;
-        },
-        { enabled: produto.length === 8, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
-      );
-    
-    useEffect(() => {
-     
-      if (dadosProdutos && produto.length > 0) {
-        Swal.fire({
-          title: 'Produto já cadastrado!',
-          icon: 'warning',
-          confirmButtonText: 'Ok',
-          customClass: {
-            container: 'custom-swal',
+  const handleValidatedSubmit = async () => {
+    try {
+
+      const dadosParaValidar = {
+        produtoIncluir: produto,
+      }
+      await schema.validate(dadosParaValidar, { abortEarly: false });
+
+      await onSubmit();
+
+    } catch (validationError) {
+      console.error('❌ Erro de validação:', validationError);
+
+      clearErrors();
+
+
+      if (validationError.inner && validationError.inner.length > 0) {
+        validationError.inner.forEach(error => {
+          if (error.path) {
+            setError(error.path, {
+              type: 'manual',
+              message: error.message
+            });
           }
         });
       }
-    }, [dadosProdutos]);
-    
-    useEffect(() => {
-      
-      if (usuarioLogado?.IDEMPRESA <= 0 && empresaDestino <= 0) {
-        Swal.fire({
-          title: 'A Loja de Origem e Destino devem ser Preenchidas!',
-          icon: 'info',
-          confirmButtonText: 'Ok',
-          customClass: {
-            container: 'custom-swal',
-          }
-        });
-      }
-    }, [dadosProdutos]);
 
-    return (
-        <Fragment>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <div className="row" data-select2-id="736">
-                <div className="col-sm-6 col-xl-6">
-                  {/* <label className="form-label" htmlFor={""}>Loja Origem</label>
-                  <Select
-                    closeMenuOnSelect={false}
-                    options={dadosEmpresa?.map((item) => ({
-                      value: item.IDEMPRESA,
-                      label: item.NOFANTASIA
-                    }
-                    ))}
-                    value={dadosEmpresa?.find(option => option.value === empresaOrigem)}
-                    onChange={(e) => setEmpresaOrigem(e.value)}
-                  /> */}
+      const errorMessages = validationError.errors || [validationError.message];
+      console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+    }
+  };
 
-                  <InputFieldModal
-                    label={"Loja Origem"}
-                    type="text"
-                    value={usuarioLogado?.NOFANTASIA}
-                    onChangeModal={(e) => setEmpresaOrigem(e.target.value)}
-                    placeholder={"Loja Origem"}
-                    readOnly={true}
-                  />
-                </div>
-                <div className="col-sm-6 col-xl-6" data-select2-id="735">
-                  <label className="form-label" htmlFor={""}>Loja Destino</label>
-                  <Select
-                    closeMenuOnSelect={false}
-                    options={dadosEmpresa?.map((item) => ({
-                      value: item.IDEMPRESA,
-                      label: item.NOFANTASIA
-                    }
-                    ))}
-                    value={dadosEmpresa?.find(option => option.value === empresaDestino)}
-                    onChange={(e) => setEmpresaDestino(e.value)}
-                  />
-                </div>
-              </div>
+  return (
+    <Fragment>
+      <form onSubmit={handleSubmit(handleValidatedSubmit)}>
+        <div className="row" >
+          <div className="col-sm-6 col-xl-6">
+            <InputFieldModal
+              label={"Loja Origem"}
+              type="text"
+              value={usuarioLogado?.NOFANTASIA}
+              onChangeModal={(e) => setEmpresaOrigem(e.target.value)}
+              placeholder={"Loja Origem"}
+              readOnly={true}
+            />
+          </div>
+          <div className="col-sm-6 col-xl-6" >
+              <label className="form-label" htmlFor={""}>Loja Destino</label>
+              <Select
+
+                label={"Loja Destino"}
+                options={dadosEmpresa.map((item) => ({
+                    value: item.IDEMPRESA,
+                    label: item.NOFANTASIA
+                }))}
+                value={empresaDestino}
+                onChange={(e) =>  setEmpresaDestino(e)}
+
+            />
+            {errors.empresaDestino && (
+                <AlertError
+                    error={errors.empresaDestino}
+                    onClose={clearErrors}
+                    fieldName="empresaDestino"
+                />
+            )}
+          </div>
+        </div>
 
 
-              <div className="row mt-4">
-                <div className="col-sm-6 col-xl-6">
-                  <InputFieldModal
-                    label={"Produto"}
-                    type="text"
-                    value={produto}
-                    onChangeModal={(e) => setProduto(e.target.value)}
-                    placeholder={"Digite o Produto"}
-                  />
-                </div>
-                {/* <div className="col-sm-6 col-xl-6">
-                  <InputFieldModal
-                    label={"Data Entrega"}
-                    type="date"
-                    value={dataEntrega}
-                    onChangeModal={(e) => setDataEntrega(e.target.value)}
-                  />
-                </div> */}
-              </div>
+        <div className="row mt-4">
+          <div className="col-sm-6 col-xl-6">
+            <Controller
+              name="produtoIncluir"
+              control={control}
+              render={({ field }) => (
+                <FormField
+                  name="produtoIncluir"
+                  label={"Produto"}
+                  type="text"
+                  value={produto}
+                  onChange={(e) => setProduto(e.target.value)}
+                  errors={errors}
+                  clearErrors={clearErrors}
+                />
 
-              {/* <div className="row mt-4">
-                <div className="col-sm-6 col-xl-6">
-                  <InputFieldModal
-                    label={"Quantidade"}
-                    type="text"
-                    value={quantidade}
-                    onChangeModal={(e) => setQuantidade(e.target.value)}
-                    placeholder={"Digite a Quantidade"}
-                  />
-                </div>
-                <div className="col-sm-6 col-xl-6">
-                  <label className="form-label" htmlFor="textarea">Observação</label>
-                  <textarea
-                    className="form-control"
-                    id="textarea"
-                    rows="3"
-                    value={observacao}
-                    onChange={(e) => setObservacao(e.target.value)}
-                    placeholder="Digite aqui a Observação"
-                  >
+              )}
+            />
+          </div>
+        </div>
 
-                  </textarea>
-                </div>
-              </div> */}
+        <div className="row mt-4">
+          <div className="col-sm-8 col-xl-8">
 
-              <div className="row mt-4">
-                <div className="col-sm-8 col-xl-8">
+            <ButtonTypeModal
+              Icon={FaRegSave}
+              textButton={"Salvar"}
+              cor={"info"}
+              className={"mr-4"}
+              onClickButtonType={handleValidatedSubmit}
 
-                  <ButtonTypeModal
-                    Icon={FaRegSave}
-                    textButton={"Salvar"}
-                    cor={"info"}
-                    className={"mr-4"}
-                    onClickButtonType={handleSubmit(onSubmit)}
-
-                  />
-                </div>
-                <div className="col-sm-8 col-xl-8 mt-4">
-                  <label className="form-label" style={{ color: "red" }}>Para confirmar as Alterações e Inclusões dos Produtos, favor clicar no botão Salvar!</label>
-                </div>
-              </div>
-            </form>
-
-            <ActionListaProdutos dadosProdutos={dadosProdutos} />
-        </Fragment>
-    )
+            />
+          </div>
+          <div className="col-sm-8 col-xl-8 mt-4">
+            <label className="form-label" style={{ color: "red" }}>Para confirmar as Alterações e Inclusões dos Produtos, favor clicar no botão Salvar!</label>
+          </div>
+        </div>
+      </form>
+      <ActionListaProdutos
+        dadosProdutosTabela={dadosProdutosTabela}
+        setDadosProdutosTabela={setDadosProdutosTabela}
+        produtoSalvo={produtoSalvo}
+        setProdutoSalvo={setProdutoSalvo}
+      />
+      <FooterModal
+        ButtonTypeFechar={ButtonTypeModal}
+        textButtonFechar={"Fechar"}
+        onClickButtonFechar={handleClose}
+        corFechar={"secondary"}
+      />
+    </Fragment>
+  )
 }

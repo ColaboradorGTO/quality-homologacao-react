@@ -1,8 +1,7 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { InputField } from "../../../Buttons/Input";
 import { ActionMain } from "../../../Actions/actionMain";
 import { ButtonType } from "../../../Buttons/ButtonType";
-import { useNavigate } from "react-router-dom";
 import { ActionListaEtiquetaRemarcacao } from "./actionListaEtiquetaRemarcacao";
 import { MdOutlineLocalPrintshop } from "react-icons/md";
 import { BsTrash3 } from "react-icons/bs";
@@ -22,9 +21,6 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
   const [dadosAcumuladorEtiquetas, setDadosAcumuladorEtiquetas] = useState([]);
   const [copias, setCopias] = useState(1);
 
-  const navigate = useNavigate();
-
-
 
   const multiplicarObjetos = (dados, copias) => {
     const objetosMultiplicados = [];
@@ -42,21 +38,22 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
       setDadosEtiquetas([]);
       setModalAcumulador(true);
     } else if (preco > 0 || dadosEtiquetas.length > 0) {
-      // setModalDetalhar(true);
+      setModalDetalhar(true);
       setDadosEtiquetas(dadosEtiquetas)
     
       const { value: formValues, isDismissed } = await Swal.fire({
-        title: 'Digite a quantidade de Etiquetas.',
-        input: 'number',
+        icon: 'question',
+        text: 'Digite a quantidade de Etiquetas.',
+        input: 'text',
         inputValue: quantidadeEtiquetas,
         inputPlaceholder: 'Digite a quantidade de etiquetas',
         width: '25rem',
         focusConfirm: false,
         showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        confirmButtonColor: '#4AD4C5',
-        cancelButtonText: 'Voltar',
-        cancelButtonColor: '#FD61AA',
+        confirmButtonText: 'Confirmar!',
+        confirmButtonColor: '#2196f3',
+        cancelButtonText: 'Não, Voltar!',
+        cancelButtonColor: '#dd3333',
         inputValidator: (value) => {
           if (!value || value <= 0) {
             return 'Digite uma quantidade válida!';
@@ -65,7 +62,7 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
       });
   
       if (isDismissed) {
-        setModalAcumulador(true);
+        // setModalAcumulador(false);
         setQuantidadeEtiquetas(0);
       } else if (formValues) {
         const qtdEtiqueta = parseInt(formValues, 10);
@@ -77,7 +74,8 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
           valor: preco,
         }));
   
-       
+           
+
         setDadosEtiquetas((prevEtiquetas) => [...prevEtiquetas, ...novasEtiquetas]);
         setIdEtiqueta((prevId) => prevId + 1);
         setModalDetalhar(true); 
@@ -91,66 +89,20 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
     }
   };
 
-  // const handleAcumuladorEtiquetas = async () => {
-  //   if (preco > 0) {
-  //     const { value: formValues, isDismissed } = await Swal.fire({
-  //       title: 'Digite a quantidade de Etiquetas.',
-  //       input: 'number',
-  //       inputValue: quantidadeEtiquetas,
-  //       inputPlaceholder: 'Digite a quantidade de etiquetas',
-  //       width: '25rem',
-  //       focusConfirm: false,
-  //       showCancelButton: true,
-  //       confirmButtonText: 'Confirmar',
-  //       confirmButtonColor: '#4AD4C5',
-  //       cancelButtonText: 'Voltar',
-  //       cancelButtonColor: '#FD61AA',
-  //       inputValidator: (value) => {
-  //         if (!value || value <= 0) {
-  //           return 'Digite uma quantidade válida!';
-  //         }
-  //       },
-  //     });
-
-  //     if (isDismissed) {
-  //       setQuantidadeEtiquetas(0);
-  //     } else if (formValues) {
-  //       const qtdEtiqueta = parseInt(formValues, 10);
-        
-  //       setQuantidadeEtiquetas(qtdEtiqueta);
-
-  //       const novasEtiquetas = Array.from({ length: quantidadeEtiquetas }, (_, index) => ({
-  //         idEtiqueta: idEtiqueta + index + 1,
-  //         quantidade: qtdEtiqueta, 
-  //         valor: preco,
-  //       }));
-        
-  //       setDadosEtiquetas((prevEtiquetas) => [...prevEtiquetas, ...novasEtiquetas]);
-  //       setIdEtiqueta((prevId) => prevId + 1);
-  //     }
-  //   } else {
-  //     Swal.fire({
-  //       icon: 'error',
-  //       title: 'Valor Inválido',
-  //       text: 'O valor deve ser maior que 0 para imprimir etiquetas!',
-  //     });
-  //   }
-  // };
-
   const handleAcumuladorEtiquetas = async () => {
     if (parseFloat(preco) > 0) {
       const { value: formValues, isDismissed } = await Swal.fire({
         title: 'Digite a quantidade de Etiquetas.',
-        input: 'number',
+        input: 'text',
         inputValue: quantidadeEtiquetas,
         inputPlaceholder: 'Digite a quantidade de etiquetas',
         width: '25rem',
         focusConfirm: false,
         showCancelButton: true,
-        confirmButtonText: 'Confirmar',
-        confirmButtonColor: '#4AD4C5',
-        cancelButtonText: 'Voltar',
-        cancelButtonColor: '#FD61AA',
+        confirmButtonText: 'Confirmar!',
+        confirmButtonColor: '#2196f3',
+        cancelButtonText: 'Não, Voltar!',
+        cancelButtonColor: '#dd3333',
         inputValidator: (value) => {
           if (!value || value <= 0) {
             return 'Digite uma quantidade válida!';
@@ -158,35 +110,33 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
         },
       });
 
-      if (isDismissed) {
-        setQuantidadeEtiquetas(0);
-      } else if (formValues) {
-        const qtdEtiqueta = parseInt(formValues, 10);
+       if (formValues) {
+        const qtd = parseInt(formValues, 10);
 
-        const etiquetaExistente = dadosEtiquetas.find(
+        const etiquetaExistente = dadosAcumuladorEtiquetas.find(
           (etiqueta) => etiqueta.valor === preco
         );
 
         if (etiquetaExistente) {
-          const novasEtiquetas = dadosEtiquetas.map((etiqueta) =>
+          const novasEtiquetas = dadosAcumuladorEtiquetas.map((etiqueta) =>
             etiqueta.valor === preco
-              ? { ...etiqueta, quantidade: etiqueta.quantidade + qtdEtiqueta }
+              ? { ...etiqueta, quantidade: etiqueta.quantidade + qtd }
               : etiqueta
           );
           setDadosAcumuladorEtiquetas(novasEtiquetas);
-
+          console.log(dadosAcumuladorEtiquetas, 'dadosAcumuladorEtiquetas');
         } else {
           const novasEtiquetas = Array.from({ length: 1 }, (_, index) => ({
             idEtiqueta: idEtiqueta + index + 1,
-            quantidade: qtdEtiqueta,
+            quantidade: qtd,
             valor: preco,
           }));
           console.log(novasEtiquetas, 'else');
           setDadosAcumuladorEtiquetas((prevEtiquetas) => [...prevEtiquetas, ...novasEtiquetas]);
           setIdEtiqueta((prevId) => prevId + 1);
         }
-
-        setQuantidadeEtiquetas(qtdEtiqueta);
+        console.log(dadosAcumuladorEtiquetas, 'dadosAcumuladorEtiquetas');
+        setQuantidadeEtiquetas(qtd);
       }
     } else {
       Swal.fire({
@@ -196,8 +146,11 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
       });
     }
   };
+
+
   const handleCancelar = () => {
     setDadosAcumuladorEtiquetas([]);
+    setDadosEtiquetas([]);
     setQuantidadeEtiquetas(0);
     Swal.fire({
       icon: 'warning',
@@ -235,56 +188,41 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
         linkComponent={[""]}
         title="Etiquetas de Remarcação"
         subTitle="Nome da Loja"
+
         InputFieldComponent={InputField}
         labelInputField={"Valor(R$)"}
         valueInputField={maskValorEmDecimal(preco)}
         onChangeInputField={handlePrecoChange}
         placeHolderInputFieldComponent={"Digite o valor da etiqueta"}
-      />
 
-      {parseFloat(preco) > 0 && (
+        InputFieldQuantidadeComponent={InputField}
+        labelInputFieldQuantidade={"QTD CÓPIAS"}
+        valueInputQuantidade={copias}
+        onChangeInputQuantidade={(e) => setCopias(e.target.value)}
+        placeHolderInputFieldQuantidade={"Digite a quantidade"}
+        styleInputQuantidade={{display: parseFloat(preco) > 0 ? 'block' : 'none'}}
 
-        <div className="row mb-4 panel-tag ">
-          <ButtonType
-            Icon={MdOutlineLocalPrintshop}
-            iconSize="16px"
-            textButton="Imprimir"
-            cor="primary"
-            tipo="button"
-            onClickButtonType={handleImprimir}
-          />
- 
-          <ButtonType
-            Icon={GoDownload}
-            iconSize="16px"
-            textButton="Guardar"
-            cor="success"
-            tipo="button"
-            onClickButtonType={handleAcumuladorEtiquetas}
-          />
-          <ButtonType
-            Icon={BsTrash3}
-            iconSize="16px"
-            textButton="Cancelar"
-            cor="danger"
-            tipo="button"
-            onClickButtonType={handleCancelar}
-          
-          />
-
-          <div style={{ marginRight: "10px", marginLeft: "10px", marginTop: "5px" }}>
-            <div>
-              <label>QTD CÓPIAS:</label>
-            </div>
-            <input
-              type="number"
-              value={copias}
-              onChange={(e) => setCopias(e.target.value)}
-              style={{ width: "50px", marginRight: "1rem" }}
-            />
-          </div>
-        </div>
-      )}
+        ButtonTypeCadastro={ButtonType}
+        linkNome={"Imprimir"}
+        onButtonClickCadastro={handleImprimir}
+        corCadastro={"primary"}
+        IconCadastro={MdOutlineLocalPrintshop}
+        //styleCadastro={{display: preco > 0 ? 'block' : 'none'}}
+        
+        ButtonTypeVendasEstrutura={ButtonType}
+        linkNomeVendasEstrutura={"Limpar Todos"}
+        onButtonClickVendasEstrutura={handleCancelar}
+        corVendasEstrutura={"danger"}
+        iconVendasEstrutura={BsTrash3}
+        styleVendasEstrutura={{display: dadosAcumuladorEtiquetas.length > 0 || parseFloat(preco) > 0 ? 'block' : 'none'}}
+     
+        ButtonTypeCancelar={ButtonType}
+        linkCancelar={"Guardar"}
+        onButtonClickCancelar={handleAcumuladorEtiquetas}
+        corCancelar={"success"}
+        IconCancelar={GoDownload}
+        styleCancelar={{display: parseFloat(preco) > 0 ? 'block' : 'none'}}
+     />
 
       <ActionListaEtiquetaRemarcacao
         dadosAcumuladorEtiquetas={dadosAcumuladorEtiquetas}

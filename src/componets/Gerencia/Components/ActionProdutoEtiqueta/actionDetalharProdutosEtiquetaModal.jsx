@@ -28,7 +28,6 @@ export const ActionDetalharProdutosEtiquetaModal = ({
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [imprimirProduto, setImprimirProduto] = useState(false)
   const [tabelaVisivel, setTabelaVisivel] = useState(true)
-  // const [dadosAcumuladorEtiquetas, setDadosAcumuladorEtiquetas] = useState([]);
   const [quantidadeEtiquetas, setQuantidadeEtiquetas] = useState(1);
 
   const dataTableRef = useRef();
@@ -178,7 +177,7 @@ export const ActionDetalharProdutosEtiquetaModal = ({
       try {
         const novasEtiquetas = produtosSelecionados.flatMap((produto) => 
           Array.from({ length: produto.quantidade }, () => ({
-            quantidade: produto.quantidade,
+            quantidade: 1,
             NUCODBARRAS: produto.NUCODBARRAS,
             DSNOME: produto.DSNOME,
             TAMANHO: produto.TAMANHO,
@@ -189,7 +188,6 @@ export const ActionDetalharProdutosEtiquetaModal = ({
             MARCA: produto.MARCA,
           }))
         );
-  
         setDadosAcumuladorEtiquetas(novasEtiquetas);
         setImprimirProduto(true);
         setTabelaVisivel(false);
@@ -210,7 +208,6 @@ export const ActionDetalharProdutosEtiquetaModal = ({
     setImprimirProduto(false)
   }
 
-  // console.log(dadosAcumuladorEtiquetas, 'dadosAcumuladorEtiquetas')
   return (
     <Fragment>
       <Modal
@@ -252,6 +249,9 @@ export const ActionDetalharProdutosEtiquetaModal = ({
                     paginator
                     rows={10}
                     rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+                    filterDisplay="menu"
                     showGridlines
                     stripedRows
                     emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

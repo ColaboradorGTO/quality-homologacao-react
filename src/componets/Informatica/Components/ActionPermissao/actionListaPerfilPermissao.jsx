@@ -7,7 +7,7 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";;
 import { Checkbox } from "primereact/checkbox";
-import { useEditarPermissaoUsuario } from "./hooks/useEditarPermissao";
+import { useCopiarPermissaoUsuario } from "./hooks/useEditarPermissao";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { FaRegClone } from "react-icons/fa";
 import Swal from "sweetalert2";
@@ -16,38 +16,89 @@ import { CiEdit } from "react-icons/ci";
 import { ActionUpdatePermissaoModal } from "./ActionUpdatePermissao/actionUpdatePermissaoModal";
 import { get } from "../../../../api/funcRequest";
 
-export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copiarPermissao, setCopiarPermissao, handleClonar, usuarioSelecionado, optionsModulos }) => {
+export const ActionListaPerfilPermissao = ({
+  dadosPermissoes,
+  handleClick,
+  usuarioClonado,
+  setUsuarioClonado,
+  usuarioSelecionado,
+  handleClonar,
+  optionsModulos,
+  usuarioLogado,
+  funcionarioClonarId,
+}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [data, setData] = useState('');
   const [rowClick, setRowClick] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [dadosEditarPermissao, setDadosEditarPermissao] = useState([]);
   const [modalEditarPermissao, setModalEditarPermissao] = useState(false);
+  const [first, setFirst] = useState(0)
+  const [rowState, setRowState] = useState(10)
+  const [btnVisivel, setBtnVisivel] = useState(false)
+  const [rowSelection, setRowSelection] = useState(null);
 
   const {
     handleSubmit
-  } = useEditarPermissaoUsuario({ selectedItems, copiarPermissao })
+  } = useCopiarPermissaoUsuario({ selectedItems, usuarioClonado, usuarioSelecionado, usuarioLogado });
 
-  const handleClonarPermissao = () => {
-    if (!copiarPermissao && !usuarioSelecionado && optionsModulos[0]?.ALTERAR !== 'True') {
-      Swal.fire({
-        icon: 'info',
-        text: 'Selecione o funcionário para copiar a permissão e o funcionário para clonar a permissão!',
-        timer: 3000,
-      })
-    } else {
-      handleSubmit();
-    }
+
+  const onPage = (event) => {
+    setFirst(event.first);
+    setRowState(event.rows)
+  }
+
+  const getVisibleItems = () => {
+    const start = Number.isInteger(first) ? first : 0;
+    const cnt = Number.isInteger(rowState) ? rowState : 10;
+    return dados.slice(start, start + cnt)
   };
+
+  const isAllVisibleSelected = () => {
+    const visiveis = getVisibleItems();
+    if (!visiveis || visiveis.length === 0) return false;
+    return visiveis.every(v => selectedItems.some(s => s.IDPERFIL === v.IDPERFIL));
+  }
 
   const onSelectAllChange = (e) => {
-    if (e.checked) {
-      setSelectedItems([...dados, ...copiarPermissao]);
-    } else {
+    const checked = e?.checked ?? e?.target?.checked ?? false;
+    if (!checked) {
+      setBtnVisivel(false);
       setSelectedItems([]);
+      return;
     }
+    Swal.fire({
+      icon: 'question',
+      title: 'Selecione o modo de seleção',
+      text: 'Deseja selecionar todos da tabela ou somente o que está em tela?',
+      showConfirmButton: true,
+      showCancelButton: true,
+      showCloseButton: true,
+      confirmButtonText: 'Todos os registros',
+      cancelButtonText: 'Apenas o que está tela',
+      cancelButtonColor: '#2196F3',
+      allowOutsideClick: false,
+    }).then((result) => {
+
+      if (result.isConfirmed) {
+        setBtnVisivel(true);
+        setSelectedItems([...dados]);
+        return;
+      }
+
+      if (result.dismiss === Swal.DismissReason.cancel) {
+        const visiveis = getVisibleItems();
+        setBtnVisivel(true);
+        setSelectedItems([...visiveis]);
+        return;
+      }
+      setBtnVisivel(false); setSelectedItems([]);
+      return;
+
+    })
+
   };
- 
+
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -177,7 +228,7 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
       modulo = MODULO_MAP[moduloId];
     }
 
-  
+
     const menuFilho = item?.modulos?.[0]?.menuPai?.menuFilho?.find(
       filho => filho.ID === item.IDMENUFILHO
     );
@@ -186,8 +237,8 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
 
     return {
       IDPERFIL: item.IDPERFIL,
-      CRIAR: item.CRIAR == 'True' ? 'Sim' : 'Não',
-      ALTERAR: item.ALTERAR == 'True' ? 'Sim' : 'Não',
+      CRIAR: item.CRIAR,
+      ALTERAR: item.ALTERAR,
       IDMODULOADMINISTRATIVO: item.IDMODULOADMINISTRATIVO,
       IDMODULOCOMERCIAL: item.IDMODULOCOMERCIAL,
       IDMODULOCONTABILIDADE: item.IDMODULOCONTABILIDADE,
@@ -207,11 +258,11 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
       IDUSERULTIMAALTERACAO: item.IDUSERULTIMAALTERACAO,
       IDPERMISSAO: item.IDPERMISSAO,
       IDMODULORESUMOVENDAS: item.IDMODULORESUMOVENDAS,
-      ADMINISTRADOR: item.ADMINISTRADOR == 'True' ? 'Sim' : 'Não',
-      N4: item.N4 == 'True' ? 'Sim' : 'Não',
-      N3: item.N3 == 'True' ? 'Sim' : 'Não',
-      N2: item.N2 == 'True' ? 'Sim' : 'Não',
-      N1: item.N1 == 'True' ? 'Sim' : 'Não',
+      ADMINISTRADOR: item.ADMINISTRADOR,
+      N4: item.N4,
+      N3: item.N3,
+      N2: item.N2,
+      N1: item.N1,
       ARRAYIDMENU: menuFromApi,
       ARRAYIDMFILHOS: nomeMenuFilho,
       IDMENU: item.IDMENU,
@@ -227,7 +278,7 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
       header: (
         <div className="custom-control custom-checkbox">
           <Checkbox
-            checked={selectedItems.length === dados.length && dados.length > 0}
+            checked={isAllVisibleSelected()}
             onChange={onSelectAllChange}
           />
         </div>
@@ -237,16 +288,15 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
           <div className="custom-control custom-checkbox">
             <Checkbox
               checked={selectedItems.some(item => item.IDPERFIL === rowData.IDPERFIL)}
+
               onChange={(e) => {
-                let _selectedItems = [...selectedItems];
-
+                let _selected = [...selectedItems];
                 if (e.checked) {
-                  _selectedItems.push(rowData);
+                  _selected.push(rowData);
                 } else {
-                  _selectedItems = _selectedItems.filter(item => item.IDPERFIL !== rowData.IDPERFIL);
+                  _selected = _selected.filter(item => item.IDPERFIL !== rowData.IDPERFIL);
                 }
-
-                setSelectedItems(_selectedItems);
+                setSelectedItems(_selected);
               }}
             />
           </div>
@@ -264,7 +314,7 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
     {
       field: 'modulo',
       header: 'Modulo',
-      body: row => <p style={{width: '200px', fontWeight: 600, margin: '0px'}}>{row.modulo}</p>,
+      body: row => <p style={{ width: '200px', fontWeight: 600, margin: '0px' }}>{row.modulo}</p>,
       sortable: true,
 
     },
@@ -277,55 +327,55 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
     {
       field: 'ARRAYIDMFILHOS',
       header: 'Menu Filho',
-      body: (row) => <p style={{width: '200px', fontWeight: 600, margin: '0px'}}>{row.ARRAYIDMFILHOS}</p>,
+      body: (row) => <p style={{ width: '200px', fontWeight: 600, margin: '0px' }}>{row.ARRAYIDMFILHOS}</p>,
       sortable: true,
 
     },
-        {
+    {
       field: 'ADMINISTRADOR',
       header: 'Administrador',
-      body: row => <th>{row.ADMINISTRADOR}</th>,        
+      body: row => <th>{row.ADMINISTRADOR == 'True' ? 'Sim' : 'Não'}</th>,
       sortable: true,
     },
     {
       field: 'CRIAR',
       header: 'Criar',
-      body: row => <th>{row.CRIAR}</th>,
+      body: row => <th>{row.CRIAR == 'True' ? 'Sim' : 'Não'}</th>,
       sortable: true,
 
     },
     {
       field: 'ALTERAR',
       header: 'Alterar',
-      body: row => <th>{row.ALTERAR}</th>,
+      body: row => <th>{row.ALTERAR == 'True' ? 'Sim' : 'Não'}</th>,
       sortable: true,
     },
     {
       field: 'N1',
       header: 'Nível 1',
-      body: row => <p style={{width: '100px', fontWeight: 600, margin: '0px'}}>{row.N1}</p>,
+      body: row => <p style={{ width: '100px', fontWeight: 600, margin: '0px' }}>{row.N1 == 'True' ? 'Sim' : 'Não'}</p>,
       sortable: true,
     },
     {
       field: 'N2',
       header: 'Nível 2',
-      body: row => <p style={{width: '100px', fontWeight: 600, margin: '0px'}}>{row.N2}</p>,
+      body: row => <p style={{ width: '100px', fontWeight: 600, margin: '0px' }}>{row.N2 == 'True' ? 'Sim' : 'Não'}</p>,
       sortable: true,
     },
     {
       field: 'N3',
       header: 'Nível 3',
-      body: row => <p style={{width: '100px', fontWeight: 600, margin: '0px'}}>{row.N3}</p>,
+      body: row => <p style={{ width: '100px', fontWeight: 600, margin: '0px' }}>{row.N3 == 'True' ? 'Sim' : 'Não'}</p>,
       sortable: true,
     },
     {
       field: 'N4',
       header: 'Nível 4',
-      body: row => <p style={{width: '100px', fontWeight: 600, margin: '0px'}}>{row.N4}</p>,
+      body: row => <p style={{ width: '100px', fontWeight: 600, margin: '0px' }}>{row.N4 == 'True' ? 'Sim' : 'Não'}</p>,
       sortable: true,
     },
-    {
-      field: 'IDPERFIL',
+/*     {
+      field: 'IDMENUFILHO',
       header: 'Editar',
       body: (row) => {
         return (
@@ -341,46 +391,46 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
         )
       },
       sortable: true,
-    }
+    } */
   ]
 
-   const handleEdit = async (IDPERFIL) => {
-      try {
-        const response = await get(`/perfil-permissao?idPerfil=${IDPERFIL}`)
-        if (response.data) {
 
-          setDadosEditarPermissao(response.data);
-          setModalEditarPermissao(true);
-        }
-      } catch (error) {
-        console.error('Erro ao buscar detalhes da venda: ', error);
+  const handleEdit = async (IDMENUFILHO) => {
+
+    try {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioSelecionado}&idMenuFilho=${Number(IDMENUFILHO)}`)
+      if (response.data) {
+        setDadosEditarPermissao(response.data);
+        setModalEditarPermissao(true);
       }
-    };
-  
-    const handleClickEdit = (row) => {
-      if(optionsModulos[0]?.ALTERAR == 'True') {
-        if (row && row.IDPERFIL) {
-          handleEdit(row.IDPERFIL);
-        }
+    } catch (error) {
+      console.error('Erro ao buscar detalhes da venda: ', error);
+    }
+  };
 
-      } else {
-        Swal.fire({
-          icon: 'info',
-          title: 'Atenção',
-          text: 'Você não tem permissão para editar!',
-          showConfirmButton: true,
-          timer: 3000,
-        })
+  const handleClickEdit = (row) => {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
+      if (row && row.IDMENUFILHO) {
+        handleEdit(row.IDMENUFILHO);
       }
-    };
 
+    } else {
+      Swal.fire({
+        icon: 'info',
+        title: 'Atenção',
+        text: 'Você não tem permissão para editar!',
+        showConfirmButton: true,
+        timer: 3000,
+      })
+    }
+  };
 
   const headerTemplate = () => {
     return (
       <div style={{ width: '100%', backgroundColor: '' }} >
         <ButtonType
           textButton={"Clonar Permissão"}
-          onClickButtonType={handleClonarPermissao}
+          onClickButtonType={handleSubmit}
           Icon={FaRegClone}
           iconColor={"white"}
           iconSize={20}
@@ -421,10 +471,12 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
             globalFilter={globalFilterValue}
             sortOrder={-1}
             paginator={true}
-            rows={10}
-            selectionMode={rowClick ? null : 'checkbox'}
-            selection={data}
-            onSelectionChange={e => setData(e.value)}
+            rows={rowState}
+            first={first}
+            onPage={onPage}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
@@ -457,6 +509,7 @@ export const ActionListaPerfilPermissao = ({ dadosPermissoes, handleClick, copia
         handleClose={() => setModalEditarPermissao(false)}
         handleClick={handleClick}
         dadosEditarPermissao={dadosEditarPermissao}
+        usuarioLogado={usuarioLogado}
       />
     </Fragment>
   )

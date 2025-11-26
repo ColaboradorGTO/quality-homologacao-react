@@ -72,7 +72,7 @@ export const useSalvarOT = () => {
         IDROTINA: 1,
         DATAENTREGA: dataEntrega
     };
-    const response = await post('/resumo-ordem-transferencia', postData);
+    const response = await post('/criar-resumo-ordem-transferencia', postData);
 
     const textDados = JSON.stringify(postData);
     let textoFuncao = 'EXPEDICAO/CRIADO COM SUCESSO';

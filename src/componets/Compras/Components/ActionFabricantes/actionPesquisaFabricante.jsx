@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useState } from "react"
 import { ActionMain } from "../../../Actions/actionMain"
 import { InputField } from "../../../Buttons/Input"
 import { InputSelectAction } from "../../../Inputs/InputSelectAction"
@@ -10,89 +10,99 @@ import { ActionListaFabricantes } from "./actionListaFabricantes"
 import { ActionCadastroFabricanteModal } from "./ActionCadastrar/actionCadastroFabricanteModal"
 import { useQuery } from "react-query"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
-import { useFetchData } from "../../../../hooks/useFetchData"
 import { useCadastrarVinculoFabricanteFornecedor } from "../ActionVincularFabricanteFornecedor/hooks/useCadastrarViculoFabricanteFornecedor"
 
 
-export const ActionPesquisaFabricante = () => {
+export const ActionPesquisaFabricante = ({ usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalCadastrarFabricante, setModalCadastrarFabricante] = useState(false);
-  const [fornecedor, setFornecedor] = useState('');
-  const [fabricante, setFabricante] = useState('');
   const [nomeFabricante, setNomeFabricante] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
-  const  {
-    fabricanteSelecionado,
-    fornecedorSelecionado,
-    setFabricanteSelecionado,
-    setFornecedorSelecionado,
-    handleCadastrar
-} = useCadastrarVinculoFabricanteFornecedor();
-    
-    
-  const fetchListaFabricante = async () => {
-    try {
-      const urlApi = `/fabricante-fornecedor?idFabricante=${fabricanteSelecionado}&descricaoFabricante=${nomeFabricante}&idFornecedor=${fornecedorSelecionado}`;
-      const response = await get(urlApi);
+  const [fabricanteSelecionado, setFabricanteSelecionado] = useState('')
+  const [fornecedorSelecionado, setFornecedorSelecionado] = useState('')
+
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
       
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+  );
+
+  const { data: dadosFornecedores = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch: refetchFornecdor } = useQuery(
+    'fornecedores',
+    async () => {
+      const response = await get(`/fornecedores`);
+
+      return response.data;
+    },
+    { enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000}
+  );
   
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+  const { data: dadosFabricantes = [], error: errorFabricantes, isLoading: isLoadingFabricantes, refetch: refetchFabricante } = useQuery(
+    'fabricante-fornecedor',
+    async () => {
+      const response = await get(`/fabricante-fornecedor`);
+
+      return response.data;
+    },
+    { enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000}
+  );
+
+  const fetchListaFabricante = async () => {
+    const urlBase = `/fabricante-fornecedor?idFabricante=${fabricanteSelecionado}&descricaoFabricante=${nomeFabricante}&idFornecedor=${fornecedorSelecionado}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    try {
+
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-        
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
-    
+
   const { data: dadosFabricantesFornecedor = [], error: errorFabricanteFornecedor, isLoading: isLoadingFabricanteFornecedor, refetch: refetchListaFabricante } = useQuery(
-    ['fabricante-fornecedor', fabricanteSelecionado, nomeFabricante, fornecedorSelecionado, currentPage, pageSize],
-    () => fetchListaFabricante(fabricanteSelecionado, nomeFabricante, fornecedorSelecionado, currentPage, pageSize),
-    { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    ['fabricante-fornecedor'],
+    () => fetchListaFabricante(),
+    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   )
 
-  const { data: dadosFornecedores = [], error: errorFornecedor, isLoading: isLoadingFornecedor } = useFetchData('fornecedores', '/fornecedores');
-  const { data: dadosFabricantes = [], error: errorFabricantes, isLoading: isLoadingFabricantes } = useFetchData('fabricantes', '/fabricantes');
+  const { data: dadosVinculosFornecedores = [], error: errorVinculos, isLoading: isLoadingVinculos, refetch: refetchVinculos } = useQuery(
+    'vincularFabricanteFornecedor',
+    async () => {
+      const response = await get(`/vincularFabricanteFornecedor?idFabricantePedido=${fabricanteSelecionado}&idFornecedorPedido=${fornecedorSelecionado}`);
 
-  const handleSelectFornecedor = (e) => {
-    setFornecedor(e.value)
-    setFornecedorSelecionado(e)
-  }
-  
-  const handleSelectFabricante = (e) => {
-    
-    setFabricante(e.value)
-    setFabricanteSelecionado(e)
-  }
+      return response.data;
+    },
+    { enabled: Boolean(fabricanteSelecionado && fornecedorSelecionado), staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000}
+  );
 
-  const handlePesquisar = () => {
+  const handleClick = () => {
     setCurrentPage(prevPage => prevPage + 1);
     refetchListaFabricante();
     setTabelaVisivel(false)
@@ -103,6 +113,16 @@ export const ActionPesquisaFabricante = () => {
     setModalCadastrarFabricante(true)
   }
 
+  const {
+    handleCadastrarVinculo
+  } = useCadastrarVinculoFabricanteFornecedor({
+    dadosVinculosFornecedores, 
+    usuarioLogado, 
+    optionsModulos,
+    fabricanteSelecionado,
+    fornecedorSelecionado,
+    refetchVinculos
+  });
 
   return (
 
@@ -113,7 +133,6 @@ export const ActionPesquisaFabricante = () => {
         subTitle=""
         linkComponentAnterior={["Home"]}
         linkComponent={["Lista de Fabricantes"]}
-
 
         InputFieldComponent={InputField}
         labelInputField={"Nome Fabricante"}
@@ -131,7 +150,7 @@ export const ActionPesquisaFabricante = () => {
         ]}
         labelSelectFornecedor={"Por Fornecedor"}
         valueSelectFornecedor={fornecedorSelecionado}
-        onChangeSelectFornecedor={handleSelectFornecedor}
+        onChangeSelectFornecedor={(e) => setFornecedorSelecionado(e.value)}
 
         InputSelectFabricanteComponent={InputSelectAction}
         optionsFabricantes={[
@@ -143,12 +162,12 @@ export const ActionPesquisaFabricante = () => {
         ]}
         labelSelectFabricantes={"Por Fabricante"}
         valueSelectFabricante={fabricanteSelecionado}
-        onChangeSelectFabricante={handleSelectFabricante}
+        onChangeSelectFabricante={(e) => setFabricanteSelecionado(e.value)}
 
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar Fabricante"}
-        onButtonClickSearch={handlePesquisar}
+        onButtonClickSearch={handleClick}
         corSearch={"primary"}
         IconSearch={AiOutlineSearch}
 
@@ -160,16 +179,25 @@ export const ActionPesquisaFabricante = () => {
 
         ButtonTypeCancelar={ButtonType}
         linkCancelar={"Vincular Fabricante / Fornecedor"}
-        onButtonClickCancelar={handleCadastrar}
+        onButtonClickCancelar={handleCadastrarVinculo}
         corCancelar={"warning"}
         IconCancelar={AiOutlineSave}
       />
 
-      <ActionListaFabricantes dadosFabricantesFornecedo={dadosFabricantesFornecedor}/>
+      <ActionListaFabricantes
+        dadosFabricantesFornecedo={dadosFabricantesFornecedor}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
+      />
+
       <ActionCadastroFabricanteModal
         show={modalCadastrarFabricante}
         handleClose={() => setModalCadastrarFabricante(false)}
-     
+        usuarioLogado={usuarioLogado}
+        handleClick={handleClick}
+        optionsModulos={optionsModulos}
+
       />
 
     </Fragment>

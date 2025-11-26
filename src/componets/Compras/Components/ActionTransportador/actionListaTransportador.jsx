@@ -3,7 +3,6 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { CiEdit } from "react-icons/ci";
-import { ActionCadastroTrasnportadorModal } from "./ActionCadastrar/actionCadastroTransportadorModal";
 import { ActionEditarTrasnportadorModal } from "./ActionEditar/actionEditarTransportadorModal";
 import { get } from "../../../../api/funcRequest";
 import HeaderTable from "../../../Tables/headerTable";
@@ -11,8 +10,14 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import Swal from "sweetalert2";
 
-export const ActionListaTransportador = ({ dadosTransportador }) => {
+export const ActionListaTransportador = ({ 
+  dadosTransportador,
+  usuarioLogado,
+  optionsModulos,
+  handleClick 
+}) => {
   const [modalCadastro, setModalCadastro] = useState(false);
   const [dadosDetalheTranspotador, setDadosDetalheTranspotador] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -132,9 +137,11 @@ export const ActionListaTransportador = ({ dadosTransportador }) => {
             <ButtonTable
               titleButton={"Editar Transportador"}
               onClickButton={() => clickEditar(row)}
-              cor={"success"}
+              cor={"primary"}
               Icon={CiEdit}
-
+              iconSize={25}
+              width="35px"
+              height="35px"
             />
           </div>
         )
@@ -144,14 +151,26 @@ export const ActionListaTransportador = ({ dadosTransportador }) => {
   ]
 
   const clickEditar = (row) => {
-    if (row && row.IDTRANSPORTADORA) {
-      handleEditar(row.IDTRANSPORTADORA);
-    }
+    if(optionsModulos[0]?.ALTERAR == 'True'){
+      if (row && row.IDTRANSPORTADORA) {
+        handleEditar(row.IDTRANSPORTADORA);
+      }
+    } else {
+      Swal.fire({
+        title: 'Erro!',
+        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para alterar o Transportador!`,
+        icon: 'error',
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    }  
   };
 
   const handleEditar = async (IDTRANSPORTADORA) => {
     try {
-      const response = await get(`/transportador?idTransportador=${IDTRANSPORTADORA}`);
+      const response = await get(`/transportadoras?idTransportador=${IDTRANSPORTADORA}`);
       setDadosDetalheTranspotador(response.data);
       setModalCadastro(true)
     } catch (error) {
@@ -189,6 +208,9 @@ export const ActionListaTransportador = ({ dadosTransportador }) => {
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, 500, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -215,6 +237,9 @@ export const ActionListaTransportador = ({ dadosTransportador }) => {
         show={modalCadastro}
         handleClose={() => setModalCadastro(false)}
         dadosDetalheTranspotador={dadosDetalheTranspotador}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

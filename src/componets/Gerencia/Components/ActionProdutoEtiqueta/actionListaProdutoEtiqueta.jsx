@@ -4,16 +4,12 @@ import { Column } from 'primereact/column';
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import HeaderTable from "../../../Tables/headerTable";
 import { ActionDetalharProdutosEtiquetaModal } from "./actionDetalharProdutosEtiquetaModal";
-import { BsTrash3 } from "react-icons/bs";
-import { ButtonType } from "../../../Buttons/ButtonType";
-import { GoDownload } from "react-icons/go";
-import { MdOutlineLocalPrintshop } from "react-icons/md";
 import Swal from "sweetalert2";
 import { useReactToPrint } from "react-to-print";
 import jsPDF from "jspdf";
 import * as XLSX from 'xlsx';
 import { isValidEAN13 } from "../../../../utils/isValidEAN13";
-import { sub } from "date-fns";
+
 
 
 export const ActionListaProdutoEtiqueta = ({
@@ -32,13 +28,7 @@ export const ActionListaProdutoEtiqueta = ({
   setSelectedIds
 
 }) => {
-  const [quantidades, setQuantidades] = useState({});
-  // const [produtosSelecionados, setProdutosSelecionados] = useState([]);
-  // const [dadosAcumuladorEiquetas, setDadosAcumuladorEtiquetas] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  // const [selectAll, setSelectAll] = useState(false);
-  // const [selectedIds, setSelectedIds] = useState([]);
-  // const [modalImprimir, setModalImprimir] = useState(null)
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
   const [first, setFirst] = useState(0);
@@ -60,16 +50,6 @@ export const ActionListaProdutoEtiqueta = ({
       );
     });
   };
-
-  useEffect(() => {
-    setProdutosSelecionados(prevProdutos =>
-      prevProdutos.map(prod => ({
-        ...prod,
-        quantidade: quantidades[prod.IDPRODUTO] || prod.quantidade
-      }))
-    );
-  }, [quantidades]);
-
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -201,9 +181,8 @@ export const ActionListaProdutoEtiqueta = ({
 
   }, [selectedItems, dados, first, rows]);
 
-  const onSelectAllChange = (e) => {
-    console.log(e.checked, 'e')
-    if (e.checked) {
+  const onSelectAllChange = (checked) => {
+    if (checked) {
       Swal.fire({
         icon: 'question',
         title: 'Selecione o modo de seleção',
@@ -211,7 +190,7 @@ export const ActionListaProdutoEtiqueta = ({
         showConfirmButton: true,
         showCancelButton: true,
         showCloseButton: true,
-        className: { container: 'custom-class' },
+        customClass: { container: 'custom-class' },
         confirmButtonText: 'Todos os registros',
         cancelButtonText: 'Apenas o que está tela',
         cancelButtonColor: '#2196F3',
@@ -221,18 +200,30 @@ export const ActionListaProdutoEtiqueta = ({
           const itensSelecionaveis = dados.filter(item => item.stDisabled !== 'disabled');
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveis]);
+          setSelectedIds(itensSelecionaveis.map(item => item.IDPRODUTO));
+          setProdutosSelecionados(itensSelecionaveis.map(item => ({ ...item, quantidade: 1 })));
+          setSelectAll(true);
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           const itensSelecionaveisPaginaAtual = dados.slice(first, first + rows).filter(item => item.stDisabled !== 'disabled');
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveisPaginaAtual]);
+          setSelectedIds(itensSelecionaveisPaginaAtual.map(item => item.IDPRODUTO));
+          setProdutosSelecionados(itensSelecionaveisPaginaAtual.map(item => ({ ...item, quantidade: 1 })));
+          setSelectAll(true);
         } else {
           setBtnVisivel(false);
           setSelectedItems([]);
+          setSelectedIds([]);
+          setProdutosSelecionados([]);
+          setSelectAll(false);
         }
       });
     } else {
       setBtnVisivel(false);
       setSelectedItems([]);
+      setSelectedIds([]);
+      setProdutosSelecionados([]);
+      setSelectAll(false);
     }
   }
 
@@ -246,7 +237,7 @@ export const ActionListaProdutoEtiqueta = ({
           <input
             type="checkbox"
             checked={selectAllChecked}
-            onChange={(e) => console.log(onSelectAllChange)}
+            onChange={(e) => onSelectAllChange(e.target.checked)}
           // onChange={(e) => handleSelectAll(e.target.checked)}
           />
         </div>
@@ -257,15 +248,6 @@ export const ActionListaProdutoEtiqueta = ({
             <input
               type="checkbox"
               checked={selectedIds.includes(rowData.IDPRODUTO)}
-              // onChange={(e) => {
-              //   let _selectedItems = [...selectedItems];
-              //   if (e.target.checked) {
-              //     _selectedItems.push(rowData);
-              //   } else {
-              //     _selectedItems = _selectedItems.filter(item => item.IDPRODUTO !== rowData.IDPRODUTO);
-              //   }
-              //   setSelectedItems(_selectedItems);
-              // }}
               onChange={(e) => {
                 const isChecked = e.target.checked
                 const updatedSelectedIds = e.target.checked
@@ -321,11 +303,9 @@ export const ActionListaProdutoEtiqueta = ({
           <div style={{ background: '', width: '50%' }}>
             <input
               type="number"
-              value={quantidades[row.IDPRODUTO] || row.quantidade}
+              value={produtosSelecionados.find(p => p.IDPRODUTO === row.IDPRODUTO)?.quantidade || 1}
               onChange={(e) => {
                 const novaQuantidade = parseInt(e.target.value, 10) || 1;
-                setQuantidades(prev => ({ ...prev, [row.IDPRODUTO]: novaQuantidade }));
-
                 setProdutosSelecionados(prevProdutos =>
                   prevProdutos.map(prod =>
                     prod.IDPRODUTO === row.IDPRODUTO
@@ -335,7 +315,8 @@ export const ActionListaProdutoEtiqueta = ({
                 );
               }}
               style={{ width: '100%' }}
-            />
+              />
+          
           </div>
         );
       }
@@ -427,32 +408,6 @@ export const ActionListaProdutoEtiqueta = ({
 
   return (
     <Fragment>
-      {/* <div className="row mb-4">
-        <ButtonType
-          Icon={MdOutlineLocalPrintshop}
-          iconSize="16px"
-          textButton="Imprimir"
-          cor="primary"
-          tipo="button"
-          onClickButtonType={() => handleImprimir()}
-        />
-        <ButtonType
-          Icon={GoDownload}
-          iconSize="16px"
-          textButton="Guardar"
-          cor="success"
-          tipo="button"
-          onClickButtonType={() => handleAcumuladorEtiquetas()}
-        />
-        <ButtonType
-          Icon={BsTrash3}
-          iconSize="16px"
-          textButton="Cancelar"
-          cor="danger"
-          tipo="button"
-          onClickButtonType={() => handleCancelar()}
-        />
-      </div> */}
 
       <div className="panel">
 
@@ -504,6 +459,9 @@ export const ActionListaProdutoEtiqueta = ({
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -515,7 +473,7 @@ export const ActionListaProdutoEtiqueta = ({
                 header={coluna.header}
                 body={coluna.body}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
                 bodyStyle={{ fontSize: '0.8rem' }}
               />
             ))}
@@ -535,5 +493,3 @@ export const ActionListaProdutoEtiqueta = ({
     </Fragment>
   );
 };
-
-// 1031280010822

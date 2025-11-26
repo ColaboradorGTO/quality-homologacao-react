@@ -3,11 +3,9 @@ import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal"
 import { Modal } from "react-bootstrap"
 import { FormularioCadastro } from "./formularioCadastro"
 
-export const ActionCadastroGrupoEstruturaModal = ({ show, handleClose }) => {
-
+export const ActionCadastroGrupoEstruturaModal = ({ show, handleClose, usuarioLogado, optionsModulos, handleClick }) => {
 
   return (
-
     <Fragment>
 
       <Modal
@@ -15,7 +13,6 @@ export const ActionCadastroGrupoEstruturaModal = ({ show, handleClose }) => {
         onHide={handleClose}
         class="modal-content"
         size="xl"
-        
       >
 
         <HeaderModal
@@ -25,7 +22,12 @@ export const ActionCadastroGrupoEstruturaModal = ({ show, handleClose }) => {
         />
 
         <Modal.Body>
-          <FormularioCadastro handleClose={handleClose} />
+          <FormularioCadastro 
+            handleClose={handleClose}
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+            handleClick={handleClick}  
+          />
         </Modal.Body>
       </Modal>
     </Fragment>

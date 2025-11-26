@@ -4,7 +4,13 @@ import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { FormularioCadastro } from "./formularioCadastro";
 
 
-export const ActionCadastroCondicaoPagamentoModal = ({ show, handleClose }) => {
+export const ActionCadastroCondicaoPagamentoModal = ({ 
+  show, 
+  handleClose,
+  usuarioLogado,
+  optionsModulos,
+  handleClick
+ }) => {
 
   return (
     <Fragment>
@@ -24,7 +30,12 @@ export const ActionCadastroCondicaoPagamentoModal = ({ show, handleClose }) => {
         />
 
         <Modal.Body>
-          <FormularioCadastro handleClose={handleClose} />
+          <FormularioCadastro 
+            handleClose={handleClose} 
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+            handleClick={handleClick}
+          />
 
         </Modal.Body>
       </Modal>

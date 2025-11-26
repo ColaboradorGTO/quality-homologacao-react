@@ -1,27 +1,31 @@
 import { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { GrView } from 'react-icons/gr';
 import { ButtonTable } from '../../../ButtonsTabela/ButtonTable';
 import { CiEdit } from 'react-icons/ci';
 import { SiSap } from "react-icons/si";
 import { BsTrash3 } from "react-icons/bs";
 import { get } from "../../../../api/funcRequest";
-// import { ActionVincularFabricanteFornecedorModal } from "../ActionFonecedores/actionVincularFabricanteFornecedorModal";
+import { ActionVincularFabricanteFornecedorModal } from "./ActionEditarVinculoFabricante/actionEditarVincularFabricanterModal";
 import { ActionEditarFabricanteModal } from "./ActionEditar/actionEditarFabricanteModal";
 import HeaderTable from "../../../Tables/headerTable";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { useMigrarFabricanteSap } from "./hooks/useMigrarFabricanteSap";
 
-export const ActionListaFabricantes = ({ dadosFabricantesFornecedo }) => {
+export const ActionListaFabricantes = ({ dadosFabricantesFornecedo, usuarioLogado, optionsModulos, handleClick }) => {
   const [dadosDetalheFornecedorFabricante, setDadosDetalheFornecedorFabricante] = useState([]);
   const [dadosDetalheFabricante, setDadosDetalheFabricante] = useState([]);
   const [modalEditarFabricante, setModalEditarFabricante] = useState(false);
   const [modalEditarVinculo, setModalEditarVinculo] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
+
+  const {
+    migrarFabricanteSap
+  } = useMigrarFabricanteSap({usuarioLogado, optionsModulos, handleClick})
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -88,13 +92,13 @@ export const ActionListaFabricantes = ({ dadosFabricantesFornecedo }) => {
     {
       field: 'contador',
       header: 'Nº',
-      body: row => row.contador,
+      body: row => <th>{row.contador}</th>,
       sortable: true
     },
     {
       field: 'DSFABRICANTE',
       header: 'Fabricante',
-      body: row => row.DSFABRICANTE,
+      body: row => <th>{row.DSFABRICANTE}</th>,
       sortable: true
     },
     {
@@ -103,9 +107,14 @@ export const ActionListaFabricantes = ({ dadosFabricantesFornecedo }) => {
       body: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 700, color: row.IDFABSAP && !row.IDFABSAP ? '#fd3995' : '#2196F3' }}>
-              {row.IDFABSAP && !row.IDFABSAP ? 'NÃO MIGRADO' : 'MIGRADO'}
-              {/* {row.IDFABSAP} */}
+            <p 
+              style={{ 
+                fontWeight: 700, 
+                color: !row.IDFABSAP ? '#fd3995' : '#2196F3' 
+                }}
+                title={row.LOGFABSAP || `Motivo: ${row.LOGFABSAP}` }
+              >
+              {!row.IDFABSAP ? 'NÃO MIGRADO' : 'MIGRADO'}
             </p>
           </div>
         )
@@ -116,14 +125,16 @@ export const ActionListaFabricantes = ({ dadosFabricantesFornecedo }) => {
       header: 'Fornecedor Vinculado',
       body: row => {
         return (
-          <p style={{ fontWeight: 700, color: row.NOFANTFORN || 'SEM VINCULO' ? '' : '#fd3995' }} >
-            {row.NOFANTFORN || 'SEM VINCULO'}
+          <p style={{ 
+            fontWeight: 700, 
+            color: row.NOFANTFORN ? '' : '#fd3995'
+          }}>
+            {row.NOFANTFORN || <span style={{color: 'red'}}>SEM VINCULO</span>}
           </p>
         )
       },
       sortable: true
     },
-
     {
       field: 'STATIVO',
       header: 'Situação',
@@ -134,95 +145,87 @@ export const ActionListaFabricantes = ({ dadosFabricantesFornecedo }) => {
       },
       sortable: true
     },
-    {
-      field: 'IDFORNECEDOR',
-      header: 'Opções',
-      body: (row) => {
-        if (row.IDFORNECEDOR > 0) {
-          return (
-            <div className="p-1 "
-              style={{ justifyContent: "space-between", width: "150px", display: "flex" }}
-            >
-              <div className="p-1">
-                <ButtonTable
-                  Icon={CiEdit}
-                  cor={"success"}
-                  iconColor={"white"}
-                  iconSize={20}
-                  onClickButton={() => clickEditarFabricante(row)}
-                  titleButton={"Editar Fabricante"}
-                />
-              </div>
-              <div className="p-1">
-                <ButtonTable
-                  Icon={CiEdit}
-                  cor={"warning"}
-                  iconColor={"white"}
-                  iconSize={20}
-                  onClickButton={() => clickVinculoFonecedorFabricante(row)}
-                  titleButton={"Editar Vínculo Fabricante/Fornecedor"}
-                />
-              </div>
-              <div className="p-1">
-                <ButtonTable
-                  Icon={BsTrash3}
-                  cor={"danger"}
-                  iconColor={"white"}
-                  iconSize={20}
-                  onClickButton={() => clickVinculoFonecedorFabricante(row)}
-                  titleButton={"Excluir Vínculo Fabricante/Fornecedor"}
-                />
-              </div>
-              <div className="p-1">
-                {!row.IDFABSAP ?
-                  <ButtonTable
-                    Icon={SiSap}
-                    cor={"primary"}
-                    iconColor={"white"}
-                    iconSize={20}
-                    onClickButton={() => clickVinculoFonecedorFabricante(row)}
-                    titleButton={"Migrar Fabricante SAP"}
-                  />
+   {
+  field: 'IDFORNECEDOR',
+  header: 'Opções',
+  body: (row) => {
+   
+    const btnEditarFabricante = (
+      <div className="p-1">
+        <ButtonTable
+          Icon={CiEdit}
+          cor={"success"}  
+          iconColor={"white"}
+          onClickButton={() => clickEditarFabricante(row)}
+          titleButton={"Editar Fabricante"}
+          iconSize={25}
+          width="30px"
+          height="30px"
+        />
+      </div>
+    );
 
-                  : ''}
-              </div>
+    const btnMigrarSap = !row.IDFABSAP ? ( 
+      <div className="p-1">
+        <ButtonTable
+          Icon={SiSap}
+          cor={"primary"}  
+          iconColor={"white"}
+          onClickButton={() => migrarFabricanteSap(row)}
+          titleButton={"Migrar Fabricante SAP"}
+          iconSize={25}
+          width="30px"
+          height="30px"
+        />
+      </div>
+    ) : null;
 
-
-            </div>
-          )
-
-        } else {
-          return (
-            <div style={{ display: "flex" }}>
-              <div className="p-1">
-                <ButtonTable
-                  Icon={CiEdit}
-                  cor={"info"}
-                  iconColor={"white"}
-                  iconSize={20}
-                  onClickButton={() => clickEditarFabricante(row)}
-                  titleButton={"Editar Fabricante"}
-                />
-              </div>
-
-              <div className="p-1">
-                {row.IDFABSAP ?
-                  <ButtonTable
-                    Icon={GrView}
-                    cor={"success"}
-                    iconColor={"white"}
-                    iconSize={20}
-                    onClickButton
-                    titleButton={"Migrar Fabricante SAP"}
-                  />
-                  : ''}
-              </div>
-            </div>
-
-          )
-        }
-      }
+    if (row.IDFORNECEDOR > 0) {
+   
+      return (
+        <div className="p-1" style={{ justifyContent: "space-between", width: "150px", display: "flex" }}>
+          {btnEditarFabricante}
+          
+          <div className="p-1">
+            <ButtonTable
+              Icon={CiEdit}
+              cor={"warning"} 
+              iconColor={"white"}
+              onClickButton={() => clickVinculoFonecedorFabricante(row)}
+              titleButton={"Editar Vínculo Fabricante/Fornecedor"}
+              iconSize={25}
+              width="30px"
+              height="30px"
+            />
+          </div>
+          
+          <div className="p-1">
+            <ButtonTable
+              Icon={BsTrash3}
+              cor={"danger"} 
+              iconColor={"white"}
+              onClickButton={() => excluirVinculoFabricante(row)}
+              titleButton={"Excluir Vínculo Fabricante/Fornecedor"}
+              iconSize={25}
+              width="30px"
+              height="30px"
+            />
+          </div>
+          
+          {btnMigrarSap}  
+        </div>
+      )
+    } else {
+     
+      return (
+        <div style={{ display: "flex" }}>
+          {btnEditarFabricante}
+          {btnMigrarSap}  
+        </div>
+      )
     }
+  }
+}
   ]
 
   const editarFabricante = async (IDFABRICANTE) => {
@@ -265,9 +268,10 @@ export const ActionListaFabricantes = ({ dadosFabricantesFornecedo }) => {
       editarVinculoFornecedorFabricante(row.IDFABRICANTEFORN);
     }
   };
+
   return (
     <Fragment>
-      <div className="panel" style={{ marginTop: "5rem" }}>
+      <div className="panel">
         <div className="panel-hdr">
           <h2>Relatório Transportadoras </h2>
         </div>
@@ -282,17 +286,20 @@ export const ActionListaFabricantes = ({ dadosFabricantesFornecedo }) => {
           />
 
         </div>
-        <div className="card mb-4" ref={dataTableRef}>
+        <div className="card " ref={dataTableRef}>
 
           <DataTable
             title="Vendas por Loja"
             value={dadosListaFornecedoresFabricantes}
-            // header={header}
+            globalFilter={globalFilterValue}
             sortField="VRTOTALPAGO"
             sortOrder={-1}
             paginator={true}
             rows={10}
-            rowsPerPageOptions={[5, 10, 20, 50, 100]}
+            rowsPerPageOptions={[5, 10, 20, 50, 100, dadosListaFornecedoresFabricantes.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -306,9 +313,9 @@ export const ActionListaFabricantes = ({ dadosFabricantesFornecedo }) => {
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
+                bodyStyle={{ fontSize: '1rem' }}
 
               />
             ))}
@@ -320,13 +327,19 @@ export const ActionListaFabricantes = ({ dadosFabricantesFornecedo }) => {
         show={modalEditarFabricante}
         handleClose={() => setModalEditarFabricante(false)}
         dadosDetalheFabricante={dadosDetalheFabricante}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}   
       />
-{/* 
+
       <ActionVincularFabricanteFornecedorModal
         show={modalEditarVinculo}
         handleClose={() => setModalEditarVinculo(false)}
         dadosDetalheFornecedorFabricante={dadosDetalheFornecedorFabricante}
-      /> */}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick} 
+      />
     </Fragment>
   )
 }

@@ -16,15 +16,16 @@ export const ActionPesquisEmpresa = ({ usuarioLogado, ID }) => {
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(1000);
 
-    const { data: optionModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-        "menus-usuarios-excecao",
+
+    const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+        'menus-usuario-excecao',
         async () => {
             const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
             return response.data;
         },
         { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
-
     );
+
     const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
         "empresas",
         async () => {
@@ -36,44 +37,39 @@ export const ActionPesquisEmpresa = ({ usuarioLogado, ID }) => {
     );
 
     const fetchListEmpresas = async () => {
+        const urlBase = `/listaEmpresas?idEmpresa=${empresaSelecionada}`;
+        let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+        urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
         try {
-            const urlApi = `/listaEmpresas?idEmpresa=${empresaSelecionada}`
-            const response = await get(urlApi)
+            animacaoCarregamento('Carregando dados...', true);
 
-            if (response.data.lenght && response.data.lenght === pageSize) {
-                let allData = [...response.data];
-                animacaoCarregamento(`Carregand...Página ${currentPage} de ${response.data.lenght}`, true);
+            const primeiraPagina = 1;
+            const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+            const page = primeiraResposta.page || primeiraPagina;
+            const pageSize = primeiraResposta.pageSize || 1000;
+            const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+            const totalPages = Math.ceil(totalRows / pageSize);
 
-                async function fetchNextPage(currentPage) {
-                    try {
-                        currentPage++;
-                        const responseNextPage = await get(`${urlApi}&page=${currentPage}`)
-                        if (responseNextPage.lenght) {
-                            allData.push(...responseNextPage.data);
-                            return fetchNextPage(currentPage)
-                        } else {
-                            return allData;
-                        }
-                    } catch (error) {
-                        console.logo("Error ao buscar proxima página:", error);
-                        throw error;
-                    }
+            let allData = [...(primeiraResposta.data || [])];
+
+            if (totalPages > 1) {
+                for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+                    animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+                    const responsePage = await get(`${urlApi}&page=${currentPage}`);
+                    allData.push(...(responsePage.data || []));
                 }
-
-                await fetchNextPage(currentPage);
-                return allData;
-            } else {
-                return response.data;
             }
+
+            return allData;
+
         } catch (error) {
-            console.log("erro ao buscar dados:", error);
+            console.error('Erro ao buscar dados da api', error);
             throw error;
         } finally {
             fecharAnimacaoCarregamento();
-
         }
+    };
 
-    }
 
     const { data: dadosEmpresas = [], error: errorListaEmpresas, isLoading: isLoadingEmpresa, refetch: refetchListaEmpresa } = useQuery(
         ["empresa"],
@@ -128,9 +124,9 @@ export const ActionPesquisEmpresa = ({ usuarioLogado, ID }) => {
 
             <ActionListaEmpresas
                 dadosEmpresas={dadosEmpresas}
-                optionsModulos={optionModulos}
+                optionsModulos={optionsModulos}
                 usuarioLogado={usuarioLogado}
-
+                refetch={refetchEmpresas}
             />
         </Fragment>
     );

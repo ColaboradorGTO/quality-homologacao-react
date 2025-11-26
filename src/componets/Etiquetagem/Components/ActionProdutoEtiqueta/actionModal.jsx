@@ -17,10 +17,10 @@ export const ActionEditarListasPrecosModal = ({ show, handleClose, dadosListaPre
     return {
       IDPRODUTO: item.IDPRODUTO,
       DSNOME: item.DSNOME,
-      SUBGRUPO: item.SUBGRUPO,
-      DSESTILO: item.DSESTILO,
+     
+      
       NUCODBARRAS: item.NUCODBARRAS,
-      MARCA: item.MARCA,
+    
       // TAMANHO: item.TAMANHO,  (dsProd.split(' ')).pop()).toUpperCase().replace(/[^\w\s]/gi, '')
       TAMANHO: item.TAMANHO,
       PRECOVENDA: item.PRECOVENDA,
@@ -28,10 +28,10 @@ export const ActionEditarListasPrecosModal = ({ show, handleClose, dadosListaPre
       IDEMPRESA: item.IDEMPRESA,
       DSLISTAPRECO: item.DSLISTAPRECO,
       NOFANTASIA: item.NOFANTASIA,
-      DSLOCALEXPOSICAO: item.DSLOCALEXPOSICAO,
+
 
       // ----------------------
-      IDPRODUTO: item.IDPRODUTO,
+     
       DSPRODUTO: item.DSPRODUTO,
       SUBGRUPO: item.SUBGRUPO,
       DSESTILO: item.DSESTILO,

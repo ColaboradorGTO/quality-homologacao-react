@@ -10,13 +10,19 @@ import { ActionListaPerfilPermissao } from "./actionListaPerfilPermissao";
 import { FaRegClone } from "react-icons/fa";
 import Swal from "sweetalert2";
 
+
 export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
-  const [usuarioSelecionado, setUsuarioSelecionado] = useState('');
-  const [copiarPermissao, setCopiarPermissao] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
   const [modalCadastro, setModalCadastro] = useState(false);
+  const [empresaSelecionada, setEmpresaSelecionada] = useState('');
+  const [usuarioSelecionado, setUsuarioSelecionado] = useState('');
+  const [copiarPermissao, setCopiarPermissao] = useState('');
+  const [usuarioClonado, setUsuarioClonado] = useState('');
+  const [funcionarioClonarId, setFuncionarioClonarId] = useState('');
+  const [permissoesSelecionadas, setPermissoesSelecionadas] = useState([]);
+
 
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
@@ -28,54 +34,188 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
+  const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
+    'listaEmpresasIformatica',
+    async () => {
+      const response = await get(`/listaEmpresasIformatica`);
+
+      return response.data;
+    },
+    {
+      staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000
+    }
+  );
 
   const fetchListaFuncionarios = async () => {
+    const urlBase = `/funcionarios-loja-ativos?idEmpresa=${empresaSelecionada}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      const urlApi = `/funcionarios-loja-ativos?`;
-      const response = await get(urlApi);
+      animacaoCarregamento('Carregando dados...', true);
 
-      if (response.data.length && response.data.length === pageSize) {
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+      let allData = [...(primeiraResposta.data || [])];
 
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.data.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
       }
+
+      return allData;
+
     } catch (error) {
-      console.error('Erro ao buscar dados:', error);
+      console.error('Erro ao buscar dados da api', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
 
+  /*  const fetchListaFuncionarios = async () => {
+     try {
+       const urlApi = `/funcionarios-loja-ativos?idEmpresa=${empresaSelecionada}`;
+       const response = await get(urlApi);
+ 
+       if (response.data.length && response.data.length === pageSize) {
+ 
+         let allData = [...response.data];
+         animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+ 
+         async function fetchNextPage(currentPage) {
+           try {
+             currentPage++;
+             const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
+             if (responseNextPage.data.length) {
+               allData.push(...responseNextPage.data);
+               return fetchNextPage(currentPage);
+             } else {
+               return allData;
+             }
+           } catch (error) {
+             console.error('Erro ao buscar próxima página:', error);
+             throw error;
+           }
+         }
+ 
+         await fetchNextPage(currentPage);
+         return allData;
+       } else {
+ 
+         return response.data;
+       }
+     } catch (error) {
+       console.error('Erro ao buscar dados:', error);
+       throw error;
+     } finally {
+       fecharAnimacaoCarregamento();
+     }
+   };
+  */
   const { data: dadosFuncionarios = [], error: errorFuncionario, isLoading: isLoadingFuncionario } = useQuery(
     ['funcionarios-loja-ativos'],
     () => fetchListaFuncionarios(),
     { enabled: true, staleTime: Infinity, cacheTime: Infinity, }
   );
 
+
+  const fetchListaFuncionariosCopiado = async (idEmpresa) => {
+    const urlBase = `/funcionarios-loja?idEmpresa=${idEmpresa}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    try {
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
+        }
+      }
+
+      return allData;
+
+    } catch (error) {
+      console.error('Erro ao buscar dados da api', error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
+  };
+
+  /* const fetchListaFuncionariosCopiado = async (idEmpresa) => {
+    try {
+      const urlApi = `/funcionarios-loja?idEmpresa=${idEmpresa}`;
+      const response = await get(urlApi);
+      return response.data;
+    } catch (error) {
+      console.error("Erro ao buscar dados:", error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
+  };
+ */
+
+  const { data: dadosFuncionariosCopiado = [], error: errorFuncionarioCopiado, isLoading: isLoadingFuncionarioCopiado } = useQuery(
+    ['funcionarios-loja', empresaSelecionada],
+    () => fetchListaFuncionariosCopiado(empresaSelecionada),
+    { enabled: true, staleTime: Infinity, cacheTime: Infinity }
+  );
+
   const fetchListaPermissoes = async () => {
+    const urlBase = `/menus-usuario-excecao?idUsuario=${usuarioSelecionado}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    try {
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
+        }
+      }
+
+      return allData;
+
+    } catch (error) {
+      console.error('Erro ao buscar dados da api', error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
+  };
+
+  /* const fetchListaPermissoes = async () => {
     try {
       const urlApi = `/menus-usuario-excecao?idUsuario=${usuarioSelecionado}`;
       const response = await get(urlApi);
@@ -113,7 +253,7 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
     } finally {
       fecharAnimacaoCarregamento();
     }
-  };
+  }; */
 
   const { data: dadosPermissoes = [], error: errorPermissoes, isLoading: isLoadingPermissoes, refetch } = useQuery(
     ['menus-usuario-excecao', usuarioSelecionado, currentPage, pageSize],
@@ -123,7 +263,7 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
 
 
   const handleClick = () => {
-    if (!usuarioSelecionado == '') {
+    if (usuarioSelecionado && usuarioClonado) {
       setCurrentPage(prevPage => prevPage + 1);
       setTabelaVisivel(true);
       refetch();
@@ -149,15 +289,28 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
 
         InputSelectEmpresaComponent={InputSelectAction}
         optionsEmpresas={[
+          { value: '', label: 'Selecione a Empresa' },
+          ...optionsEmpresas.map((item) => ({
+            value: item.IDEMPRESA,
+            label: item.NOFANTASIA
+          }))
+        ]}
+
+        labelSelectEmpresa={"Empresa"}
+        valueSelectEmpresa={empresaSelecionada}
+        onChangeSelectEmpresa={(e) => setEmpresaSelecionada(String(e.value ?? ""))}
+
+        InputSelectGrupoComponent={InputSelectAction}
+        optionsGrupos={[
           { value: '', label: 'Selecione...' },
-          ...dadosFuncionarios.map((item) => ({
+          ...dadosFuncionariosCopiado.map((item) => ({
             value: item.ID,
             label: `${item.NOLOGIN} -  ${item.NOFUNCIONARIO}`
           }))
         ]}
-        labelSelectEmpresa={"Copiar de Permissão"}
-        valueSelectEmpresa={usuarioSelecionado}
-        onChangeSelectEmpresa={(e) => setUsuarioSelecionado(e.value)}
+        labelSelectGrupo={"Copiar de Permissão"}
+        valueSelectGrupo={usuarioSelecionado}
+        onChangeSelectGrupo={(e) => setUsuarioSelecionado(String(e.value ?? ""))}
 
         InputSelectMarcasComponent={InputSelectAction}
         optionsMarcas={[
@@ -167,8 +320,8 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
           }))
         ]}
         labelSelectMarcas={"Clonar Para"}
-        valueSelectMarca={copiarPermissao}
-        onChangeSelectMarcas={(e) => setCopiarPermissao(e.value)}
+        valueSelectMarca={usuarioClonado}
+        onChangeSelectMarcas={(e) => setUsuarioClonado(String(e.value ?? ""))}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
@@ -182,11 +335,15 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
 
         <ActionListaPerfilPermissao
           dadosPermissoes={dadosPermissoes}
-          copiarPermissao={copiarPermissao}
-          setCopiarPermissao={setCopiarPermissao}
           usuarioSelecionado={usuarioSelecionado}
+          funcionarioClonarId={funcionarioClonarId}
+          permissoesSelecionadas={permissoesSelecionadas}
+          setPermissoesSelecionadas={setPermissoesSelecionadas}
           handleClick={handleClick}
           optionsModulos={optionsModulos}
+          usuarioLogado={usuarioLogado}
+          usuarioClonado={usuarioClonado}
+          setusUarioClonado={setUsuarioClonado}
         />
 
       )}

@@ -1,18 +1,15 @@
-import { Fragment, useEffect, useState } from "react"
+import { Fragment } from "react"
 import { Modal } from "react-bootstrap"
-import { get, post, put } from "../../../../../api/funcRequest"
-import { useForm } from "react-hook-form"
-import Select from 'react-select';
-import Swal from 'sweetalert2'
-import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
-import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
-import { InputFieldModal } from "../../../../Buttons/InputFieldModal";
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { FormularioEditarTecido } from "./formularioEditarTecido";
 
-export const ActionEditarTipoTecidosModal = ({ show, handleClose, dadosDetalheTipoTecido }) => {
+export const ActionEditarTipoTecidosModal = ({ 
+  show, 
+  handleClose, 
+  dadosDetalheTipoTecido, 
+  usuarioLogado, 
+  optionsModulos 
+}) => {
 
   return (
 
@@ -33,7 +30,12 @@ export const ActionEditarTipoTecidosModal = ({ show, handleClose, dadosDetalheTi
         />
 
         <Modal.Body>
-          <FormularioEditarTecido dadosDetalheTipoTecido={dadosDetalheTipoTecido}/>
+          <FormularioEditarTecido 
+            dadosDetalheTipoTecido={dadosDetalheTipoTecido}
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos} 
+            handleClose={handleClose} 
+          />
         </Modal.Body>
 
       </Modal>

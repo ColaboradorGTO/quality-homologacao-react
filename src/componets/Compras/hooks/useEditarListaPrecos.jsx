@@ -77,7 +77,7 @@ export const useEditarListaPrecos = () => {
         STATIVO: statusSelecionado,
       }
   
-      const response = await put('/atualizarSubGrupoEstrutura', postData)
+      const response = await put('/sub-grupo-estrutura/:id', postData)
         .then(response => {
   
           // Limpar os campos do formulário

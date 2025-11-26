@@ -10,15 +10,15 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useReactToPrint } from "react-to-print";
 import HeaderTable from "../../../Tables/headerTable";
-import { ActionEditarRelatorioBIModal } from "./actionEditarRelatorioBIModal";
+import { ActionEditarRelatorioBIModal } from "./actionEditar/actionEditarRelatorioBIModal";
 
-export const ActionListaLinkRelatorioBi = ({ dadosBI }) => {
-  const { register, handleSubmit, errors } = useForm();
+export const ActionListaLinkRelatorioBi = ({ dadosBI, handleTabelaVisivel, optionsModulos, usuarioLogado }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [dadosLinkRelatorioBI, setDadosLinkRelatorioBI] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
+  const [rowSelection, setRowSelection] = useState(null);
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -121,11 +121,10 @@ export const ActionListaLinkRelatorioBi = ({ dadosBI }) => {
 
   ]
 
-
   const handleDetalhar = async (IDRELATORIOBI) => {
     try {
       const response = await get(`/linkRelatorioBI?idRelatorio=${IDRELATORIOBI}`)
-      if(response.data) {
+      if (response.data) {
         setDadosLinkRelatorioBI(response.data)
         setModalVisivel(true)
       }
@@ -142,11 +141,8 @@ export const ActionListaLinkRelatorioBi = ({ dadosBI }) => {
 
     }
   }
-  
-
 
   return (
-
     <Fragment>
 
       <div className="panel">
@@ -172,6 +168,9 @@ export const ActionListaLinkRelatorioBi = ({ dadosBI }) => {
             sortOrder={-1}
             paginator={true}
             rows={10}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[5, 10, 20, 50]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
@@ -196,17 +195,18 @@ export const ActionListaLinkRelatorioBi = ({ dadosBI }) => {
             ))}
           </DataTable>
         </div>
-
-
       </div>
 
       <ActionEditarRelatorioBIModal
-        show={modalVisivel} 
-        handleClose={() => setModalVisivel(false)} 
+        show={modalVisivel}
+        handleClose={() => setModalVisivel(false)}
         dadosLinkRelatorioBI={dadosLinkRelatorioBI}
         empresaSelecionada={empresaSelecionada}
-      /> 
-     
+        handleTabelaVisivel={handleTabelaVisivel}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
+      />
+
     </Fragment>
   )
 }

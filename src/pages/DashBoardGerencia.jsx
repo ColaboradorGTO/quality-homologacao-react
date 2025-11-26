@@ -20,13 +20,8 @@ const ActionPesquisaDespesaLoja = lazy(() => import("../componets/Gerencia/Compo
 const ActionPesquisaValeTransporte = lazy(() => import("../componets/Gerencia/Components/ActionValeTransporte/actionPesquisaValeTransporte").then(module => ({ default: module.ActionPesquisaValeTransporte })));
 const ActionPesquisaConferenciaCaixa = lazy(() => import("../componets/Gerencia/Components/ActionConferenciaCaixa/actionPesquisaConferenciaCaixa").then(module => ({ default: module.ActionPesquisaConferenciaCaixa })));
 const ActionPesquisaFaturaLoja = lazy(() => import("../componets/Gerencia/Components/ActionFaturas/actionPesquisaFaturaLoja").then(module => ({ default: module.ActionPesquisaFaturaLoja })));
-//  voltar aqui finalizar etiqueta
-const ActionPesquisaProdutoEtiqueta = lazy(() => import("../componets/Gerencia/Components/ActionProdutoEtiqueta/actionPesquisaProdutoEtiqueta").then(module => ({ default: module.ActionPesquisaProdutoEtiqueta })));
-
-//  precisa retornar aqui e verifica toda a logica do componente
 const ActionPesquisaCreateVoucher = lazy(() => import("../componets/Gerencia/Components/ActionCreateVoucher/actionPesquisaCreateVoucher").then(module => ({ default: module.ActionPesquisaCreateVoucher })));
 const ActionPesquisaVoucherEmitido = lazy(() => import("../componets/Gerencia/Components/ActionVoucher/actionPesquisaVoucheEmitidosr").then(module => ({ default: module.ActionPesquisaVoucherEmitido })));
-
 const ActionPesquisaQuebraCaixa = lazy(() => import("../componets/Gerencia/Components/ActionQuebraCaixaLoja/actionPesquisaQuebraCaixa").then(module => ({ default: module.ActionPesquisaQuebraCaixa })));
 
 // voltar aqui finalizar modal editar ot
@@ -48,13 +43,12 @@ const ActionPesquisaBalancoLoja = lazy(() => import("../componets/Gerencia/Compo
 
 const ActionPesquisaEmpresas = lazy(() => import("../componets/Gerencia/Components/ActionEmpresas/actionPesquisaEmpresas").then(module => ({ default: module.ActionPesquisaEmpresas })));
 const ActionPesquisaConferenciaMalote = lazy(() => import("../componets/Gerencia/Components/ActionConferenciaMalote/actionPesquisaConferenciaMalote").then(module => ({ default: module.ActionPesquisaConferenciaMalote })));
-
+const ActionPesquisaProdutoEtiqueta = lazy(() => import("../componets/Gerencia/Components/ActionProdutoEtiqueta/actionPesquisaProdutoEtiqueta").then(module => ({ default: module.ActionPesquisaProdutoEtiqueta })));
 const ActionPesquisaEtiquetaRemarcacao = lazy(() => import("../componets/Gerencia/Components/ActionEtiquetaRemarcacao/actionPesquisaEtiquetaRemarcacao").then(module => ({ default: module.ActionPesquisaEtiquetaRemarcacao })));
-
 const ActionPesquisaRecebimentosLoja = lazy(() => import("../componets/Gerencia/Components/ActionListaRecebimentosLoja/actionPesquisaRecebimentosLoja").then(module => ({ default: module.ActionPesquisaRecebimentosLoja })));
 const ActionRelatorioBI = lazy(() => import("../componets/Gerencia/Components/ActionBI/actionRelatorioBI").then(module => ({ default: module.ActionRelatorioBI })));
+const ActionPesquisaEtiquetasVolumes = lazy(() => import("../componets/Gerencia/Components/ActionEtiquetasVolumes/actionPesquisaEtiquetasVolumes").then(module => ({ default: module.ActionPesquisaEtiquetasVolumes })));
 
-// voltar aqui pra finalizar
 
 
 const ActionPesquisaVendaVoucher = lazy(() => import("../componets/Gerencia/Components/ActionVendaVoucher/actionPesquisaVendaVoucher").then(module => ({ default: module.ActionPesquisaVendaVoucher })));
@@ -144,7 +138,7 @@ export const DashBoardGerencia = () => {
       component = <ActionPesquisaCreateVoucher usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaVoucherEmitido":
-      component = <ActionPesquisaVoucherEmitido />
+      component = <ActionPesquisaVoucherEmitido usuarioLogado={usuarioLogado} ID={ID} />
       break;
     case "/gerencia/ActionPesquisaQuebraCaixa":
       component = <ActionPesquisaQuebraCaixa usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
@@ -193,6 +187,9 @@ export const DashBoardGerencia = () => {
       break;
     case "/gerencia/ActionPesquisaVendaVoucher":
       component = <ActionPesquisaVendaVoucher />
+      break;
+    case "/gerencia/ActionPesquisaEtiquetasVolumes":
+      component = <ActionPesquisaEtiquetasVolumes usuarioLogado={usuarioLogado} ID={ID} />
       break;
     default:
       component = null;

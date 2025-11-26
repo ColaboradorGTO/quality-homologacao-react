@@ -10,8 +10,9 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
+import Swal from "sweetalert2";
 
-export const ActionListaTipoTecidos = ({ dadosTecidos }) => {
+export const ActionListaTipoTecidos = ({ dadosTecidos, usuarioLogado, optionsModulos }) => {
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosDetalheTipoTecido, setDadosDetalheTipoTecido] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -114,14 +115,24 @@ export const ActionListaTipoTecidos = ({ dadosTecidos }) => {
   ]
 
   const clickEditar = (row) => {
-    if (row && row.IDTPTECIDO) {
-      handleEditar(row.IDTPTECIDO);
+    if(optionsModulos[0]?.ALTERAR == 'True') {
+      if (row && row.IDTPTECIDO) {
+        handleEditar(row.IDTPTECIDO);
+      }
+
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Acesso Negado!',
+        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para editar os Tipos de Tecidos!`,
+        timer: 5000,
+      })
     }
   };
 
   const handleEditar = async (IDTPTECIDO) => {
     try {
-      const response = await get(`/tipo-tecido?idTipoTecido=${IDTPTECIDO}`);
+      const response = await get(`/tipoTecidos?idTecido=${IDTPTECIDO}`);
       setDadosDetalheTipoTecido(response.data);
       setModalEditar(true)
     } catch (error) {
@@ -184,6 +195,8 @@ export const ActionListaTipoTecidos = ({ dadosTecidos }) => {
         show={modalEditar}
         handleClose={() => setModalEditar(false)}
         dadosDetalheTipoTecido={dadosDetalheTipoTecido} 
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
       />
     </Fragment>
   )

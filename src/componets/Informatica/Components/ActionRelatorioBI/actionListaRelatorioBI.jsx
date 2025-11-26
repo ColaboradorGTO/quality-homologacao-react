@@ -1,9 +1,9 @@
 import React, { Fragment, useRef, useState } from "react"
-import { get} from "../../../../api/funcRequest";
+import { get } from "../../../../api/funcRequest";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { ActionEditarRelatorioBIModal } from "./actionEditarRelatorioBIModal";
+import { ActionEditarRelatorioBIModal } from "./ActionEditar/actionEditarRelatorioBIModal";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -12,10 +12,13 @@ import HeaderTable from "../../../Tables/headerTable";
 import { CiEdit } from "react-icons/ci";
 import Swal from "sweetalert2";
 
-export const ActionListaRelatorioBi = ({ dadosBI, optionsModulos }) => {
+export const ActionListaRelatorioBi = ({ dadosBI, optionsModulos, refetch, usuarioLogado }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dadosRelatorios, setDadosRelatorios] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [relatorioSelecionado, setRelatorioSelecionado] = useState(null);
+  const [rowSelection, setRowSelection] = useState(null);
+
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -30,7 +33,7 @@ export const ActionListaRelatorioBi = ({ dadosBI, optionsModulos }) => {
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['ID Relatório',  'Descrição', 'Status']],
+      head: [['ID Relatório', 'Descrição', 'Status']],
       body: dados.map(item => [
         item.IDRELATORIOBI,
         item.DSRELATORIOBI,
@@ -45,23 +48,23 @@ export const ActionListaRelatorioBi = ({ dadosBI, optionsModulos }) => {
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
-    const header = ['ID Relatório',  'Descrição', 'Status'];
+    const header = ['ID Relatório', 'Descrição', 'Status'];
     worksheet['!cols'] = [
-      { wpx: 100, caption: 'ID Relatório' }, 
-      { wpx: 200, caption: 'Descrição' }, 
+      { wpx: 100, caption: 'ID Relatório' },
+      { wpx: 200, caption: 'Descrição' },
       { wpx: 100, caption: 'Status' }
-    ]; 
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Relatórios BI');
     XLSX.writeFile(workbook, 'lista_relatorio.xlsx');
   };
 
   const dados = dadosBI.map((item, index) => {
-   
+
     return {
       IDRELATORIOBI: item.IDRELATORIOBI,
       DSRELATORIOBI: item.DSRELATORIOBI,
-      STATIVO: item.STATIVO, 
+      STATIVO: item.STATIVO,
     }
   });
 
@@ -121,19 +124,22 @@ export const ActionListaRelatorioBi = ({ dadosBI, optionsModulos }) => {
   const handleDetalhar = async (IDRELATORIOBI) => {
     try {
       const response = await get(`/relatorioInformaticaBI?idRelatorio=${IDRELATORIOBI}`)
-      if(response.data) {
-
+      if (response.data && response.data.length > 0) {
+        // const relatorio = response.data.find(r => r.IDRELATORIOBI === IDRELATORIOBI)
+        //setRelatorioSelecionado(relatorio)
+        //setDadosRelatorios(response.data)
         setDadosRelatorios(response.data)
         setModalVisivel(true)
+        console.log(dadosRelatorios, "dadosRelatoriosno try")
       }
 
     } catch (error) {
-      console.log('Erro ao buscar detalhes do Cliente: ', error)
+      console.error('Erro ao buscar detalhes do Cliente: ', error)
     }
   }
 
   const handleClickDetalhar = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDRELATORIOBI) {
         handleDetalhar(row.IDRELATORIOBI)
 
@@ -145,11 +151,8 @@ export const ActionListaRelatorioBi = ({ dadosBI, optionsModulos }) => {
         icon: 'warning',
         confirmButtonText: 'OK'
       });
-    }  
+    }
   }
-
-
-
 
   return (
 
@@ -179,6 +182,9 @@ export const ActionListaRelatorioBi = ({ dadosBI, optionsModulos }) => {
             sortOrder={-1}
             paginator={true}
             rows={10}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
@@ -207,10 +213,14 @@ export const ActionListaRelatorioBi = ({ dadosBI, optionsModulos }) => {
       </div>
 
 
-      <ActionEditarRelatorioBIModal 
-        show={modalVisivel} 
-        handleClose={() => setModalVisivel(false)} 
+      <ActionEditarRelatorioBIModal
+        show={modalVisivel}
+        handleClose={() => setModalVisivel(false)}
+        dadosRelatorio={relatorioSelecionado}
+        refetch={refetch}
         dadosRelatorios={dadosRelatorios}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
       />
     </Fragment>
   )

@@ -4,9 +4,15 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { useForm } from "react-hook-form"
 import Select from 'react-select';
-import { useEditarCategoriaPedido } from "../../../hooks/useEditarCategoriaPedido"
+import { useEditarCategoriaPedido } from "../hooks/useEditarCategoriaPedido"
 
-export const FormularioEditar = ({handleClose, dadosDetalheCategoriaPedido}) => {
+export const FormularioEditar = ({
+    handleClose, 
+    dadosDetalheCategoriaPedido,
+    usuarioLogado,
+    optionsModulos,
+    handleClick 
+}) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         optionsStatus,
@@ -18,7 +24,7 @@ export const FormularioEditar = ({handleClose, dadosDetalheCategoriaPedido}) => 
         tipoCategoriaSelecionado,
         setTipoCategoriaSelecionado,
         handleEditar
-    } = useEditarCategoriaPedido({dadosDetalheCategoriaPedido})
+    } = useEditarCategoriaPedido({dadosDetalheCategoriaPedido, handleClose, usuarioLogado, optionsModulos, handleClick});
     
     return (
         <Fragment>

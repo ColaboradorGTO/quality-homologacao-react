@@ -16,37 +16,24 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
     const [empresaSelecionada, setEmpresaSelecionada] = useState('');
     const [caixa, setCaixa] = useState('');
     const [ipUsuario, setIpUsuario] = useState('');
-    const navigate = useNavigate();
-
-   
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
 
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
 
-    useEffect(() => {
-        const usuarioArmazenado = localStorage.getItem('usuario');
-
-        if (usuarioArmazenado) {
-            try {
-            const parsedUsuario = JSON.parse(usuarioArmazenado);
-            setUsuarioLogado(parsedUsuario);;
-            } catch (error) {
-            console.error('Erro ao parsear o usuário do localStorage:', error);
+            if (!usuarioIP) {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
             }
-        } else {
-            navigate('/');
+
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
         }
-    }, [navigate]);
-
-
+    };
 
     useEffect(() => {
         if(dadosDetalheFaturaCaixa.length > 0) {
@@ -113,7 +100,7 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
         }
 
         const putData = {
-            IDDETALHEFATURA: dadosDetalheFaturaCaixa[0].IDDETALHEFATURA,
+            IDDETALHEFATURA: parseInt(dadosDetalheFaturaCaixa[0].IDDETALHEFATURA),
             NUCODAUTORIZACAO: codAutorizacao,
             VRRECEBIDO:  parseFloat(valorFatura),
             NUAUTORIZACAO: codPix,
@@ -125,7 +112,7 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
 
             const response = await put('/atualizarFatura/:id', putData)
             const textDados = JSON.stringify(putData)
-
+            const ipUsuario = await getIPUsuario();
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: `FINANCEIRO/ALTERAÇÃO DE FATURA`,
@@ -148,7 +135,8 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
             handleClose();
             return responsePost.data;
         } catch (error) {
-
+            const textDados = JSON.stringify(putData)
+            const ipUsuario = await getIPUsuario();
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: `FINANCEIRO/ERRO AO ALTERAR FATURA`,

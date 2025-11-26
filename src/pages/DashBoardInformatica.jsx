@@ -19,6 +19,7 @@ const ActionPesquisaLinkRelatorioBi = lazy(() => import("../componets/Informatic
 const ActionPesquisaRelatorioBI = lazy(() => import("../componets/Informatica/Components/ActionRelatorioBI/actionPesquisaRelatorioBI").then(module => ({ default: module.ActionPesquisaRelatorioBI })));
 const ActionPesquisaDuplicarPermissao = lazy(() => import("../componets/Informatica/Components/ActionPermissao/actionPesquisaPerfilPermissao").then(module => ({ default: module.ActionPesquisaPerfilPermissao })));
 const ActionPesquisEmpresa = lazy(() => import("../componets/Informatica/Components/ActionPesquisaEmpresas/actionPesquisaEmpresa").then(module => ({ default: module.ActionPesquisEmpresa })));
+const ActionPesquisaNfce = lazy(() => import("../componets/Informatica/Components/ActionValidaVendasContigencia/actionPesquisaNfce").then(module => ({ default: module.ActionPesquisaNfce })));
 
 export const DashBoardInformatica = () => {
   const [actionVisivel, setActionVisivel] = useState(true);
@@ -100,7 +101,10 @@ export const DashBoardInformatica = () => {
       component = <ActionPesquisaDuplicarPermissao usuarioLogado={usuarioLogado} ID={ID}/>;
       break;
       case "/informatica/ActionPesquisaEmpresas":
-        component = <ActionPesquisEmpresa ususarioLogado={usuarioLogado} ID={ID} />;
+        component = <ActionPesquisEmpresa usuarioLogado={usuarioLogado} ID={ID} />;
+        break;
+      case "/informatica/ActionPesquisaNfce":
+        component = <ActionPesquisaNfce usuarioLogado={usuarioLogado} ID={ID} />;
         break;
     default:
       component = null;
@@ -130,7 +134,7 @@ export const DashBoardInformatica = () => {
                     <div className="panel-container show">
                       <div className="panel-content">
                         <Suspense fallback={<div>Loading...</div>}>
-                        {actionVisivel && !componentToShow && (<InformaticaActionHome />)}
+                        {actionVisivel && !componentToShow && (<InformaticaActionHome usuarioLogado={usuarioLogado} ID={ID} />)}
 
                           {componentToShow && component}
                         </Suspense>

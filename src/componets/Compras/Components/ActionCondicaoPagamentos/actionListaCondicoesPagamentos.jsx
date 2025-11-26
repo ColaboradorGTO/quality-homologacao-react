@@ -10,8 +10,14 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import Swal from "sweetalert2";
 
-export const ActionListaCondicoesPagamentos = ({ dadosCondicoesPagamentos }) => {
+export const ActionListaCondicoesPagamentos = ({ 
+  dadosCondicoesPagamentos,
+  usuarioLogado,
+  optionsModulos,
+  handleClick
+ }) => {
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosDetalheCondPagamento, setDadosDetalheCondPagamento] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -78,22 +84,6 @@ export const ActionListaCondicoesPagamentos = ({ dadosCondicoesPagamentos }) => 
       DSTPDOCUMENTO: item.DSTPDOCUMENTO,
       STATIVO: item.STATIVO == 'True' ? 'ATIVO' : 'INATIVO',
       IDCONDICAOPAGAMENTO: item.IDCONDICAOPAGAMENTO,
-
-
-      // IDGRUPOEMPRESARIAL: item.IDGRUPOEMPRESARIAL,
-      // IDEMPRESA: item.IDEMPRESA,
-      // NUNDIA2PAG: item.NUNDIA2PAG,
-      // NUNDIA3PAG: item.NUNDIA3PAG,
-      // NUNDIA4PAG: item.NUNDIA4PAG,
-      // NUNDIA5PAG: item.NUNDIA5PAG,
-      // NUNDIA6PAG: item.NUNDIA6PAG,
-      // NUNDIA7PAG: item.NUNDIA7PAG,
-      // NUNDIA8PAG: item.NUNDIA8PAG,
-      // NUNDIA9PAG: item.NUNDIA9PAG,
-      // NUNDIA10PAG: item.NUNDIA10PAG,
-      // NUNDIA11PAG: item.NUNDIA11PAG,
-      // NUNDIA12PAG: item.NUNDIA12PAG,
-      // DTULTALTERACAO: item.DTULTALTERACAO,
     }
   })
 
@@ -163,9 +153,11 @@ export const ActionListaCondicoesPagamentos = ({ dadosCondicoesPagamentos }) => 
             <ButtonTable
               titleButton={"Editar Transportador"}
               onClickButton={() => clickEditar(row)}
-              cor={"success"}
+              cor={"primary"}
               Icon={CiEdit}
-
+              iconSize={25}
+              width="35px"
+              height="35px"
             />
           </div>
         )
@@ -175,8 +167,20 @@ export const ActionListaCondicoesPagamentos = ({ dadosCondicoesPagamentos }) => 
   ]
 
   const clickEditar = (row) => {
-    if (row && row.IDCONDICAOPAGAMENTO) {
-      handleEditar(row.IDCONDICAOPAGAMENTO);
+    if(optionsModulos[0]?.ALTERAR == 'True') {
+      if (row && row.IDCONDICAOPAGAMENTO) {
+        handleEditar(row.IDCONDICAOPAGAMENTO);
+      }
+    } else {
+      Swal.fire({
+        title: 'Erro!',
+        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para editar a Condição de Pagamento!`,
+        icon: 'error',
+        customClass: {
+          container: 'custom-swal',
+        },
+      })
+      return;
     }
   };
 
@@ -220,6 +224,9 @@ export const ActionListaCondicoesPagamentos = ({ dadosCondicoesPagamentos }) => 
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -233,7 +240,7 @@ export const ActionListaCondicoesPagamentos = ({ dadosCondicoesPagamentos }) => 
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
                 bodyStyle={{ fontSize: '1rem' }}
 
@@ -247,6 +254,9 @@ export const ActionListaCondicoesPagamentos = ({ dadosCondicoesPagamentos }) => 
         show={modalEditar}
         handleClose={() => setModalEditar(false)}
         dadosDetalheCondPagamento={dadosDetalheCondPagamento}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

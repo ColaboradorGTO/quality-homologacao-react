@@ -1,25 +1,27 @@
 import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
-import { useEditarTecido } from "../../../hooks/useEditarTecidos"
+import { useEditarTecido } from "../hooks/useEditarTecidos"
 import { useForm } from "react-hook-form"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import Select from 'react-select';
 
-export const FormularioEditarTecido = ({ show, handleClose, dadosDetalheTipoTecido }) => {
+export const FormularioEditarTecido = ({ 
+    show, 
+    handleClose, 
+    dadosDetalheTipoTecido,
+    usuarioLogado,
+    optionsModulos 
+}) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         descricao,
         setDescricao,
         statusSelecionado,
         setStatusSelecionado,
-        usuarioLogado,
-        ipUsuario,
-        navigate,
-        getIPUsuario,
         optionsStatus,
         onSubmit,
-    } = useEditarTecido({dadosDetalheTipoTecido})
+    } = useEditarTecido({dadosDetalheTipoTecido, usuarioLogado, optionsModulos});
 
     return (
         <Fragment>

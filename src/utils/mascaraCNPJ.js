@@ -2,6 +2,10 @@ export const mascaraCNPJ = (cnpj) => {
     return cnpj.substring(0, 2) + "." + cnpj.substring(2, 5) + "." + cnpj.substring(5, 8) + "/" + cnpj.substring(8, 12) + "-" + cnpj.substring(12, 14);
 }
 
+export const removeMascaraCNPJ = (cnpj) => {
+    return cnpj.replace(/[^\d]+/g, '');
+}
+
 export const validarCNPJ = (cnpj) => {
    
     cnpj = cnpj.replace(/[^\d]+/g, '');

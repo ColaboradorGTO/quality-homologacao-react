@@ -1,21 +1,76 @@
 import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
-import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import Select from 'react-select';
+import { useCadastrarFabricanteFornecedor } from "../hooks/useCadastrarFabricanteFornecedor";
+import { schema } from "./schema/useCadastrarSchema";
+import { useForm, Controller } from "react-hook-form";
+import FormField from "../../../../Formularios/FormField";
 
-export const FormularioCadastrar = ({ handleClose }) => {
+export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos, handleClick }) => {
+    const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+        mode: "onChange"
+    });
+    const {
+        statusSelecionado,
+        setStatusSelecionado,
+        onSubmit,
+        fabricante,
+        setFabricante,
+        optionsStatus,
+        handleChange
+    } = useCadastrarFabricanteFornecedor({ handleClose, usuarioLogado, optionsModulos, handleClick });
+
+    const handleValidatedSubmit = async () => {
+        try {
+            const dadosParaValidar = {
+                fabricanteFornecedor: fabricante,
+            }
+
+            await schema.validate(dadosParaValidar, { abortEarly: false });
+
+            onSubmit();
+
+        } catch (validationError) {
+            clearErrors();
+
+
+            if (validationError.inner && validationError.inner.length > 0) {
+                validationError.inner.forEach(error => {
+                    if (error.path) {
+                        setError(error.path, {
+                            type: 'manual',
+                            message: error.message
+                        });
+                    }
+                });
+            }
+
+            const errorMessages = validationError.errors || [validationError.message];
+            console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+        }
+    }
+
     return (
         <Fragment>
-            <form>
+            <form onSubmit={handleSubmit(handleValidatedSubmit)}>
                 <div className="row">
                     <div className="col-sm-6 col-xl-3">
-                        <InputFieldModal
-                            label={"Nome Fabricante *"}
-                            type={"text"}
-                            id={"nofabricante"}
-                            value={fabricante}
-                            onChangeModal={(e) => setFabricante(e.target.value)}
+                        <Controller
+                            name="fabricanteFornecedor"
+                            control={control}
+                            render={({ field }) => (
+                                <FormField
+                                    label={"Nome Fabricante *"}
+                                    name="fabricanteFornecedor"
+                                    type="text"
+                                    value={fabricante}
+                                    onChange={(e) => setFabricante(e.target.value)}
+                                    errors={errors}
+                                    clearErrors={clearErrors}
+                                />
+
+                            )}
                         />
                     </div>
                     <div className="col-sm-6 col-xl-3">
@@ -23,14 +78,14 @@ export const FormularioCadastrar = ({ handleClose }) => {
                         <Select
                             id={"stativofab"}
                             readOnly={false}
-                            options={options.map((item) => {
+                            options={optionsStatus.map((item) => {
                                 return {
                                     value: item.value,
                                     label: item.label
                                 }
                             })}
                             value={statusSelecionado}
-                            onChange={handleChange}
+                            onChange={(e) => setStatusSelecionado(e)}
                         />
                     </div>
                 </div>
@@ -47,6 +102,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
 
                     ButtonTypeCadastrar={ButtonTypeModal}
                     onClickButtonCadastrar
+                    tipoBtnCadastrar={"submit"}
                     textButtonCadastrar={"Salvar"}
                     corCadastrar={"success"}
                 />

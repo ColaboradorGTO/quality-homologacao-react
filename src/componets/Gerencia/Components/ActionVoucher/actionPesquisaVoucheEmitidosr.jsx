@@ -1,5 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
+import React, { Fragment, useState } from "react"
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
 import { ButtonType } from "../../../Buttons/ButtonType";
@@ -10,34 +9,11 @@ import Swal from 'sweetalert2'
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 
-export const ActionPesquisaVoucherEmitido = () => {
+export const ActionPesquisaVoucherEmitido = ({usuarioLogado, ID}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [numeroVoucherSelecionado, setNumeroVoucherSelecionado] = useState('');
-  const [usuarioLogado, setUsuarioLogado] = useState(null)
   const [currentPage] = useState(1);
   const [pageSize] = useState(1000);
-
-  const navigate = useNavigate();
-
-  useEffect(() => {
-
-
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-  }, [usuarioLogado]);
 
   const fetchResumoVoucher = async () => {
     try {

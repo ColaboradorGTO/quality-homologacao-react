@@ -1,56 +1,46 @@
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { getDataHoraAtual } from "../../../../../utils/dataAtual";
 
-export const useEditarFabricanteFornecedor = ({dadosDetalheFabricante}) => {
+export const useEditarFabricanteFornecedor = ({handleClose, dadosDetalheFabricante, usuarioLogado, optionsModulos, handleClick}) => {
     const [statusSelecionado, setStatusSelecionado] = useState(null)
     const [fabricante, setFabricante] = useState('')
     const [data, setData] = useState('')
-    const [usuarioLogado, setUsuarioLogado] = useState(null);
     const [ipUsuario, setIpUsuario] = useState('');
 
-    const navigate = useNavigate();
 
     useEffect(() => {
         const dataAtual = getDataHoraAtual()
         setData(dataAtual)
     },[])
 
-    
+    const getIPUsuario = async () => {
+        let usuarioIP = null;
+
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
+
+        if (!usuarioIP) {
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
     const optionsStatus = [
         { value: 'True', label: 'ATIVO' },
         { value: 'False', label: 'INATIVO' }
     ]
-
-    useEffect(() => {
-        const usuarioArmazenado = localStorage.getItem('usuario');
-
-        if (usuarioArmazenado) {
-            try {
-                const parsedUsuario = JSON.parse(usuarioArmazenado);
-                setUsuarioLogado(parsedUsuario);;
-            } catch (error) {
-                console.error('Erro ao parsear o usuário do localStorage:', error);
-            }
-        } else {
-            navigate('/');
-        }
-    }, [navigate]);
-
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
-    const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
 
     useEffect(() => {
         setStatusSelecionado({value: dadosDetalheFabricante[0]?.STATIVO, label: dadosDetalheFabricante[0]?.STATIVO == 'True' ? 'ATIVO' : 'INATIVO'})
@@ -60,7 +50,19 @@ export const useEditarFabricanteFornecedor = ({dadosDetalheFabricante}) => {
 
  
 
-    const handleEditar = async () => {
+    const onSubmit = async () => {
+        if(optionsModulos[0]?.ALTERAR == 'False') {
+            Swal.fire({
+                title: 'Erro!',
+                text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para alterar o Fabricante!`,
+                icon: 'error',
+                customClass: {
+                    container: 'custom-swal',
+                }
+            })
+            return;
+        }
+
         if (fabricante === '') {
             Swal.fire({
                 position: 'center',
@@ -74,12 +76,13 @@ export const useEditarFabricanteFornecedor = ({dadosDetalheFabricante}) => {
         }
 
 
-        const postData = [{
-            IDFABRICANTE: dadosDetalheFabricante[0]?.IDFABRICANTE,
+        const postData = {
+            IDFABRICANTE: parseInt(dadosDetalheFabricante[0]?.IDFABRICANTE),
             DSFABRICANTE: fabricante,
             DTULTATUALIZACAO: data,
+            DTCADASTRO: dadosDetalheFabricante[0]?.DTCADASTRO,
             STATIVO: statusSelecionado.value,
-        }]
+        }
         try {
 
             const response = await put('/fabricante-fornecedor/:id', postData)
@@ -96,22 +99,34 @@ export const useEditarFabricanteFornecedor = ({dadosDetalheFabricante}) => {
             })
 
             const textDados = JSON.stringify(postData)
-            let textFuncao = 'COMPRAS/CADASTRO DE FABRICANTE';
-
+            let textFuncao = 'COMPRAS/ EDITAR CADASTRO DE FABRICANTE';
+            const ipUsuario = await getIPUsuario();
             const createtLog = {
-                IDFUNCIONARIO: usuarioLogado.id,
+                IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
 
-            const responseLog = await post('/log-web', createtLog)
+            await post('/log-web', createtLog)
 
-
-            return responseLog.data;
+            handleClick();
+            handleClose();
+            return response.data;
         } catch (error) {
+            const textDados = JSON.stringify(postData)
+            let textFuncao = 'COMPRAS/ ERRO AO EDITAR CADASTRO DE FABRICANTE';
+            const ipUsuario = await getIPUsuario();
+            const createtLog = {
+                IDFUNCIONARIO: String(usuarioLogado.id),
+                PATHFUNCAO: textFuncao,
+                DADOS: textDados,
+                IP: ipUsuario
+            }
+
+            await post('/log-web', createtLog)
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'error',
                 title: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.',
                 showConfirmButton: false,
@@ -131,6 +146,6 @@ export const useEditarFabricanteFornecedor = ({dadosDetalheFabricante}) => {
         optionsStatus,
         setStatusSelecionado,
         setFabricante,
-        handleEditar,
+        onSubmit,
     }
 }

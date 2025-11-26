@@ -25,8 +25,8 @@ export const ActionDetalheVendaModal = ({show, handleClose,dadosVendas}) => {
       setNofantasia(dadosVendas[0]?.NOFANTASIA || '');
       setIdMovimentoCaixaWeb(dadosVendas[0]?.IDMOVIMENTOCAIXAWEB || '');
       setNfeInfNfeIdeNnf(dadosVendas[0]?.NFE_INFNFE_IDE_NNF || '');
-      setDthoraAbertura(dataFormatada(dadosVendas[0]?.DTHORAABERTURA) || '');
-      setDthoraFechamento(dataFormatada(dadosVendas[0]?.DTHORAFECHAMENTO) || '');
+      setDthoraAbertura(dadosVendas[0]?.DTHORAABERTURA || '');
+      setDthoraFechamento(dadosVendas[0]?.DTHORAFECHAMENTO || '');
       setProtNfeInfProtChnfe(dadosVendas[0]?.PROTNFE_INFPROT_CHNFE || '');
       setVrTotalVenda(formatMoeda(dadosVendas[0]?.VRTOTALVENDA) || '0,00');
       setVrBrutoNota(formatMoeda(dadosVendas[0]?.NFE_INFNFE_TOTAL_ICMSTOT_VPROD) || '0,00');

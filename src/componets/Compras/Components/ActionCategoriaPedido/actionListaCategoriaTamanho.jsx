@@ -2,7 +2,7 @@ import { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
-import { get, put } from "../../../../api/funcRequest";
+import { put } from "../../../../api/funcRequest";
 import { BsTrash3 } from "react-icons/bs";
 import Swal from "sweetalert2";
 import HeaderTable from "../../../Tables/headerTable";
@@ -10,44 +10,12 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 
-export const ActionListaCategoriaTamanho = ({ dadosCategoriaTamanhos }) => {
-  const [modalEditar, setModalEditar] = useState(false);
-  const [excluirVinculoTamanhoPedido, setExcluirVinculoPedido] = useState([]);
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
-  const [ipUsuario, setIpUsuario] = useState('');
+
+export const ActionListaCategoriaTamanho = ({ dadosCategoriaTamanhos, usuarioLogado, optionsModulos }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
-  const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -140,8 +108,9 @@ export const ActionListaCategoriaTamanho = ({ dadosCategoriaTamanhos }) => {
               onClickButton={() => handleExcluir(row)}
               cor={"danger"}
               Icon={BsTrash3}
-              iconSize={20}
-
+              iconSize={25}
+              width="30px"
+              height="30px"
             />
           </div>
         )
@@ -150,11 +119,6 @@ export const ActionListaCategoriaTamanho = ({ dadosCategoriaTamanhos }) => {
     }
   ]
 
-  const clickEditar = (row) => {
-    if (row && row.IDCATPEDIDOTAMANHO) {
-      handleEditar(row.IDCATPEDIDOTAMANHO);
-    }
-  };
 
   const handleExcluir = async (IDCATPEDIDOTAMANHO) => {
     Swal.fire({
@@ -177,12 +141,12 @@ export const ActionListaCategoriaTamanho = ({ dadosCategoriaTamanhos }) => {
           const putData = {
             IDCATPEDIDOTAMANHO: IDCATPEDIDOTAMANHO,
           }
-          const response = await put(`/deletar-vinculo-tamanho-categoria?idCategoriaPedidoTamanho=${IDCATPEDIDOTAMANHO}`, putData)
+          const response = await put(`/deletar-vinculo-tamanho-categoria?IDCATPEDIDOTAMANHO=${IDCATPEDIDOTAMANHO}`, putData)
           const textDados = JSON.stringify(putData)
           let textoFuncao = 'COMPRAS/EXCLUSÃO VINCULO CATEGORIA-TAMANHO'
 
           const postData = {
-            IDFUNCIONARIO: usuarioLogado.id,
+            IDFUNCIONARIO: String(usuarioLogado.id),
             PATHFUNCAO: textoFuncao,
             DADOS: textDados,
             IP: ipUsuario
@@ -192,11 +156,23 @@ export const ActionListaCategoriaTamanho = ({ dadosCategoriaTamanhos }) => {
 
           return responsePost.data;
         } catch (error) {
+          const textDados = JSON.stringify(putData)
+          let textoFuncao = 'COMPRAS/ERRO AO EXCLUIR VINCULO CATEGORIA-TAMANHO'
+
+          const postData = {
+            IDFUNCIONARIO: String(usuarioLogado.id),
+            PATHFUNCAO: textoFuncao,
+            DADOS: textDados,
+            IP: ipUsuario
+          }
+
+          const responsePost = await post('/log-web', postData)
           Swal.fire({
             title: 'Erro!',
             text: `Erro ao excluir o Vínculo da Categoria: ${error}`,
             icon: 'success'
           });
+          return responsePost.data;
         }
       }
     })
@@ -232,6 +208,9 @@ export const ActionListaCategoriaTamanho = ({ dadosCategoriaTamanhos }) => {
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, 500, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -254,8 +233,6 @@ export const ActionListaCategoriaTamanho = ({ dadosCategoriaTamanhos }) => {
           </DataTable>
         </div>
       </div>
-
-
     </Fragment>
   )
 }

@@ -12,7 +12,7 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 
-export const ActionListaGrupoEstrutura = ({ dadosGrupoEstrutura }) => {
+export const ActionListaGrupoEstrutura = ({ dadosGrupoEstrutura, usuarioLogado, optionsModulos, handleClick }) => {
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosDetalheGrupo, setDadosDetalheGrupo] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -60,13 +60,12 @@ export const ActionListaGrupoEstrutura = ({ dadosGrupoEstrutura }) => {
 
   const dados = dadosGrupoEstrutura.map((item, index) => {
     let contador = index + 1;
-    // console.log(item, 'item')
+
     return {
       contador,
       DSGRUPOESTRUTURA: item.DSGRUPOESTRUTURA,
       STATIVO: item.STATIVO == 'True' ? 'ATIVO' : 'INATIVO',
-      IDGRUPOESTRUTURA: item.IDGRUPOESTRUTURA,
-  
+      IDGRUPOESTRUTURA: item.IDGRUPOESTRUTURA,  
     }
   })
 
@@ -103,9 +102,11 @@ export const ActionListaGrupoEstrutura = ({ dadosGrupoEstrutura }) => {
             <ButtonTable
               titleButton={"Editar Grupo Estrutura"}
               onClickButton={() => clickEditar(row)}
-              cor={"success"}
+              cor={"primary"}
               Icon={CiEdit}
-
+              iconSize={25}
+              width="35px"
+              height="35px"
             />
           </div>
         )
@@ -115,8 +116,20 @@ export const ActionListaGrupoEstrutura = ({ dadosGrupoEstrutura }) => {
   ]
 
   const clickEditar = (row) => {
-    if (row && row.IDGRUPOESTRUTURA) {
-      handleEditar(row.IDGRUPOESTRUTURA);
+    if(optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        title: 'Erro!',
+        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para editar SubGrupo de Estrutura Mercadológica!`,
+        icon: 'error',
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else {
+      if (row && row.IDGRUPOESTRUTURA) {
+        handleEditar(row.IDGRUPOESTRUTURA);
+      }
     }
   };
 
@@ -130,13 +143,10 @@ export const ActionListaGrupoEstrutura = ({ dadosGrupoEstrutura }) => {
     }
   }
 
-  const handleModal = () => {
-    setModalEditar(true)
-  }
 
   return (
     <Fragment>
-      <div className="panel" style={{ marginTop: '8rem' }}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>Relatórios - Grupos Estruturas Mercadológicas</h2>
         </div>
@@ -162,6 +172,9 @@ export const ActionListaGrupoEstrutura = ({ dadosGrupoEstrutura }) => {
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -175,9 +188,9 @@ export const ActionListaGrupoEstrutura = ({ dadosGrupoEstrutura }) => {
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '1rem' }}
 
               />
             ))}
@@ -189,6 +202,9 @@ export const ActionListaGrupoEstrutura = ({ dadosGrupoEstrutura }) => {
         show={modalEditar}
         handleClose={() => setModalEditar(false)}
         dadosDetalheGrupo={dadosDetalheGrupo}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

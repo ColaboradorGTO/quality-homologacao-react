@@ -4,7 +4,7 @@ import { FormularioEditarEstilos } from "./formularioEditarEstilos";
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 
 
-export const ActionEditarEstilosModal = ({ show, handleClose, dadosDetalheEstilos }) => {
+export const ActionEditarEstilosModal = ({ show, handleClose, handleClick, dadosDetalheEstilos, usuarioLogado, optionsModulos }) => {
 
   return (
 
@@ -25,7 +25,13 @@ export const ActionEditarEstilosModal = ({ show, handleClose, dadosDetalheEstilo
         />
 
         <Modal.Body>
-          <FormularioEditarEstilos dadosDetalheEstilos={dadosDetalheEstilos} handleClose={handleClose} />
+          <FormularioEditarEstilos 
+            dadosDetalheEstilos={dadosDetalheEstilos} 
+            handleClose={handleClose} 
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+            handleClick={handleClick}
+          />
         </Modal.Body>
 
       </Modal>

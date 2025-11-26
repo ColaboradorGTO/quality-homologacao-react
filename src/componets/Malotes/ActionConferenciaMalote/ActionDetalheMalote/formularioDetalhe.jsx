@@ -85,7 +85,7 @@ export const FormularioDetalheMalote = ({ dadosDetalhesMalote, dadosPendenciasMa
     <Fragment>
 
       <div style={{ width: '30%' }}>
-        <label htmlFor="" style={{ fontWeight: 900, fontSize: '16px', fontWeight: 900, }}>Histórico:</label>
+        <label htmlFor="" style={{ fontWeight: 900, fontSize: '16px'}}>Histórico:</label>
         <Select
           options={selectOptions}
           value={selectOptions.find(opt => opt.value === historicoSelecionado) || defaultOption}

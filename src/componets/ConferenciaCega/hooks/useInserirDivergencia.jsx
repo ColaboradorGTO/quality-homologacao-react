@@ -45,7 +45,7 @@ export const useInserirDivergencia = (dadosStatusDivergencia, handleClose) => {
       Swal.fire({
         title: 'Atenção!',
         type: 'warning',
-        title: 'Necessário preencher o Motivo!',
+        text: 'Necessário preencher o Motivo!',
         icon: 'warning',
         customClass: {
             container: 'custom-swal', 
@@ -58,7 +58,7 @@ export const useInserirDivergencia = (dadosStatusDivergencia, handleClose) => {
       Swal.fire({
         title: 'Atenção!',
         type: 'warning',
-        title: 'Necessário preencher a Observação!',
+        text: 'Necessário preencher a Observação!',
         icon: 'warning',
         customClass: {
             container: 'custom-swal', 
@@ -109,7 +109,7 @@ export const useInserirDivergencia = (dadosStatusDivergencia, handleClose) => {
       Swal.fire({
         title: 'Atenção!',
         type: 'warning',
-        title: 'Necessário preencher o Motivo!',
+        text: 'Necessário preencher o Motivo!',
         icon: 'warning',
         customClass: {
             container: 'custom-swal', 
@@ -123,7 +123,7 @@ export const useInserirDivergencia = (dadosStatusDivergencia, handleClose) => {
       Swal.fire({
         title: 'Atenção!',
         type: 'warning',
-        title: 'Necessário preencher a Observação!',
+        text: 'Necessário preencher a Observação!',
         icon: 'warning',
         customClass: {
             container: 'custom-swal', 

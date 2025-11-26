@@ -3,7 +3,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { formatMoeda } from '../../../../utils/formatMoeda';
 import { ButtonTable } from '../../../ButtonsTabela/ButtonTable';
-import { GrAdd, GrFormView } from 'react-icons/gr';
+import { GrFormView } from 'react-icons/gr';
 import HeaderTable from '../../../Tables/headerTable';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -12,46 +12,74 @@ import { useReactToPrint } from "react-to-print";
 import { get } from '../../../../api/funcRequest';
 import { retornaDiasEntreDatas } from '../../../../utils/retornoEntreDias';
 import { Checkbox } from "primereact/checkbox";
-import { InputNumber } from 'primereact/inputnumber';
-import { FaMinus } from 'react-icons/fa';
 import Swal from 'sweetalert2';
 
-export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
-  const [dadosVisualizarProdutos, setDadosVisualizarProdutos] = useState([])
-  const [tabelaPrincipal, setTabelaPrincipal] = useState(true);
+export const ActionListaVendaCLiente = ({
+  dadosVendasClientes,
+  btnVisivel,
+  setBtnVisivel,
+  selectedRows,
+  setSelectedRows,
+  dadosVisualizarProdutos,
+  setDadosVisualizarProdutos,
+  tipoTrocaSelecionada,
+  setTipoTrocaSelecionada,
+  quantidade,
+  setQuantidade,
+  quantidadesProdutos,
+  setQuantidadesProdutos
+}) => {
+  const [tabelaVenda, setTabelaVenda] = useState(true);
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
   const [rowClick, setRowClick] = useState(true);
-  const [selectedRows, setSelectedRows] = useState([])
-  const [quantidade, setQuantidade] = useState(0);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
-  
 
 
   const onRowSelect = (row, checked) => {
     if (checked) {
-      setSelectedRows([...selectedRows, row]); // Adiciona a linha selecionada
+      const newSelectedRows = [...selectedRows, row];
+      setSelectedRows(newSelectedRows);
     } else {
-      setSelectedRows(selectedRows.filter(selectedRow => selectedRow.IDVENDA !== row.IDVENDA)); // Remove a linha desmarcada
+
+      const newSelectedRows = selectedRows.filter(selectedRow => {
+        if (row.contadorIndex !== undefined && selectedRow.contadorIndex !== undefined) {
+          return selectedRow.contadorIndex !== row.contadorIndex;
+        }
+        return selectedRow.IDVENDA !== row.IDVENDA;
+      });
+      setSelectedRows(newSelectedRows);
     }
   };
 
-  
+
+  const handleQuantidadeChange = (contadorIndex, novaQuantidade) => {
+    const quantidade = Math.max(1, parseInt(novaQuantidade) || 1);
+    setQuantidadesProdutos(prev => ({
+      ...prev,
+      [contadorIndex]: quantidade
+    }));
+  };
+
+  const getQuantidadeProduto = (contadorIndex, quantidadeOriginal) => {
+    return quantidadesProdutos[contadorIndex] || quantidadeOriginal;
+  };
+
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
-  
+
   const handlePrint = useReactToPrint({
     content: () => dataTableRef.current,
     documentTitle: 'Vouchers Emitidos',
   });
-  
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
-    const header = ['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ' , 'Loja', 'Valor Pago', 'Data', 'Situação']
+    const header = ['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Valor Pago', 'Data', 'Situação']
     worksheet['!cols'] = [
-      { wpx: 50,  caption: 'Nº' },
+      { wpx: 50, caption: 'Nº' },
       { wpx: 100, caption: 'Nº Venda' },
       { wpx: 200, caption: 'Cliente' },
       { wpx: 100, caption: 'CPF/CNPJ' },
@@ -64,11 +92,11 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Vouchers Emitidos');
     XLSX.writeFile(workbook, 'venda_cliente_vouchers.xlsx');
   };
-  
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ' , 'Loja', 'Valor Pago', 'Data', 'Situação']],
+      head: [['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Valor Pago', 'Data', 'Situação']],
       body: dados.map(item => [
         item.contador,
         item.IDVENDA,
@@ -85,8 +113,6 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
     doc.save('venda_cliente_vouchers.pdf');
   };
 
-
-  console.log(dadosVendasClientes, "dadosVendasClientes")
   const dados = dadosVendasClientes.map((item, index) => {
     let contador = index + 1;
     const nomeClienteVenda = item.venda.DEST_CPF ? item.venda.DSNOMERAZAOSOCIAL + ' - ' + item.venda.DSAPELIDONOMEFANTASIA : item.venda.DSNOMERAZAOSOCIAL;
@@ -105,54 +131,54 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
     }
   });
 
-  const colunasVouchers = [
+  const colunasVendas = [
     {
       field: 'contador',
       header: 'Nº',
-      body: row => <th style={{color: 'blue'}}>{row.contador}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.contador}</th>,
       sortable: true,
     },
     {
       field: 'IDVENDA',
       header: 'Nº Venda',
       // body: row => <th style={{color: 'blue'}}>{ocultaParteDosDadosVoucher(row.NUVOUCHER)}</th>,
-      body: row => <th style={{color: 'blue'}}>{row.IDVENDA}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.IDVENDA}</th>,
       sortable: true,
     },
     {
       field: 'nomeClienteVenda',
       header: 'Cliente',
-      body: row => <th style={{color: 'blue'}}>{row.nomeClienteVenda}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.nomeClienteVenda}</th>,
       sortable: true,
     },
     {
       field: 'DEST_CPF',
       header: 'CPF/CNPJ',
-      body: row => <th style={{color: 'blue'}}>{row.DEST_CPF}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.DEST_CPF}</th>,
       sortable: true,
     },
     {
       field: 'NOFANTASIA',
       header: 'Loja',
-      body: row => <th style={{color: 'blue'}}>{row.NOFANTASIA}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.NOFANTASIA}</th>,
       sortable: true,
     },
     {
       field: 'VRTOTALPAGO',
       header: 'Valor Pago',
-      body: row => <th style={{color: 'blue'}}>{formatMoeda(row.VRTOTALPAGO)}</th>,
+      body: row => <th style={{ color: 'blue' }}>{formatMoeda(row.VRTOTALPAGO)}</th>,
       sortable: true,
     },
     {
       field: 'DTHORAFECHAMENTO',
       header: 'Data',
-      body: row => <th style={{color: 'green'}}>{row.DTHORAFECHAMENTO}</th>,
+      body: row => <th style={{ color: 'green' }}>{row.DTHORAFECHAMENTO}</th>,
       sortable: true,
     },
     {
       field: 'STCANCELADO',
       header: 'Situação',
-      body: row => <th style={{color: 'green'}}>{row.STCANCELADO == 'True' ? 'Ativa' : 'Cancelada'}</th>,
+      body: row => <th style={{ color: 'green' }}>{row.STCANCELADO == 'True' ? 'Ativa' : 'Cancelada'}</th>,
       sortable: true,
     },
     {
@@ -179,7 +205,6 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
 
   ]
 
-
   const handleTipoTroca = async (row) => {
     const { value: tipoTroca } = await Swal.fire({
       title: 'Tipo da troca?',
@@ -201,44 +226,53 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
       allowEscapeKey: false,
 
       preConfirm: () => {
-        if(row.IDVENDA) {
-          handleDetalhar(row.IDVENDA)
+        // if (row.IDVENDA) {
+        //   handleDetalhar(row.IDVENDA)
+        // }
+
+        const dadosVenda = dadosVendasClientes.find(item => item.venda.IDVENDA === row.IDVENDA);
+        if (dadosVenda) {
+          handleMostrarProdutos(dadosVenda);
         }
       }
     });
-  
+
     if (tipoTroca) {
+      setTipoTrocaSelecionada(tipoTroca);
       return tipoTroca;
     }
-  
+
     return false;
   };
-
 
   const handleClickDetalhar = async (row) => {
     if (row.IDVENDA) {
       handleDetalhar(row.IDVENDA)
     }
-
   }
+
+  const handleMostrarProdutos = (dadosVenda) => {
+    setDadosVisualizarProdutos([dadosVenda]);
+    setTabelaVenda(false);
+    setTabelaSecundaria(true);
+};
 
   const handleDetalhar = async (IDVENDA) => {
     try {
       const response = await get(`/lista-venda-cliente?idVenda=${IDVENDA}`)
       if (response.data) {
         setDadosVisualizarProdutos(response.data)
-        setTabelaPrincipal(false)
+        setTabelaVenda(false)
         setTabelaSecundaria(true)
       }
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
     }
   }
-  
 
   const dadosProdutos = dadosVisualizarProdutos.flatMap((item) => {
     const { venda, detalhe } = item;
-    
+
     return detalhe.map((detalheItem, index) => {
       const contadorIndex = index + 1;
       return {
@@ -270,8 +304,6 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
 
   });
 
-
-
   const colunasVouchers2 = [
     {
       field: 'contadorIndex',
@@ -283,10 +315,13 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
       field: 'contadorIndex',
       header: 'Selecione',
       body: row => (
-        <Checkbox 
-          onChange={e => onRowSelect(row, e.checked)} 
-          checked={selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex)} 
-          disabled={row.QTD <= 1}
+        <Checkbox
+          onChange={e => {
+            onRowSelect(row, e.checked);
+            setBtnVisivel(e.checked);
+          }}
+          checked={selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex)}
+          disabled={row.STTROCA == 'True' ? true : false}
         />
       ),
       sortable: true,
@@ -314,20 +349,22 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
       header: 'Quantidade',
       body: row => {
         const isCheckboxChecked = selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex);
-         const isDisabled = !isCheckboxChecked || row.QTD > 1; 
-         
-        return (
+        const isDisabled = isCheckboxChecked;
+        const quantidadeAtual = getQuantidadeProduto(row.contadorIndex, row.QTD);
 
-          <div className="">
-            <input 
-              type="number" 
-              name="quantidadeProduto" 
-              value={row.QTD} 
-              style={{ width: '100px', textAlign: 'center' }} 
-              onChange={(e) => setQuantidade(e.target.value)} 
+        return (
+          <div >
+            <input
+              value={quantidadeAtual}
+              min={1}
+              max={row.QTD}
+              step={1}
+              style={{ width: '100px', textAlign: 'center' }}
+              onChange={e => {
+                handleQuantidadeChange(row.contadorIndex, e.value);
+              }}
               disabled={isDisabled}
             />
-
           </div>
         )
       },
@@ -336,17 +373,17 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
     {
       field: 'VRTOTALLIQUIDO',
       header: 'Valor',
-      body: row => <th style={{}} >{row.VRTOTALLIQUIDO} </th>,
+      body: row => <th style={{}} >{formatMoeda(row.VRTOTALLIQUIDO)} </th>,
       sortable: true,
     },
   ]
-
+  
   return (
     <Fragment>
-      {tabelaPrincipal && (
+      {tabelaVenda && (
         <div className="panel">
           <div className="panel-hdr">
-            <h2>Vouchers </h2>
+            <h2>Vendas </h2>
           </div>
           <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
             <HeaderTable
@@ -363,7 +400,7 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
               title="Vouchers "
               value={dados}
               size="small"
-              globalFilter={globalFilterValue} 
+              globalFilter={globalFilterValue}
               sortOrder={-1}
               paginator={true}
               rows={10}
@@ -375,7 +412,7 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
               stripedRows
               emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
             >
-              {colunasVouchers.map(coluna => (
+              {colunasVendas.map(coluna => (
                 <Column
                   key={coluna.field}
                   field={coluna.field}
@@ -390,7 +427,7 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
 
                 />
               ))}
-      
+
             </DataTable>
           </div>
         </div>
@@ -422,9 +459,10 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
               />
 
             </div>
-            <div className="card">
+            <div className="card" ref={dataTableRef}>
 
               <DataTable
+                key={"IDVENDA"}
                 title="Vendas Voucher por Loja"
                 value={dadosProdutos}
                 globalFilter={globalFilterValue}
@@ -436,7 +474,7 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
                 rowsPerPageOptions={[10, 20, 50, 100, dadosProdutos.length]}
                 showGridlines
                 stripedRows
-                emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
+                emptyMessage={<div className="dataTables_empty">Não há Produtos Na Venda</div>}
               >
                 {colunasVouchers2.map(coluna => (
                   <Column
@@ -461,15 +499,3 @@ export const ActionListaVendaCLiente = ({ dadosVendasClientes }) => {
     </Fragment>
   )
 }
-
-
-{/* 
-    Tela Voucher
-
-    1. [x] Modal Voucher Trocas em processamento ou não liberadas
-    2. [x] Pesquisa de Vouchers
-    3. [x] Tela de Criar Voucher
-
-
-    apos o login faz a validação do cpf/cnpj em outro swal nome modalCpfOuCnpjDoClienteParaVoucher
-*/}

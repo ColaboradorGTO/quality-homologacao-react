@@ -19,7 +19,7 @@ export const ActionFaturaListaVendasPIX = ({ dadosFaturaVendasPix, optionsModulo
   const dataTableRef = useRef();
   const [selectAll, setSelectAll] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
-  const { handleDetalhar } = useCompensacaoData({ usuarioLogado, optionsModulos, usuarioLogado, handleClickVendasPix });
+  const { handleDetalhar } = useCompensacaoData({ usuarioLogado, optionsModulos, handleClickVendasPix });
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -86,6 +86,7 @@ export const ActionFaturaListaVendasPIX = ({ dadosFaturaVendasPix, optionsModulo
 
     var contaCreditoSap = '2.01.06.01.0001';
     return {
+      IDDETALHEFATURA: item.IDDETALHEFATURA,
       DTPROCESSAMENTO: item.DTPROCESSAMENTO,
       DATA_COMPENSACAO: item.DATA_COMPENSACAO,
       IDEMPRESA: item.NOFANTASIA.substring(1, 5),
@@ -125,8 +126,8 @@ export const ActionFaturaListaVendasPIX = ({ dadosFaturaVendasPix, optionsModulo
     },
     {
       field: 'VALORTOTALFATURA',
-      header: 'Loja',
-      body: row => <th style={{ color: '#212529', width: '200px' }}>{row.VALORTOTALFATURA}</th>,
+      header: 'Valor',
+      body: row => <th style={{ color: '#212529', width: '200px' }}>{formatMoeda(row.VALORTOTALFATURA)}</th>,
       sortable: true,
     },
     {

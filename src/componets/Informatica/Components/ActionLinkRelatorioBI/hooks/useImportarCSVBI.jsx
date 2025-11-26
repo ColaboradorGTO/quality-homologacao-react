@@ -1,9 +1,11 @@
 import Swal from "sweetalert2";
-import { get, post } from "../../../../../api/funcRequest";
+import { get, post,put } from "../../../../../api/funcRequest";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import * as XLSX from 'xlsx';
+import { useQuery } from "react-query";
+
 
 export const useImportarCSVBI = ({optionsModulos, handleClose}) => {
   const [relatorioSelecionadoTabela, setRelatorioSelecionadoTabela] = useState(null);
@@ -32,13 +34,23 @@ export const useImportarCSVBI = ({optionsModulos, handleClose}) => {
     getIPUsuario();
   }, [usuarioLogado]);
 
-  const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  };
+const getIPUsuario = async () => {
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
+
+            if (!usuarioIP) {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+            }
+
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
+        }
+    };
 
   const { data: dadosBI = [], error: errorListaBI, isLoading: isLoadingBI, refetch } = useQuery(
     'relatorioInformaticaBI?status=True',
@@ -88,7 +100,7 @@ export const useImportarCSVBI = ({optionsModulos, handleClose}) => {
     };
 
     const onSubmitArquivo = async (e) => {
-        e.preventDefault();
+       // e.preventDefault();
         if(optionsModulos[0]?.CRIAR == 'False') {
             Swal.fire({
                 icon: 'warning',
@@ -116,7 +128,7 @@ export const useImportarCSVBI = ({optionsModulos, handleClose}) => {
                 LINK: link,
                 STATIVO: 'True',
                 };
-                await put('/atualizarRelatorio', postData);
+                await put('/criarlinkRelatorioBI', postData);
             }
 
 

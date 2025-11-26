@@ -63,7 +63,7 @@ export const ActionPesquisaHome = () => {
 
   const fetchListaFabricantes = async (currentPage, pageSize) => {
     try {
-      const urlApi = `/fabricantes?page=${currentPage}&size=${pageSize}`;
+      const urlApi = `/fabricantes`;
       const response = await get(urlApi);
 
       let allData = [...response.data];
@@ -102,7 +102,7 @@ export const ActionPesquisaHome = () => {
   const { data: dadosFabricantes = [], error: errorFabricantes, isLoading: isLoadingFabricantes, refetch } = useQuery(
     ['fabricantes', currentPage, pageSize],
     () => fetchListaFabricantes( currentPage, pageSize),
-    { enabled: true, cacheTime: 5 * 60 * 1000 }
+    { enabled: false, cacheTime: 5 * 60 * 1000 }
   );
 
   const fetchListaPedidos = async () => {

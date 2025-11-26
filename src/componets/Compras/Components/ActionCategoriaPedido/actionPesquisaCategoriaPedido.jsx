@@ -1,180 +1,132 @@
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useState } from "react"
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { InputField } from "../../../Buttons/Input";
 import { ActionMain } from "../../../Actions/actionMain";
-import { get, post, put } from "../../../../api/funcRequest";
+import { get } from "../../../../api/funcRequest";
 import { MdAdd } from "react-icons/md";
 import { AiOutlineSearch } from "react-icons/ai";
 import { ActionListaCategoriaPedidos } from "./actionListaCategoriaPedido";
 import { ActionCadastroCategoriaPedidoModal } from "./ActionCadastrar/actionCadastroCategoriaPedidoModal";
 import { ActionListaCategoriaTamanho } from "./actionListaCategoriaTamanho";
-import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { useFetchData } from "../../../../hooks/useFetchData";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
+import { useVincularTamanhoPedido } from "./hooks/useVincularTamanhoPedido";
 
 
-export const ActionPesquisaCategoriaPedido = () => {
+export const ActionPesquisaCategoriaPedido = ({ usuarioLogado, ID }) => {
   const [descricao, setDescricao] = useState('');
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState('');
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('');
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [tabelaTamanhoCategoria, setTabelaTamanhoCategoria] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
-  const [clickContador, setClickContador] = useState(0);
-  const [currentPage, setCurrentPage] = useState(1);  
+  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
-  const [ipUsuario, setIpUsuario] = useState('');
-  const navigate = useNavigate();
 
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
 
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
-  const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if(response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+  );
 
   const { data: dadosTamanho = [], error: errorTamanhos, isLoading: isLoadingTamanhos } = useFetchData('tamanhosPedidos', '/tamanhosPedidos');
 
   const fetchListaCategoria = async () => {
+    const urlBase = `/categoriaPedidos?idCategoriaPedido=${categoriaSelecionada}&descricao=${descricao}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      const urlApi = `/categoriaPedidos?idCategoriaPedido=${categoriaSelecionada}&descricao=${descricao}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-        
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
-    
+
   const { data: dadosCategoria = [], error: errorCategoria, isLoading: isLoadingCategoria, refetch: refetchListaCategoria } = useQuery(
     ['categoriaPedidos', categoriaSelecionada, descricao, currentPage, pageSize],
-    () => fetchListaCategoria(categoriaSelecionada, descricao,  currentPage, pageSize),
+    () => fetchListaCategoria(categoriaSelecionada, descricao, currentPage, pageSize),
     { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   )
-    
+
   const fetchListaCategoriaTamanhos = async () => {
+    const urlBase = `/vinculo-tamanho-categoria?idCategoriaPedido=${categoriaSelecionada}&descricao=${descricao}&idTamanho=${tamanhoSelecionado}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      const urlApi = `/vinculo-tamanho-categoria?idCategoriaPedido=${categoriaSelecionada}&descricao=${descricao}&idTamanho=${tamanhoSelecionado}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-        
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
-    
+
   const { data: dadosCategoriaTamanhos = [], error: errorCategoriaTamanhos, isLoading: isLoadingCategoriaTamanhos, refetch: refetchListaCategoriaTamanhos } = useQuery(
     ['vinculo-tamanho-categoria', categoriaSelecionada, descricao, tamanhoSelecionado, currentPage, pageSize],
-    () => fetchListaCategoriaTamanhos(categoriaSelecionada, descricao,  currentPage, tamanhoSelecionado, pageSize),
+    () => fetchListaCategoriaTamanhos(categoriaSelecionada, descricao, currentPage, tamanhoSelecionado, pageSize),
     { enabled: Boolean(descricao), staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   )
-  
 
-    const { data: dadosVinculados = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
-      ['vinculo-tamanho-categoria', categoriaSelecionada, descricao, tamanhoSelecionado],
-      async () => {
-        const response = await get(`/vinculo-tamanho-categoria?idCategoriaPedido=${categoriaSelecionada}&descricao=${descricao}&idTamanho=${tamanhoSelecionado}`);
-        return response.data;
-      },
-      { enabled: Boolean(categoriaSelecionada, tamanhoSelecionado), staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000}
-    );
-  
-  
-    useEffect(() => {
-      if (dadosVinculados[0]?.IDCATEGORIAPEDIDO == categoriaSelecionada && dadosVinculados[0]?.IDTAMANHO == tamanhoSelecionado) {
-        Swal.fire({
-          title: 'Categoria e Tamanho já Vinculados!',
-          icon: 'warning',
-          confirmButtonText: 'Ok',
-          customClass: {
-            container: 'custom-swal',
-          }
-        });
-      }
-    }, [dadosVinculados]);
+
+  const { data: dadosVinculados = [], error: errorVinculo, isLoading: isLoadingVinculo, refetch: refetchVinculo } = useQuery(
+    // vinculo-tamanho-categoria
+    ['vinculo-tamanho-categoria', categoriaSelecionada, descricao, tamanhoSelecionado],
+    async () => {
+      const response = await get(`/vinculo-tamanho-categoria?idCategoriaPedido=${categoriaSelecionada}&descricao=${descricao}&idTamanho=${tamanhoSelecionado}`);
+      return response.data;
+    },
+    { enabled: Boolean(categoriaSelecionada, tamanhoSelecionado), staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+  );
 
   const handleChangeCategoria = (e) => {
     setCategoriaSelecionada(e.value)
@@ -183,8 +135,8 @@ export const ActionPesquisaCategoriaPedido = () => {
   const handleChangeTamanho = (e) => {
     setTamanhoSelecionado(e.value)
   }
-  
-  const handlePesquisar = () => {
+
+  const handleClick = () => {
     setCurrentPage(+1)
     refetchListaCategoria()
     setTabelaVisivel(true)
@@ -198,94 +150,10 @@ export const ActionPesquisaCategoriaPedido = () => {
     setTabelaVisivel(false)
   }
 
-  const handleExcluir = async (IDCATPEDIDOTAMANHO ) => {
-    if(categoriaSelecionada == '') {
-      Swal.fire({
-        type: 'warning',
-        icon: 'warning',
-        title: 'A Categoria deve ser Informada!',
-        showConfirmButton: false,
-        timer: 1500
-      })
-    } else if(tamanhoSelecionado == '') {
-      Swal.fire({
-        type: 'warning',
-        icon: 'warning',
-        title: 'O Tamanho deve ser Informado!',
-        showConfirmButton: false,
-        timer: 1500
-      })
-    }
-      Swal.fire({
-        title: `Certeza que Deseja Excluir o Vínculo da Categoria?`,
-        text: 'Você não poderá reverter a ação!',
-        icon: 'warning',
-        showCancelButton: true,
-        showConfirmButton: true,
-        cancelButtonText: 'Cancelar',
-        confirmButtonText: 'OK',
-        customClass: {
-          confirmButton: 'btn btn-primary',
-          cancelButton: 'btn btn-danger',
-          loader: 'custom-loader'
-        },
-        buttonsStyling: false
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          try {
-            const putData = {  
-              IDCATPEDIDOTAMANHO: IDCATPEDIDOTAMANHO,
-            }
-            const response = await put(`/deletar-vinculo-tamanho-categoria?idCategoriaPedidoTamanho=${IDCATPEDIDOTAMANHO}`, putData)
-            const textDados = JSON.stringify(putData)
-            let textoFuncao = 'COMPRAS/EXCLUSÃO VINCULO CATEGORIA-TAMANHO'
-  
-            const postData = {  
-              IDFUNCIONARIO: usuarioLogado.id,
-              PATHFUNCAO:  textoFuncao,
-              DADOS: textDados,
-              IP: ipUsuario
-            }
-    
-            const responsePost = await post('/log-web', postData)
-  
-            return responsePost.data;
-          } catch (error) {
-            Swal.fire({
-              title: 'Erro!',
-              text: `Erro ao excluir o Vínculo da Categoria: ${error}`,
-              icon: 'success'
-            });
-          }
-        }
-      })
-  }
 
-  const vincularCategoriaTamanho = () => {
-    if(categoriaSelecionada == '') {
-      Swal.fire({
-        type: 'warning',
-        icon: 'warning',
-        title: 'A Categoria deve ser Informada!',
-        showConfirmButton: false,
-        timer: 1500
-      })
-    } else if(tamanhoSelecionado == '') {
-      Swal.fire({
-        type: 'warning',
-        icon: 'warning',
-        title: 'O Tamanho deve ser Informado!',
-        showConfirmButton: false,
-        timer: 1500
-      })
-    } else {
-      try {
-        
-      } catch (error) {
-        console.log(error, "não foi possivel vincular os dados ")
-      }
-    }
-  }
+  const {vincularCategoriaTamanho} = useVincularTamanhoPedido({  usuarioLogado, optionsModulos, categoriaSelecionada, tamanhoSelecionado, dadosVinculados, refetchVinculo})
+
+
   const handleModal = () => {
     setModalVisivel(true)
   }
@@ -326,9 +194,9 @@ export const ActionPesquisaCategoriaPedido = () => {
         optionsGrupos={[
           { value: '', label: 'Selecione...' },
           ...dadosCategoria.map((item) => {
-            return { 
-              value: item.IDCATEGORIAPEDIDO, 
-              label: `${item.TIPOPEDIDO} - ${item.DSCATEGORIAPEDIDO}` 
+            return {
+              value: item.IDCATEGORIAPEDIDO,
+              label: `${item.TIPOPEDIDO} - ${item.DSCATEGORIAPEDIDO}`
             }
           })
         ]}
@@ -337,7 +205,7 @@ export const ActionPesquisaCategoriaPedido = () => {
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Categorias de Pedido"}
-        onButtonClickSearch={handlePesquisar}
+        onButtonClickSearch={handleClick}
         IconSearch={AiOutlineSearch}
         corSearch={"primary"}
 
@@ -357,25 +225,36 @@ export const ActionPesquisaCategoriaPedido = () => {
         linkNomeVendasEstrutura={"Vincular Categoria / Tamanho "}
         onButtonClickVendasEstrutura={vincularCategoriaTamanho}
         corVendasEstrutura={"warning"}
-        iconVendasEstrutura={AiOutlineSearch}
+        iconVendasEstrutura={MdAdd}
 
 
       />
 
       {tabelaVisivel && (
-        <ActionListaCategoriaPedidos dadosCategoria={dadosCategoria} />
+        <ActionListaCategoriaPedidos
+          dadosCategoria={dadosCategoria}
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}
+          handleClick={handleClick}
+        />
       )}
 
       {tabelaTamanhoCategoria && (
-        <ActionListaCategoriaTamanho dadosCategoriaTamanhos={dadosCategoriaTamanhos} />
-        
+        <ActionListaCategoriaTamanho
+          dadosCategoriaTamanhos={dadosCategoriaTamanhos}
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}
+        />
+
       )}
 
-      <ActionCadastroCategoriaPedidoModal 
-        show={modalVisivel} 
-        handleClose={handleClose} 
+      <ActionCadastroCategoriaPedidoModal
+        show={modalVisivel}
+        handleClose={() => setModalVisivel(false)}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )
 }
-

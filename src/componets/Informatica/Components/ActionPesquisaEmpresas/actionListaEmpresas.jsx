@@ -17,7 +17,7 @@ import { ActionEditarEmpresa } from "./ActionEditarEmpresa/actionEditarEmpresaMo
 
 
 
-export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLogado }) => {
+export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLogado, refetch }) => {
 
     const [modalVisivel, setModalVisivel] = useState(false)
     const [dadosDetalhesEmpresa, setDadosDetalhesEmpresa] = useState([])
@@ -30,6 +30,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
         setGlobalFilterValue(e.target.value);
 
     };
+     
 
     const handlePrint = useReactToPrint({
         content: () => dataTableRef.current,
@@ -129,7 +130,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                         <ButtonTable
                             titleButton={"Editar"}
-                            onClickButton={handleEditar}
+                            onClickButton={() => handleClickEditar(row)}
                             Icon={CiEdit}
                             iconSize={18}
                             width="30px"
@@ -140,7 +141,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
 
                         <ButtonTable
                             titleButton={"Detalhar"}
-                            onClickButton={handleClickDetalhar}
+                            onClickButton={() => handleClickDetalhar(row)}
                             Icon={GrView}
                             iconSize={18}
                             width="30px"
@@ -153,7 +154,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
             }
         }
     ]
-
+       
     const handleDetalhar = async (IDEMPRESA) => {
         try {
             const response = await get(`/empresas?idEmpresa=${IDEMPRESA}`);
@@ -167,8 +168,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
         }
 
     }
-
-
+       
 
     const handleClickDetalhar = (row) => {
         if (optionsModulos[0].ALTERAR == "True") {
@@ -193,6 +193,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
         try {
             const response = await get(`/empresas?idEmpresa=${IDEMPRESA}`);
             if (response.data && response.data.length > 0) {
+
                 setDadosEditarEmpresa(response.data);
                 setModalEditar(true)
             }
@@ -200,9 +201,9 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
             console.error("erro ao buscar detahes da empresa:", error);
         }
     };
-
+   
     const handleClickEditar = (row) => {
-        if (optionsModulos[0]?.ALTERAR == 'False') {
+        if (optionsModulos[0]?.ALTERAR == 'True') {
             if (row && row.IDEMPRESA) {
                 handleEditar(row.IDEMPRESA);
             }
@@ -220,10 +221,6 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
             })
         }
     }
-
-
-
-
 
     return (
         <Fragment>
@@ -288,6 +285,8 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
                 show={modalEditar}
                 handleClose={() => setModalEditar(false)}
                 dadosEditarEmpresa={dadosEditarEmpresa}
+                refetch={refetch}
+                usuarioLogado={usuarioLogado}
             />
         </Fragment>
     )

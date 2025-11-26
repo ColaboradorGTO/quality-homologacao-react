@@ -15,7 +15,7 @@ import Swal from "sweetalert2"
 
 
 export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLogado }) => {
-  const [dadosListaPrecosSap, setDadosListaPrecosSap] = useState([])
+  // const [dadosListaPrecosSap, setDadosListaPrecosSap] = useState([])
   const [descricaoProduto, setDescricaoProduto] = useState('')
   const [codBarrasProduto, setCodBarrasProduto] = useState('')
   const [idProduto, setIDProduto] = useState('')
@@ -64,58 +64,57 @@ export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLoga
     }
   }, [dadosListaPrecos, usuarioLogado]);
 
-  const getListaProdutosSAP = async () => {
-    try {
-
-      const response = await get(`/lista-produtos-etiqueta-sap?idLista=${empresaSelecionada}&idProduto=${idProduto}&descricao=${descricaoProduto}&codBarras=${codBarrasProduto}`)
-      if (response.data) {
-        setDadosListaPrecosSap(response.data)
-      }
-      return response.data;
-    } catch (error) {
-      console.log('Erro ao buscar empresas: ', error)
-    }
-  }
-
-  // const fetchListaPrecosSap = async () => {
-  //   const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
-  //   const urlBase = `/lista-produtos-etiqueta-sap?idLista=${idEmpresa}&idProduto=${idProduto}&descricao=${descricaoProduto}&codBarras=${codBarrasProduto}`;
-  //   let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
-  //   urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+  // const getListaProdutosSAP = async () => {
   //   try {
-  //       animacaoCarregamento('Carregando dados...', true);
 
-  //       const primeiraPagina = 1;
-  //       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
-  //       const page = primeiraResposta.page || primeiraPagina;
-  //       const pageSize = primeiraResposta.pageSize || 1000;
-  //       const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
-  //       const totalPages = Math.ceil(totalRows / pageSize);
-
-  //       let allData = [...(primeiraResposta.data || [])];
-
-  //       if (totalPages > 1) {
-  //       for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-  //           animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-  //           const responsePage = await get(`${urlApi}&page=${currentPage}`);
-  //           allData.push(...(responsePage.data || []));
-  //       }
-  //       }
-
-  //       return allData;
+  //     const response = await get(`/lista-produtos-etiqueta-sap?idLista=${empresaSelecionada}&idProduto=${idProduto}&descricao=${descricaoProduto}&codBarras=${codBarrasProduto}`)
+  //     if (response.data) {
+  //       setDadosListaPrecosSap(response.data)
+  //     }
+  //     return response.data;
   //   } catch (error) {
-  //       console.error('Erro ao buscar dados:', error);
-  //       throw error;
-  //   } finally {
-  //       fecharAnimacaoCarregamento();
+  //     console.log('Erro ao buscar empresas: ', error)
   //   }
-  // };
+  // }
 
-  // const { data: dadosListaPrecosSap = [], error: errorMalotes, isLoading: isLoadingMalotes, refetch } = useQuery(
-  //     ['lista-produtos-etiqueta-sap', ],
-  //     () => fetchListaPrecosSap(),
-  //     { enabled: false, staleTime: 5 * 60 * 1000, }
-  // );
+  const fetchListaPrecosSap = async () => {
+    const urlBase = `/lista-produtos-etiqueta-sap?idLista=${empresaSelecionada}&idProduto=${idProduto}&descricao=${descricaoProduto}&codBarras=${codBarrasProduto}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    try {
+        animacaoCarregamento('Carregando dados...', true);
+
+        const primeiraPagina = 1;
+        const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+        const page = primeiraResposta.page || primeiraPagina;
+        const pageSize = primeiraResposta.pageSize || 1000;
+        const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+        const totalPages = Math.ceil(totalRows / pageSize);
+
+        let allData = [...(primeiraResposta.data || [])];
+
+        if (totalPages > 1) {
+          for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+            animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+            const responsePage = await get(`${urlApi}&page=${currentPage}`);
+            allData.push(...(responsePage.data || []));
+          }
+        }
+
+        return allData;
+    } catch (error) {
+        console.error('Erro ao buscar dados:', error);
+        throw error;
+    } finally {
+        fecharAnimacaoCarregamento();
+    }
+  };
+
+  const { data: dadosListaPrecosSap = [], error: errorMalotes, isLoading: isLoadingMalotes, refetch: refetchListaPrecosSap } = useQuery(
+      ['lista-produtos-etiqueta-sap', ],
+      () => fetchListaPrecosSap(),
+      { enabled: false, staleTime: 5 * 60 * 1000, }
+  );
 
   const handleClick = () => {
     if (codBarrasProduto === '' && descricaoProduto === '' && idProduto === '') {
@@ -125,8 +124,8 @@ export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLoga
         icon: 'warning',
       })
     } else {
-      // refetch();
-      getListaProdutosSAP();
+      refetchListaPrecosSap();
+      // getListaProdutosSAP();
 
     }
   }
@@ -247,3 +246,5 @@ export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLoga
     </Fragment>
   )
 }
+
+// COD BARRAS 1031280010396
