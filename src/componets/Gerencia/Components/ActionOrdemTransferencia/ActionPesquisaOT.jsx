@@ -6,7 +6,7 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { AiOutlineSearch } from "react-icons/ai";
 import { MdAdd } from "react-icons/md";
 import { get } from "../../../../api/funcRequest";
-import { ActionListaOrdemTransferencia } from "./ActionListaOrdemTransferencia";
+import { ActionListaOrdemTransferencia } from "./actionListaOrdemTransferencia";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { ActionIncluirOTModal } from "./ActionIncluirModalOT/actionIncluirOTModal";
