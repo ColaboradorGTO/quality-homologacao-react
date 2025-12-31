@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { get } from "../../../../api/funcRequest";
 import { ActionMain } from "../../../Actions/actionMain";
@@ -82,11 +81,8 @@ export const ActionPesquisaDespesaLoja = ({ usuarioLogado, ID, optionsEmpresas }
 
 
   const handleClick = () => {
-
-    setCurrentPage(prevPage => prevPage + 1);
     refetchDespesas();
     setTabelaVisivel(true);
-
   }
 
   const handleShowModal = () => {
@@ -109,7 +105,6 @@ export const ActionPesquisaDespesaLoja = ({ usuarioLogado, ID, optionsEmpresas }
 
   const handleCloseModal = () => {
     setModalVisivel(false);
-
   };
 
   return (
@@ -168,6 +163,7 @@ export const ActionPesquisaDespesaLoja = ({ usuarioLogado, ID, optionsEmpresas }
         handleClose={handleCloseModal}
         optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}
+        handleClick={handleClick}
       />
 
     </Fragment>

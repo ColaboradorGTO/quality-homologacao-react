@@ -83,11 +83,8 @@ export const ActionPesquisaDepositoLoja = ({usuarioLogado, ID, optionsEmpresas})
    
 
   const handleClick = () => {
-
-    setCurrentPage(prevPage => prevPage + 1);
     refetchDepositos();
-    setTabelaVisivel(true);
-    
+    setTabelaVisivel(true);    
   }
 
 
@@ -171,6 +168,7 @@ export const ActionPesquisaDepositoLoja = ({usuarioLogado, ID, optionsEmpresas})
         handleClose={handleCloseModal}
         optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}
+        handleClick={handleClick}
       />
     </Fragment>
   )

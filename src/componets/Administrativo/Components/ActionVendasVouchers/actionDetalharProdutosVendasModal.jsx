@@ -9,23 +9,12 @@ import { formatMoeda } from "../../../../utils/formatMoeda";
 import { calcularDiferencaEmDias } from "../../../../utils/diferenciaDias";
 
 export const ActionDetalharProdutosVendasModal = ({ show, handleClose, dadosDetalhesVendasProdutos }) => {
-  const [size, setSize] = useState('small');
-  // const [dataDiferencia, setDataDiferencia] = useState('')
-
-  // useEffect(() => {
-  //   const dataVenda = calcularDiferencaEmDias()
-  //   setDataDiferencia(dataVenda)
-  // }, [])
+  const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
 
   const dados = dadosDetalhesVendasProdutos.map((item) => {
     
     return {
-
-      // IDVENDA: item[0].venda.IDVENDA,
-      // NRNOTA: item[0].venda.NRNOTA,
-      // DEST_CPF: item[0].venda.DEST_CPF,
-      // DEST_CNPJ: item[0].venda.DEST_CNPJ,
-      // DTHORAFECHAMENTO: item[0].venda.DTHORAFECHAMENTO,
 
       CPROD: item.detalhe[0].det.CPROD,
       IDVENDADETALHE: item.detalhe[0].det.IDVENDADETALHE,
@@ -103,9 +92,16 @@ export const ActionDetalharProdutosVendasModal = ({ show, handleClose, dadosDeta
 
           <DataTable
             value={dados}
+            globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
-            size={size}
-            rows={true}
+            rowsPerPageOptions={[5, 10, 20, 50, 100, dadosProdutos.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}

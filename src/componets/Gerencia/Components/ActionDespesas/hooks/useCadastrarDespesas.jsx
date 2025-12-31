@@ -3,10 +3,11 @@ import Swal from "sweetalert2";
 import { get, post } from "../../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import axios from "axios";
-import { getDataHoraAtual, getHoraAtual } from "../../../../../utils/dataAtual";
-import { useNavigate } from "react-router-dom";
+import { getDataAtual, getHoraAtual } from "../../../../../utils/dataAtual";
 
-export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogado }) => {
+
+
+export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
   const [dsHistorio, setDSHistorio] = useState('');
   const [dsPagoA, setDsPagoA] = useState('');
   const [vrDespesa, setVrDespesa] = useState('');
@@ -17,27 +18,36 @@ export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogad
   const [nuNotaFiscal, setNuNotaFiscal] = useState('');
   const [categoriaRecDesp, setCategoriaRecDesp] = useState('')
   const [ipUsuario, setIpUsuario] = useState('')
-  const navigate = useNavigate();
+  const [empresa, setEmpresa] = useState(usuarioLogado?.NOFANTASIA || '')
 
   useEffect(() => {
     const horaAtual = getHoraAtual()
-    const dataAtual = getDataHoraAtual()
+    const dataAtual = getDataAtual()
     setHora(horaAtual)
     setDtDespesa(dataAtual)
   }, [])
 
-  useEffect(() => {
-    getIPUsuario();
-  }, []);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
+    let usuarioIP = null;
 
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
+    }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   const { data: dadosReceitaDespesa = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch } = useQuery(
     'categoria-receita-despesa',
@@ -48,7 +58,7 @@ export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogad
     { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
-  const onSubmit = async (data) => {
+  const onSubmit = async () => {
     if (optionsModulos[0]?.CRIAR == 'False') {
       Swal.fire({
         title: 'Erro',
@@ -74,24 +84,37 @@ export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogad
       });
       return;
     }
-
+    const data = dtDespesa + ' ' + hora;
     const postData = {
-      IDEMPRESA: usuarioLogado.IDEMPRESA,
-      IDUSR: usuarioLogado.id,
-      DTDESPESA: dtDespesa,
-      IDCATEGORIARECEITADESPESA: despesaSelecionada?.value,
+      IDEMPRESA: parseInt(usuarioLogado?.IDEMPRESA),
+      IDUSR: parseInt(usuarioLogado?.id),
+      DTDESPESA: data,
+      IDCATEGORIARECEITADESPESA: parseInt(despesaSelecionada?.value),
       DSHISTORIO: dsHistorio,
       DSPAGOA: dsPagoA,
       TPNOTA: tpNota?.value,
       NUNOTAFISCAL: nuNotaFiscal,
-      VRDESPESA: vrDespesa,
+      VRDESPESA: parseFloat(vrDespesa),
       STATIVO: 'True',
       STCANCELADO: 'False',
-
     }
 
     try {
       const response = await post('/cadastrar-despesa-loja', postData)
+      
+      
+      const textDados = JSON.stringify(postData)
+      let textoFuncao = 'GERENCIA/CADASTRO DE DESPESA';
+      const ipUsuario = await getIPUsuario();
+      
+      const createData = {
+        IDFUNCIONARIO: String(usuarioLogado.id),
+        PATHFUNCAO: textoFuncao,
+        DADOS: textDados,
+        IP: ipUsuario
+      }
+      
+      await post('/log-web', createData)
       Swal.fire({
         title: 'Cadastro',
         text: 'Despesa cadastrado com Sucesso',
@@ -110,26 +133,14 @@ export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogad
       setNuNotaFiscal('')
       setVrDespesa('')
 
-      const textDados = JSON.stringify(postData)
-      let textoFuncao = 'GERENCIA/CADASTRO DE DESPESA';
-
-
-      const createData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
-        PATHFUNCAO: textoFuncao,
-        DADOS: textDados,
-        IP: ipUsuario
-      }
-
-      const responsePost = await post('/log-web', createData)
-
-
-      return responsePost.data;
+      handleClick();
+      handleClose();
+      return response.data;
     } catch (error) {
 
       const textDados = JSON.stringify(postData)
-      let textoFuncao = 'GERENCIA/CADASTRO DE DESPESA';
-
+      let textoFuncao = 'GERENCIA/ERRO AO CADASTRAR DESPESA';
+      const ipUsuario = await getIPUsuario();
 
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
@@ -183,7 +194,11 @@ export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogad
     setTpNota,
     nuNotaFiscal,
     setNuNotaFiscal,
+    empresa,
+    setEmpresa,
     Options,
-    dadosReceitaDespesa
+    dadosReceitaDespesa,
+    hora,
+    setHora,
   }
 }

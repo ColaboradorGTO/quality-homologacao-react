@@ -14,11 +14,17 @@ import { toFloat } from "../../../../utils/toFloat";
 import { useCompensacaoData } from "./hooks/useCompensacaoData";
 
 
-export const ActionFaturaListaVendasPIX = ({ dadosFaturaVendasPix, optionsModulos, usuarioLogado, handleClickVendasPix }) => {
+export const ActionFaturaListaVendasPIX = ({ 
+  dadosFaturaVendasPix, 
+  optionsModulos, 
+  usuarioLogado, 
+  handleClickVendasPix 
+}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const dataTableRef = useRef();
   const [selectAll, setSelectAll] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+  const [rowSelection, setRowSelection] = useState(null);
+  const dataTableRef = useRef();
   const { handleDetalhar } = useCompensacaoData({ usuarioLogado, optionsModulos, handleClickVendasPix });
 
   const onGlobalFilterChange = (e) => {
@@ -182,7 +188,7 @@ export const ActionFaturaListaVendasPIX = ({ dadosFaturaVendasPix, optionsModulo
 
   useEffect(() => {
     if (selectedIds.length > 0) {
-      handleDetalhar(selectedIds, 'True');
+      handleDetalhar(selectedIds);
     }
   }, [selectedIds]);
 
@@ -192,9 +198,9 @@ export const ActionFaturaListaVendasPIX = ({ dadosFaturaVendasPix, optionsModulo
 
     const updatedSelectedIds = isChecked ? dadosListaVendasPix.map(item => item.IDDETALHEFATURA) : [];
     setSelectedIds(updatedSelectedIds);
-
+   
     if (updatedSelectedIds.length > 0) {
-      handleDetalhar(updatedSelectedIds, 'True');
+      handleDetalhar(updatedSelectedIds);
     }
   };
 
@@ -238,6 +244,9 @@ export const ActionFaturaListaVendasPIX = ({ dadosFaturaVendasPix, optionsModulo
                     value={dadosListaVendasPix}
                     globalFilter={globalFilterValue}
                     size="small"
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)}
                     sortOrder={-1}
                     paginator={true}
                     rows={10}

@@ -7,9 +7,18 @@ import { get } from "../../../../api/funcRequest"
 import { useQuery } from "react-query"
 import { ActionCadastrarCampanhaModal } from "./ActionCadastrarCampanha/actionCadastrarCampanhaModal"
 
-export const ActionPesquisaCampanha = () => {
+export const ActionPesquisaCampanha = ({usuarioLogado, ID}) => {
   const [modalCadastrarCampanha, setModalCadastrarCampanha] = useState(false)
 
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+  );
 
   const { data: dadosListaCampanha = [], error: errorPromocao, isLoading: isLoadingPromocao, refetch: refetchPromocao } = useQuery(
     'campanha',
@@ -42,6 +51,8 @@ export const ActionPesquisaCampanha = () => {
         show={modalCadastrarCampanha} 
         handleClose={(e) => setModalCadastrarCampanha(false)} 
         refetchPromocao={refetchPromocao} 
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
       />
     </Fragment >
   )

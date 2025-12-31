@@ -17,6 +17,7 @@ import { useEditarDeposito } from "./hooks/useEditarDeposito";
 
 export const ActionListaConciliacaoBancoDTW = ({ dadosConciliarBanco, contaSelecionada, optionsModulos, usuarioLogado, handleClick }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const {
@@ -292,6 +293,9 @@ export const ActionListaConciliacaoBancoDTW = ({ dadosConciliarBanco, contaSelec
             title="Vendas por Loja"
             value={dadosListaConciliarBanco}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             globalFilter={globalFilterValue}
             sortOrder={-1}
             paginator={true}

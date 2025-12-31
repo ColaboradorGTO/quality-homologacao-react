@@ -15,6 +15,7 @@ export const ActionListaVendasPIX = ({ dadosVendasPix, optionsModulos, usuarioLo
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [selectAll, setSelectAll] = useState(false); 
   const [selectedIds, setSelectedIds] = useState([]);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
   const { handleDetalhar } = useHandleDetalhar({usuarioLogado, optionsModulos, handleClickVendasPix});
 
@@ -227,6 +228,9 @@ export const ActionListaVendasPIX = ({ dadosVendasPix, optionsModulos, usuarioLo
                     value={dadosListaVendasPix}
                     globalFilter={globalFilterValue}
                     size="small"
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)}
                     paginator={true}
                     rows={10}
                     rowsPerPageOptions={[10, 20, 50, 100, dadosListaVendasPix.length]}
@@ -266,4 +270,3 @@ export const ActionListaVendasPIX = ({ dadosVendasPix, optionsModulos, usuarioLo
     </Fragment>
   )
 }
-

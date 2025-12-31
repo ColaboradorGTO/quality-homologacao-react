@@ -11,6 +11,7 @@ import { useCadastrarPromocao } from "./ActionCadastrarPromocao/hooks/useCadastr
 
 export const ActionListaPromocao = ({ dadosListaPromocao, refetchPromocao }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
   const {
     handleCSVUpload,
@@ -158,6 +159,9 @@ export const ActionListaPromocao = ({ dadosListaPromocao, refetchPromocao }) => 
             title="Lista de Promoções"
             value={dados}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             globalFilter={globalFilterValue}
             sortOrder={-1}
             paginator={true}

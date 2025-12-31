@@ -122,9 +122,9 @@ export const ActionPesquisaExtratoContaCorenteLoja = () => {
       />
 
       {tabelaVisivel && (
-        <div className="card " style={{marginTop: '6rem'}}>
-         <ActionListaExtratoContaCorrenteLoja dadosExtratoLojaPeriodo={dadosExtratoLojaPeriodo} />
-        </div>
+        
+        <ActionListaExtratoContaCorrenteLoja dadosExtratoLojaPeriodo={dadosExtratoLojaPeriodo} />
+        
       )}
     </Fragment>
   )

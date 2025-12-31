@@ -17,8 +17,7 @@ export const ActionPesquisaVendasContigencia = ({ usuarioLogado, ID }) => {
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
   const [empresaSelecionada, setEmpresaSelecionada] = useState('0')
   const [ufSelecionado, setUfSelecionado] = useState('');
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+
 
   useEffect(() => {
     const dataInicio = getDataAtual();
@@ -111,10 +110,8 @@ export const ActionPesquisaVendasContigencia = ({ usuarioLogado, ID }) => {
   }
 
   const handleClick = () => {
-    setTabelaVisivel(true);
-    setIsLoadingPesquisa(true);
-    setCurrentPage(+1);
     refetchVendasAtivasContigencia()
+    setTabelaVisivel(true);
   };
 
   const optionsUF = [ 

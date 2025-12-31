@@ -11,7 +11,7 @@ import { ActionDetalharModal } from "./ActionDetalhar/actionDetalharModal";
 import { ActionEditarStatusVoucherModal } from "./ActionEditarVoucher/actionEditarStatusVoucherModal";
 import { get} from "../../../../api/funcRequest";
 import { ActionImprimirVoucherModal } from "./actionImprimirVoucherModal";
-import { dataFormatada, dataHoraFormatada } from "../../../../utils/dataFormatada";
+import { dataHoraFormatada } from "../../../../utils/dataFormatada";
 import HeaderTable from "../../../Tables/headerTable";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
@@ -19,7 +19,6 @@ import * as XLSX from 'xlsx';
 import 'jspdf-autotable';
 import { useAuthFuncionarioUpdate } from "./hooks/useAuthFuncionarioUpdate";
 import { useAuthFuncionarioPrint } from "./hooks/useAuthFuncionarioPrint";
-import { useEditarStatusVoucher } from "./hooks/useEditarStatusVoucher";
 
 
 export const ActionListaConsultaVouchers = ({dadosVoucher, usuarioLogado, optionsModulos, handleClick}) => {

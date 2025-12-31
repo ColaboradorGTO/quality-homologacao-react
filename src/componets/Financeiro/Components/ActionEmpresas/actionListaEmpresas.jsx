@@ -15,6 +15,7 @@ import Swal from "sweetalert2";
 
 export const ActionListaEmpresas = ({dadosEmpresas, optionsModulos, usuarioLogado}) => {
   const [modalVisivel, setModalVisivel] = useState(false)
+  const [rowSelection, setRowSelection] = useState(null);
   const [dadosPixPDV, setDadosPixPDV] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
@@ -147,8 +148,8 @@ export const ActionListaEmpresas = ({dadosEmpresas, optionsModulos, usuarioLogad
   const handleDetalhar = async (IDEMPRESA) => {
     try {
       const response = await get(`/configuracao-pix-pdv?idEmpresa=${IDEMPRESA}`);
-      if (response) {
-        setDadosPixPDV(response);
+      if (response.data && response.data.length > 0) {
+        setDadosPixPDV(response.data);
         setModalVisivel(true);
       }
     } catch (error) {
@@ -202,6 +203,9 @@ export const ActionListaEmpresas = ({dadosEmpresas, optionsModulos, usuarioLogad
           value={dados}
           globalFilter={globalFilterValue}
           size={"small"}
+          selectionMode="single"
+          selection={rowSelection}
+          onSelectionChange={(e) => setRowSelection(e.value)}
           sortOrder={-1}
           paginator
           rows={10}

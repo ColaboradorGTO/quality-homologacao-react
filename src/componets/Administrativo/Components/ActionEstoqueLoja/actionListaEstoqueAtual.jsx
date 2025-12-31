@@ -14,9 +14,10 @@ import { toFloat } from "../../../../utils/toFloat";
 
 export const ActionListaEstoqueAtual = ({ dadosEstoqueAtual }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const dataTableRef = useRef();
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
+  const [rowSelection, setRowSelection] = useState(null);
+  const dataTableRef = useRef();
     
   const onPageChange = (event) => {
     setFirst(event.first);
@@ -283,6 +284,9 @@ export const ActionListaEstoqueAtual = ({ dadosEstoqueAtual }) => {
             value={dados} 
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             footerColumnGroup={footerGroup}
             sortOrder={-1}
             paginator={true}

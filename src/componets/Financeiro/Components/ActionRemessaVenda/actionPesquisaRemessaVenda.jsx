@@ -19,7 +19,6 @@ export const ActionPesquisaRemessaVenda = ({ usuarioLogado, ID }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [marcaSelecionada, setMarcaSelecionada] = useState('');
-  const [estabelecimento] = useState('')
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);

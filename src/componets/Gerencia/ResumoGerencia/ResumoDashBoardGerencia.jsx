@@ -53,18 +53,16 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
   const { data: optionsEmpresas = [] } = useFetchData('empresas', '/empresas');
 
   const { data: dadosCaixasNaoConferidos = [], error: errorCaixasNaoConferidos, isLoading: isLoadingCaixasNaoConferidos, refetch: refetchCaixasNaoConferidos } = useQuery(
-    'lista-caixas-fechados-nao-conferidos',
+    'lista-caixas-fechados-nao-conferido',
     async () => {
-      const idEmpresa = ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
-      if(idEmpresa) {
-
-        const response = await get(`/lista-caixas-fechados-nao-conferidos?idEmpresa=${idEmpresa}`);
-   
-        return response.data;
-      }
-      return [];
+      const idEmpresa =  usuarioLogado?.IDEMPRESA;
+      
+      console.log(usuarioLogado?.IDEMPRESA, 'idEmpresa')
+      const response = await get(`/lista-caixas-fechados-nao-conferido?idEmpresa=${idEmpresa}`);
+      return response.data;
+     
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: Boolean(usuarioLogado?.IDEMPRESA), staleTime: 5 * 60 * 1000 }
   );
 
   const retornoListaCaixaFechadosNaoConferidos = () => {
@@ -77,7 +75,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
         const dataAbertura = new Date(caixa.DTABERTURA);
         const dataFechamento = new Date(caixa.DTFECHAMENTO);
         const hoje = new Date();
-
+        console.log(dadosCaixasNaoConferidos, 'caixa')
         // Calcula a diferença em dias
         const diffTime = Math.abs(hoje - dataAbertura);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -91,6 +89,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
         icon: 'warning',
         title: 'Caixas Fechados e não Conferidos',
         html: htmlCaixasNaoConferidos,
+        width: '600px',
         showConfirmButton: true,
         timer: 15000
       }).then((isConfirm) => {
@@ -106,7 +105,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
     }
   };
 
-  // Monitora quando os dados dos caixas não conferidos são carregados
+
   useEffect(() => {
     if (dadosCaixasNaoConferidos.length > 0 && !isLoadingCaixasNaoConferidos) {
       retornoListaCaixaFechadosNaoConferidos();
@@ -280,13 +279,6 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
         
         if (response.data && response.data.length > 0) {
           setDadosExtratoLoja(response.data)
-          setDadosVendas(response.data)
-          setDadosExtratoQuebra(response.data[0].quebracaixa)
-          setDadosTotalDepositos(response.data[0].totalDepositos)
-          setDadosTotalFaturas(response.data[0].totalFaturas)
-          setDadosTotalDespesas(response.data[0].despesas)
-          setDadosTotalAdiantamentos(response.data[0].adiantamentos)
-          setDadosAjusteExtrato(response.data[0].ajusteextrato)
         }
         return response.data;
       }
@@ -297,9 +289,6 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
 
   
   const handleClick = async () => {
-    // if (usuarioLogado && usuarioLogado?.IDEMPRESA && dataPesquisa) {
-      
-    // }
     refetchCaixaMovimento()
     refetchPCJ()
     setResumoVisivel(true)

@@ -24,8 +24,6 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
         }
     };
 
-
-
     const conferir = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({

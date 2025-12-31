@@ -1,7 +1,6 @@
 import { Fragment, useRef, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { dataFormatada, dataHoraFormatada } from '../../../../utils/dataFormatada';
 import { formatMoeda } from '../../../../utils/formatMoeda';
 import HeaderTable from '../../../Tables/headerTable';
 import { useReactToPrint } from "react-to-print";
@@ -11,7 +10,7 @@ import 'jspdf-autotable';
 
 export const ActionListaProdutosPrecos = ({ dadosProdutosSap }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [size, setSize] = useState('small');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -153,7 +152,10 @@ export const ActionListaProdutosPrecos = ({ dadosProdutosSap }) => {
           <DataTable
             title="Produtos Preços"
             value={dados}
-            size={size}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortField="VRTOTALPAGO"
             sortOrder={-1}
             paginator={true}
@@ -175,9 +177,9 @@ export const ActionListaProdutosPrecos = ({ dadosProdutosSap }) => {
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem', border: '1px solid #e9e9e9'}}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
+                bodyStyle={{ fontSize: '1rem', border: '1px solid #e9e9e9'}}
 
               />
             ))}

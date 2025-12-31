@@ -141,10 +141,7 @@ export const ActionPesquisaConciliacaoBancosDTW = ({ usuarioLogado, ID }) => {
     if (contaSelecionada) {
       setTabelaVisivel(true)
       setTabelaVisivelConsolidado(false)
-      setIsLoadingPesquisa(true);
-      setCurrentPage(prevPage => prevPage + 1); 
       setTabelaVisivelCompensacao(false)
-      setIsQueryConciliarBanco(true)
       refetchConciliarBanco()
     } else {
       Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
@@ -157,10 +154,6 @@ export const ActionPesquisaConciliacaoBancosDTW = ({ usuarioLogado, ID }) => {
       setTabelaVisivel(false)
       setTabelaVisivelConsolidado(false)
       setTabelaVisivelCompensacao(true)
-      setIsLoadingPesquisa(true);
-      setCurrentPage(prevPage => prevPage + 1); 
-      setIsQueryConciliarBanco(true)
-      setIsQueryBancoConsolidado(false)
       refetchConciliarBanco()
     } else {
       Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
@@ -174,10 +167,6 @@ export const ActionPesquisaConciliacaoBancosDTW = ({ usuarioLogado, ID }) => {
       setTabelaVisivelConsolidado(true)
       setTabelaVisivel(false)
       setTabelaVisivelCompensacao(false)
-
-      setIsLoadingPesquisa(true);
-      setCurrentPage(prevPage => prevPage + 1);
-      setIsQueryBancoConsolidado(true)
       refetchBancoConsolidado()
     } else {
       Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');

@@ -17,6 +17,7 @@ import { useEditarDeposito } from "./hooks/useEditarDeposito";
 
 export const ActionListaCompensacaoBancoDTW = ({ dadosConciliarBanco, contaSelecionada, optionsModulos, usuarioLogado, handleClickCompensacao }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const {
@@ -286,8 +287,11 @@ export const ActionListaCompensacaoBancoDTW = ({ dadosConciliarBanco, contaSelec
           <DataTable
             title=" Depósitos Compensados"
             value={dadosListaConciliarBanco}
-            size="small"
             globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}

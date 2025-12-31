@@ -26,7 +26,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
   const [cpfOperadorQuebra, setCpfOperadorQuebra] = useState('');
   const [ufSelecionado, setUfSelecionado] = useState('');
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(1000)
+ 
 
   useEffect(() => {
     const dataInicial = getDataAtual();

@@ -63,7 +63,7 @@ export const ActionPesquisaSaldoLoja = () => {
 
   const { data: dadosSaldoExtratos = [], error: erroQuebra, isLoading: isLoadingQuebra, refetch: refetchListaSaldoExtratoLoja } = useQuery(
     'saldo-loja-por-grupo',
-    () => getListaSaldoExtratoLoja(marcaSelecionada, dataPesquisaInicio, currentPage, pageSize),
+    () => getListaSaldoExtratoLoja(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   );
 

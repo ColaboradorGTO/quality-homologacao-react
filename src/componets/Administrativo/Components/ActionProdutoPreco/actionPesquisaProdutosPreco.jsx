@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react"
+import React, { Fragment, useState } from "react"
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
 import { ButtonType } from "../../../Buttons/ButtonType";
@@ -10,8 +10,6 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 
-
-
 export const ActionPesquisaProdutosPreco = () => {
   const [tabelaSapVisivel, setTabelaSapVisivel] = useState(false);
   const [tabelaQualityVisivel, setTabelaQualityVisivel] = useState(false);
@@ -20,7 +18,6 @@ export const ActionPesquisaProdutosPreco = () => {
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
   const [codBarra, setCodBarra] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
   const [isLoading, setIsLoading] = useState(false);
 
   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useQuery(
@@ -42,14 +39,8 @@ export const ActionPesquisaProdutosPreco = () => {
         return [];
       }
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: Boolean(marcaSelecionada), staleTime: 5 * 60 * 1000 }
   );
-
-  useEffect(() => {
-    if (marcaSelecionada) {
-      refetchEmpresas();
-    }
-  }, [marcaSelecionada, refetchEmpresas]);
 
   const fetchProdutoSap = async () => {
     const urlBase = `/produto-preco?idEmpresa=${empresaSelecionada}&dsProduto=${codBarra}`;

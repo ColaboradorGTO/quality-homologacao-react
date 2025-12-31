@@ -17,8 +17,6 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado, ID}) =>
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState('')
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000); 
 
   useEffect(() => {
     const dataInicial = getDataAtual()

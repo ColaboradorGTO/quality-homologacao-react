@@ -19,11 +19,9 @@ export const ActionPesquisaConferenciaMalote = ({ usuarioLogado, ID }) => {
     const [empresaSelecionada, setEmpresaSelecionada] = useState("");
     const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState("");
     const [tabelaVisivel, setTabelaVisivel] = useState(false);
-    const [isQuery, setIsQuery] = useState(false);
     const [statusSelecionado, setStatusSelecionado] = useState("");
     const [pendenciaSelecionada, setPendenciaSelecionada] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [pageSize, setPageSize] = useState(1000);
 
     useEffect(() => {
         const dataInicial = getDataAtual();

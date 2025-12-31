@@ -21,7 +21,6 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
   const [ufSelecionado, setUfSelecionado] = useState('0')
   const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
   const [isQueryData, setIsQueryData] = useState(false);
 
   useEffect(() => {

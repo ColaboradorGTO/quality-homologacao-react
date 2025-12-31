@@ -59,9 +59,6 @@ export const ActionPesquisaValeTransporte = ({ usuarioLogado, ID }) => {
     }
   };
 
-  const handleCloseModal = () => {
-    setModalVisivel(false);
-  }
 
 
   return (
@@ -89,7 +86,7 @@ export const ActionPesquisaValeTransporte = ({ usuarioLogado, ID }) => {
 
       <ActionCadastrarValeTransporte
         show={modalVisivel}
-        handleClose={handleCloseModal}
+        handleClose={() => setModalVisivel(false)}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
       />

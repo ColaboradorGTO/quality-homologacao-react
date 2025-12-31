@@ -20,6 +20,7 @@ import { ColumnGroup } from "primereact/columngroup";
 import { ActionVendaXMLModal } from "./actionVendaXMLModal";
 import { TbFileTypeXml } from "react-icons/tb";
 import { toFloat } from "../../../../utils/toFloat";
+import Swal from "sweetalert2";
 
 export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usuarioLogado, optionsModulos }) => {
   const [detalheVendaModal, setDetalheVendaModal] = useState(false);
@@ -33,6 +34,7 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
     
   const onPageChange = (event) => {
@@ -181,14 +183,14 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
     {
       field: 'DSCAIXA',
       header: 'Caixa',
-      body: row => <th>{row.DSCAIXA}</th>,
+      body: row => <p style={{fontWeight: 600, width: '100px', margin: '0px'}}>{row.DSCAIXA}</p>,
       sortable: true,
 
     },
     {
       field: 'IDVENDA',
       header: 'Nº Venda',
-      body: row => <th>{row.IDVENDA}</th>,
+      body: row => <p style={{fontWeight: 600, width: '100px', margin: '0px'}}>{row.IDVENDA}</p>,
       sortable: true,
 
     },
@@ -266,7 +268,7 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
     {
       field: 'TXTMOTIVOCANCELAMENTO',
       header: 'Motivo',
-      body: row => <th>{row.TXTMOTIVOCANCELAMENTO}</th>,
+      body: row => <p style={{fontWeight: 600, width: '100px', margin: '0px'}}>{row.TXTMOTIVOCANCELAMENTO}</p>,
       sortable: true,
 
     },
@@ -361,8 +363,17 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
   }
 
   const clickDetalharRecebimentos = (row) => {
-    if (row && row.IDVENDA) {
-      handleDetalharRecebimentos(row.IDVENDA);
+    if(optionsModulos[0]?.ALTERAR == 'True') {
+      if (row && row.IDVENDA) {
+        handleDetalharRecebimentos(row.IDVENDA);
+      }
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para alterar pagamento!`,
+        
+      })
     }
   };
 
@@ -432,6 +443,9 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
                 value={dados}
                 globalFilter={globalFilterValue}
                 size="small"
+                selectionMode="single"
+                selection={rowSelection}
+                onSelectionChange={(e) => setRowSelection(e.value)}
                 footerColumnGroup={footerGroup}
                 rowsPerPageOptions={[5, 10, 20, 50, 100, dados.length]}
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -456,7 +470,7 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
                     sortable={coluna.sortable}
                     headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
                     footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc',fontSize: '0.8rem' }}
-                    bodyStyle={{ fontSize: '0.8rem' }}
+                    bodyStyle={{ fontSize: '1rem' }}
 
                   />
                 ))}

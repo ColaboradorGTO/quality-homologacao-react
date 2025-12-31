@@ -69,8 +69,8 @@ export const ActionPesquisaEmpresas = ({ usuarioLogado, ID }) => {
   };
 
   const { data: dadosEmpresas = [], error: errorListaEmpresas, isLoading: isLoadingListaEmpresas, refetch: refetchListaEmpresas } = useQuery(
-    ['empresas', empresaSelecionada, currentPage, pageSize],
-    () => fetchListaEmpresas(empresaSelecionada, currentPage, pageSize),
+    ['empresas'],
+    () => fetchListaEmpresas(),
     { enabled: true, staleTime: 5 * 60 * 1000 }
   );
 

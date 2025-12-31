@@ -8,18 +8,28 @@ export const useAtualizarPixPDV = ({dadosPixPDV, handleClose, optionsModulos, us
     const [faturaSelecionado, setFaturaSelecionado] = useState('')
     const [ipUsuario, setIpUsuario] = useState('');
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-        setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
+        let usuarioIP = null;
 
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
+
+        if (!usuarioIP) {
+            try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+            } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
+    
     useEffect(() => {
         if (dadosPixPDV.length) {
             setPixSelecionado({value: dadosPixPDV[0]?.IDPSPPIX, label: dadosPixPDV[0]?.IDPSPPIX == '1' ? 'Itaú' : 'Santander'})
@@ -33,59 +43,71 @@ export const useAtualizarPixPDV = ({dadosPixPDV, handleClose, optionsModulos, us
                 position: 'top-end',
                 icon: 'error',
                 title: 'Erro!',
-                text: 'Usuário sem autorização para realizar a operação!',
+                html: `${usuarioLogado?.NOFUNIONARIO}, <br/> você não tem permissão para alterar!`,
                 customClass: {
                 container: 'custom-swal',
                 },
                 showConfirmButton: false,
-                timer: 4000 
+                timer: 5000 
             });
             return
         }
+
+        const putData = {
+            IDEMPRESA: dadosPixPDV[0]?.IDEMPRESA,
+            NOFANTASIA: dadosPixPDV[0]?.NOFANTASIA,
+            IDPSPPIX: pixSelecionado,
+            IDPSPPIXFATURA: faturaSelecionado,
+            USER: usuarioLogado.id
+        }
+
         try {
 
-            const putData = {
-                IDEMPRESA: dadosPixPDV[0]?.IDEMPRESA,
-                NOFANTASIA: dadosPixPDV[0]?.NOFANTASIA,
-                IDPSPPIX: pixSelecionado,
-                IDPSPPIXFATURA: faturaSelecionado,
-                USER: usuarioLogado.id
-            }
-            let dados = JSON.stringify(putData)
+            const dados = JSON.stringify(putData)
             const response = await put('/atualizarConfiguracaoPixPDV', putData)
-            Swal.fire({
-                title: 'Sucesso',
-                text: 'Despesa alterada com Sucesso',
-                icon: 'success',
-                timer: 3000,
-                customClass: {
-                container: 'custom-swal',
-                }
-            })
-    
+            const ipUsuario = await getIPUsuario();
             const postData = {
-                IDFUNCIONARIO: usuarioLogado.id,
+                IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: `FINANCEIRO/EMPRESAS/ALTERACAO CONFIGURACAO PIX IDEMPRESA: ${dadosPixPDV[0]?.IDEMPRESA}`,
                 DADOS: dados,
                 IP: ipUsuario
             }
-    
-            const responsePost = await post('/log-web', postData)
+            
+            await post('/log-web', postData)
+            Swal.fire({
+                title: 'Sucesso',
+                text: 'Configuração atualizada com sucesso!',
+                icon: 'success',
+                timer: 5000,
+                customClass: {
+                    container: 'custom-swal',
+                }
+            })
             handleClose()
-            return responsePost.data
+            return response.data
             
         } catch (error) {
+            const dados = JSON.stringify(putData)
+            const ipUsuario = await getIPUsuario();
+            const postData = {
+                IDFUNCIONARIO: String(usuarioLogado.id),
+                PATHFUNCAO: `FINANCEIRO/EMPRESAS/ERRO AO ALTERAR CONFIGURACAO PIX IDEMPRESA: ${dadosPixPDV[0]?.IDEMPRESA}`,
+                DADOS: dados,
+                IP: ipUsuario
+            }
+            
+            await post('/log-web', postData)
 
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'error',
                 title: 'Erro!',
-                text: 'Usuário sem autorização para realizar a operação!',
+                text: 'Erro ao atualizar configuração!',
                 customClass: {
-                container: 'custom-swal',
+                    container: 'custom-swal',
                 },
                 showConfirmButton: false,
-                timer: 4000 
+                timer: 5000 
             });
             console.error('Erro ao atualizar configuração:', error);
         }

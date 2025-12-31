@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useRef, useState } from "react"
 import { MdOutlineAdd } from "react-icons/md";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { get } from "../../../../api/funcRequest";
@@ -26,6 +26,7 @@ export const ActionListaExtratoMovimentoBonificacao = ({
 }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -233,14 +234,16 @@ export const ActionListaExtratoMovimentoBonificacao = ({
           </div>
           <div className="card" ref={dataTableRef}>
             <DataTable
-            
               value={dados}
+              globalFilter={globalFilterValue}
               size="small"
+              selectionMode="single"
+              selection={rowSelection}
+              onSelectionChange={(e) => setRowSelection(e.value)}
               sortField="VRTOTALPAGO"
               sortOrder={-1}
               paginator={true}
               rows={10}
-              globalFilter={globalFilterValue}
               rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
               paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
               currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"

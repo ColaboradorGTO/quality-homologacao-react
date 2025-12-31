@@ -1,5 +1,4 @@
 import React, { Fragment, useRef, useState } from "react"
-import Swal from 'sweetalert2'
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { GrFormView } from "react-icons/gr";
@@ -7,7 +6,6 @@ import { get } from "../../../../api/funcRequest";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { dataFormatada } from "../../../../utils/dataFormatada";
-import { ActionDetalharProdutosVendasModal } from "./actionDetalharProdutosVendasModal";
 import HeaderTable from "../../../Tables/headerTable";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
@@ -20,12 +18,12 @@ export const ActionListaVendasVouchers = ({
   tabelaPrincipal,
   setTabelaPrincipal,
   tabelaSecundaria,
-  setTabelaSecundaria
-
+  setTabelaSecundaria,
+  setBtnVisivel
  }) => {
   const [dadosVisualizarProdutos, setDadosVisualizarProdutos] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -193,6 +191,7 @@ export const ActionListaVendasVouchers = ({
         setDadosVisualizarProdutos(response.data)
         setTabelaPrincipal(false)
         setTabelaSecundaria(true)
+        setBtnVisivel(true)
       }
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
@@ -308,6 +307,9 @@ export const ActionListaVendasVouchers = ({
                 value={dados}
                 globalFilter={globalFilterValue}
                 size="small"
+                selectionMode="single"
+                selection={rowSelection}
+                onSelectionChange={(e) => setRowSelection(e.value)}
                 sortOrder={-1}
                 paginator={true}
                 rows={10}
@@ -328,9 +330,9 @@ export const ActionListaVendasVouchers = ({
                     body={coluna.body}
                     footer={coluna.footer}
                     sortable={coluna.sortable}
-                    headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-                    footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                    bodyStyle={{ fontSize: '0.8rem' }}
+                    headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                    footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
+                    bodyStyle={{ fontSize: '1rem' }}
 
                   />
                 ))}
@@ -373,6 +375,9 @@ export const ActionListaVendasVouchers = ({
                   value={dadosProdutos}
                   globalFilter={globalFilterValue}
                   size="small"
+                  selectionMode="single"
+                  selection={rowSelection}
+                  onSelectionChange={(e) => setRowSelection(e.value)}
                   sortOrder={-1}
                   rowsPerPageOptions={[5, 10, 20, 50, 100, dadosProdutos.length]}
                   paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -391,9 +396,9 @@ export const ActionListaVendasVouchers = ({
                       body={coluna.body}
                       footer={coluna.footer}
                       sortable={coluna.sortable}
-                      headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-                      footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                      bodyStyle={{ fontSize: '0.8rem' }}
+                      headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                      footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
+                      bodyStyle={{ fontSize: '1rem' }}
 
                     />
                   ))}

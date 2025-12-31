@@ -27,7 +27,7 @@ export const ActionPesquisaDescontoVendas = () => {
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+
 
   useEffect(() => {
     const dataInicial = getDataAtual();

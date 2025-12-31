@@ -18,18 +18,27 @@ export const useUpdateDeposito = ({ handleClose, optionsModulos, usuarioLogado, 
     const [horaMovimento, setHoraMovimento] = useState('')
     const [ipUsuario, setIpUsuario] = useState('');
 
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
+        let usuarioIP = null;
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
+
+        if (!usuarioIP) {
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const { data: dadosContaBanco = [], error: errorContaBanco, isLoading: isLoadingContaBanco } = useQuery(
         'contaBanco',
@@ -177,25 +186,25 @@ export const useUpdateDeposito = ({ handleClose, optionsModulos, usuarioLogado, 
         }
 
         
+        const putData = {
+            IDDEPOSITOLOJA: parseInt(dadosDeposito[0]?.IDDEPOSITOLOJA),
+            IDEMPRESA: parseInt(empresa),
+            IDUSR: parseInt(usuarioLogado.id),
+            IDCONTABANCO: parseInt(contaSelecionada.value),
+            DTDEPOSITO: data + ' ' + hora,
+            DTMOVIMENTOCAIXA: dataMovimento + ' ' + horaMovimento,
+            DSHISTORIO: historico,
+            NUDOCDEPOSITO: documento,
+            VRDEPOSITO: parseFloat(vrDeposito),
+            STATIVO: 'True',
+            STCANCELADO: 'False',
+        }
         try {
-            const putData = {
-                IDDEPOSITOLOJA: parseInt(dadosDeposito[0]?.IDDEPOSITOLOJA),
-                IDEMPRESA: parseInt(empresa),
-                IDUSR: parseInt(usuarioLogado.id),
-                IDCONTABANCO: parseInt(contaSelecionada.value),
-                DTDEPOSITO: data + ' ' + hora,
-                DTMOVIMENTOCAIXA: dataMovimento + ' ' + horaMovimento,
-                DSHISTORIO: historico,
-                NUDOCDEPOSITO: documento,
-                VRDEPOSITO: parseFloat(vrDeposito),
-                STATIVO: 'True',
-                STCANCELADO: 'False',
-            }
 
             const response = await put('/deposito-loja/:id', putData)
-            let textDados = JSON.stringify(putData)
-            let textoFuncao = 'FINANCEIRO/EDIÇÃO DEPOSITO PELO EXTRATO DE CONTAS';
-
+            const textDados = JSON.stringify(putData)
+            const textoFuncao = 'FINANCEIRO/EDIÇÃO DEPOSITO PELO EXTRATO DE CONTAS';
+            const ipUsuario = await getIPUsuario();
 
             const postLogData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
@@ -204,7 +213,7 @@ export const useUpdateDeposito = ({ handleClose, optionsModulos, usuarioLogado, 
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postLogData)
+            await post('/log-web', postLogData)
 
             Swal.fire({
                 position: 'center',
@@ -217,23 +226,10 @@ export const useUpdateDeposito = ({ handleClose, optionsModulos, usuarioLogado, 
                 }
             })
             // handleClose()
-            return responsePost.data
+            return response.data
         } catch (error) {
-            const putData = {
-                IDDEPOSITOLOJA: parseInt(dadosDeposito[0]?.IDDEPOSITOLOJA),
-                IDEMPRESA: parseInt(empresa),
-                IDUSR: parseInt(usuarioLogado.id),
-                IDCONTABANCO: parseInt(contaSelecionada),
-                DTDEPOSITO: data + ' ' + hora,
-                DTMOVIMENTOCAIXA: dataMovimento + ' ' + horaMovimento,
-                DSHISTORIO: historico,
-                NUDOCDEPOSITO: documento,
-                VRDEPOSITO: parseFloat(vrDeposito),
-                STATIVO: 'True',
-                STCANCELADO: 'False',
-            }
-
-            let textDados = JSON.stringify(putData)
+            const textDados = JSON.stringify(putData)
+            const ipUsuario = await getIPUsuario();
             const postLogData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: `FINANCEIRO/ERRO AO ATUALIZAR DEPOSITO`,

@@ -241,8 +241,17 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
   const handleEditPreviaBalanco = async (IDRESUMOBALANCO, IDEMPRESA) => {
     try {
       const response = await get(`/novo-previa-balanco?idResumo=${IDRESUMOBALANCO}&idEmpresa=${IDEMPRESA}&diferenca=1&processa=1`)
-      if (response && response.data) {
+      if (response && response.data.length > 0) {
         setDadosPreviaBalancoModal(response.data)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado encontrado para o balanço selecionado.',
+          timer: 3000
+        })
+        return;
       }
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
@@ -269,8 +278,17 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
   const handleEditPreviaGeral = async (IDRESUMOBALANCO, IDEMPRESA) => {
     try {
       const response = await get(`/novo-previa-balanco?idResumo=${IDRESUMOBALANCO}&idEmpresa=${IDEMPRESA}&diferenca=0&processa=0`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosPreviaBalancoModal(response.data)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado encontrado para o balanço selecionado.',
+          timer: 3000
+        })
+        return;
       }
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
@@ -297,10 +315,18 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
   const handleEditResumoBalanco = async (IDRESUMOBALANCO, IDEMPRESA) => {
     try {
       const response = await get(`/coletor-balanco?idEmpresa=${IDEMPRESA}&idResumo=${IDRESUMOBALANCO}&diferenca=1&processa=0`)
-      if (response && response.data) {
+      if (response && response.data.length > 0) {
         setDadosColetorBalanco(response.data)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado encontrado para o balanço selecionado.',
+          timer: 3000
+        })
+        return;
       }
-      return response.data;
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
     }
@@ -318,17 +344,27 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
       Swal.fire({
         icon: 'error',
         title: 'Acesso Negado',
-        text: 'Você não tem permissão para acessar essa funcionalidade.',
-        timer: 3000
+        html: `${usuarioLogado?.NOFUNCIONARIO}<br/>  Você não tem permissão para acessar essa funcionalidade.`,
+        timer: 5000
       });
+      return; 
     }
   }
 
   const handleEditContaBalanco = async (IDRESUMOBALANCO) => {
     try {
       const response = await get(`/prestacao-contas-balanco?idResumoBalanco=${IDRESUMOBALANCO}`)
-      if (response && response.data) {
+      if (response && response.data.length > 0) {
         setDadosListaContasBalanco(response.data)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado encontrado para o balanço selecionado.',
+          timer: 3000
+        })
+        return;
       }
     } catch (error) {
       console.log(error, 'não foi possivel pegar os dados da tabela')
@@ -345,9 +381,10 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
       Swal.fire({
         icon: 'error',
         title: 'Acesso Negado',
-        text: 'Você não tem permissão para acessar essa funcionalidade.',
-        timer: 3000
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/>  Você não tem permissão para acessar essa funcionalidade.`,
+        timer: 5000
       });
+      return;
     }
   }
 

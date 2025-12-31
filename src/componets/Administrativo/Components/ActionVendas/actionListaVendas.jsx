@@ -13,6 +13,7 @@ import { toFloat } from "../../../../utils/toFloat";
 export const ActionListaVendas = ({ dadosVendas }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [expandedRows, setExpandedRows] = useState([]);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
  
@@ -332,10 +333,16 @@ export const ActionListaVendas = ({ dadosVendas }) => {
             title="Vendas por Loja"
             value={dados}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            sortOrder={-1}
+            paginator={true}
+            rows={10}
+            rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             expandedRows={expandedRows}
             onRowToggle={(e) => setExpandedRows(e.data)}
             rowExpansionTemplate={(data) => <ExpandedCompenent data={data} />}
-            sortOrder={-1}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"

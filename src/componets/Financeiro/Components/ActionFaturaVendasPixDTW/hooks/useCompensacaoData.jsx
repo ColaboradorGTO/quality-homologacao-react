@@ -1,24 +1,30 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
 
 export const useCompensacaoData = ({ usuarioLogado, optionsModulos, handleClickVendasPix }) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
+        try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        let usuarioIP = ipWhoisData?.ip;
 
-    const handleDetalhar = async (IDDETALHEFATURA) => {
+        if (!usuarioIP) {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+        }
+
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+        } catch (error) {
+        console.error("Erro ao buscar IP:", error);
+        return null;
+        }
+    };
+
+    const handleDetalhar = async (updatedSelectedIds, IDDETALHEFATURA) => {
         if (optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
@@ -50,23 +56,26 @@ export const useCompensacaoData = ({ usuarioLogado, optionsModulos, handleClickV
                 if (result.isConfirmed) {
                     const dtCompensacao = document.getElementById('dtcompensacao').value;
 
-                    const dados = IDVENDA.map(id => ({
-                        "IDDETALHEFATURA": id,
-                        "STCONFERIDO": 'True',
-                        "DATA_COMPENSACAO": dtCompensacao
-                    }));
-
-                    await put("/atualizar-status-fatura-pix", dados);
-                   
+                    if (updatedSelectedIds.length > 0) {
+                        for (const id of updatedSelectedIds) {
+                            const dados = {
+                                IDDETALHEFATURA: id,
+                                STCONFERIDO: 'True',
+                                DATA_COMPENSACAO: dtCompensacao
+                            };
+                            await put("/atualizar-status-fatura-pix", dados);
+                        }
+                    }
 
                     const textdados = JSON.stringify(dados);
                     const textoFuncao = 'FINANCEIRO/CONFIRMADA CONFERENCIA DA VENDA';
-                    const dadosConfirmaDep = [{
-                        "IDFUNCIONARIO": usuarioLogado.IDFUNCIONARIO,
+                    const ipUsuario = await getIPUsuario();
+                    const dadosConfirmaDep = {
+                        "IDFUNCIONARIO": String(usuarioLogado.id),
                         "PATHFUNCAO": textoFuncao,
                         "DADOS": textdados,
                         "IP": ipUsuario
-                    }];
+                    };
 
                     await post("/log-web", dadosConfirmaDep);
                     handleClickVendasPix();

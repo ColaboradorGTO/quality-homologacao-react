@@ -11,6 +11,7 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaConsolidadoBancoDTW = ({ dadosConciliarBancoConsolidado }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -400,6 +401,9 @@ export const ActionListaConsolidadoBancoDTW = ({ dadosConciliarBancoConsolidado 
             title="Vendas por Loja"
             value={dadosListaConciliarBancoConsolidado}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             globalFilter={globalFilterValue}
             sortOrder={-1}
             paginator={true}

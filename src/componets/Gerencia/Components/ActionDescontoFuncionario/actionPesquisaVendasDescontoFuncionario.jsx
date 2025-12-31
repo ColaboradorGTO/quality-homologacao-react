@@ -16,9 +16,8 @@ export const ActionPesquisaVendasDescontoFuncionario = ({usuarioLogado, ID, opti
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [usuarioSelecionado, setUsuarioSelecionado] = useState('')
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
-  const [isQueryData, setIsQueryData] = useState(false);
+
 
   useEffect(() => {
     const dataInicial = getDataAtual()
@@ -27,14 +26,6 @@ export const ActionPesquisaVendasDescontoFuncionario = ({usuarioLogado, ID, opti
     setDataPesquisaFim(dataFinal)
   
   }, []);
-
-  useEffect(() => {
-    const dataInicial = getDataAtual()
-    const dataFim = getDataAtual()
-    setDataPesquisaInicio(dataInicial)
-    setDataPesquisaFim(dataFim)
-
-  }, [usuarioSelecionado]);
 
 
   const { data: dadosFuncionarios = [], error: errorFornecedor, isLoading: isLoadingFornecedor } = useQuery(
@@ -101,9 +92,7 @@ export const ActionPesquisaVendasDescontoFuncionario = ({usuarioLogado, ID, opti
   }
  
   const handleClick = () => {
-    setIsQueryData(true);
     setTabelaVisivel(true);
-    setCurrentPage(prevPage => prevPage + 1);
     refetchVendasConvenio();
   };
 

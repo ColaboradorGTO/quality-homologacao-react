@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom";
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
 import { ButtonType } from "../../../Buttons/ButtonType";
@@ -79,7 +78,6 @@ export const ActionPesquisaFaturaLoja = ({usuarioLogado, ID, optionsEmpresas}) =
   );
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaFaturas();
     setTabelaVisivel(true);
   }
@@ -130,6 +128,7 @@ export const ActionPesquisaFaturaLoja = ({usuarioLogado, ID, optionsEmpresas}) =
           dadosFaturas={dadosFaturas} 
           usuarioLogado={usuarioLogado}
           optionsModulos={optionsModulos}  
+          handleClick={handleClick}
         />
       )}
 

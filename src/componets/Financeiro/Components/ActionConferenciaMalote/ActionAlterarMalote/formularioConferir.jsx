@@ -21,8 +21,6 @@ export const FormularioConferirMalote = ({
   const { data: optionsHistoricos = [] } = useFetchData('historicos-malotes', '/historicos-malotes');
   const [salvarDadosMalotes, setSalvarDadosMalotes] = useState([dadosConferirMalote[0]]);
   const [checkedItems, setCheckedItems] = useState([]); 
-  const [conferencia, setModuloConferencia] = useState('Conferência');
-  const [devolucao, setStatusMalote] = useState('Devolução');
   const dataTableRef = useRef();
   const {
     observacaoFinanceiro,
@@ -30,9 +28,9 @@ export const FormularioConferirMalote = ({
     observacaoLoja,
     setObservacaoLoja,
     onSalvarMalote
-  } = useConferirMalote({ salvarDadosMalotes, checkedItems, handleClick, optionsModulos, usuarioLogado});
+  } = useConferirMalote({ salvarDadosMalotes, checkedItems, handleClick, handleClose, optionsModulos, usuarioLogado});
   
-  // console.log(dadosConferirMalote, 'dadosConferirMalote')
+  
   const handlePrint = useReactToPrint({
     content: () => dataTableRef.current,
     documentTitle: 'Detalhes do Malote',
@@ -60,7 +58,7 @@ export const FormularioConferirMalote = ({
     PENDENCIAS
   } = dadosConferirMalote[0] || {};
 
-  console.log(dadosConferirMalote[0] , 'dadosConferirMalote[0]')
+  
 
   let classStatus = 'text-danger';
   let msgStatus = STATUSMALOTE || '';

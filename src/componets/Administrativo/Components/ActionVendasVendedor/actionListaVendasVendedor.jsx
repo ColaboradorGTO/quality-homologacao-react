@@ -14,6 +14,7 @@ import { toFloat } from "../../../../utils/toFloat";
 
 export const ActionListaVendasVendedor = ({ dadosVendasVendedor, percComissaoSelecionada }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -219,6 +220,9 @@ export const ActionListaVendasVendedor = ({ dadosVendasVendedor, percComissaoSel
           value={dados}
           globalFilter={globalFilterValue}
           size="small"
+          selectionMode="single"
+          selection={rowSelection}
+          onSelectionChange={(e) => setRowSelection(e.value)}
           footerColumnGroup={footerGroup}
           sortOrder={-1}
           paginator={true}

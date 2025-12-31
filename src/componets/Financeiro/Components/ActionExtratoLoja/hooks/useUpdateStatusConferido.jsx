@@ -8,21 +8,33 @@ export const useUpdateStatusConferido = ({handleClick, optionsModulos, usuarioLo
     const [ipUsuario, setIpUsuario] = useState('');
     const [hora, setHora] = useState('');
 
-
-
     useEffect(() => {
         const horaAtual = getHoraAtual();
         setHora(horaAtual);
-        getIPUsuario();
+      
     }, [usuarioLogado]);
 
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
+
+        if (!usuarioIP) {
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const handleSubmit = async (IDDEPOSITOLOJA, STCONFERIDO) => {
 
@@ -61,6 +73,7 @@ export const useUpdateStatusConferido = ({handleClick, optionsModulos, usuarioLo
     
                         const textdados = JSON.stringify(dados);
                         const textoFuncao = 'FINANCEIRO/CONFIRMADA CONFERENCIA DO DEPOSITO';
+                        const ipUsuario = await getIPUsuario();
                         const dadosLog = {
                             IDFUNCIONARIO: String(usuarioLogado.id),
                             PATHFUNCAO: textoFuncao,
@@ -77,16 +90,24 @@ export const useUpdateStatusConferido = ({handleClick, optionsModulos, usuarioLo
 
                         });
                     } else if (result.dismiss === Swal.DismissReason.cancel) {
+                        const dtCompensacao = document.getElementById('dtcompensacao').value;
+                        const dados = {
+                            IDDEPOSITOLOJA: IDDEPOSITOLOJA,
+                            STCONFERIDO: 'True',
+                            DTCOMPENSACAO: `${dtCompensacao} ${hora}`
+                        }
+                        const textdados = JSON.stringify(dados);
                         let textoFuncao = 'FINANCEIRO/ERRO AO CONFIRMAR CONFERENCIA DO DEPOSITO';
+                        const ipUsuario = await getIPUsuario();
     
                         await post("/log-web", {
                             "IDFUNCIONARIO": String(usuarioLogado.id),
                             "PATHFUNCAO": textoFuncao,
-                            "DADOS": '',
+                            "DADOS": textdados,
                             "IP": ipUsuario
                         });
     
-                        Swal.fire('Erro!', 'Erro ao Confirmar Conferência do Depósito.', 'error');
+                        Swal.fire('Erro!', 'Erro ao Confirmar Status.', 'error');
     
                     }
                 });

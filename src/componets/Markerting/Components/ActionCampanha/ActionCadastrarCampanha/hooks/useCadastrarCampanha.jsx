@@ -4,9 +4,9 @@ import { useEffect, useState } from "react"
 import { useQuery } from "react-query"
 import { getDataAtual } from "../../../../../../utils/dataAtual"
 import axios from "axios"
-import { useNavigate } from "react-router-dom"
 
-export const useCadastrarCampanha = () => {
+
+export const useCadastrarCampanha = ({optionsModulos, usuarioLogado, handleClose}) => {
     const [descricao, setDescricao] = useState('')
     const [dataInicio, setDataInicio] = useState('')
     const [dataFim, setDataFim] = useState('')
@@ -14,36 +14,27 @@ export const useCadastrarCampanha = () => {
     const [empresaSelecionada, setEmpresaSelecionada] = useState('')
     const [percentDesconto, setPercentDesconto] = useState(0)
     const [ipUsuario, setIpUsuario] = useState('');
-    const [usuarioLogado, setUsuarioLogado] = useState(null);
-
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const usuarioArmazenado = localStorage.getItem('usuario');
-
-        if (usuarioArmazenado) {
-            try {
-                const parsedUsuario = JSON.parse(usuarioArmazenado);
-                setUsuarioLogado(parsedUsuario);
-            } catch (error) {
-                console.error('Erro ao parsear o usuário do localStorage:', error);
-            }
-        } else {
-            navigate('/');
-        }
-    }, [navigate]);
-
-    useEffect(() => {
-        getIPUsuario();
-
-    }, [usuarioLogado]);
-
+    
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/');
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
+
+        if (!usuarioIP) {
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
 
@@ -88,6 +79,19 @@ export const useCadastrarCampanha = () => {
 
 
     const onSubmit = async (data) => {
+        if(optionsModulos[0]?.CRIAR == 'False') {
+            Swal.fire({
+                title: 'Atenção',
+                html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para cadastrar campanhas.`,
+                icon: 'warning',
+                confirmButtonText: 'Ok',
+                customClass:{
+                    container: 'custom-swal',
+                }
+            });
+            return;
+        } 
+
         if (!descricao || !percentDesconto || !empresaSelecionada) {
             Swal.fire({
                 position: 'top-end',
@@ -101,17 +105,29 @@ export const useCadastrarCampanha = () => {
             });
             return;
         }
-        const postData = [{
+        const postData = {
             DSCAMPANHA: descricao,
             IDOPERADOR: usuarioLogado.id,
             DTINICIO: dataInicio,
             DTFINAL: dataFim,
             VRPERCDESCONTO: parseFloat(percentDesconto),
             EMPRESAS: empresaSelecionada,
-        }];
+        };
 
         try {
             const response = await post('/cadastra-campanha', postData);
+            const ipUsuario = await getIPUsuario();
+            const textDados = JSON.stringify(postData);
+            let textoFuncao = 'MARKETING/CADASTRO DE CAMPANHA';
+            
+            const createData = {
+                IDFUNCIONARIO: String(usuarioLogado.id),
+                PATHFUNCAO: textoFuncao,
+                DADOS: textDados,
+                IP: ipUsuario,
+            };
+            
+            await post('/log-web', createData);
             Swal.fire({
                 position: 'top-end',
                 icon: 'success',
@@ -122,21 +138,21 @@ export const useCadastrarCampanha = () => {
                 showConfirmButton: false,
                 timer: 1500,
             });
-
+            handleClose();
+            return response.data;
+        } catch (error) {
+            const ipUsuario = await getIPUsuario();
             const textDados = JSON.stringify(postData);
-            let textoFuncao = 'MARKETING/CADASTRO DE CLIENTE';
-
+            let textoFuncao = 'MARKETING/ERRO AO CADASTRAR CAMPANHA';
+            
             const createData = {
-                IDFUNCIONARIO: usuarioLogado.id,
+                IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
                 IP: ipUsuario,
             };
-
-            const responsePost = await post('/log-web', createData);
-            // handleClose();
-            return responsePost.data;
-        } catch (error) {
+            
+            await post('/log-web', createData);
             Swal.fire({
                 position: 'top-end',
                 icon: 'error',

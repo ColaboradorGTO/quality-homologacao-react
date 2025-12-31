@@ -13,7 +13,7 @@ import Swal from 'sweetalert2'
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData"
 
-export const ActionPesquisaCaixaStatus = () => {
+export const ActionPesquisaCaixaStatus = ({usuarioLogado, ID}) => {
   const [tabelaCaixaStatus, setTabelaCaixaStatus] = useState(false);
   const [tabelaCaixaZerado, setTabelaCaixaZerado] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
@@ -25,8 +25,6 @@ export const ActionPesquisaCaixaStatus = () => {
   const [isQueryCaixaZerado, setIsQueryCaixaZerado] = useState(false);
   const [isQueryCaixaStatus, setIsQueryCaixaStatus] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
-  const [page, setPage] = useState(+1)
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -38,7 +36,15 @@ export const ActionPesquisaCaixaStatus = () => {
   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useFetchData('marcasLista', '/marcasLista');
   const { data: optionsEmpresas = [],} = useFetchEmpresas(marcaSelecionada);
 
-  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  );
+
   const fetchCaixaStatus = async () => {
     const urlBase = `/lista-caixas-status?idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
@@ -223,7 +229,12 @@ export const ActionPesquisaCaixaStatus = () => {
         <ActionListaCaixaStatus dadosCaixaStatus={dadosCaixaStatus} />
       )}
       {tabelaCaixaZerado && (
-        <ActionListaCaixaZerado dadosCaixaZerados={dadosCaixaZerados} />
+        <ActionListaCaixaZerado 
+          dadosCaixaZerados={dadosCaixaZerados} 
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}  
+          refetchCaixaZerado={refetchCaixaZerado}
+        />
       )}
     </Fragment>
   )

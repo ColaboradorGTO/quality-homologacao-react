@@ -5,7 +5,7 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import { toFloat } from "../../../../../utils/toFloat";
 
-export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLogado}) => {
+export const useSalvarOT = ({ handleClick, handleClose, optionsModulos, usuarioLogado }) => {
   const [empresaOrigem, setEmpresaOrigem] = useState('')
   const [empresaDestino, setEmpresaDestino] = useState('')
   const [produto, setProduto] = useState('')
@@ -14,23 +14,26 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
   const [produtoSalvo, setProdutoSalvo] = useState([]);
 
   const getIPUsuario = async () => {
+    let usuarioIP = null;
+
     try {
       const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
-
-      if (!usuarioIP) {
-          const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-          usuarioIP = ipifyData?.ip;
-      }
-
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
+      usuarioIP = ipWhoisData?.ip;
     } catch (error) {
-      console.error("Erro ao buscar IP:", error);
-      return null;
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-  };
 
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   const { data: dadosEmpresa = [], error: errorMarcas, isLoading: isLoadingMarcas } = useQuery(
     'empresas',
@@ -41,7 +44,7 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
     { staleTime: 5 * 60 * 1000 }
   );
 
-  
+
   const { data: dadosProdutos = [], error: errorProdutos, isLoading: isLoadingProdutos, refetch: refetchProdutos } = useQuery(
     ['listaProdutos', produto, usuarioLogado?.IDEMPRESA],
     async () => {
@@ -58,7 +61,7 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
     },
     { enabled: produto.length > 8, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
-  
+
   useEffect(() => {
     if (produto.length > 4 && empresaDestino <= 0) {
       Swal.fire({
@@ -81,12 +84,12 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
     }
   }, [dadosProdutos, produto]);
 
-  
+
   const onSubmit = async () => {
-    if(optionsModulos[0]?.CRIAR == 'False') {
+    if (optionsModulos[0]?.CRIAR == 'False') {
       Swal.fire({
         title: 'Erro!',
-        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para criar a OT!`,  
+        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para criar a OT!`,
         icon: 'error',
         customClass: {
           container: 'custom-swal',
@@ -126,7 +129,7 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
           STSOBRA: 'False'
         };
       });
-   
+
       const postData = {
         IDRESUMOOT: parseInt(0),
         IDEMPRESAORIGEM: usuarioLogado?.IDEMPRESA,
@@ -158,8 +161,9 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
         DTULTALTERACAO: "",
         dadosdetalheot: dadosdetalheot,
       };
+
       const response = await post('/criar-resumo-ordem-transferencia', postData);
- 
+
       const textDados = JSON.stringify(postData);
       let textoFuncao = 'EXPEDICAO/OT CRIADA COM SUCESSO';
       await getIPUsuario();
@@ -169,9 +173,9 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
         DADOS: textDados,
         IP: ipUsuario
       };
-  
-      const responsePost = await post('/log-web', createData)
-  
+
+      await post('/log-web', createData)
+
       Swal.fire({
         title: 'Cadastro',
         text: 'OT cadastrada com Sucesso',
@@ -181,27 +185,27 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
           container: 'custom-swal',
         },
       });
-  
-  
+
+
       handleClose();
       handleClick();
-      return responsePost.data;
+      return response.data;
     } catch (error) {
-      var nCtTotalItens = 0;
+       var nCtTotalItens = 0;
       var nQtdTotalItens = 0;
       var dVlrTotalVenda = 0;
       var dVlrTotalCusto = 0;
 
       const dadosdetalheot = dadosProdutosTabela.map((item) => {
         const nQtdProduto = 1;
-        const nVlrVenda = item.PRECOVENDA;
-        const nVlrCusto = item.PRECOCUSTO;
+        const nVlrVenda = parseFloat(item.PRECOVENDA);
+        const nVlrCusto = parseFloat(item.PRECOCUSTO);
+
         nCtTotalItens++;
         nQtdTotalItens = nQtdTotalItens + toFloat(nQtdProduto);
         dVlrTotalVenda = dVlrTotalVenda + (toFloat(nQtdProduto) * toFloat(nVlrVenda));
         dVlrTotalCusto = dVlrTotalCusto + (toFloat(nQtdProduto) * toFloat(nVlrCusto));
 
-       
         return {
           IDPRODUTO: item.IDPRODUTO,
           QTDEXPEDICAO: nQtdProduto,
@@ -217,11 +221,11 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
           STSOBRA: 'False'
         };
       });
-      
+
       const postData = {
+        IDRESUMOOT: parseInt(0),
         IDEMPRESAORIGEM: usuarioLogado?.IDEMPRESA,
-        IDEMPRESADESTINO: parseInt(empresaDestino),
-        DATAEXPEDICAO: "",
+        IDEMPRESADESTINO: parseInt(empresaDestino?.value),
         IDOPERADOREXPEDICAO: usuarioLogado?.id,
         NUTOTALITENS: nCtTotalItens,
         QTDTOTALITENS: nQtdTotalItens,
@@ -235,25 +239,25 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
         IDOPERADORRECEPTOR: 0,
         DSOBSERVACAO: "",
         IDUSRCANCELAMENTO: 0,
-        DTULTALTERACAO: "",
         IDSTDIVERGENCIA: 0,
         OBSDIVERGENCIA: "",
         STEMISSAONFE: "False",
         NUMERONFE: "",
         STENTRADAINVENTARIO: "False",
         QTDCONFERENCIA: 0,
-        dadosdetalheot: dadosdetalheot,
-        IDRESUMOOT: parseInt(0),
         IDSTATUSOT: 1,
         IDUSRAJUSTE: 0,
         DTAJUSTE: "",
-        QTDTOTALITENSAJUSTE: 0
+        QTDTOTALITENSAJUSTE: 0,
+        DATAEXPEDICAO: "",
+        DTULTALTERACAO: "",
+        dadosdetalheot: dadosdetalheot,
       };
-      let textoFuncao = 'EXPEDICAO/ERRO AO CRIAR OT COM SUCESSO';
 
+      
       const textDados = JSON.stringify(postData);
-  
-      await getIPUsuario();
+      let textoFuncao = 'EXPEDICAO/ERRO AO CRIAR OT COM SUCESSO';
+      const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado?.id),
         PATHFUNCAO: textoFuncao,
@@ -275,7 +279,7 @@ export const useSalvarOT = ({handleClick, handleClose, optionsModulos, usuarioLo
 
       // handleClick();
       return responsePost.data;
-      
+
     }
   };
 

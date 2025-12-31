@@ -5,10 +5,10 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
-import { ActionEditarFaturaModal } from "./actionEditarFaturaModal";
+import { ActionEditarFaturaModal } from "./ActionEditarFatura/actionEditarFaturaModal";
 import { get, put } from "../../../../api/funcRequest";
 import { AiOutlineCloseCircle } from "react-icons/ai";
-import { ActionCancelarFaturaModal } from "./actionCancelarFaturaModal";
+import { ActionCancelarFaturaModal } from "./ActionCancelarFatura/actionCancelarFaturaModal";
 import HeaderTable from "../../../Tables/headerTable";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -17,7 +17,7 @@ import { useReactToPrint } from "react-to-print";
 import Swal from "sweetalert2";
 
 
-export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModulos }) => {
+export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModulos, handleClick }) => {
   const [dadosDetalheFatura, setDadosDetalheFatura] = useState([]);
   const [modalDetalheFatura, setModalDetalheFatura] = useState(false);
   const [modalCancelarFatura, setModalCancelarFatura] = useState(false);
@@ -141,11 +141,6 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
     }
   });
 
- 
-  // const calcularTotalValorRecebido = () => {
-  //   return dados.reduce((total, dados) => total + toFloat(dados.VRRECEBIDO), 0);
-  // }
-
   const colunasMovimentoCixa = [
     {
       field: 'contador',
@@ -178,7 +173,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
     {
       field: 'IDCAIXAWEB',
       header: 'Caixa',
-      body: row => <th style={{ color: 'blue', width: "5rem" }}>{`${row.IDCAIXAWEB} - ${row.DSCAIXA} `}</th>,
+      body: row => <p style={{ color: 'blue', width: "5rem", fontWeight: 600 }}>{`${row.IDCAIXAWEB} - ${row.DSCAIXA} `}</p>,
       sortable: true,
     },
     {
@@ -341,7 +336,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
       Swal.fire({
         icon: 'info',
         title: 'Atenção!',
-        text: 'Você não tem permissão para alterar o status de conferência do caixa.',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para alterar o status de conferência do caixa.`,
         customClass: {
           container: 'custom-swal',
         },
@@ -370,7 +365,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
       Swal.fire({
         icon: 'info',
         title: 'Atenção!',
-        text: 'Você não tem permissão para cancelar a fatura.',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para cancelar a fatura.`,
         customClass: {
           container: 'custom-swal',
         },
@@ -384,7 +379,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
       Swal.fire({
         icon: 'info',
         title: 'Atenção!',
-        text: 'Você não tem permissão para alterar o status de recompra.',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para alterar o status de recompra.`,
         customClass: {
           container: 'custom-swal',
         },
@@ -486,6 +481,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
         dadosDetalheFatura={dadosDetalheFatura}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
 
       <ActionCancelarFaturaModal
@@ -494,6 +490,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
         dadosCancelarFatura={dadosCancelarFatura}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

@@ -20,6 +20,7 @@ import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 
 export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionarios, optionsModulos, usuarioLogado, handleClick }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
   const {
     handleAtivar,
@@ -299,6 +300,9 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
             sortOrder={-1}
             paginator={true}
             rows={10}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dadosAdiantamentos.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"

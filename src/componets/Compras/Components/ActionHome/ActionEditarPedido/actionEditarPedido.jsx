@@ -1,4 +1,4 @@
-import { Fragment, useEffect } from "react"
+import { Fragment, useEffect, useState } from "react"
 import { ButtonType } from "../../../../Buttons/ButtonType";
 import { useQuery } from "react-query";
 import { MdMenu, MdOutlineCheck, MdOutlinePayment, MdOutlinePictureAsPdf, MdOutlineVisibility } from "react-icons/md";
@@ -15,13 +15,72 @@ import { InputFieldCheckBox } from "../../.././../Inputs/InputChekBox";
 import { useIncluirProutoPedido } from "../../ActionNovoPedido/hooks/useIncluirProdutoPedido";
 import { ActionIncluirProdutoPedidoModal } from "../../ActionNovoPedido/IncluirProdutoPedido/actionIncluirProdutoPedidoModal";
 import { ActionListaPedidos } from "./actionListaPedidos";
+import { FaRegSave } from "react-icons/fa";
+import { AiOutlineMenuUnfold } from "react-icons/ai";
 
 
 export const ActionEditarPedido = ({
   usuarioLogado,
   ID,
   dadosVisualizarPedido,
+  dadosDetalhePedido
 }) => {
+  const [dadosDetalheProdutoPedido, setDadosDetalheProdutoPedido] = useState([]);
+  const [botoesVisiveis, setBotoesVisiveis] = useState({
+    incluir: true,
+    fechar: true,
+    salvar: true,
+    clonar: false,
+    clonarProdutoPedido: false,
+    novoPedido: false
+  });
+
+  const [camposHabilitados, setCamposHabilitados] = useState(true);
+  const [tituloSubheader, setTituloSubheader] = useState('');
+
+  useEffect(() => {
+    if (dadosVisualizarPedido && dadosVisualizarPedido.length > 0) {
+      const dados = dadosVisualizarPedido[0];
+      
+      const IdAndamentoPedido = parseInt(dados?.IDANDAMENTO);
+      const StCancelaPedido = dados?.STCANCELADO || 'False';
+      const IDPEDIDORESUMO = dados?.IDPEDIDO || '';
+
+      // ========== LÓGICA DE VISIBILIDADE ==========
+      if (StCancelaPedido === 'True' || (IdAndamentoPedido >= 2 && IdAndamentoPedido < 15)) {
+        // Pedido cancelado OU em andamento (setor > COMPRAS)
+        setBotoesVisiveis({
+          incluir: false,
+          fechar: false,
+          salvar: false,
+          clonar: true,
+          clonarProdutoPedido: true,
+          novoPedido: true
+        });
+        setCamposHabilitados(false);
+        
+        if (IdAndamentoPedido >= 2 && IdAndamentoPedido < 15) {
+          setTituloSubheader(`Pedido Nº: ${IDPEDIDORESUMO}`);
+        }
+        
+      } else if (IdAndamentoPedido == 1 || IdAndamentoPedido == 15) {
+        // Pedido em inclusão (1) OU retornado para alteração (15)
+        setBotoesVisiveis({
+          incluir: true,
+          fechar: true,
+          salvar: true,
+          clonar: true,
+          clonarProdutoPedido: true,
+          novoPedido: true   
+        });
+        setCamposHabilitados(true);
+        
+        const tipoOperacao = IdAndamentoPedido === 1 ? 'Inclusão' : 'Alteração';
+        setTituloSubheader(`${tipoOperacao} - Pedido Nº: ${IDPEDIDORESUMO}`);
+      }
+    }
+  }, [dadosVisualizarPedido]);
+
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
     async () => {
@@ -154,14 +213,14 @@ export const ActionEditarPedido = ({
     { staleTime: 5 * 60 * 1000, enabled: false }
   );
 
-  const { data: dadosDetalhesPedidos = [], error: errorDetalhePedido, isLoading: isLoadingDetalhePedido, refetch: refetchListaDetalhePedidos } = useQuery(
-    'lista-detalhe-pedidos',
-    async () => {
-      const response = await get(`/lista-detalhe-pedidos?idPedido=${dadosVisualizarPedido[0]?.IDPEDIDO}&stTransformado=False`);
-      return response.data;
-    },
-    { staleTime: 5 * 60 * 1000, enabled: false }
-  );
+  // const { data: dadosDetalhePedido= [], error: errorDetalhePedido, isLoading: isLoadingDetalhePedido, refetch: refetchListaDetalhePedidos } = useQuery(
+  //   'lista-detalhe-pedidos',
+  //   async () => {
+  //     const response = await get(`/lista-detalhe-pedidos?idPedido=${dadosVisualizarPedido[0]?.IDPEDIDO}&stTransformado=False`);
+  //     return response.data;
+  //   },
+  //   { staleTime: 5 * 60 * 1000, enabled: false }
+  // );
 
 
   const { data: dadosProdutosPedidos = [], error: errorProdutosPedido, isLoading: isLoadingProdutosPedidos, refetch: refetchListaCadastroProdutoPedidos } = useQuery(
@@ -179,12 +238,15 @@ export const ActionEditarPedido = ({
       setDataPesquisaInicio(dadosVisualizarPedido[0]?.DTPEDIDOFORMATADA)
       setDataPesquisaFim(dadosVisualizarPedido[0]?.DTPREVENTREGAFORMATADA)
       setCompradorSelecionado({
-        value: dadosVisualizarPedido[0]?.IDCOMPRADOR, 
+        value: dadosVisualizarPedido[0]?.IDCOMPRADOR , 
         label: dadosVisualizarPedido[0]?.NOMECOMPRADOR
       })
     
-      setMarcaSelecionada(dadosVisualizarPedido[0]?.NOFANTASIA)
-      // setFornecedorSelecionado(dadosVisualizarPedido[0]?.NOFANTASIAFORNECEDOR)
+      setMarcaSelecionada({value: dadosVisualizarPedido[0]?.NOFANTASIA, label: dadosVisualizarPedido[0]?.NOFANTASIA})
+      setFornecedorSelecionado({
+        value: dadosVisualizarPedido[0]?.IDFORNECEDOR, 
+        label: `${dadosVisualizarPedido[0]?.NOFANTASIAFORNECEDOR} / / ${dadosVisualizarPedido[0]?.CNPJFORN} / / ${dadosVisualizarPedido[0]?.NOFORNECEDOR}`
+      })
       
       setObsFornecedor(dadosVisualizarPedido[0]?.OBSPEDIDO)
       setObsInterna(dadosVisualizarPedido[0]?.OBSPEDIDO2)
@@ -209,6 +271,7 @@ export const ActionEditarPedido = ({
       setDesconto1(toFloat(dadosVisualizarPedido[0]?.DESCPERC01).toFixed(2))
       setDesconto2(toFloat(dadosVisualizarPedido[0]?.DESCPERC02).toFixed(2))
       setDesconto3(toFloat(dadosVisualizarPedido[0]?.DESCPERC03).toFixed(2))
+      setTotalLiq(toFloat(dadosVisualizarPedido[0]?.VRTOTALLIQUIDO))
       setIdResumoPedido(dadosVisualizarPedido[0]?.IDPEDIDIO)
     }
   }, [dadosVisualizarPedido])
@@ -287,7 +350,7 @@ export const ActionEditarPedido = ({
   };
 
   const handleFinalizarCadastro = async (IDRESUMOPEDIDIO) => {
-    if (dadosDetalhesPedidos != 0) {
+    if (dadosDetalhePedido!= 0) {
       Swal.fire({
         icon: "warning",
         title: `Existe Itens do Pedido: ${IDRESUMOPEDIDIO} que não foram Transformados em Produtos`,
@@ -390,29 +453,30 @@ export const ActionEditarPedido = ({
     {value: 'ACESSORIOS', label: 'ACESSÓRIOS'},
   ]
 
-const optionsTipoFrete = [
-    { value: 'PAGO', label: 'PAGO - CIF' },
-    { value: 'APAGAR', label: 'A PAGAR - FOB' },
-]
+  const optionsTipoFrete = [
+  { value: 'PAGO', label: 'PAGO - CIF' },
+  { value: 'APAGAR', label: 'A PAGAR - FOB' },
+  ]
  
+  
   return (
 
     <Fragment>
       <ResultadoResumo
         cardVendas={true}
-        valorVendas={calcularTotalDetalhe()}
+        valorVendas={formatMoeda(toFloat(dadosVisualizarPedido[0]?.VRTOTALBRUTO))}
         nomeVendas="Valor Bruto Pedido"
         IconVendas={MdOutlinePayment}
         iconSize={100}
         iconColor={"#fff"}
 
         cardTicketMedio={true}
-        valorTicketMedio={calcularTotalDetalhe()}
+        valorTicketMedio={formatMoeda(totalLiq)}
         nomeTicketMedio="Valor Líquido Pedido"
         IconTicketMedio={MdOutlinePayment}
 
         cardCliente={true}
-        numeroCliente={calcularTotalQuantidade()}
+        numeroCliente={toFloat(dadosVisualizarPedido[0]?.QTDTOTPRODUTOS)}
         nomeCliente="QTD Produtos"
         IconNumeroCliente={MdOutlinePayment}
       />
@@ -420,8 +484,8 @@ const optionsTipoFrete = [
       <ActionMainNovoPedido
         lBinkComponentAnterior={["Home"]}
         linkComponent={["Novo Pedido"]}
-        title="Novo Pedido"
-        subTitle="Nome da Loja"
+        //title={`Pedido Nº: ${dadosVisualizarPedido[0]?.IDPEDIDO}`}
+        subTitle={tituloSubheader}
 
         InputCheckBoxPedido={InputFieldCheckBox}
         labelCheckBoxPedido={"Pedido Por Intermediário"}
@@ -474,7 +538,7 @@ const optionsTipoFrete = [
             label: item.NOFUNCIONARIO
           }
         })}
-        defaultValueSelectComprador={compradorSelecionado}
+        valueSelectComprador={compradorSelecionado}
         onChangeSelectComprador  ={(e) => setCompradorSelecionado(e.value)}
        
 
@@ -617,8 +681,65 @@ const optionsTipoFrete = [
         corTXT={"warning"}
         IconTXT={GrDocumentTxt}
       />
+         
+      <div className="d-flex panel-tag">
+        {botoesVisiveis.incluir && (
+          
+          <ButtonType 
+            textButton={"Incluir Itens"}
+            onClickButtonType={handleIncluir}
+            cor={"primary"}
+            Icon={MdMenu}
+          />
+        )}
 
+        {botoesVisiveis.salvar && (
 
+          <ButtonType 
+            textButton={"Salvar Cabeçalho Pedido"}
+            onClickButtonType
+            cor={"info"}
+            Icon={FaRegSave}
+          />
+        )}
+        {botoesVisiveis.fechar && (
+
+          <ButtonType 
+            textButton={"Fechar Pedido"}
+            onClickButtonType
+            cor={"danger"}
+            Icon={AiOutlineMenuUnfold}
+          />
+        )}
+
+        {botoesVisiveis.novoPedido && (
+          <ButtonType 
+            textButton={"Novo Pedido"}
+            onClickButtonType
+            cor={"success"}
+            Icon={AiOutlineMenuUnfold}
+          />
+        )}
+      
+        {botoesVisiveis.clonar && (
+
+          <ButtonType 
+            textButton={"Clonar Cabeçalho Pedido"}
+            onClickButtonType
+            cor={"warning"}
+            Icon={AiOutlineMenuUnfold}
+          />
+        )}
+        {botoesVisiveis.clonarProdutoPedido && (
+          <ButtonType 
+            textButton={"Clonar Pedido"}
+            onClickButtonType
+            cor={"secondary"}
+            Icon={AiOutlineMenuUnfold}
+          />
+        )}
+      </div>
+    
       <ActionIncluirProdutoPedidoModal
         show={modalIncluirProdutoPedido}
         handleClose={() => setModalIncluirProdutoPedido(false)}
@@ -629,11 +750,15 @@ const optionsTipoFrete = [
         marcaSelecionada={marcaSelecionada}
         idResumoPedido={idResumoPedido}
       />
-
       <ActionListaPedidos 
-        
-        dadosDetalhe={dadosDetalhe}
+        dadosDetalhePedido={dadosDetalhePedido}
+        dadosVisualizarPedido={dadosVisualizarPedido}
+        setDadosDetalheProdutoPedido={setDadosDetalheProdutoPedido}
+        setModalIncluirProdutoPedido={setModalIncluirProdutoPedido}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
       /> 
+        
     </Fragment>
   )
 }

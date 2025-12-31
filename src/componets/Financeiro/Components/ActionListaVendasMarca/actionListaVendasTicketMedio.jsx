@@ -112,7 +112,7 @@ export const ActionListaVendasTicketMedio = ({dadosListaVendasMarca}) => {
       QTDVENDA: item.QTDVENDA,
       
       valorDisponivelBrutoVoucherTiketM: valorDisponivelBrutoVoucherTiketM,
-      valorTiketMedio: valorTiketMedio,
+      valorTiketMedio: toFloat(valorTiketMedio),
     }
   })
   const colunasVendasTicketMedio = [

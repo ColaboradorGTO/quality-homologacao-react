@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
@@ -6,23 +6,21 @@ import { formatMoeda } from "../../../../utils/formatMoeda";
 import { FaMinus } from "react-icons/fa";
 import { BsTrash3 } from "react-icons/bs";
 import { post, put } from "../../../../api/funcRequest";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import Swal from "sweetalert2";
 import HeaderTable from "../../../Tables/headerTable";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import 'jspdf-autotable';
+import axios from "axios";
 
 export const ActionListaBalancoAvulso = ({ dadosBalancoAvulso, usuarioLogado, optionsModulos,   refetch }) => {
   const [ipUsuario, setIpUsuario] = useState('')
   const [quantidade, setQuantidade] = useState(0)
-
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
-  const navigate = useNavigate();
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onPageChange = (event) => {
@@ -75,18 +73,27 @@ export const ActionListaBalancoAvulso = ({ dadosBalancoAvulso, usuarioLogado, op
     XLSX.writeFile(workbook, 'lista_produtos_balanco.xlsx');
   };
 
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
-  }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   const calcularTotalCusto = () => {
     let total = 0;
@@ -235,7 +242,7 @@ export const ActionListaBalancoAvulso = ({ dadosBalancoAvulso, usuarioLogado, op
 
       const textDados = JSON.stringify(putData)
       let textoFuncao = 'ADMINISTRATIVO/ALTERANDO QUANTIDADE DE PRODUTO NO BALANÇO AVULSO';
-
+      const ipUsuario = await getIPUsuario();
 
       const postData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
@@ -244,22 +251,27 @@ export const ActionListaBalancoAvulso = ({ dadosBalancoAvulso, usuarioLogado, op
         IP: ipUsuario
       }
 
-      const responsePost = await post('/log-web', postData)
+      await post('/log-web', postData)
 
       Swal.fire({
         title: 'Atualização',
         text: 'Quantidade do produto atualizada com sucesso',
-        icon: 'success'
+        icon: 'success',
+        showConfirmButton: true,
+        timer: 5000,
+        customClass: {
+          container: 'custom-swal',
+        }
       })
 
 
       refetch()
-      return responsePost.data;
+      return response.data;
 
     } catch (error) {
       const textDados = JSON.stringify(putData)
       let textoFuncao = 'ADMINISTRATIVO/ALTERANDO QUANTIDADE DE PRODUTO NO BALANÇO AVULSO';
-
+      const ipUsuario = await getIPUsuario();
       const postData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
@@ -272,7 +284,12 @@ export const ActionListaBalancoAvulso = ({ dadosBalancoAvulso, usuarioLogado, op
       Swal.fire({
         title: 'Atualização',
         text: 'Erro ao atualizar o quantidade do produto',
-        icon: 'error'
+        icon: 'error',
+        showConfirmButton: true,
+        timer: 5000,
+        customClass: {
+          container: 'custom-swal',
+        }
       })
       return responsePost.data;
 
@@ -304,7 +321,10 @@ export const ActionListaBalancoAvulso = ({ dadosBalancoAvulso, usuarioLogado, op
           <DataTable
             title="Vendas por Loja"
             value={dados}
-            sortField="VRTOTALPAGO"
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}

@@ -1,9 +1,7 @@
 import { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { dataFormatada } from "../../../../utils/dataFormatada";
 import { formatMoeda } from "../../../../utils/formatMoeda";
-
 import { ActionDetalheVendaProdutosModal } from "../ActionsModaisVendas/actionDetalheVendaProdutosModal";
 import { ActionRelacaoRecebimentosModal } from "../ActionsModaisVendas/ActionRecebimentos/actionRelacaoRecebimentosModal";
 import { get } from "../../../../api/funcRequest";
@@ -19,9 +17,14 @@ import HeaderTable from "../../../Tables/headerTable";
 import { ActionDetalheVendaModal } from "../ActionsModaisVendas/actionDetalheVendaModal";
 import { TbFileTypeXml } from "react-icons/tb";
 import { ActionVendaXMLModal } from "../ActionVendasContigencia/actionVendaXMLModal";
+import Swal from "sweetalert2";
 
 
-export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinutos }) => {
+export const ActionListaVendasCanceladasMinutos = ({ 
+  dadosVendasCanceladasMinutos,
+  optionsModulos, 
+  usuarioLogado   
+}) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalVendaVisivel, setModalVendaVisivel] = useState(false);
   const [modalProdutoVisivel, setModalProdutoVisivel] = useState(false);
@@ -32,6 +35,8 @@ export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinuto
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [modalXmlVisivel, setModalXmlVisivel] = useState(false);
   const [dadosVendasXML, setDadosVendasXML] = useState([]);
+  const [dadosDetalheRecebimentos, setDadosDetalheRecebimentos] = useState([]);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -319,6 +324,7 @@ export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinuto
               titleButton={"Detalhar Venda"}
               onClickButton={() => handleClickVenda(row)}
               Icon={GrView}
+              iconSize={20}
               cor={"info"}
               width="30px"
               height="30px"
@@ -329,6 +335,7 @@ export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinuto
               titleButton={"Detalhar Produtos"}
               onClickButton={() => handleClickProduto(row)}
               Icon={FaProductHunt}
+              iconSize={20} 
               cor={"warning"}
               width="30px"
               height="30px"
@@ -339,6 +346,7 @@ export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinuto
               titleButton={"Detalhar Recebimentos"}
               onClickButton={() => handleClickPagamento(row)}
               Icon={MdOutlineAttachMoney}
+              iconSize={20}
               cor={"success"}
               width="30px"
               height="30px"
@@ -370,7 +378,15 @@ export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinuto
       if (response.data) {
         setDadosProdutoModal(response.data)
         setModalProdutoVisivel(true)
-
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado de produto encontrado para esta venda.',
+          timer: 5000,
+        })
+        return;
       }
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
@@ -397,9 +413,17 @@ export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinuto
       if (response.data) {
         setDadosVendas(response.data)
         setModalVendaVisivel(true)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado encontrado para esta venda.',
+          timer: 5000,
+        })
+        return;
       }
 
-      return response.data;
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
     }
@@ -409,17 +433,37 @@ export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinuto
   const handleEditPagamento = async (IDVENDA) => {
     try {
       const response = await get(`/recebimento?idVenda=${IDVENDA}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosPagamentoModal(response.data)
+        setDadosDetalheRecebimentos(response.data)
         setModalPagamentoVisivel(true)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado de recebimento encontrado para esta venda.',
+          timer: 5000,
+        })
+        return;
       }
     } catch (error) {
       console.log(error, 'não foi possivel pegar os dados da tabela')
     }
   }
   const handleClickPagamento = (row) => {
-    if (row.IDVENDA) {
-      handleEditPagamento(row.IDVENDA)
+    if(optionsModulos[0]?.ALTERAR == 'True'){
+      if (row.IDVENDA) {
+        handleEditPagamento(row.IDVENDA)
+      }
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> não possui permissão para alterar pagamento.`,
+        timer: 5000,
+      })
+      return;
     }
   }
 
@@ -470,6 +514,10 @@ export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinuto
             title="Vendas por Loja"
             value={dadosListaVendasCanceladasMinutos}
             globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[5, 10, 20, 50, 100, dadosListaVendasCanceladasMinutos.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
@@ -517,6 +565,9 @@ export const ActionListaVendasCanceladasMinutos = ({ dadosVendasCanceladasMinuto
         show={modalPagamentoVisivel}
         handleClose={handleCloseModal}
         dadosPagamentoModal={dadosPagamentoModal}
+        dadosDetalheRecebimentos={dadosDetalheRecebimentos}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
       />
 
       <ActionVendaXMLModal

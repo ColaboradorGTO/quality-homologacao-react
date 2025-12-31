@@ -15,19 +15,27 @@ export const useEditarStatusVoucher = ({
     const [motivoTroca, setMotivoTroca] = useState('')
     const [ipUsuario, setIpUsuario] = useState('');
 
-    
-    useEffect(() => {
-        getIPUsuario();
-    }, []);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
+        let usuarioIP = null;
 
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
+
+        if (!usuarioIP) {
+            try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+            } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
     
     useEffect(() => {
         setStatusSelecionado(dadosEditarVoucher[0]?.voucher.STSTATUS)
@@ -167,7 +175,7 @@ export const useEditarStatusVoucher = ({
             }
 
             const response = await put('/editar-voucher/:id', putData)
-
+            const ipUsuario = await getIPUsuario();
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'ADMINISTRATIVO/ATUALIZAÇÃO DE VOUCHER';
 
@@ -179,7 +187,7 @@ export const useEditarStatusVoucher = ({
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postData)
+            await post('/log-web', postData)
 
 
             Swal.fire({
@@ -193,16 +201,27 @@ export const useEditarStatusVoucher = ({
             })
             handleClick();
             handleClose();
-            return responsePost.data;
+            return response.data;
 
         } catch (error) {
-
+            const putData = {
+                STATIVO,
+                STCANCELADO,
+                DSMOTIVOTROCASTATUS: motivoTroca,
+                IDFUNCIONARIO: usuarioLogado?.id,
+                STSTATUS: statusSelecionado,
+                STTIPOTROCA: trocaSelecionado,
+                IDVOUCHER: dadosEditarVoucher[0]?.voucher?.IDVOUCHER,
+                IDEMPRESALOGADA: usuarioLogado?.IDEMPRESA,
+                IDGRUPOEMPRESARIAL: usuarioLogado?.IDGRUPOEMPRESARIAL,
+            }
+            const textDados = JSON.stringify(putData)
+            const ipUsuario = await getIPUsuario();
             let textoFuncao = 'ADMINISTRATIVO/ERRO AO ATUALIZAR  VOUCHER';
-
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado?.id),
                 PATHFUNCAO: textoFuncao,
-                DADOS: '',
+                DADOS: textDados,
                 IP: ipUsuario
             }
 

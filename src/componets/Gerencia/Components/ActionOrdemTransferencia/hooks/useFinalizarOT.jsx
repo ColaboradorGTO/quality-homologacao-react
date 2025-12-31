@@ -7,26 +7,31 @@ import { post, put } from "../../../../../api/funcRequest";
 export const useFinalizarOT = ({usuarioLogado, optionsModulos, handleClick}) => {
     const [ipUsuario, setIpUsuario] = useState('');
     
-
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
-
-            if (!usuarioIP) {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
+            usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-    };
+
+        if (!usuarioIP) {
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };    
+
+
     const handleFinalizarOT = async (row) => {
-        console.log('row finaliza OT', row);
+        
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 title: 'Atenção',
@@ -62,10 +67,10 @@ export const useFinalizarOT = ({usuarioLogado, optionsModulos, handleClick}) => 
             preConfirm: async () => {
             try {
     
-                await put('/resumo-ordem-transferencia/:id', putData);
+                const response = await put('/resumo-ordem-transferencia/:id', putData);
                 const textDados = JSON.stringify(putData);
                 let textoFuncao = 'GERENCIA/FINALIZAR OT';
-                await getIPUsuario();
+                const ipUsuario = await getIPUsuario();
                 const createData = {
                     IDFUNCIONARIO: String(usuarioLogado.id),
                     PATHFUNCAO: textoFuncao,
@@ -73,7 +78,7 @@ export const useFinalizarOT = ({usuarioLogado, optionsModulos, handleClick}) => 
                     IP: ipUsuario
                 };
             
-                const responsePost = await post('/log-web', createData)
+                await post('/log-web', createData)
                 Swal.fire({
                     title: 'Sucesso!',
                     text: 'OT Finalizada com Sucesso',
@@ -84,14 +89,15 @@ export const useFinalizarOT = ({usuarioLogado, optionsModulos, handleClick}) => 
                     }
                 });
                 handleClick();
-                return responsePost.data;
+                return response.data;
             } catch (error) {
+                const textDados = JSON.stringify(putData);
                 let textoFuncao = 'GERENCIA/ERRO AO FINALIZAR OT';
-                await getIPUsuario();
+                const ipUsuario = await getIPUsuario();
                 const createData = {
                     IDFUNCIONARIO: String(usuarioLogado.id),
                     PATHFUNCAO: textoFuncao,
-                    DADOS: 'GERENCIA/ERRO AO FINALIZAR OT',
+                    DADOS: textDados,
                     IP: ipUsuario
                 };
             

@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 
 export const ActionListaPedidoCompra = ({dadosPedidosCompras}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -195,14 +196,14 @@ export const ActionListaPedidoCompra = ({dadosPedidosCompras}) => {
       field: 'NUVEZESPARCELA',
       header: 'Parcela',
       body: row => <th style={{ color: 'blue'}}> {row.NUVEZESPARCELA}</th>,
-      // footer: 'Total',
+      footer: 'Total',
       sortable: true
     },
     {
       field: 'VRTOTALLIQUIDO',
       header: 'A Pagar',
       body: row => <th style={{color: 'red'}}> {formatMoeda(row.VRTOTALLIQUIDO)} </th>,
-      // footer: formatMoeda(calcularTotalAPagar()),
+      footer: formatMoeda(calcularTotalAPagar()),
       sortable: true
     },
     {
@@ -242,6 +243,9 @@ export const ActionListaPedidoCompra = ({dadosPedidosCompras}) => {
             value={dados}
             globalFilter={globalFilterValue}
             size={"small"}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}
@@ -258,7 +262,6 @@ export const ActionListaPedidoCompra = ({dadosPedidosCompras}) => {
                 key={coluna.field}
                 field={coluna.field}
                 header={coluna.header}
-
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
@@ -271,9 +274,6 @@ export const ActionListaPedidoCompra = ({dadosPedidosCompras}) => {
           </DataTable>
         </div>
       </div>
-
-
     </Fragment>
   )
 }
-

@@ -18,7 +18,7 @@ import { ActionPDFPedidoSemPreco } from './ActionPDFSemPreco/actionPDFPedidoSemP
 import { ActionPDFPedido } from './ActionPDF/actionPDFPedido';
 import { toFloat } from '../../../../utils/toFloat';
 import { ActionPesquisaNovoPedido } from '../ActionNovoPedido/actionPesquisaNovoPedido';
-import { set } from 'react-hook-form';
+
 
 export const ActionListaPedidos = ({ 
   dadosPedidos, 
@@ -300,7 +300,7 @@ export const ActionListaPedidos = ({
                   cor={"success"}
                   iconColor={"white"}
                   iconSize={20}
-                  onClickButton
+                  onClickButton={() => handleClickVisualizarPedido(row)}
                   titleButton={"Visualizar o Pedido"}
                 />
               </div>
@@ -347,7 +347,7 @@ export const ActionListaPedidos = ({
                   cor={"success"}
                   iconColor={"white"}
                   iconSize={20}
-                  onClickButton
+                  onClickButton={() => handleClickVisualizarPedido(row)}
                   titleButton={"Visualizar o Pedido"}
                 />
               </div>
@@ -395,7 +395,7 @@ export const ActionListaPedidos = ({
                   cor={"success"}
                   iconColor={"white"}
                   iconSize={20}
-                  onClickButton
+                  onClickButton={() => handleClickVisualizarPedido(row)}
                   titleButton={"Visualizar o Pedido"}
                 />
               </div>
@@ -505,6 +505,29 @@ export const ActionListaPedidos = ({
       }
     }
   
+    const handleEditarPedido = async (IDPEDIDO) => {
+      try {
+        const response = await get(`/lista-pedidos?idPedido=${IDPEDIDO}`)
+        const responseDetlhe = await get(`/lista-detalhe-pedidos?idPedido=${IDPEDIDO}`)
+        if (response.data && responseDetlhe.data) {
+          setDadosVisualizarPedido(response.data)
+          setDadosDetalhePedido(responseDetlhe.data)
+          setActionVisualizarPedido(true)
+          setActionHome(false)
+          setActionPedidoResumido(false)
+        }
+      } catch (error) {
+        console.log(error, "não foi possivel pegar os dados da tabela ")
+      }
+    }
+  
+    const handleClickEditarPedido = async (row) => {
+      if (row.IDPEDIDO) {
+        handleVisualizarPedido(row.IDPEDIDO)
+        setActionVisualizarPedido(true)
+      }
+    }
+
     const handleVisualizarPedido = async (IDPEDIDO) => {
       try {
         const response = await get(`/lista-pedidos?idPedido=${IDPEDIDO}`)
@@ -512,13 +535,9 @@ export const ActionListaPedidos = ({
         if (response.data && responseDetlhe.data) {
           setDadosVisualizarPedido(response.data)
           setDadosDetalhePedido(responseDetlhe.data)
-          // console.log(responseDetlhe.data, "responseDetalhe.data")
           setActionVisualizarPedido(true)
           setActionHome(false)
           setActionPedidoResumido(false)
-          console.log(actionHome, 'actionHome')
-          console.log(actionPedidoResumido, 'actionPedidoResumido')
-          console.log(actionVisualizarPedido, 'actionListaPedidos')
         }
       } catch (error) {
         console.log(error, "não foi possivel pegar os dados da tabela ")

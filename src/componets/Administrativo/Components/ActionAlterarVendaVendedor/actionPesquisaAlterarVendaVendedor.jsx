@@ -16,10 +16,8 @@ export const ActionPesquisaAlterarVendaVendedor = ({ usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
-  const [empresaSelecionada, setEmpresaSelecionada] = useState(0);
+  const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
  
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -98,19 +96,11 @@ export const ActionPesquisaAlterarVendaVendedor = ({ usuarioLogado, ID }) => {
   }
 
   const handleClick = () => {
-    if(empresaSelecionada == '') {
-      Swal.fire({
-        icon: 'warning',
-        title: 'Atenção',
-        text: 'Selecione uma empresa para continuar.',
-      });
-    } else {
 
-      setTabelaVisivel(true)
-      setIsLoading(true)
-      setCurrentPage(prevPage => prevPage + 1)
-      refetchVendasAtiva()
-    }
+
+    setTabelaVisivel(true)
+    refetchVendasAtiva()
+    
   }
 
 

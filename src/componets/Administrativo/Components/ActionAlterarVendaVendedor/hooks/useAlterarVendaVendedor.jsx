@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 
@@ -10,18 +10,27 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
     const [vendedorSelecionado, setVendedorSelecionado] = useState('')
     const [ipUsuario, setIpUsuario] = useState('');
 
-
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
+
+        if (!usuarioIP) {
+            try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+            } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const alterarVendaVendedor = async () => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
@@ -73,7 +82,7 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
             const response = await put('/venda-vendedor/:id', putData)
             const textDados = JSON.stringify(putData)
             let textFuncao = 'ADMINISTRATIVO / VENDAS / ALTERAR VENDA VENDEDOR';
-
+            const ipUsuario = await getIPUsuario();
             const postDataEditarCaixa = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
@@ -81,7 +90,7 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
                 IP: ipUsuario
             }
 
-            const responseEditarCaixa = await post('/log-web', postDataEditarCaixa)
+            await post('/log-web', postDataEditarCaixa)
 
             Swal.fire({
                 icon: 'success',
@@ -95,14 +104,15 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
             });
 
             handleClose();
-            return responseEditarCaixa.data;
+            return response.data;
         } catch (error) {
+            const textDados = JSON.stringify(putData)
+            const ipUsuario = await getIPUsuario();
             let textFuncao = 'ADMINISTRATIVO / VENDAS / ERRO ALTERAR VENDA VENDEDOR';
-
             const postDataEditarCaixa = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
-                DADOS: 'Erro ao alterar a venda',
+                DADOS: textDados,
                 IP: ipUsuario
             }
 

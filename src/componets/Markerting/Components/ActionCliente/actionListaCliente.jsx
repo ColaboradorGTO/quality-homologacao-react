@@ -12,10 +12,11 @@ import HeaderTable from "../../../Tables/headerTable";
 import { ActionEditarClienteModal } from "./ActionEditarCliente/actionEditarClienteModal";
 import Swal from "sweetalert2";
 
-export const ActionListaCliente = ({ dadosListaCampanhaCliente, optionsModulos }) => {
+export const ActionListaCliente = ({ dadosListaCampanhaCliente, optionsModulos, usuarioLogado }) => {
   const [dadosCampanhaCliente, setDadosCampanhaCliente] = useState([])
   const [modalEditarCliente, setModalEditarCliente] = useState(false)
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
  
 
@@ -192,6 +193,9 @@ export const ActionListaCliente = ({ dadosListaCampanhaCliente, optionsModulos }
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}
@@ -227,6 +231,7 @@ export const ActionListaCliente = ({ dadosListaCampanhaCliente, optionsModulos }
         handleClose={() => setModalEditarCliente(false)}
         dadosCampanhaCliente={dadosCampanhaCliente}
         optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
       />
     </Fragment >
   )

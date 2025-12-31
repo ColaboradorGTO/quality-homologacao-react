@@ -10,7 +10,7 @@ import 'jspdf-autotable';
 
 export const ActionListaProdutosQuality = ({ dadosProdutosQuality }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [size, setSize] = useState('small');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -121,7 +121,10 @@ export const ActionListaProdutosQuality = ({ dadosProdutosQuality }) => {
           <DataTable
             title="Lista de Produtos Quality"
             value={dados}
-            size={size}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}
@@ -142,9 +145,9 @@ export const ActionListaProdutosQuality = ({ dadosProdutosQuality }) => {
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem', border: '1px solid #e9e9e9'}}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
+                bodyStyle={{ fontSize: '1rem', border: '1px solid #e9e9e9'}}
 
               />
             ))}

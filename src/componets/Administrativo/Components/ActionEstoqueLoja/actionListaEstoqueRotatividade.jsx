@@ -14,10 +14,10 @@ import { toFloat } from "../../../../utils/toFloat";
 
 export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [size, setSize] = useState('small');
-  const dataTableRef = useRef();
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
+  const [rowSelection, setRowSelection] = useState(null);
+  const dataTableRef = useRef();
     
   const onPageChange = (event) => {
     setFirst(event.first);
@@ -279,7 +279,10 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
             title="Vendas por Loja"
             value={dados}
             globalFilter={globalFilterValue}
-            size={size}
+            size={'small'}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             first={first}

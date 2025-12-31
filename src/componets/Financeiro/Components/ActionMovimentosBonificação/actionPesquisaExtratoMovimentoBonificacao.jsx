@@ -123,7 +123,7 @@ export const ActionPesquisaExtratoMovimentoBonificacao = ({usuarioLogado, ID}) =
           }))
         ]}
         labelSelectEmpresa={"Funcionário"}
-        valueSelectEmpresa={funcionarioSelecionado} // Use apenas o estado aqui
+        valueSelectEmpresa={funcionarioSelecionado} 
         onChangeSelectEmpresa={(e) => setFuncionarioSelecionado(e.value)}
 
         ButtonSearchComponent={ButtonType}

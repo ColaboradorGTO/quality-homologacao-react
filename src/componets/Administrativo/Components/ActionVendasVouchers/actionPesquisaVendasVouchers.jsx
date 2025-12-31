@@ -9,7 +9,7 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ActionListaVendasVouchers } from "./actionListaVendasVouchers";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
-import { BsArrowLeftCircleFill } from "react-icons/bs";
+import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 
 
 export const ActionPesquisaVendasVouchers = () => {
@@ -23,7 +23,7 @@ export const ActionPesquisaVendasVouchers = () => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
- 
+  const [btnVisivel, setBtnVisivel] = useState(false);
 
   useEffect(() => {
     const dataInicial = getDataAtual()
@@ -119,6 +119,7 @@ export const ActionPesquisaVendasVouchers = () => {
   const handleClickReturn = () => {
     setTabelaPrincipal(true)
     setTabelaSecundaria(false)
+    setBtnVisivel(false)
   }
 
   return (
@@ -197,11 +198,11 @@ export const ActionPesquisaVendasVouchers = () => {
         linkNome={"Voltar"}
         onButtonClickCadastro={handleClickReturn}
         corCadastro={"danger"}
-        IconCadastro={BsArrowLeftCircleFill}
+        IconCadastro={MdKeyboardDoubleArrowLeft}
+        // IconCadastro={LuArrowBigLeft}
+        styleCadastro={btnVisivel ? { display: 'block' } : { display: 'none' }}
 
       />
-
-      
 
       <ActionListaVendasVouchers 
         dadosVendasClientes={dadosVendasClientes} 
@@ -209,6 +210,8 @@ export const ActionPesquisaVendasVouchers = () => {
         setTabelaSecundaria={setTabelaSecundaria}  
         tabelaPrincipal={tabelaPrincipal}
         tabelaSecundaria={tabelaSecundaria}
+        setBtnVisivel={setBtnVisivel}
+
       />
     
       

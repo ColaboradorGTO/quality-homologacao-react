@@ -6,7 +6,7 @@ import { InputFieldModal } from "../../../../Buttons/InputFieldModal";
 import Select from "react-select";
 import { useCadastrarliente } from "../hooks/useCadastrarCliente";
 
-export const FormularioCadastrarCliente = ({ handleClose, optionsModulos }) => {
+export const FormularioCadastrarCliente = ({ handleClose, optionsModulos, usuarioLogado }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const {
     cpf,
@@ -34,7 +34,7 @@ export const FormularioCadastrarCliente = ({ handleClose, optionsModulos }) => {
     campanhaSelecionada,
     setCampanhaSelecionada,
     onSubmit
-  } = useCadastrarliente({ handleClose, optionsModulos });
+  } = useCadastrarliente({ handleClose, optionsModulos, usuarioLogado });
 
   return (
     <Fragment>

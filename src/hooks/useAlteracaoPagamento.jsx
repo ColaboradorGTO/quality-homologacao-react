@@ -57,10 +57,21 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     setDataParcela3(dataAtual);
   }, [])
 
-  useEffect(() => {
-    setValorDistribuir(parseFloat(dadosDetalheRecebimentos[0]?.venda?.VRTOTALVENDA));
-    setItemAtual(dadosDetalheRecebimentos[0]?.vendaPagamento[0]?.pag.NITEM);
+  // useEffect(() => {
+  //   setValorDistribuir(parseFloat(dadosDetalheRecebimentos[0]?.venda?.VRTOTALVENDA));
+  //   setItemAtual(dadosDetalheRecebimentos[0]?.vendaPagamento?.[0]?.pag?.NITEM);
     
+  // }, [dadosDetalheRecebimentos]);
+
+  useEffect(() => {
+    const venda = dadosDetalheRecebimentos?.[0];
+
+    setValorDistribuir(parseFloat(venda?.venda?.VRTOTALVENDA));
+
+    const temPagamento = venda?.vendaPagamento?.length > 0;
+
+    setItemAtual(temPagamento ? venda.vendaPagamento[0].pag.NITEM : null);
+
   }, [dadosDetalheRecebimentos]);
 
   useEffect(() => {

@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { get, post } from "../../../../../../api/funcRequest";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
 import { getDataAtual } from "../../../../../../utils/dataAtual";
 
@@ -14,23 +13,35 @@ export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, u
   const [dataLancamento, setDataLancamento] = useState('')
   const [ipUsuario, setIpUsuario] = useState('');
 
-  const navigate = useNavigate();
 
   useEffect(() => {
     const data = getDataAtual()
     setDataLancamento(data);
-    getIPUsuario();
+
   }, []);
 
 
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
+    let usuarioIP = null;
 
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
+    }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
 
   const { data: dadosFuncionarios = [], error: errorFuncionario, isLoading: isLoadingFuncionario } = useQuery(
@@ -58,30 +69,30 @@ export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, u
     }
 
     const postData = {
-      IDEMPRESA: usuarioLogado.IDEMPRESA,
-      IDFUNCIONARIO: usuarioSelecionado,
+      IDEMPRESA: parseInt(usuarioLogado?.IDEMPRESA),
+      IDFUNCIONARIO: parseInt(usuarioSelecionado),
       DTLANCAMENTO: dataLancamento,
       TXTMOTIVO: textoMotivo,
-      VRVALORDESCONTO: valorDesconto,
-      STATIVO: status,
-      IDUSR: usuarioLogado.id,
+      VRVALORDESCONTO: parseFloat(valorDesconto),
+      STATIVO:  'True',
+      IDUSR: parseInt(usuarioLogado?.id),
 
     }
 
     try {
-      const response = await post('/adiantamento-salarial', postData)
+      const response = await post('/cadastrar-adiantamento-salarial', postData)
 
       const textDados = JSON.stringify(postData)
       let textoFuncao = 'GERENCIA/CADASTRO DE ADIANTAMENTO SALARIAL';
-
+      const ipUsuario = await getIPUsuario();
       const createData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
+        IDFUNCIONARIO: String(usuarioLogado?.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
       }
 
-      const responsePost = await post('/log-web', createData)
+      await post('/log-web', createData)
       
       Swal.fire({
         title: 'Cadastro',
@@ -100,13 +111,13 @@ export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, u
       handleClose();
     
       
-      return responsePost.data;
+      return response.data;
     } catch (error) {
       const textDados = JSON.stringify(postData)
       let textoFuncao = 'GERENCIA/ERRO AO CADASTRAR ADIANTAMENTO SALARIAL';
-
+      const ipUsuario = await getIPUsuario();
       const createData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
+        IDFUNCIONARIO: String(usuarioLogado?.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
@@ -129,11 +140,6 @@ export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, u
 
   }
 
-  const handleChangeUsuario = (e) => {
-    setUsuarioSelecionado(e.value);
-  }
-
-
   return {
     textoMotivo,
     setTextoMotivo,
@@ -145,8 +151,6 @@ export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, u
     setDataLancamento,
     usuarioSelecionado,
     setUsuarioSelecionado,
-    usuarioLogado,
-    setUsuarioLogado,
     dadosFuncionarios,
     onSubmit
   }

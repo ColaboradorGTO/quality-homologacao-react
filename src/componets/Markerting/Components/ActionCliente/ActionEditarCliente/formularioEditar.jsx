@@ -6,7 +6,7 @@ import Select from "react-select"
 import { useForm } from "react-hook-form"
 import { useEditarCliente } from "../hooks/useEditarCliente"
 
-export const FormularioEditarCliente = ({ dadosCampanhaCliente, handleClose, optionsModulos }) => {
+export const FormularioEditarCliente = ({ dadosCampanhaCliente, handleClose, optionsModulos,usuarioLogado  }) => {
     const { register, handleSubmit, formState: {errors} } = useForm();
     const {
         cpf,
@@ -34,7 +34,7 @@ export const FormularioEditarCliente = ({ dadosCampanhaCliente, handleClose, opt
         campanhaSelecionada,
         setCampanhaSelecionada,
         onSubmit
-    } = useEditarCliente({ dadosCampanhaCliente, handleClose, optionsModulos })
+    } = useEditarCliente({ dadosCampanhaCliente, handleClose, optionsModulos, usuarioLogado  })
 
     return (
         <Fragment>

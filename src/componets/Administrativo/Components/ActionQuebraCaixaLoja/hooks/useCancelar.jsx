@@ -1,29 +1,39 @@
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 
 export const useCancelarQuebraCaixa = ({usuarioLogado, optionsModulos, handleClick}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if(response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
+
+        if (!usuarioIP) {
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const handleCancelar = async (IDQUEBRACAIXA, status) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
             title: 'Acesso Negado',
-            text: 'Você não tem permissão para acessar esta funcionalidade.',
+            html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para acessar esta funcionalidade.`,
             icon: 'warning',
             timer: 3000,
             customClass: {
@@ -40,6 +50,18 @@ export const useCancelarQuebraCaixa = ({usuarioLogado, optionsModulos, handleCli
 
         try {
             const response = await put('/atualizar-status-quebra', putData)
+            
+            const textDados = JSON.stringify(putData)
+            let textoFuncao = status ? 'FINANCEIRO/ATIVADO QUEBRA DE CAIXA' : 'FINANCEIRO/CANCELAMENTO DE QUEBRA DE CAIXA';
+            const ipUsuario = await getIPUsuario();
+            const postData = {  
+                IDFUNCIONARIO: String(usuarioLogado.id),
+                PATHFUNCAO:  textoFuncao,
+                DADOS: textDados,
+                IP: ipUsuario
+            }
+            
+            await post('/log-web', postData)
             Swal.fire({
                 title: 'Sucesso',
                 text: `Quebra de Caixa ${status ? 'Ativada' : 'Cancelada'} com Sucesso`,
@@ -49,25 +71,14 @@ export const useCancelarQuebraCaixa = ({usuarioLogado, optionsModulos, handleCli
                     container: 'custom-swal',
                 }
             })
-
-            const textDados = JSON.stringify(putData)
-            let textoFuncao = status ? 'FINANCEIRO/ATIVADO QUEBRA DE CAIXA' : 'FINANCEIRO/CANCELAMENTO DE QUEBRA DE CAIXA';
-        
-            const postData = {  
-                IDFUNCIONARIO: String(usuarioLogado.id),
-                PATHFUNCAO:  textoFuncao,
-                DADOS: textDados,
-                IP: ipUsuario
-            }
-
-            const responsePost = await post('/log-web', postData)
             handleClick();
-            return responsePost.data;
+            return response.data;
 
         } catch (error) {
 
             let textoFuncao = status ? 'FINANCEIRO/ATIVADO QUEBRA DE CAIXA' : 'FINANCEIRO/CANCELAMENTO DE QUEBRA DE CAIXA';
-        
+            const textDados = JSON.stringify(putData)
+            const ipUsuario = await getIPUsuario();
             const postData = {  
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO:  textoFuncao,

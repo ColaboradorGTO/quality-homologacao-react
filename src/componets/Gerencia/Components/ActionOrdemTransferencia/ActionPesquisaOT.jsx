@@ -6,7 +6,7 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { AiOutlineSearch } from "react-icons/ai";
 import { MdAdd } from "react-icons/md";
 import { get } from "../../../../api/funcRequest";
-import { ActionListaOrdemTransferencia } from "./actionListaOrdemTransferencia";
+import { ActionListaOrdemTransferencia } from "./ActionListaOrdemTransferencia";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { ActionIncluirOTModal } from "./ActionIncluirModalOT/actionIncluirOTModal";
@@ -111,7 +111,7 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
       Swal.fire({
         icon: 'error',
         title: 'Acesso Negado',
-        text: 'Você não tem permissão para criar uma nova Ordem de Transferência.',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para criar uma nova Ordem de Transferência.`,
         timer: 3000,
       });
     }

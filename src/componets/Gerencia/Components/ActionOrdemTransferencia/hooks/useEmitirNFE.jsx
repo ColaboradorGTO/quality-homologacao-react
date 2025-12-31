@@ -7,21 +7,25 @@ export const useEmitirNFE = ({usuarioLogado, optionsModulos, handleClick }) => {
     const [ipUsuario, setIpUsuario] = useState('');
     
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
-
-            if (!usuarioIP) {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
+            usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
+
+        if (!usuarioIP) {
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
     const handleFaturarOT = async (row) => {
@@ -55,15 +59,15 @@ export const useEmitirNFE = ({usuarioLogado, optionsModulos, handleClick }) => {
             preConfirm: async () => {
                 const putData = {
                     IDSTATUSOT: parseInt(3),
-                    IDRESUMOT: parseInt(row.IDRESUMOT),
+                    IDRESUMOOT: parseInt(row.IDRESUMOOT),
                     IDEMPRESAORIGEM: parseInt(row.IDEMPRESAORIGEM),
                 };
                 try {
-                    await put('/resumo-ordem-transferencia/:id', putData);
+                    const response = await put('/resumo-ordem-transferencia/:id', putData);
                 
-                    let textDados = JSON.stringify(putData);
-                    let textoFuncao = `GERENCIA/NFE Emitida com sucesso!`;
-                    await getIPUsuario();
+                    const textDados = JSON.stringify(putData);
+                    const textoFuncao = `GERENCIA/NFE Emitida com sucesso!`;
+                    const ipUsuario = await getIPUsuario();
                     const createData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
                         PATHFUNCAO: textoFuncao,
@@ -71,7 +75,7 @@ export const useEmitirNFE = ({usuarioLogado, optionsModulos, handleClick }) => {
                         IP: ipUsuario
                     }
 
-                    const responsePost = await post('/log-web', createData);
+                    await post('/log-web', createData);
 
                     Swal.fire({
                         title: 'Sucesso!',
@@ -83,14 +87,15 @@ export const useEmitirNFE = ({usuarioLogado, optionsModulos, handleClick }) => {
                         }
                     });
                     handleClick();
-                    return responsePost.data;
+                    return response.data;
                 } catch (error) {
-                    let textoFuncao = 'GERENCIA/ERRO AO EMITIR NFE';
-                    await getIPUsuario();
+                    const textDados = JSON.stringify(putData);
+                    const textoFuncao = 'GERENCIA/ERRO AO EMITIR NFE';
+                    const ipUsuario =  await getIPUsuario();
                     const createData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
                         PATHFUNCAO: textoFuncao,
-                        DADOS: 'GERENCIA/ERRO AO EMITIR NFE',
+                        DADOS: textDados,
                         IP: ipUsuario   
                     };
 

@@ -20,6 +20,7 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dadosQuebraCaixasModal, setDadosQuebraCaixasModal] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
   const {
     handleCancelar
@@ -310,6 +311,9 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
               value={dados}
               globalFilter={globalFilterValue}
               size="small"
+              selectionMode="single"
+              selection={rowSelection}
+              onSelectionChange={(e) => setRowSelection(e.value)}
               sortOrder={-1}
               paginator={true}
               rows={10}

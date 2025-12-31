@@ -12,7 +12,7 @@ import HeaderTable from '../../../Tables/headerTable';
 export const ActionListaDetalhamentoCopia = ({ dadosListaRecebimentosLoja }) => {
   const [nodes, setNodes] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [size] = useState('small');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -148,10 +148,15 @@ export const ActionListaDetalhamentoCopia = ({ dadosListaRecebimentosLoja }) => 
         <div className="card" ref={dataTableRef}>
           <TreeTable
             value={nodes}
-            
+            size="small"
             expander={true}
             globalFilter={globalFilterValue}
-            size={size}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             resizableColumns
             showGridlines
             stripedRows

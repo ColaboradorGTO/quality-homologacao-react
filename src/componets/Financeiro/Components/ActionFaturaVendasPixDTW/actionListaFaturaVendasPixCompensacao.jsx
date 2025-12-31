@@ -11,6 +11,7 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionFaturaListaVendasPIXCompensacao = ({ dadosFaturaVendasPixCompensacao }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -166,6 +167,9 @@ export const ActionFaturaListaVendasPIXCompensacao = ({ dadosFaturaVendasPixComp
                     value={dadosListaVendasPix}
                     globalFilter={globalFilterValue}
                     size="small"
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)}
                     sortField="VRTOTALPAGO"
                     sortOrder={-1}
                     paginator={true}

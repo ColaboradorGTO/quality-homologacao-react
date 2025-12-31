@@ -138,6 +138,7 @@ export const ActionPesquisaBalancoAvulso = ({usuarioLogado, ID}) => {
         timer: 3000,
       })
     } else {
+
       setTabelaVisivel(false)
       setTabelaProduto(true)
       setCurrentPage(prevPage => prevPage + 1)

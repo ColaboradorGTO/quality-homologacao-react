@@ -157,17 +157,13 @@ export const ActionPesquisaRecebimentosLoja = () => {
     setColaboradorSelecionado(e.value);
   }
 
-
-
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaRecebimentos()
     setTabelaRecebimentos(true)
     setTabelaRecebimentosOperador(false)
   }
 
   const handleClickPorOperador = () => {
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaRecebimentosOperador()
     setTabelaRecebimentosOperador(true)
     setTabelaRecebimentos(false)

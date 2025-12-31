@@ -10,7 +10,7 @@ import { ScrollPanel } from 'primereact/scrollpanel';
 
 export const ActionVendaXMLModal = ({ show, handleClose, dadosDetalheVendasXML }) => {
   
-  const xmlData = dadosDetalheVendasXML;
+  const xmlData = dadosDetalheVendasXML?.XML || '';
 
  
   const handleCopyXML = () => {
@@ -72,10 +72,10 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosDetalheVendasXML }
       >
         <div className="" role="document">
           <HeaderModal
-            title={"XML Venda Nº " + dadosDetalheVendasXML[0]?.IDVENDA}
+            title={"XML Venda Nº " + dadosDetalheVendasXML?.IDVENDA}
             handleClose={handleClose}
           />
-
+        
           <Modal.Body>
 
             <ScrollPanel style={{ width: '100%', height: '400px', border:  '1px solid #000' }}>
@@ -89,22 +89,62 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosDetalheVendasXML }
           </Modal.Body>
 
 
-            <FooterModal
-              ButtonTypeFechar={ButtonTypeModal}
-              textButtonFechar={"Abrir XML em Nova Aba"}
-              onClickButtonFechar={handleOpenNewTab}
-              corFechar={"info"}
-
+            {/* <FooterModal
+              
               ButtonTypeCadastrar={ButtonTypeModal}
               textButtonCadastrar={"Copiar XML"}
               onClickButtonCadastrar={handleCopyXML}
               corCadastrar={"primary"}
 
+              ButtonTypeFechar={ButtonTypeModal}
+              textButtonFechar={"Enviar Sefaz"}
+              onClickButtonFechar={handleOpenNewTab}
+              corFechar={"info"}
+
+
               ButtonTypeConfirmar={ButtonTypeModal}
               textButtonConfirmar={"Download"}
               onClickButtonConfirmar={handleDownloadXML}
               corConfirmar={"success"}
-            />
+
+              ButtonTypeCancelar={ButtonTypeModal}
+              textButtonCancelar={"Cancelar"}
+              onClickButtonCancelar={handleClose}
+              corCancelar={"danger"}
+
+            /> */}
+
+            <div className="footer d-flex justify-content-end p-3">
+              <ButtonTypeModal
+                textButton={"Copiar"}
+                onClickButtonType={handleCopyXML}
+                cor={"secondary"}
+              />
+
+              <ButtonTypeModal
+                textButton={"Enviar Sefaz"}
+                onClickButtonType={handleOpenNewTab}
+                cor={"info"}
+              />
+
+              <ButtonTypeModal
+                textButton={"Download"}
+                onClickButtonType={handleDownloadXML}
+                cor={"success"}
+              />
+
+              <ButtonTypeModal
+                textButton={"Cancelar"}
+                onClickButtonType
+                cor={"danger"}
+              />
+
+              <ButtonTypeModal
+                textButton={"Inutilizar"}
+                onClickButtonType
+                cor={"secondary"}
+              />
+            </div>
          
         </div>
       </Modal>

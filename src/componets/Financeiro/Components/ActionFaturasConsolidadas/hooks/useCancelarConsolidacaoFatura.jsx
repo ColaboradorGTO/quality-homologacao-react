@@ -24,8 +24,6 @@ export const useCancelarConsolidacaoFatura = ({optionsModulos, usuarioLogado, se
         }
     };
 
-
-
     const cancelar = async (rowData) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({

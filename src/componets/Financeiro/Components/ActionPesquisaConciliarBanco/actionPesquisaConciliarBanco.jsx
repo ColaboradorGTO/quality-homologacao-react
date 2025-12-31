@@ -10,8 +10,7 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { useQuery } from 'react-query';
 import Swal from "sweetalert2"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
-import { useFetchData } from "../../../../hooks/useFetchData"
-import { FiSend } from "react-icons/fi"
+
 
 export const ActionPesquisaConciliarBanco = ({usuarioLogado, ID}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);

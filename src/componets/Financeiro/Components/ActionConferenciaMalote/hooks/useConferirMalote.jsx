@@ -1,30 +1,41 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2"
 import axios from "axios";
 import { post, put } from "../../../../../api/funcRequest";
 
-export const useConferirMalote = ({salvarDadosMalotes, checkedItems, handleClick, optionsModulos, usuarioLogado}) => {
+export const useConferirMalote = ({
+  salvarDadosMalotes, 
+  checkedItems, 
+  handleClick, 
+  handleClose,
+  optionsModulos, 
+  usuarioLogado
+}) => {
   const [observacaoFinanceiro, setObservacaoFinanceiro] = useState('');
   const [observacaoLoja, setObservacaoLoja] = useState('');
-  const [pendenciasMalotes, setPendenciasMalotes] = useState([]);
   const [ipUsuario, setIpUsuario] = useState('');
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
-  }
 
-
-  // console.log('Itens selecionados:', checkedItems);
-  // console.log(salvarDadosMalotes, 'salvarDadosMalotes');
-
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
   
   const onSalvarMalote = async (status) => {
     if(optionsModulos[0]?.ALTERAR == 'False') {
@@ -107,38 +118,39 @@ export const useConferirMalote = ({salvarDadosMalotes, checkedItems, handleClick
           
           try {
             const response = await put(`/malotes-loja/:id`, putData);
-            console;log(`/malotes-loja/:id`, putData);
-            console.log(response, 'response');
   
             const textDados = JSON.stringify(putData);
             let textoFuncao = 'FINANCEIRO / CONFERÊNCIA DE MALOTE';
-  
+            const ipUsuario = await getIPUsuario();
             const createData = {
-              IDFUNCIONARIO: usuarioLogado.id,
+              IDFUNCIONARIO: String(usuarioLogado.id),
               PATHFUNCAO: textoFuncao,
               DADOS: textDados,
               IP: ipUsuario,
             };
   
-            const responsePost = await post('/log-web', createData);
+            await post('/log-web', createData);
   
             Swal.fire({
               title: 'Sucesso!',
-              text: `${usuarioLogado?.NOFUNCIONARIO} \n Malote Recebido com Sucesso!`,
+              html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Malote Recebido com Sucesso!`,
               icon: 'success',
               customClass: {
                 container: 'custom-swal',
               },
+              timer: 5000,
             });
   
-            return responsePost.data;
+            handleClick();
+            handleClose();
+            return response.data;
           } catch (error) {
 
             const textDados = JSON.stringify(putData);
             let textoFuncao = 'FINANCEIRO / ERRO AO ENVIAR MALOTE';
-  
+            const ipUsuario = await getIPUsuario();
             const createData = {
-              IDFUNCIONARIO: usuarioLogado.id,
+              IDFUNCIONARIO: String(usuarioLogado.id),
               PATHFUNCAO: textoFuncao,
               DADOS: textDados,
               IP: ipUsuario,
@@ -148,7 +160,7 @@ export const useConferirMalote = ({salvarDadosMalotes, checkedItems, handleClick
   
             Swal.fire({
               title: 'Erro!',
-              text: `${usuarioLogado?.NOFUNCIONARIO} \n Erro ao Enviar Malote!`,
+              html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Erro ao Enviar Malote!`,
               icon: 'error',
               customClass: {
                 container: 'custom-swal',
@@ -161,7 +173,7 @@ export const useConferirMalote = ({salvarDadosMalotes, checkedItems, handleClick
         } else {
           Swal.fire({
             title: 'Erro!',
-            text: `${usuarioLogado?.NOFUNCIONARIO} \n Necessário preencher a Observação!`,
+            html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Necessário preencher a Observação!`,
             icon: 'error',
             customClass: {
               container: 'custom-swal',

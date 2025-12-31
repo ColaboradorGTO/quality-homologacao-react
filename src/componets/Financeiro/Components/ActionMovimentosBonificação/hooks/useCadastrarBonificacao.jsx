@@ -1,8 +1,7 @@
 import Swal from "sweetalert2";
 import { post } from "../../../../../api/funcRequest";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios"
-import { useFetchData } from "../../../../../hooks/useFetchData";
 
 export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsModulos }) => {
   const [ipUsuario, setIpUsuario] = useState('');
@@ -11,19 +10,23 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
   const [valorBonificao, setValorBonificacao] = useState('');
   const [txtHistorico, setTxtHistorico] = useState('');
 
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      let usuarioIP = ipWhoisData?.ip;
 
+      if (!usuarioIP) {
+      const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+      usuarioIP = ipifyData?.ip;
+      }
+
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
+    } catch (error) {
+      console.error("Erro ao buscar IP:", error);
+      return null;
+    }
+  };
 
   const onSubmit = async () => {
     if (optionsModulos[0]?.CRIAR == 'False') {
@@ -41,80 +44,80 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
       return;
     }
 
+    if (tipoSelecionado == '') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: 'Informe o tipo de movimento!',
+        timer: 3000,
+        customClass: {
+          confirmButton: "btn btn-primary btn-lg",
+          cancelButton: "btn btn-danger btn-lg",
+          container: 'custom-swal',
+        },
+      })
+      return;
+    }
+
+    if (funcionario == '') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: 'Informe o funcionário!',
+        timer: 3000,
+        customClass: {
+          confirmButton: "btn btn-primary btn-lg",
+          cancelButton: "btn btn-danger btn-lg",
+          container: 'custom-swal',
+        },
+      })
+      return;
+    }
+
+    if (valorBonificao == '' || valorBonificao == '0') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: 'Informe o valor da bonificação!',
+        timer: 3000,
+        customClass: {
+          confirmButton: "btn btn-primary btn-lg",
+          cancelButton: "btn btn-danger btn-lg",
+          container: 'custom-swal',
+        },
+      })
+      return;
+    }
+
+    if (txtHistorico == '') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Erro!',
+        text: 'Informe o histórico!',
+        timer: 3000,
+        customClass: {
+          confirmButton: "btn btn-primary btn-lg",
+          cancelButton: "btn btn-danger btn-lg",
+          container: 'custom-swal',
+        },
+      })
+      return;
+    }
+
+    const data = {
+      IDFUNCIONARIO: funcionario,
+      TIPOMOVIMENTO: tipoSelecionado,
+      VRMOVIMENTO: valorBonificao,
+      OBSERVACAO: txtHistorico,
+      IDFUNCIONARIORESP: usuarioLogado.id
+    }
+
     try {
-      if (tipoSelecionado == '') {
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro!',
-          text: 'Informe o tipo de movimento!',
-          timer: 3000,
-          customClass: {
-            confirmButton: "btn btn-primary btn-lg",
-            cancelButton: "btn btn-danger btn-lg",
-            container: 'custom-swal',
-          },
-        })
-        return;
-      }
-
-      if (funcionario == '') {
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro!',
-          text: 'Informe o funcionário!',
-          timer: 3000,
-          customClass: {
-            confirmButton: "btn btn-primary btn-lg",
-            cancelButton: "btn btn-danger btn-lg",
-            container: 'custom-swal',
-          },
-        })
-        return;
-      }
-
-      if (valorBonificao == '' || valorBonificao == '0') {
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro!',
-          text: 'Informe o valor da bonificação!',
-          timer: 3000,
-          customClass: {
-            confirmButton: "btn btn-primary btn-lg",
-            cancelButton: "btn btn-danger btn-lg",
-            container: 'custom-swal',
-          },
-        })
-        return;
-      }
-
-      if (txtHistorico == '') {
-        Swal.fire({
-          icon: 'error',
-          title: 'Erro!',
-          text: 'Informe o histórico!',
-          timer: 3000,
-          customClass: {
-            confirmButton: "btn btn-primary btn-lg",
-            cancelButton: "btn btn-danger btn-lg",
-            container: 'custom-swal',
-          },
-        })
-        return;
-      }
-
-      const data = {
-        IDFUNCIONARIO: funcionario,
-        TIPOMOVIMENTO: tipoSelecionado,
-        VRMOVIMENTO: valorBonificao,
-        OBSERVACAO: txtHistorico,
-        IDFUNCIONARIORESP: usuarioLogado.id
-      }
 
       const response = await post('/criar-movimento-saldo-bonificacao', data)
-
       const textDados = JSON.stringify(data)
       let textoFuncao = 'FINANCEIRO/CADASTRO DE BONIFICACAO';
-
+      const ipUsuario = await getIPUsuario();
       const postData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
@@ -123,7 +126,7 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
       }
 
 
-      const responsePost = await post('/log-web', postData)
+      await post('/log-web', postData)
       Swal.fire({
         position: 'top-end',
         icon: 'success',
@@ -136,14 +139,15 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
       })
 
       handleClose();
-      return responsePost;
+      return response.data;
     } catch (error) {
-      let textoFuncao = 'FINANCEIRO/ERRO NO CADASTRO DE BONIFICACAO';
-
+      const textDados = JSON.stringify(data)
+      const textoFuncao = 'FINANCEIRO/ERRO NO CADASTRO DE BONIFICACAO';
+      const ipUsuario = await getIPUsuario();
       const postData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
-        DADOS: 'ERRRO AO CADASTRAR BONIFICACAO',
+        DADOS: textDados,
         IP: ipUsuario
       }
 
@@ -165,7 +169,6 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
   }
 
   const OptionsStatus = [
-
     { id: 0, value: "Credito", label: "Crédito" },
     { id: 1, value: "Debito", label: "Débito" },
   ]

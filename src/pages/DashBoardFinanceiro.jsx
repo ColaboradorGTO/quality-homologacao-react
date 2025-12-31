@@ -33,12 +33,11 @@ const ActionPesquisaConciliacaoBancosDTW = lazy(() => import('../componets/Finan
 const ActionPesquisaVendasPixDTW = lazy(() => import('../componets/Financeiro/Components/ActionListaVendasFaturaPixDTW/actionPesquisaVendasPixDTW').then(module => ({ default: module.ActionPesquisaVendasPixDTW })));
 const ActionPesquisaFaturasVendasPixDTW = lazy(() => import('../componets/Financeiro/Components/ActionFaturaVendasPixDTW/actionPesquisaFaturasPixDTW').then(module => ({ default: module.ActionPesquisaFaturasVendasPixDTW })));
 const ActionPesquisaEmpresas = lazy(() => import('../componets/Financeiro/Components/ActionEmpresas/actionPesquisaEmpresas').then(module => ({ default: module.ActionPesquisaEmpresas })));
-
 const ActionPesquisaMotivoDevolucao = lazy(() => import('../componets/Financeiro/Components/ActionMotivoDevolucao/actionPesquisaMotivoDevolucao').then(module => ({ default: module.ActionPesquisaMotivoDevolucao })));
-
 const ActionPesquisaConferenciaMalote = lazy(() => import('../componets/Financeiro/Components/ActionConferenciaMalote/actionPesquisaConferenciaMalote').then(module => ({ default: module.ActionPesquisaConferenciaMalote })));
 const ActionPesquisaContas = lazy(() => import('../componets/Financeiro/Components/ActionContas/actionPesquisaContas').then(module => ({ default: module.ActionPesquisaContas })));
 const ActionPesquisaFaturasConsolidadas = lazy(() => import('../componets/Financeiro/Components/ActionFaturasConsolidadas/actionPesquisaFaturasConsolidadas').then(module => ({ default: module.ActionPesquisaFaturasConsolidadas })));
+
 
 export const DashBoardFinanceiro = () => {
   const [resumoVisivel, setResumoVisivel] = useState(true);
@@ -142,7 +141,7 @@ export const DashBoardFinanceiro = () => {
       component = <ActionPesquisaRemessaVenda  usuarioLogado={usuarioLogado} ID={ID} />
       break;
     case "/financeiro/ActionPesquisaCaixaStatus":
-      component = <ActionPesquisaCaixaStatus />
+      component = <ActionPesquisaCaixaStatus usuarioLogado={usuarioLogado} ID={ID} />
       break;
     case "/financeiro/ActionPesquisaDescontoVendas":
       component = <ActionPesquisaDescontoVendas />

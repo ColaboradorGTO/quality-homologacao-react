@@ -75,7 +75,7 @@ export const DashBoardMarketing = ({ }) => {
       component = <ActionPesquisaPromocao usuarioLogado={usuarioLogado} ID={ID}/>;
       break;
     case "/marketing/ActionPesquisaCampanha":
-      component = <ActionPesquisaCampanha />;
+      component = <ActionPesquisaCampanha usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/marketing/ActionPesquisaCliente":
       component = <ActionPesquisaCliente usuarioLogado={usuarioLogado} ID={ID}/>;

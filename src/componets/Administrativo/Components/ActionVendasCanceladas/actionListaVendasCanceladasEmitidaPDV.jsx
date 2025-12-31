@@ -17,8 +17,13 @@ import { ActionDetalheVendaProdutosModal } from "../ActionsModaisVendas/actionDe
 import { ActionRelacaoRecebimentosModal } from "../ActionsModaisVendas/ActionRecebimentos/actionRelacaoRecebimentosModal";
 import { ActionVendaXMLModal } from "../ActionVendasContigencia/actionVendaXMLModal";
 import { TbFileTypeXml } from "react-icons/tb";
+import Swal from "sweetalert2";
 
-export const ActionListaVendasCanceladasEmitidaPDV = ({ dadosVendasCanceladasEmitidasPDV }) => {
+export const ActionListaVendasCanceladasEmitidaPDV = ({ 
+  dadosVendasCanceladasEmitidasPDV,
+  optionsModulos, 
+  usuarioLogado 
+}) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalVendaVisivel, setModalVendaVisivel] = useState(false);
   const [modalProdutoVisivel, setModalProdutoVisivel] = useState(false);
@@ -29,6 +34,7 @@ export const ActionListaVendasCanceladasEmitidaPDV = ({ dadosVendasCanceladasEmi
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [modalXmlVisivel, setModalXmlVisivel] = useState(false);
   const [dadosVendasXML, setDadosVendasXML] = useState([]);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -315,6 +321,7 @@ export const ActionListaVendasCanceladasEmitidaPDV = ({ dadosVendasCanceladasEmi
               titleButton={"Detalhar Venda"}
               onClickButton={() => handleClickVenda(row)}
               Icon={GrView}
+              iconSize={20}
               cor={"info"}
               width="30px"
               height="30px"
@@ -325,6 +332,7 @@ export const ActionListaVendasCanceladasEmitidaPDV = ({ dadosVendasCanceladasEmi
               titleButton={"Detalhar Produtos"}
               onClickButton={() => handleClickProduto(row)}
               Icon={FaProductHunt}
+              iconSize={20}
               cor={"warning"}
               width="30px"
               height="30px"
@@ -335,6 +343,7 @@ export const ActionListaVendasCanceladasEmitidaPDV = ({ dadosVendasCanceladasEmi
               titleButton={"Detalhar Recebimentos"}
               onClickButton={() => handleClickPagamento(row)}
               Icon={MdOutlineAttachMoney}
+              iconSize={20}
               cor={"success"}
               width="30px"
               height="30px"
@@ -389,11 +398,19 @@ export const ActionListaVendasCanceladasEmitidaPDV = ({ dadosVendasCanceladasEmi
 
     try {
       const response = await get(`/resumo-venda-caixa-detalhado?idEmpresa=0&idVenda=${IDVENDA}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosVendas(response.data)
         setModalVendaVisivel(true)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado encontrado para esta venda.',
+          timer: 5000,
+        })
+        return;
       }
-      return response.data;
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
     }
@@ -403,17 +420,36 @@ export const ActionListaVendasCanceladasEmitidaPDV = ({ dadosVendasCanceladasEmi
   const handleEditPagamento = async (IDVENDA) => {
     try {
       const response = await get(`/recebimento?idVenda=${IDVENDA}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosDetalheRecebimentos(response.data)
         setModalPagamentoVisivel(true)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado de recebimento encontrado para esta venda.',
+          timer: 5000,
+        })
+        return;
       }
     } catch (error) {
       console.log(error, 'não foi possivel pegar os dados da tabela')
     }
   }
   const handleClickPagamento = (row) => {
-    if (row.IDVENDA) {
-      handleEditPagamento(row.IDVENDA)
+    if(optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        html: `${usuarioLogado?.NOFUNCIONARIO}, <br/> você não tem permissão para alterar pagamento.`,
+        timer: 5000,
+      })
+      return;
+    } else {
+      if (row.IDVENDA) {
+        handleEditPagamento(row.IDVENDA)
+      }
     }
   }
 
@@ -463,9 +499,12 @@ export const ActionListaVendasCanceladasEmitidaPDV = ({ dadosVendasCanceladasEmi
 
           <DataTable
             title="Vendas por Loja"
-            size="small"
             value={dadosListaVendasCanceladas}
             globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[5, 10, 20, 50, 100, dadosListaVendasCanceladas.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
@@ -513,6 +552,8 @@ export const ActionListaVendasCanceladasEmitidaPDV = ({ dadosVendasCanceladasEmi
         show={modalPagamentoVisivel}
         handleClose={handleCloseModal}
         dadosDetalheRecebimentos={dadosDetalheRecebimentos}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
       />
 
 

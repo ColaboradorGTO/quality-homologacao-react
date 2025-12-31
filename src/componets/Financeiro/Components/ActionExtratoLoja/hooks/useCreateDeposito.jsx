@@ -2,8 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { get, post } from "../../../../../api/funcRequest";
-import { getDataAtual, getHoraAtual, getDataHoraAtual } from "../../../../../utils/dataAtual.js";
-import { toFloat } from "../../../../../utils/toFloat";
+import { getDataAtual, getHoraAtual } from "../../../../../utils/dataAtual.js";
 import { useQuery } from "react-query";
 
 export const useCreateDeposito = ({ handleClose, optionsModulos, usuarioLogado, empresaSelecionada }) => {
@@ -24,16 +23,29 @@ export const useCreateDeposito = ({ handleClose, optionsModulos, usuarioLogado, 
         setData(dataAtual)
         setHora(horaAtual)
 
-        getIPUsuario();
     }, [usuarioLogado]);
 
-    const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+   const getIPUsuario = async () => {
+        let usuarioIP = null;
+
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
+
+        if (!usuarioIP) {
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const { data: dadosContaBanco = [], error: errorContaBanco, isLoading: isLoadingContaBanco } = useQuery(
         'contaBanco',
@@ -80,8 +92,7 @@ export const useCreateDeposito = ({ handleClose, optionsModulos, usuarioLogado, 
             const response = await post('/cadastrar-deposito-loja', postData)
             const textDados = JSON.stringify(postData)
             let textoFuncao = 'FINANCEIRO/CADASTRO DEPOSITO PELO EXTRATO DE CONTAS';
-            console.log(postData, 'depois')
-
+            const ipUsuario = await getIPUsuario();
 
             const postLogData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
@@ -90,7 +101,7 @@ export const useCreateDeposito = ({ handleClose, optionsModulos, usuarioLogado, 
                 IP: ipUsuario
             }
     
-            const responsePost = await post('/log-web', postLogData)
+            await post('/log-web', postLogData)
 
             Swal.fire({
                 position: 'center',
@@ -103,16 +114,18 @@ export const useCreateDeposito = ({ handleClose, optionsModulos, usuarioLogado, 
                 }
             })
             handleClose()
-            return responsePost.data
+            return response.data
         } catch (error) {
+            const textDados = JSON.stringify(postData)
+            const ipUsuario = await getIPUsuario();
             const postLogData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: `FINANCEIRO/ERRO AO CRIAR AJUSTE EXTRATO`,
-                DADOS: '',
+                DADOS: textDados,
                 IP: ipUsuario
             }
     
-            const responsePost = await post('/log-web', postLogData)
+            await post('/log-web', postLogData)
             handleClose()
 
              Swal.fire({

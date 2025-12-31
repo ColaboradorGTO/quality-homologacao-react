@@ -6,7 +6,7 @@ import Select from "react-select"
 import { useForm } from "react-hook-form"
 import { useCadastrarCampanha } from "./hooks/useCadastrarCampanha"
 
-export const FormularioCadastrarCampanha = ({ handleClose }) => {
+export const FormularioCadastrarCampanha = ({ handleClose, optionsModulos, usuarioLogado }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         descricao,
@@ -24,7 +24,7 @@ export const FormularioCadastrarCampanha = ({ handleClose }) => {
         optionsMarcas,
         optionsEmpresas,
         onSubmit
-    } = useCadastrarCampanha()
+    } = useCadastrarCampanha({ optionsModulos, usuarioLogado, handleClose });
     
     return (
         <Fragment>

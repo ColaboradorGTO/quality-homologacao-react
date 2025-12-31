@@ -7,11 +7,6 @@ import { getDataAtual } from "../../../../utils/dataAtual"
 import { AiOutlineSearch } from "react-icons/ai"
 import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { ActionListaMapaCaixa } from "./actionListaMapaCaixa"
-import { ActionListaAdiantamentoSalarial } from "./actionListaAdiantamentoSalarial"
-import { ActionListaResumoVoucher } from "./actionListaResumoVoucher"
-import { ActionListaDetalheFatura } from "./actionListaDetalheFatura"
-
-import { ActionListaTotalRecebidoPeriodo } from "./actionListaTotalRecebidoPeriodo"
 import { ActionListaVendasRecebidoEletronico } from "./actionListaVendasRecebidoEletronico"
 import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"

@@ -1,9 +1,9 @@
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useRef, useState } from "react"
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { MdOutlineLocalPrintshop } from "react-icons/md";
-import { get, post, put } from "../../../../api/funcRequest";
+import { get} from "../../../../api/funcRequest";
 import { ModalImprimirQuebra } from "../../Components/ModalImprimirQuebra";
 import { FaCheck, FaRegTrashAlt } from "react-icons/fa";
 import HeaderTable from "../../../Tables/headerTable";
@@ -12,7 +12,6 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Swal from "sweetalert2";
-import axios from "axios";
 import { mascaraValor } from "../../../../utils/mascaraValor";
 import { toFloat } from "../../../../utils/toFloat";
 import { useCancelarQuebraCaixa } from "./hooks/useCancelar";
@@ -20,11 +19,11 @@ import { useCancelarQuebraCaixa } from "./hooks/useCancelar";
 
 export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, handleClick, quebraSelecionada, optionsModulos, usuarioLogado }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
-  const handleCloseModal = () => setModalVisivel(false);
   const [dadosQuebraCaixasModal, setDadosQuebraCaixasModal] = useState([])
-  const [ipUsuario, setIpUsuario] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
+  const handleCloseModal = () => setModalVisivel(false);
   const {
     handleCancelar
   } = useCancelarQuebraCaixa({usuarioLogado, optionsModulos, handleClick})
@@ -259,7 +258,7 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, handleClick, qu
     } else {
       Swal.fire({
         title: 'Acesso Negado',
-        text: 'Você não tem permissão para acessar esta funcionalidade.',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para acessar esta funcionalidade.`,
         icon: 'warning',
         timer: 3000,
         customClass: {
@@ -300,6 +299,9 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, handleClick, qu
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}

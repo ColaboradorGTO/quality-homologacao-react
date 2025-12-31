@@ -1,25 +1,35 @@
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
 export const useUpdateStatusDeposito = ({ handleClick, optionsModulos, usuarioLogado, empresaSelecionada }) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
+
+        if (!usuarioIP) {
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const handleCancelar = async (IDDEPOSITOLOJA, STCANCELADO) => {
-        console.log(optionsModulos[0])
+        
         if (optionsModulos[0]?.ALTERAR == 'True') {
             try {
 
@@ -37,11 +47,12 @@ export const useUpdateStatusDeposito = ({ handleClick, optionsModulos, usuarioLo
                             STCANCELADO: 'True',
                         };
 
-                        await put("/deposito-loja-atualizacao-status/:id", dados);
+                        const response = await put("/deposito-loja-atualizacao-status/:id", dados);
 
 
                         const textdados = JSON.stringify(dados);
                         const textoFuncao = 'FINANCEIRO/CANCELAR DEPOSITO VIA EXTRATO';
+                        const ipUsuario = await getIPUsuario();
                         const dadosLog = {
                             IDFUNCIONARIO: String(usuarioLogado.id),
                             PATHFUNCAO: textoFuncao,
@@ -55,14 +66,23 @@ export const useUpdateStatusDeposito = ({ handleClick, optionsModulos, usuarioLo
                             title: 'Sucesso!',
                             text: 'Depósito cancelado com sucesso.',
                             icon: 'success',
+                            customClass: {
+                                container: 'custom-swal',
+                            },
                         });
-
+                        return response.data;
                     } else if (result.dismiss === Swal.DismissReason.cancel) {
-                        let textoFuncao = 'FINANCEIRO/ERRO AO CANCELAR DEPOSITO VIA EXTRATO';
+                        const dados = {
+                            IDDEPOSITOLOJA: IDDEPOSITOLOJA,
+                            STCANCELADO: 'True',
+                        };
+                        const textdados = JSON.stringify(dados);
+                        const ipUsuario = await getIPUsuario();
+                        const textoFuncao = 'FINANCEIRO/ERRO AO CANCELAR DEPOSITO VIA EXTRATO';
                         const dadosLog = {
                             IDFUNCIONARIO: String(usuarioLogado.id),
                             PATHFUNCAO: textoFuncao,
-                            DADOS: '',
+                            DADOS: textdados,
                             IP: ipUsuario
                         };
                         await post("/log-web", dadosLog);
@@ -70,6 +90,9 @@ export const useUpdateStatusDeposito = ({ handleClick, optionsModulos, usuarioLo
                             title: 'Erro!',
                             text: 'Erro ao Cancelar Depósito.',
                             icon: 'error',
+                            customClass: {
+                                container: 'custom-swal',
+                            },
                         });
                     }
                 });
@@ -80,12 +103,15 @@ export const useUpdateStatusDeposito = ({ handleClick, optionsModulos, usuarioLo
             Swal.fire({
                 title: 'Atenção!',
                 text: 'Você não tem permissão para cancelar este registro.',
-                icon: 'warning'
+                icon: 'warning',
+                customClass: {
+                    container: 'custom-swal',
+                },
             });
         }
     };
 
-    // ✅ CORRETO: Return deve estar FORA da função handleCancelar
+   
     return {
         handleCancelar
     };

@@ -4,7 +4,7 @@ import { FormularioCadastrarCliente } from './formularioCadastrar';
 import { HeaderModal } from '../../../../Modais/HeaderModal/HeaderModal';
 
 
-export const ActionCadastrarClienteModal = ({ show, handleClose, optionsModulos }) => {
+export const ActionCadastrarClienteModal = ({ show, handleClose, optionsModulos, usuarioLogado  }) => {
   
 
   return (
@@ -25,7 +25,11 @@ export const ActionCadastrarClienteModal = ({ show, handleClose, optionsModulos 
         />
 
         <Modal.Body>
-          <FormularioCadastrarCliente handleClose={handleClose} optionsModulos={optionsModulos}/>
+          <FormularioCadastrarCliente 
+            handleClose={handleClose} 
+            optionsModulos={optionsModulos} 
+            usuarioLogado={usuarioLogado} 
+          />
         </Modal.Body>
      
       </Modal>

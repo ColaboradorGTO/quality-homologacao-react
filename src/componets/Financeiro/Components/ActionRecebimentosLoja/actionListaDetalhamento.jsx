@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 
 export const ActionListaDetalhamento = ({dadosListaRecebimentosLoja}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null)
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {

@@ -23,30 +23,34 @@ export const useEditarOT = ({
   const [ipUsuario, setIpUsuario] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-
   const getIPUsuario = async () => {
+    let usuarioIP = null;
+
     try {
       const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
+    }
 
-      if (!usuarioIP) {
+    if (!usuarioIP) {
+      try {
         const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
         usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
       }
-
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
-    } catch (error) {
-      console.error("Erro ao buscar IP:", error);
-      return null;
     }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
+
 
   useEffect(() => {
     const dataAtual = getDataAtual();
     setDataCadastro(dataAtual);
 
-    if(dadosDetalheTransferencia && dadosDetalheTransferencia.length > 0) {
+    if (dadosDetalheTransferencia && dadosDetalheTransferencia.length > 0) {
       setEmpresaOrigem(dadosDetalheTransferencia[0]?.IDEMPRESAORIGEM);
       setEmpresaDestino(dadosDetalheTransferencia[0]?.IDEMPRESADESTINO);
     }
@@ -74,7 +78,7 @@ export const useEditarOT = ({
 
 
   const onSubmit = async () => {
-    if(dadosProdutos.length > 200) {
+    if (dadosProdutos.length > 200) {
       Swal.fire({
         title: 'Atenção!',
         icon: 'warning',
@@ -141,42 +145,42 @@ export const useEditarOT = ({
     try {
 
       const response = await put('/resumo-ordem-transferencia/:id', postData);
-  
+
       const textDados = JSON.stringify(postData);
       let textoFuncao = 'GERENCIA/EDIÇÃO OT';
-      await getIPUsuario();
+      const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado?.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
       };
-  
-      const responsePost = await post('/log-web', createData)
-  
+
+      await post('/log-web', createData)
+
       Swal.fire({
         title: 'Cadastro',
         text: 'OT Alterada com Sucesso',
         icon: 'success'
       });
-  
+
       handleClick();
       handleClose();
-      return responsePost.data;
+      return response.data;
     } catch (error) {
-       const textDados = JSON.stringify(postData);
+      const textDados = JSON.stringify(postData);
       let textoFuncao = 'GERENCIA/ERRO AO EDITAR OT';
-      await getIPUsuario();
+      const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado?.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
       };
-  
+
       const responsePost = await post('/log-web', createData)
 
-  
+
       Swal.fire({
         title: 'Erro',
         text: 'Ocorreu um erro ao alterar os dados da OT!',

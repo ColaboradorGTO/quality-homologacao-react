@@ -22,7 +22,7 @@ export const ActionListaExtratoLoja = ({
   const [modalCadastro, setModalCadastro] = useState(false)
   const [modalAjuste, setModalAjuste] = useState(false)
   const [saldoAnterior, setSaldoAnterior] = useState(0);
-  const [saldoAtual, setSaldoAtual] = useState(0); // Adicionando estado para saldo atual
+  const [saldoAtual, setSaldoAtual] = useState(0); 
 
   useEffect(() => {
     if (dadosExtratoLojaPeriodo.length > 0) {
@@ -30,7 +30,7 @@ export const ActionListaExtratoLoja = ({
       const totalQuebra = toFloat(dadosExtratoLojaPeriodo[0]?.primeiraVendaSaldo.TOTALQUEBRA);
       const saldoInicial = venda + totalQuebra;
       setSaldoAnterior(saldoInicial);
-      setSaldoAtual(saldoInicial); // Inicializa saldoAtual com o mesmo valor
+      setSaldoAtual(saldoInicial); 
     }
   }, [dadosExtratoLojaPeriodo]);
 

@@ -1,23 +1,32 @@
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import axios from "axios";
 
-export const useAtivarCancelar = ({ usuarioLogado, handleClick, IDADIANTAMENTOSALARIO, status }) => {
+export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
+        let usuarioIP = null;
 
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
+
+        if (!usuarioIP) {
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const handleAtivar = async (IDADIANTAMENTOSALARIO, STATIVO) => {
         
@@ -44,6 +53,7 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, IDADIANTAMENTOSA
                     }
                     const response = await put('/atualizacao-adiantamento-status', putData)
                     const textDados = JSON.stringify(putData)
+                    const ipUsuario = await getIPUsuario();
                     let textoFuncao = status ? 'FINANCEIRO/ATIVADO O ADIANTAMENTO SALARIAL' : 'FINANCEIRO/CANCELADO O ADIANTAMENTO SALARIAL';
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
@@ -52,7 +62,7 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, IDADIANTAMENTOSA
                         IP: ipUsuario
                     }
                     
-                    const responsePost = await post('/log-web', postData)
+                    await post('/log-web', postData)
                     
                     console.log(postData, 'postData');
                     Swal.fire({
@@ -61,17 +71,22 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, IDADIANTAMENTOSA
                         icon: 'success'
                     });
                     handleClick()
-                    return responsePost;
+                    return response.data;
                 } catch (error) {
+                    const putData = {
+                        IDADIANTAMENTOSALARIO: IDADIANTAMENTOSALARIO,
+                        STATIVO: 'True' 
+                    }
+                    const textDados = JSON.stringify(putData)
                     let textoFuncao = status ? 'FINANCEIRO/ERRO ADIANTAMENTO SALARIAL' : 'FINANCEIRO/ERRO CANCELAR ADIANTAMENTO SALARIAL';
-
+                    const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
                         PATHFUNCAO: textoFuncao,
-                        DADOS: '',
+                        DADOS: textDados,
                         IP: ipUsuario
                     }
-                    console.log(postData, 'postData');
+ 
                     const responsePost = await post('/log-web', postData)
                     Swal.fire({
                         title: status ? 'Ativado' : 'Cancelado',

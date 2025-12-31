@@ -6,7 +6,7 @@ import Select from 'react-select';
 import { useForm } from "react-hook-form";
 import { useCadastroDeposito } from "../hooks/useCadastrarDeposito";
 
-export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado }) => {
+export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
     const { register, handleSubmit, formState: {errors} } = useForm();
     const {
         dsHistorio,
@@ -27,7 +27,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
         setDataMovCaixa,
         dadosContaBanco,
         onSubmit,
-    } = useCadastroDeposito({ handleClose,optionsModulos, usuarioLogado });
+    } = useCadastroDeposito({ handleClose,optionsModulos, usuarioLogado, handleClick });
     return (
         <Fragment>
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -64,7 +64,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
 
                             <InputFieldModal
                                 label={"Hora Depósito"}
-                                type="datetime-local"
+                                type="time"
                                 value={hora}
                                 onChangeModal={(e) => setHora(e.target.value)}
                                 readOnly={true}
@@ -83,8 +83,8 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
 
                                     })
                                 ]}
-                                defaultValue={contaBancoSelecionada}
-                                onChange={(e) => setContaBancoSelecionada(e.value)}
+                                value={contaBancoSelecionada}
+                                onChange={(e) => setContaBancoSelecionada(e)}
                             />
 
                         </div>

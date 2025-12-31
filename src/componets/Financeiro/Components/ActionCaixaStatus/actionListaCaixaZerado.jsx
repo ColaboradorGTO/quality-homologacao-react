@@ -1,26 +1,28 @@
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable"
 import { MdClose } from "react-icons/md"
-import { useNavigate } from "react-router-dom";
-import { getDataAtual } from "../../../../utils/dataAtual";
-import { post, put } from "../../../../api/funcRequest";
 import HeaderTable from "../../../Tables/headerTable";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import Swal from "sweetalert2";
-import axios from "axios";
+import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 
-export const ActionListaCaixaZerado = ({ dadosCaixaZerados }) => {
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
-  const [ipUsuario, setIpUsuario] = useState('');
-  const [dataAtualFormatada, setDataAtualFormatada] = useState('');
+export const ActionListaCaixaZerado = ({ 
+  dadosCaixaZerados, 
+  usuarioLogado, 
+  optionsModulos, 
+  refetchCaixaZerado 
+}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
-  const navigate = useNavigate();
+
+  const {
+    handleCancelar
+  } = useAtivarCancelar({ usuarioLogado, optionsModulos, refetchCaixaZerado });
   
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -156,7 +158,7 @@ export const ActionListaCaixaZerado = ({ dadosCaixaZerados }) => {
               iconSize={20}
               width="35px"
               height="35px"
-              onClickButton={() => handleClickCancelar(row)}
+              onClickButton={() => handleCancelar(row)}
             />
           </div>
         )
@@ -165,108 +167,12 @@ export const ActionListaCaixaZerado = ({ dadosCaixaZerados }) => {
     },
   ]
 
-  useEffect(() => {
-    const dataAtual = getDataAtual();
-    setDataAtualFormatada(dataAtual);
-  }, []);
-
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
-  const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
-
-  const handleCancelar = async (IDMOVIMENTO) => {
-    try {
-      
-      const putData = {
-        ID: IDMOVIMENTO
-      }
-
-      const response = await put('/fechar-caixas-zerados', putData)
-
-      Swal.fire({
-        position: 'center',
-        icon: 'success',
-        title: 'Caixa Fechado com sucesso!',
-        showConfirmButton: false,
-        timer: 15000
-      })
-
-      const textDados = JSON.stringify(putData)
-      let textoFuncao = 'FINANCEIRO/FECHAMENTO DE CAIXAS ZERADOS';
-
-      const postData = {
-        IDFUNCIONARIO: usuarioLogado.id,
-        PATHFUNCAO: textoFuncao,
-        DADOS: textDados,
-        IP: ipUsuario
-      }
-      
-
-      const responsePost = await post('/log-web', postData)
-      
-      return responsePost.data;
-    } catch (error) {
-        const textDados = JSON.stringify(putData)
-        let textoFuncao = 'FINANCEIRO/ERRO AO FAZER FECHAMENTO DE CAIXAS ZERADOS';
-
-        const postData = {
-          IDFUNCIONARIO: usuarioLogado.id,
-          PATHFUNCAO: textoFuncao,
-          DADOS: textDados,
-          IP: ipUsuario
-        }
-        
-
-        const responsePost = await post('/log-web', postData)
-
-        Swal.fire({
-          position: 'top-end',
-          icon: 'error',
-          title: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.',
-          showConfirmButton: false,
-          timer: 1500
-        });
-
-        console.error('Erro ao buscar detalhes da venda: ', error);
-        return responsePost.data
-    }
-
-  }
-
-  const handleClickCancelar = (row) => {
-    if (row && row.IDMOVIMENTO) {
-      handleCancelar(row.IDMOVIMENTO);
-    }
-  };
 
   return (
 
     <Fragment>
 
-      <div className="panel" style={{ marginTop: "4rem"}}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>
             Lista Caixas Zerados
@@ -289,6 +195,9 @@ export const ActionListaCaixaZerado = ({ dadosCaixaZerados }) => {
             value={dadosListaCaixaZerados}
             globalFilter={globalFilterValue}
             size={"small"}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}

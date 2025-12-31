@@ -18,8 +18,13 @@ import { ActionDetalheVendaProdutosModal } from "../ActionsModaisVendas/actionDe
 import { ActionRelacaoRecebimentosModal } from "../ActionsModaisVendas/ActionRecebimentos/actionRelacaoRecebimentosModal";
 import { ActionVendaXMLModal } from "../ActionVendasContigencia/actionVendaXMLModal";
 import { TbFileTypeXml } from "react-icons/tb";
+import Swal from "sweetalert2";
 
-export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTelaPDV }) => {
+export const ActionListaVendasCanceladasEmTelaPDV = ({ 
+  dadosVendasCanceladasEmTelaPDV, 
+  optionsModulos, 
+  usuarioLogado  
+}) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalVendaVisivel, setModalVendaVisivel] = useState(false);
   const [modalProdutoVisivel, setModalProdutoVisivel] = useState(false);
@@ -30,6 +35,7 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [modalXmlVisivel, setModalXmlVisivel] = useState(false);
   const [dadosVendasXML, setDadosVendasXML] = useState([]);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -317,6 +323,7 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
               titleButton={"Detalhar Venda"}
               onClickButton={() => handleClickVenda(row)}
               Icon={GrView}
+              iconSize={20}
               cor={"info"}
               width="30px"
               height="30px"
@@ -327,6 +334,7 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
               titleButton={"Detalhar Produtos"}
               onClickButton={() => handleClickProduto(row)}
               Icon={FaProductHunt}
+              iconSize={20}
               cor={"warning"}
               width="30px"
               height="30px"
@@ -337,6 +345,7 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
               titleButton={"Detalhar Recebimentos"}
               onClickButton={() => handleClickPagamento(row)}
               Icon={MdOutlineAttachMoney}
+              iconSize={20}
               cor={"success"}
               width="30px"
               height="30px"
@@ -365,10 +374,18 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
   const handleEditProduto = async (IDVENDA) => {
     try {
       const response = await get(`/detalhe-venda?idEmpresa=0&idVenda=${IDVENDA}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosProdutoModal(response.data)
         setModalProdutoVisivel(true)
-
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado de produto encontrado para esta venda.',
+          timer: 5000,
+        })
+        return;
       }
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
@@ -383,6 +400,7 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
 
 
   const handleClickVenda = async (row) => {
+  
     if (row && row.IDVENDA) {
       handleEditVenda(row.IDVENDA)
     }
@@ -392,12 +410,19 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
 
     try {
       const response = await get(`/resumo-venda-caixa-detalhado?idEmpresa=0&idVenda=${IDVENDA}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosVendas(response.data)
         setModalVendaVisivel(true)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado encontrado para esta venda.',
+          timer: 5000,
+        })
+        return;
       }
-
-      return response.data;
     } catch (error) {
       console.log(error, "não foi possivel pegar os dados da tabela ")
     }
@@ -407,18 +432,38 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
   const handleEditPagamento = async (IDVENDA) => {
     try {
       const response = await get(`/recebimento?idVenda=${IDVENDA}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosDetalheRecebimentos(response.data)
         setModalPagamentoVisivel(true)
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Atenção',
+          text: 'Nenhum dado de recebimento encontrado para esta venda.',
+          timer: 5000,
+        })
+        return;
       }
     } catch (error) {
       console.log(error, 'não foi possivel pegar os dados da tabela')
     }
   }
   const handleClickPagamento = (row) => {
-    if (row.IDVENDA) {
-      handleEditPagamento(row.IDVENDA)
+    if(optionsModulos[0]?.ALTERAR == 'True') {
+      if (row && row.IDVENDA) {
+        handleEditPagamento(row.IDVENDA)
+      }
+      
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não possui permissão para alterar pagamento.`,
+        timer: 5000,
+      })
     }
+
   }
 
   const clickDetalharVendaXML = (row) => {
@@ -465,9 +510,12 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
 
           <DataTable
             title="Vendas por Loja"
-            size="small"
             value={dadosListaVendasCanceladas}
             globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[5, 10, 20, 50, 100, dadosListaVendasCanceladas.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
@@ -515,6 +563,8 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({ dadosVendasCanceladasEmTe
         show={modalPagamentoVisivel}
         handleClose={handleCloseModal}
         dadosDetalheRecebimentos={dadosDetalheRecebimentos}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
       />
 
       <ActionVendaXMLModal

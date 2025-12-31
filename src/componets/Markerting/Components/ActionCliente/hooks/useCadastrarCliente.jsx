@@ -3,9 +3,9 @@ import { post, get } from "../../../../../api/funcRequest"
 import { useQuery } from "react-query"
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 
-export const useCadastrarliente = ({optionsModulos}) => {
+
+export const useCadastrarliente = ({handleClose, optionsModulos, usuarioLogado}) => {
     const [cpf, setCPF] = useState('')
     const [telefone, setTelefone] = useState('')
     const [nome, setNome] = useState('')
@@ -16,37 +16,29 @@ export const useCadastrarliente = ({optionsModulos}) => {
     const [cep, setCEP] = useState('')
     const [uf, setUF] = useState('')
     const [campanhaSelecionada, setCampanhaSelecionada] = useState('')
-    const [usuarioLogado, setUsuarioLogado] = useState(null);
     const [ipUsuario, setIpUsuario] = useState('');
     const [dadosCEP, setDadosCEP] = useState('');
-    const navigate = useNavigate();
-
-    useEffect(() => {
-        const usuarioArmazenado = localStorage.getItem('usuario');
-
-        if (usuarioArmazenado) {
-            try {
-                const parsedUsuario = JSON.parse(usuarioArmazenado);
-                setUsuarioLogado(parsedUsuario);
-            } catch (error) {
-                console.error('Erro ao parsear o usuário do localStorage:', error);
-            }
-        } else {
-            navigate('/');
-        }
-    }, [navigate]);
-
-    useEffect(() => {
-        getIPUsuario();
-
-    }, [usuarioLogado]);
-
+    
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/');
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
+
+        if (!usuarioIP) {
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
     useEffect(() => {
@@ -122,6 +114,17 @@ export const useCadastrarliente = ({optionsModulos}) => {
 
         try {
             const response = await post('/cadastrar-campanha-cliente', postData);
+            
+            const textDados = JSON.stringify(postData);
+            let textoFuncao = 'MARKETING/CADASTRO DE CLIENTE';
+            const ipUsuario = await getIPUsuario();
+            const createData = {
+                IDFUNCIONARIO: usuarioLogado.id,
+                PATHFUNCAO: textoFuncao,
+                DADOS: textDados,
+                IP: ipUsuario,
+            };
+            
             Swal.fire({
                 position: 'top-end',
                 icon: 'success',
@@ -133,20 +136,21 @@ export const useCadastrarliente = ({optionsModulos}) => {
                 timer: 1500,
             });
 
+            await post('/log-web', createData);
+            handleClose();
+            return response.data;
+        } catch (error) {
             const textDados = JSON.stringify(postData);
-            let textoFuncao = 'MARKETING/CADASTRO DE CLIENTE';
-
+            let textoFuncao = 'MARKETING/ERRO AO CADASTRAR CLIENTE';
+            const ipUsuario = await getIPUsuario();
             const createData = {
-                IDFUNCIONARIO: usuarioLogado.id,
+                IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
                 IP: ipUsuario,
             };
+            await post('/log-web', createData);
 
-            const responsePost = await post('/log-web', createData);
-            handleClose();
-            return responsePost.data;
-        } catch (error) {
             Swal.fire({
                 position: 'top-end',
                 icon: 'error',

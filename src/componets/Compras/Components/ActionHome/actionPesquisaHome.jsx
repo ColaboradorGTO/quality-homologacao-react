@@ -56,7 +56,6 @@ export const ActionPesquisaHome = ({usuarioLogado, ID}) => {
   const { data: dadosMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useFetchData('marcasLista', '/marcasLista');
   const { data: dadosCompradores = [], error: errorCompradores, isLoading: isLoadingCompradores } = useFetchData('compradores', '/compradores');
 
-  
   const fetchListaPedidos = async () => {
     try {
     
@@ -269,9 +268,7 @@ export const ActionPesquisaHome = ({usuarioLogado, ID}) => {
         />
       )}
 
-      {console.log(actionHome, 'actionHome')}
-      {console.log(actionPedidoResumido, 'actionPedidoResumido')}
-      {console.log(actionListaPedidos, 'actionListaPedidos')}
+ 
       {!actionPedidoResumido && actionListaPedidos && actionHome && (
         <Fragment>
         <div className="panel" style={{width: "100%", marginTop: '0' }}>

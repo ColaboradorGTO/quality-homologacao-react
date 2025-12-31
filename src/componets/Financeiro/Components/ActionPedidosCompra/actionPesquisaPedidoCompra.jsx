@@ -16,9 +16,6 @@ export const ActionPesquisaPedidoCompra = () => {
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState('');
   const [numeroPedido, setNumeroPedido] = useState('');
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-
 
   useEffect(() => {
     const dataInicial = getDataDoisMesesAtras();
@@ -99,8 +96,6 @@ export const ActionPesquisaPedidoCompra = () => {
   }
 
   const handleClick = () => {
-    setIsLoadingPesquisa(true);
-    // setCurrentPage(prePage => prePage + 1);
     refetchPedidosCompras()
   }
 
@@ -159,9 +154,7 @@ export const ActionPesquisaPedidoCompra = () => {
         IconSearch={AiOutlineSearch}
       />
 
-   
       <ActionListaPedidoCompra dadosPedidosCompras={dadosPedidosCompras} />
-     
 
     </Fragment>
   )

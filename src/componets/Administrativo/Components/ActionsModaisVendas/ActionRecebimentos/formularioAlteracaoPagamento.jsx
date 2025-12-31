@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react"
+import { Fragment, useState } from "react"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal";;
 import { ButtonType } from "../../../../Buttons/ButtonType";
 import { get } from "../../../../../api/funcRequest";

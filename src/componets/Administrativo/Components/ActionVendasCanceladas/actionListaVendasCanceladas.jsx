@@ -20,6 +20,7 @@ import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
 import { TbFileTypeXml } from "react-icons/tb";
 import { ActionVendaXMLModal } from "../ActionVendasContigencia/actionVendaXMLModal";
+import Swal from "sweetalert2";
 
 export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModulos, usuarioLogado  }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
@@ -33,6 +34,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
   const [dadosDetalheRecebimentos, setDadosDetalheRecebimentos] = useState([]);
   const [modalXmlVisivel, setModalXmlVisivel] = useState(false);
   const [dadosVendasXML, setDadosVendasXML] = useState([]);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -322,6 +324,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
               titleButton={"Detalhar Venda"}
               onClickButton={() => handleClickVenda(row)}
               Icon={GrView}
+              iconSize={20}
               cor={"info"}
               width="30px"
               height="30px"
@@ -332,6 +335,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
               titleButton={"Detalhar Produtos"}
               onClickButton={() => handleClickProduto(row)}
               Icon={FaProductHunt}
+              iconSize={20}
               cor={"warning"}
               width="30px"
               height="30px"
@@ -342,6 +346,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
               titleButton={"Detalhar Recebimentos"}
               onClickButton={() => handleClickPagamento(row)}
               Icon={MdOutlineAttachMoney}
+              iconSize={20}
               cor={"success"}
               width="30px"
               height="30px"
@@ -424,8 +429,18 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
   }
 
   const handleClickPagamento = (row) => {
-    if (row && row.IDVENDA) {
-      handleEditPagamento(row.IDVENDA)
+    if(optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não possui permissão para alterar pagamento!`,
+        confirmButtonText: 'Ok'
+      });
+      return;
+    } else {
+      if (row && row.IDVENDA) {
+        handleEditPagamento(row.IDVENDA)
+      }
     }
   }
 
@@ -490,6 +505,9 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
           value={dadosListaVendasCanceladas}
           globalFilter={globalFilterValue}
           size="small"
+          selectionMode="single"
+          selection={rowSelection}
+          onSelectionChange={(e) => setRowSelection(e.value)}
           footerColumnGroup={footerGroup}
           rowsPerPageOptions={[10, 20, 50, 100, dadosListaVendasCanceladas.length]}
           paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"

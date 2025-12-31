@@ -11,8 +11,8 @@ import * as XLSX from 'xlsx';
 import { toFloat } from "../../../../utils/toFloat";
 
 export const ActionListaConvenioDescontoFuncionario = ({ dadosVendasConvenioFuncionario }) => {
-  const [modalVisivel, setModalVisivel] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -27,24 +27,7 @@ export const ActionListaConvenioDescontoFuncionario = ({ dadosVendasConvenioFunc
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [[
-        'ID',
-        'Loja',
-        'Data', 
-        'CPF', 
-        'Funcionário', 
-        'Vr.Bruto NF', 
-        'Vr.Desconto NF', 
-        'Vr.Líquido NF', 
-        'Vr.Bruto', 
-        'Vr.Desconto', 
-        'Vr.Líquido', 
-        'Vr.Dinheiro', 
-        'Vr.Cartão', 
-        'Vr.POS', 
-        'Vr.Voucher',
-        'Vr.Convênio'
-      ]],
+      head: [['ID','Loja','Data', 'CPF', 'Funcionário', 'Vr.Bruto NF', 'Vr.Desconto NF', 'Vr.Líquido NF', 'Vr.Bruto', 'Vr.Desconto', 'Vr.Líquido', 'Vr.Dinheiro', 'Vr.Cartão', 'Vr.POS', 'Vr.Voucher','Vr.Convênio']],
       body: dadosListaConvenio.map(item => [
         item.contador,
         item.NOFANTASIA,
@@ -90,24 +73,7 @@ export const ActionListaConvenioDescontoFuncionario = ({ dadosVendasConvenioFunc
       'Vr.Convênio': formatMoeda(item.VRRECCONVENIO)
     })));
     const workbook = XLSX.utils.book_new();
-    const header = [
-      'N',
-      'Loja',
-      'Data',
-      'CPF',
-      'Funcionário',
-      'Vr.Bruto NF',
-      'Vr.Desconto NF',
-      'Vr.Líquido NF',
-      'Vr.Bruto',
-      'Vr.Desconto',
-      'Vr.Líquido',
-      'Vr.Dinheiro',
-      'Vr.Cartão',
-      'Vr.POS',
-      'Vr.Voucher',
-      'Vr.Convênio'
-    ];
+    const header = ['ID','Loja','Data', 'CPF', 'Funcionário', 'Vr.Bruto NF', 'Vr.Desconto NF', 'Vr.Líquido NF', 'Vr.Bruto', 'Vr.Desconto', 'Vr.Líquido', 'Vr.Dinheiro', 'Vr.Cartão', 'Vr.POS', 'Vr.Voucher','Vr.Convênio'];
     worksheet['!cols'] = [
       {wpx: 50, caption: 'Nº'},
       {wpx: 200, caption: 'Loja'},
@@ -391,6 +357,9 @@ export const ActionListaConvenioDescontoFuncionario = ({ dadosVendasConvenioFunc
             value={dadosListaConvenio}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortField="VRTOTALPAGO"
             sortOrder={-1}
             paginator={true}

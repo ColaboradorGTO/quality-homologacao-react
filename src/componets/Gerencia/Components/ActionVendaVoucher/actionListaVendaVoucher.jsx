@@ -3,7 +3,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { formatMoeda } from '../../../../utils/formatMoeda';
 import { ButtonTable } from '../../../ButtonsTabela/ButtonTable';
-import { GrAdd, GrFormView } from 'react-icons/gr';
+import { GrFormView } from 'react-icons/gr';
 import HeaderTable from '../../../Tables/headerTable';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -12,14 +12,13 @@ import { useReactToPrint } from "react-to-print";
 import { get } from '../../../../api/funcRequest';
 import { retornaDiasEntreDatas } from '../../../../utils/retornoEntreDias';
 import { Checkbox } from "primereact/checkbox";
-import { InputNumber } from 'primereact/inputnumber';
-import { FaMinus } from 'react-icons/fa';
+
 
 export const ActionListaVendaVoucher = ({ dadosVoucher }) => {
   const [dadosVisualizarProdutos, setDadosVisualizarProdutos] = useState([])
   const [tabelaPrincipal, setTabelaPrincipal] = useState(true);
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
-  const [size, setSize] = useState('small');
+
   const [rowClick, setRowClick] = useState(true);
   const [selectedRows, setSelectedRows] = useState([])
   const [quantidade, setQuantidade] = useState(0);
@@ -386,7 +385,7 @@ export const ActionListaVendaVoucher = ({ dadosVoucher }) => {
                 title="Vendas Voucher por Loja"
                 value={dadosProdutos}
                 globalFilter={globalFilterValue}
-                size={size}
+                size="small"
                 sortOrder={-1}
                 selectionMode={rowClick ? null : 'checkbox'}
                 paginator={true}

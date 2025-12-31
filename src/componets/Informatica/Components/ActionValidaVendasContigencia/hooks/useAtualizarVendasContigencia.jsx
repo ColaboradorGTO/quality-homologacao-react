@@ -39,7 +39,7 @@ export const useAtualizarVendasContigencia = ({ dadosVendas, usuarioLogado, opti
         }
     };
     
-    console.log(dadosVendas, 'dadosVendas')
+    
     const onSubmit = async () => {
         if (optionsModulos[0]?.CRIAR === 'False') {
             Swal.fire({
@@ -108,7 +108,7 @@ export const useAtualizarVendasContigencia = ({ dadosVendas, usuarioLogado, opti
                                             DADOS: textDados,
                                             IP: ip || ipUsuario
                                         };
-                                        await post('/log-web', postData);
+                                        // await post('/log-web', postData);
 
                                             success++;
                                         } catch (err) {
@@ -126,7 +126,12 @@ export const useAtualizarVendasContigencia = ({ dadosVendas, usuarioLogado, opti
                                                 DADOS: textDados,
                                                 IP: ip || ipUsuario
                                             };
-                                            try { await post('/log-web', postData); } catch(e){ console.error('Erro ao registrar log de falha', e); }
+                                            try { 
+                                                // await post('/log-web', postData); 
+                                            } catch(e){
+                                             
+                                                console.error('Erro ao registrar log de falha', e); 
+                                            }
                                         }
                                     } else {
                                         // pula a atualização - NFe já autorizada (cStat 100) ou sem XML

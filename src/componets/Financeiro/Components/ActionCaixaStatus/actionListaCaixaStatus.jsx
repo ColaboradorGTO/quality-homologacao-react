@@ -12,6 +12,7 @@ import * as XLSX from 'xlsx';
 
 export const ActionListaCaixaStatus = ({ dadosCaixaStatus }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -155,8 +156,7 @@ export const ActionListaCaixaStatus = ({ dadosCaixaStatus }) => {
 
     <Fragment>
 
-
-      <div className="panel" style={{ marginTop: "4rem"}}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>
             Lista de Caixas
@@ -177,6 +177,9 @@ export const ActionListaCaixaStatus = ({ dadosCaixaStatus }) => {
             value={dadosListaCaixaStatus}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}
@@ -193,7 +196,6 @@ export const ActionListaCaixaStatus = ({ dadosCaixaStatus }) => {
                 key={coluna.field}
                 field={coluna.field}
                 header={coluna.header}
-
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
@@ -207,9 +209,6 @@ export const ActionListaCaixaStatus = ({ dadosCaixaStatus }) => {
         </div>
 
       </div>
-
-
     </Fragment>
   )
 }
-

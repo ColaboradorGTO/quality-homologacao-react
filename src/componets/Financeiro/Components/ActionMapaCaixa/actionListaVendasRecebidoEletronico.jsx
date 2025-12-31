@@ -22,6 +22,7 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
   const [dadosDetalheRecebimentosEletronico, setDadosDetalheRecebimentosEletronico] = useState([]);
   const [modalDetalheRecebimentos, setModalDetalheRecebimento] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
   const navigate = useNavigate();
 
@@ -382,6 +383,9 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
               footerColumnGroup={footerGroup}
               paginator={true}
               rows={10}
+              selectionMode="single"
+              selection={rowSelection}
+              onSelectionChange={(e) => setRowSelection(e.value)}
               rowsPerPageOptions={[5, 10, 20, 50, 100, dados.length]}
               paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
               currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"

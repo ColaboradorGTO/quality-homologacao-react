@@ -2,33 +2,42 @@ import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { getDataAtual } from "../../../../../utils/dataAtual";
 
-export const useConfirmarBalancoAvulso = ({dadosBalancoAvulso, usuarioLogado, optionsModulos}) => {
+export const useConfirmarBalancoAvulso = ({ dadosBalancoAvulso, usuarioLogado, optionsModulos }) => {
   const [loading, setLoading] = useState(false);
   const [ipUsuario, setIpUsuario] = useState("");
   const [data, setData] = useState('');
 
   useEffect(() => {
-    const dataAtual = getDataAtual();   
+    const dataAtual = getDataAtual();
     setData(dataAtual);
   }, [])
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
-  }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   const enviarConfirmacao = async () => {
-    if(optionsModulos[0]?.CRIAR === 'False')  {
+    if (optionsModulos[0]?.CRIAR === 'False') {
       Swal.fire({
         icon: "error",
         title: "Atenção!",
@@ -86,7 +95,7 @@ export const useConfirmarBalancoAvulso = ({dadosBalancoAvulso, usuarioLogado, op
 
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'ADMINISTARTIVO / CONFIMAR BALANÇO AVULSO';
-
+            const ipUsuario = await getIPUsuario();
             const postData = {
               IDFUNCIONARIO: String(usuarioLogado.id),
               PATHFUNCAO: textoFuncao,
@@ -105,7 +114,7 @@ export const useConfirmarBalancoAvulso = ({dadosBalancoAvulso, usuarioLogado, op
             return responsePost.data;
           } catch (error) {
             let textoFuncao = 'ADMINISTARTIVO / ERRO AO CONFIMAR BALANÇO AVULSO';
-
+            const ipUsuario = await getIPUsuario();
             const postData = {
               IDFUNCIONARIO: String(usuarioLogado.id),
               PATHFUNCAO: textoFuncao,

@@ -18,7 +18,7 @@ export const FormularioEditar = ({ dadosPixPDV, handleClose, optionsModulos, usu
     optionsBancos,
     onSubmit
   } = useAtualizarPixPDV({ dadosPixPDV, handleClose, optionsModulos, usuarioLogado })
-
+ 
   return (
     <Fragment>
       <form onSubmit={handleSubmit(onSubmit)}>

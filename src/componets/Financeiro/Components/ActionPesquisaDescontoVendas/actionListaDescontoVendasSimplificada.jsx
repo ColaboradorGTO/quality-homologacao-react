@@ -13,6 +13,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onPageChange = (event) => {
@@ -156,11 +157,6 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
     }
     return total;
   }
-
-  // const calcularTotal = () => {
-  //   let total = dadosDescontoVendasSimplificado[0]?.VLTOTALVENDIDO;
-  //   return total;
-  // }
 
   const dadosExcel = Array.isArray(dadosDescontoVendasSimplificado) ? dadosDescontoVendasSimplificado.map((item, index) => {
     let contador = index + 1;
@@ -521,6 +517,9 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
             value={dadosListaDetalhada}
             globalFilter={globalFilterValue}
             size={"small"}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             first={first}

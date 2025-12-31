@@ -1,22 +1,28 @@
 import Swal from "sweetalert2";
 import { put, post } from "../../../../../api/funcRequest";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const useHandleDetalhar = ({ optionsModulos, usuarioLogado, handleClickVendasPix }) => {
   const [ipUsuario, setIpUsuario] = useState('');
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      let usuarioIP = ipWhoisData?.ip;
+
+      if (!usuarioIP) {
+      const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+      usuarioIP = ipifyData?.ip;
+      }
+
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
+    } catch (error) {
+      console.error("Erro ao buscar IP:", error);
+      return null;
     }
-    return response.data;
-  }
+  };
 
   const handleDetalhar = async (IDVENDA) => {
     if (optionsModulos[0]?.ALTERAR == 'False') {
@@ -60,6 +66,7 @@ export const useHandleDetalhar = ({ optionsModulos, usuarioLogado, handleClickVe
 
           const textdados = JSON.stringify(dados);
           const textoFuncao = 'FINANCEIRO/CONFIRMADA CONFERENCIA DA VENDA';
+          const ipUsuario = await getIPUsuario();
           const dadosConfirmaDep = [{
             "IDFUNCIONARIO": usuarioLogado.IDFUNCIONARIO,
             "PATHFUNCAO": textoFuncao,

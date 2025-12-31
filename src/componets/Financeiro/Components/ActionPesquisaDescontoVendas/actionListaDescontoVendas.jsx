@@ -16,6 +16,7 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onPageChange = (event) => {
@@ -402,6 +403,9 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
             value={dadosListaDetalhada}
             globalFilter={globalFilterValue}
             size={"small"}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             footerColumnGroup={footerGroup}
             sortOrder={-1}
             paginator={true}

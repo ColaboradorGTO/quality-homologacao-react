@@ -6,17 +6,23 @@ import { post, } from "../../../../../api/funcRequest";
 export const useIntegrarTodasConciliacoesDepositosNoSAP = ({ optionsModulos, usuarioLogado, handleClick }) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data);
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
+
+            if (!usuarioIP) {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+            }
+
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
         }
-        return response.data;
-    }
+    };
 
     const handleSubmit = async (IDDEPOSITOLOJA) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
@@ -51,13 +57,13 @@ export const useIntegrarTodasConciliacoesDepositosNoSAP = ({ optionsModulos, usu
         }).then(async (result) => {
             if (result.isConfirmed) {
             try {
-                const putData = [{  
+                const putData = {  
                     IDDEPOSITOLOJA: IDDEPOSITOLOJA,
-                }]
+                }
 
-                const response = await post('/deposito-integracao', putData)
-                
+                const response = await post('/deposito-integracao', putData)         
                 const textDados = JSON.stringify(putData)
+                const ipUsuario = await getIPUsuario()
                 let textoFuncao = 'FINANCEIRO/INTEGRACAO TODAS CONCILIAÇÕES DE DEPOSITOS'
             
                 const postData = {  
@@ -67,20 +73,29 @@ export const useIntegrarTodasConciliacoesDepositosNoSAP = ({ optionsModulos, usu
                     IP: ipUsuario.ip,
                 }
         
-                const responsePost = await post('/log-web', postData)
+                await post('/log-web', postData)
             
                 Swal.fire({
                     title: 'Cancelado', 
                     text: 'Conciliação de Depósitos Integrada no SAP com Sucesso!', 
-                    icon: 'success'
+                    icon: 'success',
+                    customClass: {
+                        container: 'custom-swal',
+                    },
+                    showConfirmButton: false,
+                    timer: 4000
                 })
                 handleClick()
           
-                return responsePost.data;
+                return response.data;
             } catch (error) {
+                const putData = {  
+                    IDDEPOSITOLOJA: IDDEPOSITOLOJA,
+                }
                 const textDados = JSON.stringify(putData)
+                const ipUsuario = await getIPUsuario()
                 let textoFuncao = 'FINANCEIRO/ERRO AO CANCELAR CONCILIAÇÃO DO DEPOSITO';
-            
+                
                 const postData = {  
                     IDFUNCIONARIO: String(usuarioLogado.id),
                     PATHFUNCAO:  textoFuncao,

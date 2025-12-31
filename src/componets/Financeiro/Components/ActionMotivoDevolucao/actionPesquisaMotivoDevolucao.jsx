@@ -20,9 +20,7 @@ export const ActionPesquisaMotivoDevolucao = ({ usuarioLogado, ID}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false)
   const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(500); 
   const [modalCriarVisivel, setModalCriarVisivel] = useState(false)
-  
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -32,7 +30,6 @@ export const ActionPesquisaMotivoDevolucao = ({ usuarioLogado, ID}) => {
   }, [])
   
 
-  
   const fetchMotivoDevolucao = async () => {
     const urlBase = `/motivo-devolucao?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idMotivo=${numeroMotivoDevolucao}&descricaoMotivo=${descricaoMotivoDevolucao}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
@@ -155,6 +152,7 @@ export const ActionPesquisaMotivoDevolucao = ({ usuarioLogado, ID}) => {
         <ActionListaMotivoDevolucao 
           dadosMotivoDevolucao={dadosMotivoDevolucao}
           optionsModulos={optionsModulos}
+          usuarioLogado={usuarioLogado}
         />
       )}
 

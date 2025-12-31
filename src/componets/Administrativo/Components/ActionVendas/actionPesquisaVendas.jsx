@@ -47,22 +47,22 @@ export const ActionPesquisaVendas = () => {
 
   };
 
-  const { data: dadosVendasAtivas = [], error: errorVendasMarca, isLoading: isLoadingVendasMarca, refetch: refetchVendasAtiva } = useQuery(
+  const { data: dadosVendas = [], error: errorVendasMarca, isLoading: isLoadingVendasMarca, refetch: refetchVendasAtiva } = useQuery(
     ['lista-venda',],
     () => fetchVendasAtiva(),
     { enabled: false, }
   );
 
 
-  const { data: dadosVendas = [], error: erroQuebra, isLoading: isLoadingQuebra, refetch } = useQuery(
-    'lista-venda',
-    async () => {
-      const response = await get(`/lista-venda?idVenda=${idVenda}`);
+  // const { data: dadosVendas = [], error: erroQuebra, isLoading: isLoadingQuebra, refetch } = useQuery(
+  //   'lista-venda',
+  //   async () => {
+  //     const response = await get(`/lista-venda?idVenda=${idVenda}`);
 
-      return response.data;
-    },
-    { enabled: false, staleTime: 60 * 60 * 1000 }
-  );
+  //     return response.data;
+  //   },
+  //   { enabled: false, staleTime: 60 * 60 * 1000 }
+  // );
 
 
   const handleInputChange = (e) => {
@@ -81,7 +81,7 @@ export const ActionPesquisaVendas = () => {
     // }
     setTabelaVisivel(true)
 
-    refetch()
+    refetchVendasAtiva();
   }
 
   return (

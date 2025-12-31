@@ -24,6 +24,7 @@ export const ActionListaRecebimentosLoja = ({
   const [modalDetalheRecebimento, setModalDetalheRecebimento] = useState(false);
   const [dadosDetalheRecebimentosEletronico, setDadosDetalheRecebimentosEletronico] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -211,7 +212,12 @@ export const ActionListaRecebimentosLoja = ({
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
-            sortField="VALORRECEBIDO"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             sortOrder={-1}
             rows={dados.length}
             showGridlines

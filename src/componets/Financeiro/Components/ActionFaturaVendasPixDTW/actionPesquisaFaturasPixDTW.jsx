@@ -3,7 +3,6 @@ import { ActionMain } from "../../../Actions/actionMain"
 import { InputField } from "../../../Buttons/Input"
 import { ButtonType } from "../../../Buttons/ButtonType"
 import { get } from "../../../../api/funcRequest"
-import { MultSelectAction } from "../../../Select/MultSelectAction"
 import { AiOutlineSearch } from "react-icons/ai"
 import { getDataAtual } from "../../../../utils/dataAtual"
 import { InputSelectAction } from "../../../Inputs/InputSelectAction"
@@ -12,8 +11,6 @@ import Swal from 'sweetalert2';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { ActionFaturaListaVendasPIXCompensacao } from "./actionListaFaturaVendasPixCompensacao"
 import { ActionFaturaListaVendasPIX } from "./actionListaFaturaVendasPix"
-import { set } from "date-fns"
-
 
 
 export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
@@ -28,9 +25,6 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
   const [tabelaVendasPixCompensacao, setTabelaVendasPixCompensacao] = useState(false);
   const [pixCompensacaoCapa, setPixCompensacaoCapa] = useState(false);
   const [pixCompensacaoCredito, setPixCompensacaoCredito] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(1000)
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(true)
 
 
   useEffect(() => {
@@ -48,75 +42,54 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
     'marcasLista',
     async () => {
       const response = await get(`/marcasLista`);
-      console.log(response.data, 'optionsMarcas')
+      
       return response.data;
     },
     { staleTime: 5 * 60 * 1000 }
   );
-  
+
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
     ['listaEmpresaComercial', marcaSelecionada],
     async () => {
-      if (marcaSelecionada) {
-        const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
-        return response.data;
-      } else {
-        return [];
-      }
+      const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
+      return response.data;
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: Boolean(marcaSelecionada), staleTime: 5 * 60 * 1000 }
   );
 
-
-
-  useEffect(() => {
-    if (marcaSelecionada) {
-      refetchEmpresas();
-    }
-    refetchMarcas()
-  }, [marcaSelecionada, refetchEmpresas]);
-
-
   const fetchListaVendasPix = async () => {
+    const urlBase = `/venda-total-fatura-pix-empresa?idMarca=${marcaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idLoja=${empresaSelecionada}&listaEmpresas=${empresaLivre}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      const urlApi = `/venda-total-fatura-pix-empresa?idMarca=${marcaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idLoja=${empresaSelecionada}&listaEmpresas=${empresaLivre}`;
-      const response = await get(urlApi);
-      
 
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-       
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
@@ -124,46 +97,39 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
       fecharAnimacaoCarregamento();
     }
   }
-  
-  
+
+
   const { data: dadosFaturaVendasPix = [], error: errorVendasPix, isLoading: isLoadingVendasPix, refetch: refetchVendasPix } = useQuery(
-    ['venda-total-fatura-pix-empresa', marcaSelecionada, dataPesquisaInicio, dataPesquisaFim, empresaSelecionada, empresaLivre],
-    () => fetchListaVendasPix(marcaSelecionada, dataPesquisaInicio, dataPesquisaFim, empresaSelecionada, empresaLivre),
+    ['venda-total-fatura-pix-empresa'],
+    () => fetchListaVendasPix(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   );
-  
+
   const fetchListaVendasPixCompensacao = async () => {
+    const urlBase = `/venda-total-fatura-pix-empresa-compensada?idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&dataCompInicio=${dataCompenscaoInicio}&dataCompFim=${dataCompenscaoFim}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-      const urlApi = `/venda-total-fatura-pix-empresa-compensada?idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&dataCompInicio=${dataCompenscaoInicio}&dataCompFim=${dataCompenscaoFim}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-       
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
@@ -173,52 +139,32 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
   }
 
   const { data: dadosFaturaVendasPixCompensacao = [], error: errorVendasPixCompensacao, isLoading: isLoadingVendasPixCompenscao, refetch: refetchVendasPixCompensacao } = useQuery(
-    ['venda-total-fatura-pix-empresa-compensada', marcaSelecionada, dataCompenscaoInicio, dataCompenscaoFim, empresaSelecionada, empresaLivre],
-    () => fetchListaVendasPixCompensacao(marcaSelecionada, dataCompenscaoInicio, dataCompenscaoFim, empresaSelecionada, empresaLivre),
+    ['venda-total-fatura-pix-empresa-compensada'],
+    () => fetchListaVendasPixCompensacao(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   );
 
-  const handleSelectMarca = (e) => {
-    const selectedId = e.value;
-    setMarcaSelecionada(selectedId);
-  };
-
-  const handleEmpresaChange = (selectedOptions) => {
-    const values = selectedOptions.map((option) => option.value);
-    setEmpresaSelecionada(values);
-  }
-
-
   const handleClickVendasPix = () => {
-   
+
     if (marcaSelecionada) {
       setTabelaVendasPixVisivel(true)
       setTabelaVendasPixCompensacao(false)
       setPixCompensacaoCapa(false)
       setPixCompensacaoCredito(false)
-      
-      setIsLoadingPesquisa(true);
-      setCurrentPage(prevPage => prevPage + 1); 
       refetchVendasPix()
-    }  else {
+    } else {
       Swal.fire('Erro', 'Por favor, selecione uma Marca e datas válidas.', 'error');
     }
   }
 
-
-
-
   const handleClickVendasPixCompensacao = () => {
-    if(marcaSelecionada) {
+    if (marcaSelecionada) {
       setTabelaVendasPixCompensacao(true)
       setTabelaVendasPixVisivel(false)
       setPixCompensacaoCapa(false)
       setPixCompensacaoCredito(false)
-      
-      setIsLoadingPesquisa(true);
-      setCurrentPage(+1);
       refetchVendasPixCompensacao()
-      
+
     } else {
       Swal.fire('Erro', 'Por favor, selecione uma Marca e datas válidas.', 'error')
     }
@@ -249,12 +195,12 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
         labelInputDTInicioB={"Data Compensação"}
         valueInputFieldDTInicioB={dataCompenscaoInicio}
         onChangeInputFieldDTInicioB={(e) => setDataCompensacaoInicio(e.target.value)}
-        
+
         InputFieldDTFimBComponent={InputField}
         labelInputDTFimB={"Data Compensação"}
         valueInputFieldDTFimB={dataCompenscaoFim}
         onChangeInputFieldDTFimB={(e) => setDataCompensacaoFim(e.target.value)}
-        
+
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Empresa"}
         optionsMarcas={[
@@ -264,9 +210,9 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
           }))
         ]}
         valueSelectMarca={empresaSelecionada}
-        onChangeSelectMarcas={(e) => setMarcaSelecionada(e.value)}
-
-
+        onChangeSelectMarcas={(e) => setEmpresaSelecionada(e.value)}
+        
+        
         InputSelectEmpresaComponent={InputSelectAction}
         optionsEmpresas={[
           { value: '0', label: 'Selecione uma loja' },
@@ -278,34 +224,35 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
         labelSelectEmpresa={"Por Marca"}
         valueSelectEmpresa={marcaSelecionada}
         onChangeSelectEmpresa={(e) => setMarcaSelecionada(e.value)}
-
+        
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Faturas PIX "}
         onButtonClickSearch={handleClickVendasPix}
         IconSearch={AiOutlineSearch}
         corSearch={"info"}
-
+        
         ButtonTypeCadastro={ButtonType}
         linkNome={"Compensação"}
         onButtonClickCadastro={handleClickVendasPixCompensacao}
         corCadastro={"success"}
         IconCadastro={AiOutlineSearch}
-
+        
       />
 
+{console.log(optionsEmpresas, 'optionsEmpresas')}
       {tabelaVendasPixVisivel && (
-        <ActionFaturaListaVendasPIX 
-          dadosFaturaVendasPix={dadosFaturaVendasPix} 
-          optionsModulos={optionsModulos}
-          usuarioLogado={usuarioLogado}  
+        <ActionFaturaListaVendasPIX
+        dadosFaturaVendasPix={dadosFaturaVendasPix}
+        optionsModulos={optionsModulos}
+          usuarioLogado={usuarioLogado}
           handleClickVendasPix={handleClickVendasPix}
         />
       )}
 
-      {tabelaVendasPixCompensacao&& (
-        <ActionFaturaListaVendasPIXCompensacao dadosFaturaVendasPixCompensacao={dadosFaturaVendasPixCompensacao}/>
+      {tabelaVendasPixCompensacao && (
+        <ActionFaturaListaVendasPIXCompensacao dadosFaturaVendasPixCompensacao={dadosFaturaVendasPixCompensacao} />
       )}
- 
+
     </Fragment>
   )
 }

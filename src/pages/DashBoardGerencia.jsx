@@ -23,24 +23,16 @@ const ActionPesquisaFaturaLoja = lazy(() => import("../componets/Gerencia/Compon
 const ActionPesquisaCreateVoucher = lazy(() => import("../componets/Gerencia/Components/ActionCreateVoucher/actionPesquisaCreateVoucher").then(module => ({ default: module.ActionPesquisaCreateVoucher })));
 const ActionPesquisaVoucherEmitido = lazy(() => import("../componets/Gerencia/Components/ActionVoucher/actionPesquisaVoucheEmitidosr").then(module => ({ default: module.ActionPesquisaVoucherEmitido })));
 const ActionPesquisaQuebraCaixa = lazy(() => import("../componets/Gerencia/Components/ActionQuebraCaixaLoja/actionPesquisaQuebraCaixa").then(module => ({ default: module.ActionPesquisaQuebraCaixa })));
-
-// voltar aqui finalizar modal editar ot
 const ActionPesquisaOT = lazy(() => import("../componets/Gerencia/Components/ActionOrdemTransferencia/ActionPesquisaOT").then(module => ({ default: module.ActionPesquisaOT })));
-
-
 const ActionPesquisaAlteracaoPreco = lazy(() => import("../componets/Gerencia/Components/ActionAlteracaoPreco/actionPesquisaAlteracaoPreco").then(module => ({ default: module.ActionPesquisaAlteracaoPreco })));
 const ActionPesquisaClientesVendas = lazy(() => import("../componets/Gerencia/Components/ActionClientesVendas/actionPesquisaClientesVendas").then(module => ({ default: module.ActionPesquisaClientesVendas })));
 const ActionPesquisaExtratoContaCorenteLoja = lazy(() => import("../componets/Gerencia/Components/ActionExtratoDeContaCorrente/actionPesquisaExtratoContaCorrenteLoja").then(module => ({ default: module.ActionPesquisaExtratoContaCorenteLoja })));
-
 const ActionPesquisaVendasLojas = lazy(() => import("../componets/Gerencia/Components/ActionVendasLojas/actionPesquisaVendasLojas").then(module => ({ default: module.ActionPesquisaVendasLojas })));
 const ActionPesquisaVendasVendedor = lazy(() => import("../componets/Gerencia/Components/ActionVendasVendedor/actionPesquisaVendasVendedor").then(module => ({ default: module.ActionPesquisaVendasVendedor })));
 const ActionPesquisaVendasEstrutura = lazy(() => import("../componets/Gerencia/Components/ActionEstruturaMercadologica/actionPesquisaVendasEstrutura").then(module => ({ default: module.ActionPesquisaVendasEstrutura })));
 const ActionPesquisaVendasDescontoFuncionario = lazy(() => import("../componets/Gerencia/Components/ActionDescontoFuncionario/actionPesquisaVendasDescontoFuncionario").then(module => ({ default: module.ActionPesquisaVendasDescontoFuncionario })));
 const ActionPesquisaEstoqueLoja = lazy(() => import("../componets/Gerencia/Components/ActionEstoqueLoja/actionPesquisaEstoqueLoja").then(module => ({ default: module.ActionPesquisaEstoqueLoja })));
-
-// Voltar aqui pra finalizar
 const ActionPesquisaBalancoLoja = lazy(() => import("../componets/Gerencia/Components/ActionBalancoPorLoja/actionPesquisaBalancoLoja").then(module => ({ default: module.ActionPesquisaBalancoLoja })));
-
 const ActionPesquisaEmpresas = lazy(() => import("../componets/Gerencia/Components/ActionEmpresas/actionPesquisaEmpresas").then(module => ({ default: module.ActionPesquisaEmpresas })));
 const ActionPesquisaConferenciaMalote = lazy(() => import("../componets/Gerencia/Components/ActionConferenciaMalote/actionPesquisaConferenciaMalote").then(module => ({ default: module.ActionPesquisaConferenciaMalote })));
 const ActionPesquisaProdutoEtiqueta = lazy(() => import("../componets/Gerencia/Components/ActionProdutoEtiqueta/actionPesquisaProdutoEtiqueta").then(module => ({ default: module.ActionPesquisaProdutoEtiqueta })));
@@ -48,9 +40,6 @@ const ActionPesquisaEtiquetaRemarcacao = lazy(() => import("../componets/Gerenci
 const ActionPesquisaRecebimentosLoja = lazy(() => import("../componets/Gerencia/Components/ActionListaRecebimentosLoja/actionPesquisaRecebimentosLoja").then(module => ({ default: module.ActionPesquisaRecebimentosLoja })));
 const ActionRelatorioBI = lazy(() => import("../componets/Gerencia/Components/ActionBI/actionRelatorioBI").then(module => ({ default: module.ActionRelatorioBI })));
 const ActionPesquisaEtiquetasVolumes = lazy(() => import("../componets/Gerencia/Components/ActionEtiquetasVolumes/actionPesquisaEtiquetasVolumes").then(module => ({ default: module.ActionPesquisaEtiquetasVolumes })));
-
-
-
 const ActionPesquisaVendaVoucher = lazy(() => import("../componets/Gerencia/Components/ActionVendaVoucher/actionPesquisaVendaVoucher").then(module => ({ default: module.ActionPesquisaVendaVoucher })));
 
 export const DashBoardGerencia = () => {
@@ -58,20 +47,19 @@ export const DashBoardGerencia = () => {
   const selectedModule = JSON.parse(storedModule);
   const [resumoVisivel, setResumoVisivel] = useState(true);
   const [componentToShow, setComponentToShow] = useState("");
+  const [usuarioLogado, setUsuarioLogado] = useState(null);
+  
+  useEffect(() => {
+    const usuarioArmazenado = localStorage.getItem('usuario');
+    if (usuarioArmazenado) {
+      const parsedUsuario = JSON.parse(usuarioArmazenado);
+      setUsuarioLogado(parsedUsuario);
+    }
+  }, []);
 
-   const [usuarioLogado, setUsuarioLogado] = useState(null);
-  
-    useEffect(() => {
-      const usuarioArmazenado = localStorage.getItem('usuario');
-      if (usuarioArmazenado) {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      }
-    }, []);
-  
-    useEffect(() => {
-  
-    }, [usuarioLogado]);
+  useEffect(() => {
+
+  }, [usuarioLogado]);
 
   function handleShowComponent(componentName) {
     setComponentToShow(componentName);

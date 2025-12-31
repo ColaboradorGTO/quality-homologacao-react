@@ -2,13 +2,17 @@ import { Fragment } from "react"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form";
 import Select from 'react-select';
 import { useCadastrarValeTransporte } from "../hooks/useCadastrarValeTransporte";
-
+import FormField from "../../../../Formularios/FormField";
+import { AlertError } from "../../../../Inputs/alertError";
+import { schema } from "./schema/useCadastrarSchema"
 
 export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos }) => {
-    const { register, handleSubmit, errors } = useForm();
+    const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+        mode: "onChange"
+    });
     const {
         onSubmit,
         dsHistorio,
@@ -18,12 +22,48 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
         vrDespesa,
         setVrDespesa,
         horarioAtual,
+        setHorarioAtual,
         dtDespesa,
         setDtDespesa,
         usuarioSelecionado,
         setUsuarioSelecionado,
+        empresa,
+        setEmpresa,
         dadosFuncionarios
     } = useCadastrarValeTransporte({ handleClose, usuarioLogado, optionsModulos });
+
+    const handleValidatedSubmit = async () => {
+        try {
+            const dadosParaValidar = {
+                historico: dsHistorio,
+                valorDespesa: vrDespesa,
+                funcionario: usuarioSelecionado,
+            }
+
+            await schema.validate(dadosParaValidar, { abortEarly: false });
+         
+            onSubmit();
+
+        } catch (validationError) {
+            clearErrors();
+
+
+            if (validationError.inner && validationError.inner.length > 0) {
+                validationError.inner.forEach(error => {
+                    if (error.path) {
+                        setError(error.path, {
+                            type: 'manual',
+                            message: error.message
+                        });
+                    }
+                });
+            }
+
+            const errorMessages = validationError.errors || [validationError.message];
+            console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+        }
+    }
+
     return (
 
 
@@ -34,11 +74,22 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                     <div class="row">
 
                         <div class="col-sm-6 col-xl-10">
-                            <InputFieldModal
-                                className="form-control input"
-                                readOnly={true}
-                                label="Empresa"
-                                value={usuarioLogado?.NOFANTASIA}
+                            <Controller
+                                name="empresaDespesa"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Empresa "}
+                                        name="empresaDespesa"
+                                        type="text"
+                                        value={empresa}
+                                        readOnly={true}
+                                        onChange={(e) => setEmpresa(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+
+                                )}  
                             />
 
                         </div>
@@ -49,11 +100,12 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
 
                         <div class="col-sm-6 col-xl-4">
                             <InputFieldModal
-                                type="datetime"
+                                type="date"
                                 className="form-control input"
                                 readOnly={true}
                                 label="Data do Vale"
-                                value={usuarioLogado?.DATA_HORA_SESSAO}
+                                value={dtDespesa}
+                                onChange={(e) => setDtDespesa(e.target.value)}
                             />
                         </div>
                         <div class="col-sm-6 col-xl-4">
@@ -63,6 +115,7 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                                 readOnly={true}
                                 label="Hora do Vale"
                                 value={horarioAtual}
+                                onChangeModal={(e) => setHorarioAtual(e.target.value)}
                             />
                         </div>
                         <div class="col-sm-6 col-xl-4">
@@ -82,15 +135,23 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                 <div class="form-group">
                     <div class="row">
                         <div class="col-sm-6 col-xl-6">
-                            <InputFieldModal
-                                type="text"
-                                className="form-control input"
-                                readOnly={false}
-                                value={dsHistorio}
-                                onChangeModal={(e) => setDSHistorio(e.target.value)}
-                                label="Histórico"
-                            />
 
+                            <Controller
+                                name="historico"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Histórico"}
+                                        name="historico"
+                                        type="text"
+                                        value={dsHistorio}
+                                        onChange={(e) => setDSHistorio(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+
+                                )}  
+                            />
                         </div>
 
                         <div class="col-sm-6 col-xl-6">
@@ -105,9 +166,16 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                                         }
                                     })]}
                                 value={usuarioSelecionado}
-                                onChange={(e) => setUsuarioSelecionado(e.value)}
+                                onChange={(e) => setUsuarioSelecionado(e)}
                             />
-
+                            {errors.usuarioSelecionado && (
+                                <AlertError
+                                    error={errors.usuarioSelecionado}
+                                    onClose={clearErrors}
+                                    fieldName="usuarioSelecionado"
+                                />
+                            )}
+                                                       
                         </div>
 
                     </div>
@@ -115,34 +183,39 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                 <div class="form-group">
                     <div class="row">
                         <div class="col-sm-6 col-xl-6">
-                            <InputFieldModal
-                                type="text"
-                                className="form-control input"
-                                readOnly={false}
-                                label="Valor do Vale Transporte"
-                                value={vrDespesa}
-                                onChangeModal={(e) => setVrDespesa(e.target.value)}
-                                placeholder="R$ 0,00"
-                            />
+                            <Controller
+                                name="valorDespesa"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Valor do Vale Transporte "}
+                                        name="valorDespesa"
+                                        type="text"
+                                        value={vrDespesa}
+                                        onChange={(e) => setVrDespesa(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
 
+                                )}  
+                            />
                         </div>
                     </div>
                 </div>
 
-                <FooterModal
-                    ButtonTypeCadastrar={ButtonTypeModal}
-                    onClickButtonCadastrar={""}
-                    textButtonCadastrar={"Cadastrar"}
-                    corCadastrar="success"
-
-                    ButtonTypeFechar={ButtonTypeModal}
-                    textButtonFechar={"Fechar"}
-                    onClickButtonFechar={handleClose}
-                    corFechar="secondary"
-                />
-
-
             </form>
+
+            <FooterModal
+                ButtonTypeCadastrar={ButtonTypeModal}
+                onClickButtonCadastrar={handleValidatedSubmit}
+                textButtonCadastrar={"Cadastrar"}
+                corCadastrar="success"
+
+                ButtonTypeFechar={ButtonTypeModal}
+                textButtonFechar={"Fechar"}
+                onClickButtonFechar={handleClose}
+                corFechar="secondary"
+            />
 
         </Fragment>
     )

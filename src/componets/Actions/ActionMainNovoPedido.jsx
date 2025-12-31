@@ -199,12 +199,12 @@ export const ActionMainNovoPedido = ({
   return (
     <Fragment>
       <form action="#" onSubmit={handleSubmit}>
-        {/* <HeadTitleComponent
+        <HeadTitleComponent
           tittuloComponent={title}
           nomeLoja={subTitle}
           linkComponentAnterior={linkComponentAnterior}
           linkComponent={linkComponent}
-        /> */}
+        />
         <div className="row">
           <div className="col-xl-12">
             <div id="panel-1" className="panel">
@@ -323,6 +323,7 @@ export const ActionMainNovoPedido = ({
                           id={id}
                           options={optionsCompradores}
                           defaultValue={defaultValueSelectComprador}
+                          value={valueSelectComprador}
                           onChange={onChangeSelectComprador}
                         />
                       )}

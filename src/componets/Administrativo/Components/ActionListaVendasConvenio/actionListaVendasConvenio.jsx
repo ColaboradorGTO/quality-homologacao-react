@@ -12,6 +12,7 @@ import { ColumnGroup } from "primereact/columngroup";
 
 export const ActionListaVendasConvenio = ({ dadosVendasConvenio }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -26,24 +27,7 @@ export const ActionListaVendasConvenio = ({ dadosVendasConvenio }) => {
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [[
-        'ID',
-        'Loja',
-        'Data', 
-        'CPF', 
-        'Funcionário', 
-        'Vr.Bruto NF', 
-        'Vr.Desconto NF', 
-        'Vr.Líquido NF', 
-        'Vr.Bruto', 
-        'Vr.Desconto', 
-        'Vr.Líquido', 
-        'Vr.Dinheiro', 
-        'Vr.Cartão', 
-        'Vr.POS', 
-        'Vr.Voucher',
-        'Vr.Convênio'
-      ]],
+      head: [['ID','Loja','Data','CPF', 'Funcionário', 'Vr.Bruto NF', 'Vr.Desconto NF', 'Vr.Líquido NF', 'Vr.Bruto', 'Vr.Desconto', 'Vr.Líquido', 'Vr.Dinheiro', 'Vr.Cartão', 'Vr.POS', 'Vr.Voucher','Vr.Convênio']],
       body: dadosListaConvenio.map(item => [
         item.contador,
         item.NOFANTASIA,
@@ -72,24 +56,7 @@ export const ActionListaVendasConvenio = ({ dadosVendasConvenio }) => {
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dadosListaConvenio);
     const workbook = XLSX.utils.book_new();
-    const header = [
-      'ID',
-      'Loja',
-      'Data',
-      'CPF',
-      'Funcionário',
-      'Vr.Bruto NF',
-      'Vr.Desconto NF',
-      'Vr.Líquido NF',
-      'Vr.Bruto',
-      'Vr.Desconto',
-      'Vr.Líquido',
-      'Vr.Dinheiro',
-      'Vr.Cartão',
-      'Vr.POS',
-      'Vr.Voucher',
-      'Vr.Convênio'
-    ];
+    const header = ['ID','Loja','Data','CPF', 'Funcionário', 'Vr.Bruto NF', 'Vr.Desconto NF', 'Vr.Líquido NF', 'Vr.Bruto', 'Vr.Desconto', 'Vr.Líquido', 'Vr.Dinheiro', 'Vr.Cartão', 'Vr.POS', 'Vr.Voucher','Vr.Convênio'];
     worksheet['!cols'] = [
       {wpx: 50, caption: 'Nº'},
       {wpx: 200, caption: 'Loja'},
@@ -386,6 +353,9 @@ export const ActionListaVendasConvenio = ({ dadosVendasConvenio }) => {
                 value={dadosListaConvenio}
                 globalFilter={globalFilterValue}
                 size="small"
+                selectionMode="single"
+                selection={rowSelection}
+                onSelectionChange={(e) => setRowSelection(e.value)}
                 footerColumnGroup={footerGroup}
                 sortOrder={-1}
                 paginator={true}

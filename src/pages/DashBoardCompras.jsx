@@ -27,6 +27,7 @@ const ActionPesquisaTiposTecidos = lazy(() => import("../componets/Compras/Compo
 const ActionPesquisaProdutosEntreFiliais = lazy(() => import("../componets/Compras/Components/ProdutosFiliais/actionPesquisaProdutosEntreFiliais").then(module => ({ default: module.ActionPesquisaProdutosEntreFiliais })));
 const ActionPesquisaProdutosPorPedido = lazy(() => import("../componets/Compras/Components/ProdutosPorPedido/actionPesquisaProdutosPedidos").then(module => ({ default: module.ActionPesquisaProdutosPorPedido })));
 
+
 export const DashBoardCompras = () => {
   const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [homeVisivel, setHomeVisivel ] = useState(true);

@@ -12,10 +12,11 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Swal from "sweetalert2";
 
-export const ActionListaMotivoDevolucao = ({ dadosMotivoDevolucao, optionsModulos }) => {
+export const ActionListaMotivoDevolucao = ({ dadosMotivoDevolucao, optionsModulos, usuarioLogado }) => {
   const [dadosDetalheMotivoDevolucao, setDadosDetalheMotivoDevolucao] = useState([])
   const [modalVisivel, setModalVisivel] = useState(false)
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -207,8 +208,11 @@ export const ActionListaMotivoDevolucao = ({ dadosMotivoDevolucao, optionsModulo
 
             title="Vendas por Loja"
             value={dadosListaMotivoDevolucao}
-            size="small"
             globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator
             rows={10}
@@ -228,9 +232,9 @@ export const ActionListaMotivoDevolucao = ({ dadosMotivoDevolucao, optionsModulo
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '1rem' }}
 
               />
             ))}
@@ -244,7 +248,7 @@ export const ActionListaMotivoDevolucao = ({ dadosMotivoDevolucao, optionsModulo
         handleClose={() => setModalVisivel(false)}
         dadosDetalheMotivoDevolucao={dadosDetalheMotivoDevolucao}
         optionsModulos={optionsModulos}
-        // usuarioLogado={usuarioLogado}
+        usuarioLogado={usuarioLogado}
       />
 
 

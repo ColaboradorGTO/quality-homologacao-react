@@ -18,16 +18,29 @@ export const useCreateAjusteExtrato = ({ handleClose, optionsModulos, usuarioLog
         const horaAtual = getHoraAtual()
         setDataMovimento(dataAtual)
         setHoraMovimento(horaAtual)
-        getIPUsuario();
     }, [usuarioLogado]);
 
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
+
+        if (!usuarioIP) {
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const submit = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False'){
@@ -57,9 +70,9 @@ export const useCreateAjusteExtrato = ({ handleClose, optionsModulos, usuarioLog
 
         try {
 
-            let dados = JSON.stringify(postData)
             const response = await post('/ajuste-extrato', postData)
-    
+            const dados = JSON.stringify(postData)
+            const ipUsuario = await getIPUsuario();
             const postLogData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: `FINANCEIRO/AJUSTE EXTRATO CRIADO`,
@@ -67,7 +80,7 @@ export const useCreateAjusteExtrato = ({ handleClose, optionsModulos, usuarioLog
                 IP: ipUsuario
             }
     
-            const responsePost = await post('/log-web', postLogData)
+            await post('/log-web', postLogData)
 
             Swal.fire({
                 position: 'center',
@@ -76,16 +89,18 @@ export const useCreateAjusteExtrato = ({ handleClose, optionsModulos, usuarioLog
                 icon: 'success',
                 timer: 3000,
                 customClass: {
-                container: 'custom-swal',
+                    container: 'custom-swal',
                 }
             })
             // handleClose()
-            return responsePost.data
+            return response.data
         } catch (error) {
+            const dados = JSON.stringify(postData)
+            const ipUsuario = await getIPUsuario();
             const postLogData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: `FINANCEIRO/ERRO AO CRIAR AJUSTE EXTRATO`,
-                DADOS: '',
+                DADOS: dados,
                 IP: ipUsuario
             }
     

@@ -2,7 +2,7 @@ import Swal from "sweetalert2";
 import { get, post } from "../../../../../api/funcRequest";
 import axios from "axios";
 import { useQuery } from "react-query";
-import { getHoraAtual } from "../../../../../utils/dataAtual";
+import { getDataAtual, getHoraAtual } from "../../../../../utils/dataAtual";
 import { useEffect, useState } from "react";
 
 export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, optionsModulos }) => {
@@ -13,9 +13,12 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
   const [dtDespesa, setDtDespesa] = useState('');
   const [usuarioSelecionado, setUsuarioSelecionado] = useState()
   const [ipUsuario, setIpUsuario] = useState('')
+  const [empresa, setEmpresa] = useState(usuarioLogado?.NOFANTASIA || '');
 
   useEffect(() => {
     const hora = getHoraAtual()
+    const dataAtual = getDataAtual()
+    setDtDespesa(dataAtual)
     setHorarioAtual(hora)
   }, [])
   
@@ -29,17 +32,27 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
     { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 10 * 60 * 1000 }
   );
 
-  useEffect(() => {
-    getIPUsuario();
-  }, []);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
-  }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   const onSubmit = async (data) => {
     if(optionsModulos[0]?.CRIAR == 'False') {
@@ -55,17 +68,18 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
       })
       return;
     }
+
     const postData = {
-      IDEMPRESA: usuarioLogado.IDEMPRESA,
-      IDUSR: usuarioLogado.id,
-      DTDESPESA: dtDespesa,
+      IDEMPRESA: parseInt(usuarioLogado.IDEMPRESA),
+      IDUSR: parseInt(usuarioLogado.id),
+      DTDESPESA: dtDespesa + ' ' + horarioAtual,
       IDCATEGORIARECEITADESPESA: 248,
       DSHISTORIO: dsHistorio,
       DSPAGOA: '',
-      IDFUNCIONARIO: usuarioSelecionado,
+      IDFUNCIONARIO: parseInt(usuarioSelecionado?.value),
       TPNOTA: '',
       NUNOTAFISCAL: '',
-      VRDESPESA: vrDespesa,
+      VRDESPESA: parseFloat(vrDespesa),
       STATIVO: 'True',
       STCANCELADO: 'False'
 
@@ -74,11 +88,9 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
     try {
 
       const response = await post('/cadastrar-despesa-loja', postData)
-
-
       const textDados = JSON.stringify(postData)
       let textoFuncao = 'GERENCIA/CADASTRO DE VALE TRANSPORTE';
-
+      const ipUsuario = await getIPUsuario();
 
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
@@ -87,7 +99,7 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
         IP: ipUsuario
       }
 
-      const responsePost = await post('/log-web', createData)
+      await post('/log-web', createData)
 
       Swal.fire({
         title: 'Cadastro',
@@ -99,10 +111,11 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
         }
       })
 
-      return responsePost.data;
+      return response.data;
     } catch (error) {
-      let textoFuncao = 'GERENCIA/CADASTRO DE VALE TRANSPORTE';
-
+      const textDados = JSON.stringify(postData)
+      let textoFuncao = 'GERENCIA/ERRO AO CADASTRAR O VALE TRANSPORTE';
+      const ipUsuario = await getIPUsuario()
 
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
@@ -138,11 +151,13 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
     vrDespesa,
     setVrDespesa,
     horarioAtual,
+    setHorarioAtual,
     dtDespesa,
     setDtDespesa,
     usuarioSelecionado,
-    usuarioLogado,
     setUsuarioSelecionado,
+    empresa,
+    setEmpresa,
     dadosFuncionarios
   }
 }

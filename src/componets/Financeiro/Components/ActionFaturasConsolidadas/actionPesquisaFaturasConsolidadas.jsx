@@ -154,16 +154,6 @@ export const ActionPesquisaFaturasConsolidadas = ({ usuarioLogado, ID }) => {
     setIsLoadingPesquisa(true);
     setCurrentPage(prevPage => prevPage + 1);
     refetchFatura()
-    // if(empresaSelecionada || codigoFatura) {
-
-
-    // } else {
-    //   Swal.fire({
-    //     icon: 'error',
-    //     title: 'Oops...',
-    //     text: 'Selecione uma empresa!',
-    //   });
-    // }
   }
   const handleClickConciliar = () => {
     refetchFaturaConsolidada()

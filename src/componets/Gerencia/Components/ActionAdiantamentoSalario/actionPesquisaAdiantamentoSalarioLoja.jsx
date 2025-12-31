@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom";
 import { MdAdd } from "react-icons/md";
 import { ActionListaAdiantamentoSalarioLoja } from "./actionListaAdiantamentoSalarioLoja";
 import { ActionMain } from "../../../Actions/actionMain";

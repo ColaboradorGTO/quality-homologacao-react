@@ -1,8 +1,8 @@
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useRef, useState } from "react"
 
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { getDataAtual, getUmdiaAntes } from "../../../../utils/dataAtual"
+import { getUmdiaAntes } from "../../../../utils/dataAtual"
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { dataFormatada } from "../../../../utils/dataFormatada";
 import HeaderTable from "../../../Tables/headerTable";
@@ -15,7 +15,6 @@ import { toFloat } from "../../../../utils/toFloat";
 export const ActionListaSaldoLoja = ({ dadosSaldoExtratos }) => {
   const dataUmdiaAntes = getUmdiaAntes();
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [size, setSize] = useState('small')
   const dataTableRef = useRef();
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -52,7 +51,6 @@ export const ActionListaSaldoLoja = ({ dadosSaldoExtratos }) => {
       { wpx: 200, caption: 'Empresa' },
       { wpx: 100, caption: 'Saldo' },
       { wpx: 100, caption: 'Conta Banco' },
-
     ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
 
@@ -161,18 +159,14 @@ export const ActionListaSaldoLoja = ({ dadosSaldoExtratos }) => {
           <div className="card" ref={dataTableRef}>
 
             <DataTable
-
               title="Vendas por Loja"
               value={dados}
               size="small"
-              selection={selectedProduct}
               dataKey="IDEMPRESA"
-              onSelectionChange={(e) => setSelectedProduct(e.value)}
               sortField="VRTOTALPAGO"
               sortOrder={-1}
-
               rows={10}
-              rowsPerPageOptions={[10, 20, 30, 50, 100]}
+              rowsPerPageOptions={[10, 20, 30, 50, 100, dados.length]}
               showGridlines
               stripedRows
               emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
@@ -185,9 +179,9 @@ export const ActionListaSaldoLoja = ({ dadosSaldoExtratos }) => {
                   body={coluna.body}
                   footer={coluna.footer}
                   sortable={coluna.sortable}
-                  headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                  headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                   footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                  bodyStyle={{ fontSize: '0.8rem', backgroundColor: '#c0f0eb', border: '1px solid #89e3da' }} />
+                  bodyStyle={{ fontSize: '1rem', backgroundColor: '#c0f0eb', border: '1px solid #89e3da' }} />
               ))}
             </DataTable>
           </div>

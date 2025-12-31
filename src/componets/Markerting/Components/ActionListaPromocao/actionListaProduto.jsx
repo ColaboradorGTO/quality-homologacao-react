@@ -10,6 +10,7 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaProduto = ({ dadosProdutos }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -114,6 +115,9 @@ export const ActionListaProduto = ({ dadosProdutos }) => {
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}

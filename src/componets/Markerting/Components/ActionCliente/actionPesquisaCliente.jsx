@@ -37,7 +37,7 @@ export const ActionPesquisaCliente = ({usuarioLogado, ID}) => {
       const response = await get(`/campanha-cliente?cpf=${cpf}`);
       return response.data;
     },
-    { enabled: true, staleTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 5 * 60 * 1000 }
   );
 
   useEffect(() => {
@@ -87,6 +87,7 @@ const handleCadastro  = () => {
         show={modalCadastrarCliente}
         handleClose={() => setModalCadastrarCliente(false)}
         optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
       />
     </Fragment >
   )

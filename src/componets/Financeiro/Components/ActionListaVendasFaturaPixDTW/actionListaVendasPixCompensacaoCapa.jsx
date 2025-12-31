@@ -1,50 +1,17 @@
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { formatMoeda } from "../../../../utils/formatMoeda";
-import { formatarDataDTW, formatMesAnoDTW} from "../../../../utils/dataFormatada";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
-import axios from 'axios';
-import { useNavigate } from "react-router-dom";
 
 
 export const ActionListaVendasPIXCompensacaoCapa = ({ dadosVendasPixCompensacao }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
-  const [ipUsuario, setIpUsuario] = useState('');
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
-  const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -204,6 +171,9 @@ export const ActionListaVendasPIXCompensacaoCapa = ({ dadosVendasPixCompensacao 
                     value={dadosListaVendasPix}
                     globalFilter={globalFilterValue}
                     size="small"
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)}
                     sortField="VRTOTALPAGO"
                     sortOrder={-1}
                     paginator={true}

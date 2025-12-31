@@ -11,20 +11,16 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { FaCheck, FaRegTrashAlt } from "react-icons/fa";
 import { formatMoeda } from "../../../../utils/formatMoeda";
 
 export const ActionListaQuebraCaixaLojaNegativa = ({ dadosQuebraDeCaixaNegativa, handleClick, optionsModulos, usuarioLogado }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dadosQuebraCaixasModal, setDadosQuebraCaixasModal] = useState([])
-  const handleCloseModal = () => setModalVisivel(false);
-  const { register, handleSubmit, errors } = useForm();
-
   const [ipUsuario, setIpUsuario] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
+  
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
@@ -257,7 +253,7 @@ export const ActionListaQuebraCaixaLojaNegativa = ({ dadosQuebraDeCaixaNegativa,
 
   const handleClickImprimir = (row) => {
     if (row && row.IDQUEBRACAIXA) {
-      handleSubmit(onSubmit)()
+      onSubmit()
       handleImprimir(row.IDQUEBRACAIXA);
     }
   };
@@ -394,7 +390,7 @@ export const ActionListaQuebraCaixaLojaNegativa = ({ dadosQuebraDeCaixaNegativa,
 
       <ModalImprimirQuebra
         show={modalVisivel}
-        handleClose={handleCloseModal}
+        handleClose={() => setModalVisivel(false)}
         dadosQuebraCaixasModal={dadosQuebraCaixasModal}
       />
     </Fragment>

@@ -2,41 +2,46 @@ import Swal from "sweetalert2";
 import { get, post } from "../../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getDataAtual, getDataHoraAtual } from "../../../../../utils/dataAtual";
+import { getDataAtual, getHoraAtual } from "../../../../../utils/dataAtual";
 
-export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado }) => {
 
+export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
   const [dsHistorio, setDSHistorio] = useState('');
   const [numeroDocDeposito, setNumeroDocDeposito] = useState('');
   const [valorDeposito, setValorDeposito] = useState(0);
   const [contaBancoSelecionada, setContaBancoSelecionada] = useState('');
   const [horarioAtual, setHorarioAtual] = useState('');
   const [dataMovCaixa, setDataMovCaixa] = useState('');
-  const [empresa, setEmpresa] = useState('')
   const [data, setData] = useState('')
   const [hora, setHora] = useState('')
   const [ipUsuario, setIpUsuario] = useState('');
-  const navigate = useNavigate();
-
-
-  useEffect(() => {
-    getIPUsuario();
-  }, []);
-
+  
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
+    let usuarioIP = null;
 
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
+    }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   useEffect(() => {
     const dataAtual = getDataAtual()
-    const horaAtual = getDataHoraAtual()
+    const horaAtual = getHoraAtual()
     setData(dataAtual)
     setHora(horaAtual)
 
@@ -52,24 +57,11 @@ export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado
     { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
-  const onSubmit = async (data) => {
+  const onSubmit = async () => {
     if (optionsModulos[0]?.CRIAR == 'False') {
       Swal.fire({
         title: 'Erro',
         text: 'Você não tem permissão para cadastrar depósitos.',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      });
-      return;
-    }
-
-    if (contaBancoSelecionada && dsHistorio && numeroDocDeposito && valorDeposito && dataMovCaixa && horarioAtual) {
-      Swal.fire({
-        title: 'Erro',
-        text: 'Por favor, preencha todos os campos obrigatórios.',
         icon: 'error',
         timer: 3000,
         customClass: {
@@ -145,15 +137,14 @@ export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado
     }
 
     const putData = {
-      IDEMPRESA: usuarioLogado.IDEMPRESA,
-      IDUSR: usuarioLogado.id,
-      IDCONTABANCO: contaBancoSelecionada,
-      DTDEPOSITO: dataMovCaixa,
-      DTMOVIMENTOCAIXA: hora,
+      IDEMPRESA: parseInt(usuarioLogado?.IDEMPRESA),
+      IDUSR: parseInt(usuarioLogado?.id),
+      IDCONTABANCO: parseInt(contaBancoSelecionada?.value),
+      DTDEPOSITO: data + " " + hora,
+      DTMOVIMENTOCAIXA: dataMovCaixa + " " + horarioAtual,
       DSHISTORIO: dsHistorio,
       NUDOCDEPOSITO: numeroDocDeposito,
-      VRDEPOSITO: valorDeposito,
-
+      VRDEPOSITO: parseFloat(valorDeposito),
       STATIVO: 'True',
       STCANCELADO: 'False',
     }
@@ -182,7 +173,7 @@ export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado
 
       const textDados = JSON.stringify(putData)
       let textoFuncao = 'GERENCIA/CADASTRO DEPOSITO ';
-
+      const ipUsuario = await getIPUsuario();
       const postData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
@@ -190,16 +181,15 @@ export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado
         IP: ipUsuario
       }
       
-      const responsePost = await post('/log-web', postData)
+      await post('/log-web', postData)
 
+      handleClick();
       handleClose();
-
-
-      return responsePost.data;
+      return response.data;
     } catch (error) {
       const textDados = JSON.stringify(putData)
       let textoFuncao = 'GERENCIA/ERRO AO CADASTRAR DEPOSITO ';
-
+      const ipUsuario = await getIPUsuario();
       const postData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,

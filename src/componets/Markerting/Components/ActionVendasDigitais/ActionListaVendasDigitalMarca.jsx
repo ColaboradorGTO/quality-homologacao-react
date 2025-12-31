@@ -11,8 +11,9 @@ import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaVendasDigitalMarca = ({ dadosVendasMarca }) => {
-  const [size, setSize] = useState('small')
+  
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -125,7 +126,10 @@ export const ActionListaVendasDigitalMarca = ({ dadosVendasMarca }) => {
             title="Vendas por Loja"
             value={dados}
             globalFilter={globalFilterValue}
-            size={size}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}

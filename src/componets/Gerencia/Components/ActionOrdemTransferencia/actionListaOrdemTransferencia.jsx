@@ -170,14 +170,7 @@ export const ActionListaOrdemTransferencia = ({
         if (row.IDEMPRESAORIGEM === usuarioLogado?.IDEMPRESA) {
           return (
             <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                width: "15rem",
-
-              }}
-            >
+              style={{display: "flex", justifyContent: "space-between", alignItems: "center", width: "15rem"}}>
               <div>
                 <ButtonTable
                   titleButton={"Editar / Visualizar"}
@@ -227,14 +220,7 @@ export const ActionListaOrdemTransferencia = ({
         } else {
           return (
            
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  width: "15rem",
-                  
-                }}
-              >
+              <div style={{ display: "flex", alignItems: "center", width: "15rem",}} >
                 
                 <ButtonTable
                   titleButton={"Conferir OT"}
@@ -282,6 +268,13 @@ export const ActionListaOrdemTransferencia = ({
         setDadosDetalheTransferencia(response.data);
         setModalEditar(true);
    
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Detalhes da Ordem de Transferência não encontrados.',
+          confirmButtonColor: '#7352A5',
+        });
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes da venda: ', error);
@@ -309,6 +302,13 @@ export const ActionListaOrdemTransferencia = ({
       if (response.data && response.data.length > 0) {
         setDadosDetalheTransferencia(response.data);
         setModalConferirOT(true);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Detalhes da Ordem de Transferência não encontrados.',
+          confirmButtonColor: '#7352A5',
+        });
       }
       return response.data;
     } catch (error) {
@@ -338,6 +338,13 @@ export const ActionListaOrdemTransferencia = ({
       if (response.data && response.data.length > 0) {
         setDadosObservacaoOT(response.data);
         setModalObservacao(true);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Detalhes da Ordem de Transferência não encontrados.',
+          confirmButtonColor: '#7352A5',
+        });
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes da venda: ', error);
@@ -358,6 +365,13 @@ export const ActionListaOrdemTransferencia = ({
       if (response.data && response.data.length > 0) {
         setDadosImprimirOT(response.data);
         setModalImprimirOT(true);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Detalhes da Ordem de Transferência não encontrados.',
+          confirmButtonColor: '#7352A5',
+        });
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes da venda: ', error);
@@ -493,242 +507,3 @@ export const ActionListaOrdemTransferencia = ({
     </Fragment>
   )
 }
-
-
-// {
-//   field: 'IDSTATUSOT',
-//   header: 'Opções',
-//   body: (row) => {
-//     // if (usuarioLogado?.IDEMPRESA == 101 && [10, 11, 12].indexOf(row.IDSTATUSOT) >= 0) {
-//     if (row.IDEMPRESA === usuarioLogado?.IDEMPRESA) {
-//       return (
-//         <div
-//           style={{
-//             display: "flex",
-//             justifyContent: "space-between",
-//             alignItems: "center",
-//             width: "15rem",
-
-//           }}
-//         >
-//           <div>
-//             <ButtonTable
-//               titleButton={"Ajustar Pedido"}
-//               // onClickButton={() => IDRESUMOOT + 0 + IDSTATUSOT + DSOBSERVACAO + DATAENTREGAFORMATADA}
-//               onClickButton={() => handleClickDetalhar(row)}
-//               Icon={CiEdit}
-//               iconSize={20}
-//               iconColor={"#fff"}
-//               cor={"success"}
-//               disabledBTN={row.IDSTATUSOT != 1}
-//             />
-//           </div>
-
-//           <div>
-//             <ButtonTable
-//               titleButton={"Liberar Pedido"}
-//               // onClickButton={() => IDRESUMOOT + 0 + IDSTATUSOT + DSOBSERVACAO + DATAENTREGAFORMATADA}
-//               onClickButton={() => handleClickDetalhar(row)}
-//               Icon={CiEdit}
-//               iconSize={20}
-//               iconColor={"#fff"}
-//               cor={"success"}
-//               disabledBTN={usuarioLogado?.IDEMPRESA == 101 && [10, 11, 12].indexOf(row.IDSTATUSOT) >= 0}
-//             />
-//           </div>
-
-//           <div>
-//             <ButtonTable
-//               titleButton={"Conferir Itens"}
-//               onClickButton={() => handleClickDetalhar(row)}
-//               Icon={FaCheck}
-//               iconSize={20}
-//               iconColor={"#fff"}
-//               cor={"warning"}
-//               disabledBTN={[11].indexOf(row.IDSTATUSOT) >= 0}
-//             />
-//           </div>
-
-//           <div>
-
-//             <ButtonTable
-//               titleButton={"Conferir Volume"}
-//               // onClickButton={() => IDSAPORIGEM}
-//               onClickButton={() => handleClickDetalhar(row)}
-//               Icon={FaCheck}
-//               iconSize={20}
-//               iconColor={"#fff"}
-//               cor={"info"}
-//               disabledBTN={[12].indexOf(row.IDSTATUSOT) >= 0}
-//             />
-//           </div>
-
-//           <div>
-//             <ButtonTable
-//               titleButton={"Imprimir Etiqueta"}
-//               // onClickButton={() => IDSAPORIGEM}
-//               onClickButton={() => handleClickImprimir(row)}
-//               Icon={MdOutlineLocalPrintshop}
-//               iconSize={20}
-//               iconColor={"#fff"}
-//               cor={"dark"}
-
-//             />
-//           </div>
-
-//         </div>
-//       );
-//     } else {
-//       if (row.IDEMPRESAORIGEM === usuarioLogado?.IDEMPRESA) {
-//         return (
-//           <div
-//             style={{
-//               display: "flex",
-//               justifyContent: "space-between",
-//               alignItems: "center",
-//               width: "15rem",
-
-//             }}
-//           >
-//             <div>
-//               <ButtonTable
-//                 titleButton={"Editar / Visualizar"}
-//                 // onClickButton={() => IDRESUMOOT + 0 + IDSTATUSOT + DSOBSERVACAO + DATAENTREGAFORMATADA}
-//                 onClickButton={() => handleClickEdit(row)}
-//                 Icon={CiEdit}
-//                 iconSize={20}
-//                 iconColor={"#fff"}
-//                 cor={"info"}
-//               />
-//             </div>
-
-//             <div>
-//               <ButtonTable
-//                 titleButton={"Cancelar"}
-//                 // onClickButton={() => IDRESUMOOT + 0 + IDSTATUSOT + DSOBSERVACAO + DATAENTREGAFORMATADA}
-//                 onClickButton={() => handleCancelar(row)}
-//                 Icon={BsTrash3}
-//                 iconSize={20}
-//                 iconColor={"#fff"}
-//                 cor={"danger"}
-//                 disabledBTN={row.IDSTATUSOT != 1}
-//               />
-//             </div>
-
-//             <div>
-//               <ButtonTable
-//                 titleButton={"Finalizar OT"}
-//                 onClickButton={() => handleClickDetalhar(row)}
-//                 Icon={FaCheck}
-//                 iconSize={20}
-//                 iconColor={"#fff"}
-//                 cor={"warning"}
-//                 disabledBTN={row.IDSTATUSOT != 1}
-//               />
-//             </div>
-
-//             <div>
-//               <ButtonTable
-//                 titleButton={"Imprimir Etiqueta"}
-//                 // onClickButton={() => IDSAPORIGEM}
-//                 onClickButton={() => handleClickImprimir(row)}
-//                 Icon={MdOutlineLocalPrintshop}
-//                 iconSize={20}
-//                 iconColor={"#fff"}
-//                 cor={"dark"}
-//               />
-//             </div>
-
-//             <div>
-//                 <ButtonTable
-//                   titleButton={"Status Nota Fiscal"}
-//                   onClickButton={() =>  handleClickStatusNota(row)}
-//                   Icon={FaExclamation}
-//                   iconSize={20}
-//                   iconColor={"#fff"}
-//                   cor={"warning"}
-
-//                 />
-//             </div>
-
-//             <div>
-//               <ButtonTable
-//                 titleButton={"Imprimir Nota Fiscal"}
-//                 onClickButton={() => window.open(`http://164.152.244.96:3000/files/NFe53230636769602000236550000000106301779108247.pdf`, '_blank')}
-//                 Icon={MdOutlineLocalPrintshop}
-//                 iconSize={20}
-//                 iconColor={"#fff"}
-//                 cor={"primary"}
-
-//               />
-//             </div>
-//             <div>
-//               <ButtonTable
-//                 titleButton={"Processar SEFAZ"}
-//                 onClickButton={() => handleGetSefazOT(row)}
-//                 Icon={FaCheck}
-//                 iconSize={20}
-//                 iconColor={"#fff"}
-//                 cor={"info"}
-
-//               />
-//             </div>
-//             <div>
-//               <ButtonTable
-//                 titleButton={"Processar Faturamento"}
-//                 onClickButton={() => handleFaturarOT(row)}
-//                 Icon={FaFileInvoiceDollar}
-//                 iconSize={20}
-//                 iconColor={"#fff"}
-//                 cor={"success"}
-
-//               />
-//             </div>
-//           </div>
-
-//         );
-//       } else {
-//         return (
-//           <Fragment>
-//             <div
-//               style={{
-//                 display: "flex",
-//                 justifyContent: "space-between",
-//                 alignItems: "center",
-//                 width: "15rem",
-//               }}
-//             >
-//               <ButtonTable
-//                 titleButton={"Conferir OT"}
-//                 onClickButton={() => handleClickDetalhar(row)}
-//                 Icon={CiEdit}
-//                 iconSize={20}
-//                 iconColor={"#fff"}
-//                 cor={"primary"}
-//                 disabledBTN={row.NUMERONOTASEFAZ === ''}
-//               />
-//             </div>
-
-//             {[8, 5].indexOf(row.IDSTATUSOT) >= 0 ? (
-//               <div>
-//                 <ButtonTable
-//                   titleButton={"Finalizar Recebimento OT"}
-//                   onClickButton={() => handleClickDetalhar(row)}
-//                   Icon={MdOutlineLocalPrintshop}
-//                   iconSize={20}
-//                   iconColor={"#fff"}
-//                   cor={"warning"}
-//                   disabledBTN={row.NUMERONOTASEFAZ === ''}
-//                 />
-//               </div>
-//             ) : (
-//               <></>
-//             )}
-//           </Fragment>
-//         )
-//       } 
-
-      
-//     }
-//   }
-// }

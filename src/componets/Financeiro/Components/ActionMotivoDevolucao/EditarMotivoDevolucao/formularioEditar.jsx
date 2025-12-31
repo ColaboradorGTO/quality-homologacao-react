@@ -22,7 +22,7 @@ export const FomularioEditar = ({dadosDetalheMotivoDevolucao, optionsModulos, us
         onSubmit,
         optionsStatus
     } = useEditarMotivoDevolucao({dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado})
-    console.log("dadosDetalheMotivoDevolucao", dataCriacao)
+
     return (
         <Fragment>
             <form onSubmit={handleSubmit(onSubmit)}>

@@ -2,7 +2,7 @@ import React, { Fragment, useRef, useState } from "react"
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { get, put } from "../../../../api/funcRequest";
+import { get } from "../../../../api/funcRequest";
 import { toFloat } from "../../../../utils/toFloat";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { jsPDF } from 'jspdf';

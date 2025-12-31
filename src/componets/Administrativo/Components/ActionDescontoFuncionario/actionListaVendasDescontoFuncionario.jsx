@@ -14,14 +14,16 @@ import { ActionRelacaoRecebimentosModal } from "../ActionsModaisVendas/ActionRec
 import { get } from "../../../../api/funcRequest";
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
+import Swal from "sweetalert2";
 
 export const ActionListaVendasDescontoFuncionario = ({dadosVendasConvenio, usuarioLogado, optionsModulos}) => {
   const [modalPagamentoVisivel, setModalPagamentoVisivel] = useState(false);
   const [dadosDetalheRecebimentos, setDadosDetalheRecebimentos] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const dataTableRef = useRef();
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
+  const [rowSelection, setRowSelection] = useState(null);
+  const dataTableRef = useRef();
     
   const onPageChange = (event) => {
     setFirst(event.first);
@@ -233,8 +235,18 @@ export const ActionListaVendasDescontoFuncionario = ({dadosVendasConvenio, usuar
   }
 
   const handleClickPagamento = (row) => {
-    if (row && row.IDVENDA) {
-      handleEditPagamento(row.IDVENDA)
+    if(optionsModulos[0]?.ALTERAR == 'True'){
+      if (row && row.IDVENDA) {
+        handleEditPagamento(row.IDVENDA)
+      }
+
+    } else {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não possui permissão para alterar pagamento.`,
+        confirmButtonText: 'Ok',
+      })
     }
   }
 
@@ -274,6 +286,9 @@ export const ActionListaVendasDescontoFuncionario = ({dadosVendasConvenio, usuar
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             footerColumnGroup={footerGroup}

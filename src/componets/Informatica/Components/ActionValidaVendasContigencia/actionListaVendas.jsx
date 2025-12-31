@@ -7,16 +7,30 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useReactToPrint } from "react-to-print";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
-import { TbFileTypeXml } from "react-icons/tb";
-import { get } from "../../../../api/funcRequest";
 import { ActionVendaXMLModal } from "./ActionVendasXML/actionVendaXMLModal";
+import { BsFiletypeXml, BsTrash3 } from "react-icons/bs";
+import { MdClose } from "react-icons/md";
+import { GrView } from "react-icons/gr";
+import { FiSend } from "react-icons/fi";
+import { FaDownload } from "react-icons/fa6";
+import { useConsultarNFCe } from "./hooks/useConsultarNFCe";
+import { useConsultarNFe } from "./hooks/useConsultarNfe";
+import Swal from "sweetalert2";
+import { get } from "../../../../api/funcRequest";
+import { ActionConsultaSefazModal } from "./ActionSefaz/actionConsultaSefazModal";
 
 
-export const ActionListaVendas = ({ dadosVendas }) => {
+export const ActionListaVendas = ({ dadosVendas, usuarioLogado, optionsModulos }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [modal, setModal] = useState(false);
+  const [modalNFCe, setModalNFCe] = useState(false);
+  const [modalNFe, setModalNFe] = useState(false);
+  const [modalConsultaSefaz, setModalConsultaSefaz] = useState(false);
   const [dadosDetalheVendasXML, setDadosDetalheVendasXML] = useState([]);
+  const [dadosSefaz, setDadosSefaz] = useState(null);
   const dataTableRef = useRef();
+  const { onSubmit } = useConsultarNFCe({dadosDetalheVendasXML, usuarioLogado, optionsModulos }); 
+  const { onSubmitNFe } = useConsultarNFe({dadosDetalheVendasXML, usuarioLogado, optionsModulos }); 
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -112,21 +126,88 @@ export const ActionListaVendas = ({ dadosVendas }) => {
       body: (row) => (
         <div style={{ justifyContent: "space-between", display: "flex" }}>
 
-
           <div className="p-1">
             <ButtonTable
+              onClickButton={() => handleClick(row)}
+              titleButton={"Visualizar XML"}
+              Icon={GrView}
+              iconSize={20}
+              iconColor={"#fff"}
+              cor={"primary"}
+              width="40px"
+              height="40px"
+
+            />
+          </div>
+          {/* <div className="p-1">
+            <ButtonTable
               onClickButton={() => clickDetalharVendaXML(row)}
-              Icon={TbFileTypeXml}
+              titleButton={"XML"}
+              Icon={BsFiletypeXml}
               iconSize={20}
               iconColor={"#fff"}
               cor={"info"}
-              width="30px"
-              height="30px"
+              width="40px"
+              height="40px"
 
             />
+          </div> */}
+          <div className="p-1">
+            <ButtonTable
+              onClickButton={() => clickDetalharVendaXML(row)}
+              titleButton={"Inutilizar XML"}
+              // textButton={"Inutilizar"}
+              Icon={BsTrash3}
+              iconSize={20}
+              iconColor={"#fff"}
+              cor={"danger"}
+              width="40px"
+              height="40px"
 
+            />
           </div>
+          <div className="p-1">
+            <ButtonTable
+              onClickButton={() => clickDetalharVendaXML(row)}
+              titleButton={"Download XML"}
+              // textButton={"Download"}
+              Icon={FaDownload}
+              iconSize={20}
+              iconColor={"#fff"}
+              cor={"warning"}
+              width="40px"
+              height="40px"
 
+            />
+          </div>
+          <div className="p-1">
+            <ButtonTable
+              onClickButton={() => clickDetalharVendaXML(row)}
+              titleButton={"Enviar Sefaz"}
+              // textButton={"Enviar"}
+              Icon={FiSend}
+              iconSize={20}
+              iconColor={"#fff"}
+              cor={"success"}
+              width="40px"
+              height="40px"
+
+            />
+          </div>
+          <div className="p-1">
+            <ButtonTable
+              onClickButton={() => clickDetalharVendaXML(row)}
+              titleButton={"Cancelar Sefaz"}
+              // textButton={"Cancelar"}
+              Icon={MdClose}
+              iconSize={20}
+              iconColor={"#fff"}
+              cor={"danger"}
+              width="40px"
+              height="40px"
+
+            />
+          </div>
 
         </div>
       ),
@@ -136,10 +217,40 @@ export const ActionListaVendas = ({ dadosVendas }) => {
   const clickDetalharVendaXML = (row) => {
     if (row && row.IDVENDA && row.XML) {
       setModal(true);
-      setDadosDetalheVendasXML(row.XML)
+      setDadosDetalheVendasXML(row)
     }
   };
 
+  const handleDetalheSefaz = async (IDVENDA) => {
+    try {
+      const response = await get(`/status-sefaz?idVenda=${IDVENDA}`)
+      
+      if (response) {
+        setDadosSefaz(response);
+        setModalConsultaSefaz(true);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar detalhes da venda: ', error);
+    }
+  };
+
+  const handleClick = (row) => {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
+      if (row && row.IDVENDA) {
+        handleDetalheSefaz(row.IDVENDA);
+      }
+    } else {
+      Swal.fire({
+        title: 'Acesso Negado',
+        text: 'Você não tem permissão para acessar esta funcionalidade.',
+        icon: 'warning',
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+    }
+  };
 
   return (
 
@@ -197,6 +308,12 @@ export const ActionListaVendas = ({ dadosVendas }) => {
         show={modal}
         handleClose={() => setModal(false)}
         dadosDetalheVendasXML={dadosDetalheVendasXML}
+      />
+
+      <ActionConsultaSefazModal
+        show={modalConsultaSefaz}
+        handleClose={() => setModalConsultaSefaz(false)}
+        dadosSefaz={dadosSefaz}
       />
     </Fragment>
   )

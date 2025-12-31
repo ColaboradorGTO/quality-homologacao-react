@@ -1,49 +1,34 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { get, post, put } from "../../../../../api/funcRequest";
-import { useQuery } from "react-query";
+import {post, put } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 
-export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsModulos}) => {
+export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado}) => {
   const [statusSelecionado, setStatusSelecionado] = useState('')
   const [dataCriacao, setDataCriacao] = useState('')
   const [horaAlteracao, setHoraAlteracao] = useState('')
   const [idMotivo, setIdMotivo] = useState('')
   const [motivo, setMotivo] = useState('')
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [ipUsuario, setIpUsuario] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-
-
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
 
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      let usuarioIP = ipWhoisData?.ip;
 
+      if (!usuarioIP) {
+      const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+      usuarioIP = ipifyData?.ip;
+      }
+
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
+    } catch (error) {
+      console.error("Erro ao buscar IP:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     if (dadosDetalheMotivoDevolucao && dadosDetalheMotivoDevolucao.length > 0) {
@@ -54,8 +39,6 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
       setMotivo(dadosDetalheMotivoDevolucao[0]?.DSMOTIVO);
     }
   }, []);
-
-
 
   const onSubmit = async () => {
     if (optionsModulos[0]?.ALTERAR !== 'True') {
@@ -81,11 +64,21 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
       IDMOTIVODEVOLUCAO: dadosDetalheMotivoDevolucao[0]?.IDMOTIVODEVOLUCAO,
     }
 
-    console.log("putData:", putData);
     try {
 
       const response = await put('/atualizar-motivo-devolucao', putData)
+      const textDados = JSON.stringify(putData);
+      let textoFuncao = `FINANCEIRO/EMPRESAS/MOTIVO DEVOLUÇÃO: ${dadosDetalheMotivoDevolucao[0]?.IDMOTIVODEVOLUCAO}`;
+      const ipUsuario = await getIPUsuario();
+      const postData = {
+        IDFUNCIONARIO: String(usuarioLogado.id),
+        PATHFUNCAO: textoFuncao,
+        DADOS: textDados,
+        IP: ipUsuario
+      }
 
+      await post('/log-web', postData)
+      
       Swal.fire({
         position: 'center',
         icon: 'success',
@@ -96,29 +89,15 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
         showConfirmButton: false,
         timer: 3000
       });
-
-      const textDados = JSON.stringify(putData);
-      let textoFuncao = `FINANCEIRO/EMPRESAS/MOTIVO DEVOLUÇÃO: ${dadosDetalheMotivoDevolucao[0]?.IDMOTIVODEVOLUCAO}`;
-
-
-      const postData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
-        PATHFUNCAO: textoFuncao,
-        DADOS: textDados,
-        IP: ipUsuario
-      }
-
       handleClose();
 
-      const responsePost = await post('/log-web', postData)
 
-      return responsePost.data;
+      return response.data;
     } catch (error) {
 
       const textDados = JSON.stringify(putData);
       let textoFuncao = `FINANCEIRO/ERRO NA EDIÇÃO DO MOTIVO DE DEVOLUÇÃO`;
-
-
+      const ipUsuario = await getIPUsuario();
       const postData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
@@ -126,18 +105,17 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
         IP: ipUsuario
       }
 
-
       const responsePost = await post('/log-web', postData)
 
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'error',
         title: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.',
         customClass: {
           container: 'custom-swal',
         },
         showConfirmButton: false,
-        timer: 3000
+        timer: 5000
       });
 
       return responsePost.data;

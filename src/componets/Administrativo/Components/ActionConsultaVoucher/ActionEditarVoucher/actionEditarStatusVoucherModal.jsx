@@ -1,12 +1,10 @@
-import { Fragment, useEffect, useState } from "react"
+import { Fragment } from "react"
 import Modal from 'react-bootstrap/Modal';
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { formatMoeda } from "../../../../../utils/formatMoeda";
-import { post, put } from "../../../../../api/funcRequest";
 import Select from 'react-select';
-import axios from "axios";
 import { ActionListaVendaOrigem } from "./actionListaVendaOrigem";
 import { ActionListaVendaDestino } from "./actionListaVendaDestino";
 import { toFloat } from "../../../../../utils/toFloat";
@@ -80,7 +78,7 @@ export const ActionEditarStatusVoucherModal = ({ show, handleClose, dadosEditarV
                       styles={customStyles}
                     />
                   </div>
-
+                  
                 </div>
                 <div className="row">
 

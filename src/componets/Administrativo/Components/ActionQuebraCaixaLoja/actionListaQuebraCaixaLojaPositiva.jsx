@@ -10,14 +10,12 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { useForm } from "react-hook-form";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
 import { FaCheck, FaRegTrashAlt } from "react-icons/fa";
 import { post, put } from "../../../../api/funcRequest";
 
 export const ActionListaQuebraCaixaLojaPositiva = ({ dadosQuebraDeCaixaPositiva, handleClick, optionsModulos, usuarioLogado }) => {
-  const { register, handleSubmit, errors } = useForm();
+
   const [ipUsuario, setIpUsuario] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();

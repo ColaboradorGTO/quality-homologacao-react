@@ -14,6 +14,7 @@ import { toFloat } from "../../../../utils/toFloat";
 
 export const ActionListaMapaCaixa = ({ dadosMapaCaixa, dadosAdiantamentoSalarial,  dadosResumoVoucher, dadosDetalheFatura }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -248,6 +249,12 @@ export const ActionListaMapaCaixa = ({ dadosMapaCaixa, dadosAdiantamentoSalarial
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             sortOrder={-1}
             rows={10}
             paginator={true}
