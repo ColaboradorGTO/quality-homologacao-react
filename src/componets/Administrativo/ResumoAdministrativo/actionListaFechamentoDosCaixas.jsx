@@ -20,70 +20,70 @@ import HeaderTable from "../../Tables/headerTable";
 
 export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
   const [usuarioLogado, setUsuarioLogado] = useState(null)
-  const [ipUsuario, setIpUsuario] = useState('')
   const navigate = useNavigate();
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
-  
-    const onGlobalFilterChange = (e) => {
-      setGlobalFilterValue(e.target.value);
-    };
-  
-    const handlePrint = useReactToPrint({
-      content: () => dataTableRef.current,
-      documentTitle: 'Fechamento de Caixas',
-    });
-  
-    const exportToPDF = () => {
-      const doc = new jsPDF();
-      doc.autoTable({
-        head: [['Nº Mov', 'Caixa', 'Abertura', 'Fechamento', 'Operador', 'Venda Dinheiro', 'Dinheiro Informado', 'Quebra Caixa', 'Cartão', 'Pos', 'Voucher', 'Fatura', 'Situação']],
-        body: dados.map(item => 
-          [
-            item.IDMOVIMENTO,
-            item.IDCAIXAFECHAMENTO,
-            item.DTHORAABERTURACAIXA,
-            item.DTHORAFECHAMENTOCAIXA,
-            item.OPERADORFECHAMENTO,
-            formatMoeda(item.TOTALFECHAMENTODINHEIROFISICO), 
-            formatMoeda(item.TOTALFECHAMENTODINHEIRO),
-            formatMoeda(item.totalQuebraCaixa), 
-            formatMoeda(item.TOTALFECHAMENTOCARTAO), 
-            formatMoeda(item.TOTALFECHAMENTOPOS), 
-            formatMoeda(item.TOTALFECHAMENTOVOUCHER), 
-            formatMoeda(item.TOTALFECHAMENTOFATURA), 
-            item.STCONFERIDO
-        ]),
-        horizontalPageBreak: true,
-        horizontalPageBreakBehaviour: 'immediately'
-      });
-      doc.save('fechamento_caixa.pdf');
-  
-    };
-  
-    const exportToExcel = () => {
-      const worksheet = XLSX.utils.json_to_sheet(dados);
-      const workbook = XLSX.utils.book_new();
-      const header = ['Nº Mov', 'Caixa', 'Abertura', 'Fechamento', 'Operador', 'Venda Dinheiro', 'Dinheiro Informado', 'Quebra Caixa', 'Cartão', 'Pos', 'Voucher', 'Fatura', 'Situação'];
-      worksheet['!cols'] = [
-        { wpx: 150, caption: 'Nº Mov' },
-        { wpx: 100, caption: 'Caixa' },
-        { wpx: 150, caption: 'Abertura' },
-        { wpx: 250, caption: 'Operador' },
-        { wpx: 100, caption: 'Venda Din.' },
-        { wpx: 100, caption: 'Dinheiro Inf.' },
-        { wpx: 100, caption: 'Quebra Caixa' },
-        { wpx: 100, caption: 'Cartão' },
-        { wpx: 100, caption: 'Pos' },
-        { wpx: 100, caption: 'Voucher' },
-        { wpx: 100, caption: 'Fatura' },
-        { wpx: 100, caption: 'Situação' }
-      ];
+  const [ipUsuario, setIpUsuario] = useState('')
 
-      XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Fechamento Caixa');
-      XLSX.writeFile(workbook, 'fechamento_caixa.xlsx');
-    };
+  const onGlobalFilterChange = (e) => {
+    setGlobalFilterValue(e.target.value);
+  };
+
+  const handlePrint = useReactToPrint({
+    content: () => dataTableRef.current,
+    documentTitle: 'Fechamento de Caixas',
+  });
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    doc.autoTable({
+      head: [['Nº Mov', 'Caixa', 'Abertura', 'Fechamento', 'Operador', 'Venda Dinheiro', 'Dinheiro Informado', 'Quebra Caixa', 'Cartão', 'Pos', 'Voucher', 'Fatura', 'Situação']],
+      body: dados.map(item =>
+        [
+          item.IDMOVIMENTO,
+          item.IDCAIXAFECHAMENTO,
+          item.DTHORAABERTURACAIXA,
+          item.DTHORAFECHAMENTOCAIXA,
+          item.OPERADORFECHAMENTO,
+          formatMoeda(item.TOTALFECHAMENTODINHEIROFISICO),
+          formatMoeda(item.TOTALFECHAMENTODINHEIRO),
+          formatMoeda(item.totalQuebraCaixa),
+          formatMoeda(item.TOTALFECHAMENTOCARTAO),
+          formatMoeda(item.TOTALFECHAMENTOPOS),
+          formatMoeda(item.TOTALFECHAMENTOVOUCHER),
+          formatMoeda(item.TOTALFECHAMENTOFATURA),
+          item.STCONFERIDO
+        ]),
+      horizontalPageBreak: true,
+      horizontalPageBreakBehaviour: 'immediately'
+    });
+    doc.save('fechamento_caixa.pdf');
+
+  };
+
+  const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(dados);
+    const workbook = XLSX.utils.book_new();
+    const header = ['Nº Mov', 'Caixa', 'Abertura', 'Fechamento', 'Operador', 'Venda Dinheiro', 'Dinheiro Informado', 'Quebra Caixa', 'Cartão', 'Pos', 'Voucher', 'Fatura', 'Situação'];
+    worksheet['!cols'] = [
+      { wpx: 150, caption: 'Nº Mov' },
+      { wpx: 100, caption: 'Caixa' },
+      { wpx: 150, caption: 'Abertura' },
+      { wpx: 250, caption: 'Operador' },
+      { wpx: 100, caption: 'Venda Din.' },
+      { wpx: 100, caption: 'Dinheiro Inf.' },
+      { wpx: 100, caption: 'Quebra Caixa' },
+      { wpx: 100, caption: 'Cartão' },
+      { wpx: 100, caption: 'Pos' },
+      { wpx: 100, caption: 'Voucher' },
+      { wpx: 100, caption: 'Fatura' },
+      { wpx: 100, caption: 'Situação' }
+    ];
+
+    XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Fechamento Caixa');
+    XLSX.writeFile(workbook, 'fechamento_caixa.xlsx');
+  };
 
   useEffect(() => {
     const usuarioArmazenado = localStorage.getItem('usuario');
@@ -100,17 +100,28 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
+  
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if(response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
-  }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   const calcularTotalQuebraCaixa = (item) => {
     return (
@@ -123,7 +134,7 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
 
     const totalQuebraCaixa = calcularTotalQuebraCaixa(item);
     return {
-      
+
       IDMOVIMENTO: item.IDMOVIMENTO,
       IDCAIXAFECHAMENTO: item.IDCAIXAFECHAMENTO + ' - ' + item.DSCAIXAFECHAMENTO,
       DTHORAABERTURACAIXA: item.DTHORAABERTURACAIXA,
@@ -148,19 +159,19 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
 
     };
   });
- 
-  
+
+
   const calcularTotalDinheiroFisico = () => {
     let total = 0;
-    for(let resultado of dados){
+    for (let resultado of dados) {
       total += parseFloat(resultado.TOTALFECHAMENTODINHEIROFISICO);
     }
     return total;
   }
-  
+
   const calcularTotalDinheiroInformado = () => {
     let total = 0;
-    for(let resultado of dados){
+    for (let resultado of dados) {
       total += parseFloat(resultado.TOTALFECHAMENTODINHEIRO);
     }
     return total;
@@ -168,39 +179,39 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
 
   const calcularTotalQuebraCaixaTotal = () => {
     let total = 0;
-    for(let resultado of dados){
+    for (let resultado of dados) {
       total += parseFloat(resultado.totalQuebraCaixa);
     }
     return total;
   }
-  
+
   const calcularTotalCartao = () => {
     let total = 0;
-    for(let resultado of dados){
+    for (let resultado of dados) {
       total += parseFloat(resultado.TOTALFECHAMENTOCARTAO);
     }
     return total;
   }
-  
+
   const calcularTotalPos = () => {
     let total = 0;
-    for(let resultado of dados){
+    for (let resultado of dados) {
       total += parseFloat(resultado.TOTALFECHAMENTOPOS);
     }
     return total;
   }
-  
+
   const calcularTotalVoucher = () => {
     let total = 0;
-    for(let resultado of dados){
+    for (let resultado of dados) {
       total += parseFloat(resultado.TOTALFECHAMENTOVOUCHER);
     }
     return total;
   }
-  
+
   const calcularTotalFatura = () => {
     let total = 0;
-    for(let resultado of dados){
+    for (let resultado of dados) {
       total += parseFloat(resultado.TOTALFECHAMENTOFATURA);
     }
     return total;
@@ -303,7 +314,7 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
             <div>
 
               <ButtonTable
-                onClickButton={() => handleConferir(row) }
+                onClickButton={() => handleConferir(row)}
                 titleButton="Abertura do Caixa na Web"
                 cor="danger"
                 Icon={FaCashRegister}
@@ -340,7 +351,7 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
 
   const handleConferir = async (row) => {
 
-    
+
     Swal.fire({
       icon: 'question',
       title: `Confimar Conferencia do Caixa `,
@@ -357,11 +368,11 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
         try {
           let stConferidoValue;
           let textoFuncao = '';
-          
-          if(row.STCONFERIDO == 0) {
+
+          if (row.STCONFERIDO == 0) {
             stConferidoValue = 1;
             textoFuncao = 'ADMINISTRATIVO/ABERTURA DO MOVIMENTO DE CAIXA';
-          }else{
+          } else {
             stConferidoValue = 0;
             textoFuncao = 'ADMINISTRATIVO/CONFIMAR CONFERENCIA DO MOVIMENTO DE CAIXA';
           }
@@ -370,18 +381,19 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
             STCONFERIDO: String(stConferidoValue),
             ID: row.IDMOVIMENTO,
           };
-      
+
           const textDados = JSON.stringify(putData)
+          const ipUsuario = await getIPUsuario();
 
           await put('/atualizacao-status', putData);
-          
+
           const postData = {
             IDFUNCIONARIO: String(usuarioLogado.id),
             PATHFUNCAO: textoFuncao,
             DADOS: textDados,
             IP: ipUsuario
           }
-      
+
           const responsePost = await post('/log-web', postData)
 
           Swal.fire('Sucesso!', 'Recompra atualizada com sucesso.', 'success');
@@ -393,22 +405,22 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
       }
     });
 
-    
+
   };
 
 
   const footerGroup = (
     <ColumnGroup>
-      <Row> 
-        <Column footer="Total dos Fechamentos" colSpan={5} footerStyle={{textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold'  }} />
-        <Column footer={formatMoeda(calcularTotalDinheiroFisico())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold'  }}/>
-        <Column footer={formatMoeda(calcularTotalDinheiroInformado())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold'  }}/>
-        <Column footer={formatMoeda(calcularTotalQuebraCaixaTotal())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold'  }}/>
-        <Column footer={formatMoeda(calcularTotalCartao())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold'  }}/>
-        <Column footer={formatMoeda(calcularTotalPos())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold'  }}/>
-        <Column footer={formatMoeda(calcularTotalVoucher())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold'  }}/>
-        <Column footer={formatMoeda(calcularTotalFatura())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold'  }}/>
-        <Column footer={""} colSpan={2} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold'  }}/>
+      <Row>
+        <Column footer="Total dos Fechamentos" colSpan={5} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
+        <Column footer={formatMoeda(calcularTotalDinheiroFisico())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
+        <Column footer={formatMoeda(calcularTotalDinheiroInformado())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
+        <Column footer={formatMoeda(calcularTotalQuebraCaixaTotal())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
+        <Column footer={formatMoeda(calcularTotalCartao())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
+        <Column footer={formatMoeda(calcularTotalPos())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
+        <Column footer={formatMoeda(calcularTotalVoucher())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
+        <Column footer={formatMoeda(calcularTotalFatura())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
+        <Column footer={""} colSpan={2} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
       </Row>
     </ColumnGroup>
   )
@@ -426,13 +438,13 @@ export const ActionListaFechamentoDosCaixas = ({ dadosCaixaFechados }) => {
             </header>
 
             <div style={{ marginBottom: "1rem" }}>
-                <HeaderTable
-                  globalFilterValue={globalFilterValue}
-                  onGlobalFilterChange={onGlobalFilterChange}
-                  handlePrint={handlePrint}
-                  exportToExcel={exportToExcel}
-                  exportToPDF={exportToPDF}
-                />
+              <HeaderTable
+                globalFilterValue={globalFilterValue}
+                onGlobalFilterChange={onGlobalFilterChange}
+                handlePrint={handlePrint}
+                exportToExcel={exportToExcel}
+                exportToPDF={exportToPDF}
+              />
             </div>
             <div className="card" ref={dataTableRef}>
               <DataTable
