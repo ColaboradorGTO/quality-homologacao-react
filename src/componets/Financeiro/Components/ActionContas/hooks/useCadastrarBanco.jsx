@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { post } from "../../../../../api/funcRequest";
+import axios from "axios";
 import Swal from "sweetalert2";
 
-
-export const useCadastrarConta = ({ 
-    optionsModulos, 
+export const useCadastrarConta = ({
+    optionsModulos,
     usuarioLogado,
-    handleClick, 
+    handleClick,
     handleClose
 }) => {
     const [bancoSelecionado, setBancoSelecionado] = useState('');
@@ -20,7 +20,7 @@ export const useCadastrarConta = ({
     const [descricaoConta, setDescricaoConta] = useState('');
     const [statusSelecionado, setStatusSelecionado] = useState('')
     const [ipUsuario, setIpUsuario] = useState('');
-    
+
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
@@ -44,7 +44,7 @@ export const useCadastrarConta = ({
     };
 
     const onSubmit = async (data) => {
-        if(optionsModulos[0]?.CRIAR == 'False') {
+        if (optionsModulos[0]?.CRIAR == 'False') {
             Swal.fire({
                 position: 'center',
                 icon: 'error',
@@ -52,7 +52,7 @@ export const useCadastrarConta = ({
                 showConfirmButton: true,
                 timer: 3000,
                 customClass: {
-                    container: 'custom-swal', 
+                    container: 'custom-swal',
                 },
             });
             return;
@@ -91,6 +91,7 @@ export const useCadastrarConta = ({
         }
 
         try {
+
             const response = await post('/cadastrar-conta-banco', posData)
             const textDados = JSON.stringify(posData)
             const ipUsuario = await getIPUsuario();
@@ -100,22 +101,23 @@ export const useCadastrarConta = ({
                 DADOS: textDados,
                 IP: ipUsuario
             }
-            
+
             await post('/log-web', postData)
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'success',
                 title: 'Conta bancária cadastrada com sucesso!',
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
-                    container: 'custom-swal', 
+                    container: 'custom-swal',
                 },
             })
-            
+
             handleClick();
             handleClose();
             return response.data;
+
         } catch (error) {
             const textDados = JSON.stringify(posData)
             const ipUsuario = await getIPUsuario();
@@ -125,16 +127,16 @@ export const useCadastrarConta = ({
                 DADOS: textDados,
                 IP: ipUsuario
             }
-            
+
             await post('/log-web', postDataError)
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'error',
                 title: 'Ocorreu um erro ao cadastrar a conta. Por favor, tente novamente.',
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
-                    container: 'custom-swal', 
+                    container: 'custom-swal',
                 },
             });
             console.error('Erro Cadastrar Conta Banco:', error);
@@ -143,24 +145,24 @@ export const useCadastrarConta = ({
     }
 
     const OptionsStatus = [
-        {value: "True", label: "Ativa" },
-        {value: "False", label: "Inativa" },
+        { value: "True", label: "Ativa" },
+        { value: "False", label: "Inativa" },
     ]
 
     const OptionsTipoPessoa = [
-        {value: "FISICA", label: "Física" },
-        {value: "JURIDICA", label: "Jurídica" },
+        { value: "FISICA", label: "Física" },
+        { value: "JURIDICA", label: "Jurídica" },
     ]
-    
+
     const OptionsTipoConta = [
-        {value: "BANCO", label: "Banco" },
-        {value: "TESOURARIA", label: "Tesouraria" },
-        {value: "TRANSPORTEVALORES", label: "Transporte de Valores" },
-        {value: "DEVSOBRA", label: "Devolução Sobra" },
-        {value: "Premiações/Promoções", label: "Premiações/Promoções" },
-        {value: "Conta Transitória", label: "Transitória" },
+        { value: "BANCO", label: "Banco" },
+        { value: "TESOURARIA", label: "Tesouraria" },
+        { value: "TRANSPORTEVALORES", label: "Transporte de Valores" },
+        { value: "DEVSOBRA", label: "Devolução Sobra" },
+        { value: "Premiações/Promoções", label: "Premiações/Promoções" },
+        { value: "Conta Transitória", label: "Transitória" },
     ]
-    
+
     return {
         bancoSelecionado,
         setBancoSelecionado,
