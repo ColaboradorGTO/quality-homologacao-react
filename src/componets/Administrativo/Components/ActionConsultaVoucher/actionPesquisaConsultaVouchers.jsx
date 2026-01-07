@@ -33,6 +33,7 @@ export const ActionPesquisaConsultaVouchers = ({usuarioLogado, ID}) => {
     async () => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
       console.log('optionsModulos', response.data);
+      console.log(usuarioLogado?.id, ID);
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
