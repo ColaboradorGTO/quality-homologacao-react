@@ -3,7 +3,7 @@ import { ActionMain } from "../../../Actions/actionMain";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { get, post, put } from "../../../../api/funcRequest";
-import { AiOutlineSearch } from "react-icons/ai";
+import { AiOutlineCheck } from "react-icons/ai";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 import axios from "axios";
@@ -144,7 +144,7 @@ export const ActionPesquisaPrimeiroBalanco = ({usuarioLogado, ID }) => {
         linkNomeSearch={"Preparar"}
         onButtonClickSearch={onSubmit}
         corSearch={"success"}
-        IconSearch={AiOutlineSearch}
+        IconSearch={AiOutlineCheck}
 
       />
 
