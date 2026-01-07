@@ -12,17 +12,7 @@ export const useAuthFuncionarioUpdate = ({ usuarioLogado }) => {
   // const navigate = useNavigate();
 
 
-  useEffect(() => {
-    getIPUsuario();
-  }, []);
-
-  const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
+  
 
   const openSwal = async (callback, row) => {
 
