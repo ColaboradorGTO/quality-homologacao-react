@@ -1,35 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
-import axios from "axios";
 import { post } from "../../../../../api/funcRequest";
 
 export const useAuthFuncionarioPrint = ({ usuarioLogado }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
-    const [ipUsuario, setIpUsuario] = useState('');
-
-    const getIPUsuario = async () => {
-        let usuarioIP = null;
-
-        try {
-            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            usuarioIP = ipWhoisData?.ip;
-        } catch (error) {
-            console.error("Erro ao buscar IP via ipwho.is:", error);
-        }
-
-        if (!usuarioIP) {
-            try {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
-            } catch (error) {
-            console.error("Erro ao buscar IP via ipify.org:", error);
-            }
-        }
-        setIpUsuario(usuarioIP);
-        return usuarioIP;
-    };
-
 
     const openSwalImprimir = async (callback, row) => {
         const { value: formValues } = await Swal.fire({

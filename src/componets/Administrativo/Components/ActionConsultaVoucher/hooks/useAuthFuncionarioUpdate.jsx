@@ -1,21 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { post } from '../../../../../api/funcRequest';
-import axios from 'axios';
-
-
 
 export const useAuthFuncionarioUpdate = ({ usuarioLogado }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
-  const [ipUsuario, setIpUsuario] = useState('');
-  // const navigate = useNavigate();
-
-
   
 
   const openSwal = async (callback, row) => {
-
 
     const { value: formValues } = await Swal.fire({
       title: 'Autorização',
