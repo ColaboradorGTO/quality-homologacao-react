@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 // const BASE_URL = "http://164.152.244.96:6001";
-const BASE_URL = "https://api-node-quality.vercel.app/";
-//  const BASE_URL = "http://localhost:6001";
+// const BASE_URL = "https://api-node-quality.vercel.app/";
+ const BASE_URL = "http://localhost:6001";
 
 const axiosInstance = axios.create({
   timeout: 100000,

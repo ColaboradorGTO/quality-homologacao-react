@@ -31,7 +31,7 @@ export const useConsolidarTodasFaturas = ({
 
 
 
-    const conferirTodas = async (data) => {
+    const conferirTodas = async (rowData) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
@@ -62,20 +62,26 @@ export const useConsolidarTodasFaturas = ({
 
             if (result.isConfirmed) {
             
-                const idsFaturas = selectedItems.map(item => item.IDCONSOLIDACAOFATURA).join(',');
+                const idEmpresas = selectedItems.map(item => item.IDEMPRESA).join(',');
+                console.log(selectedItems, 'selectedItems');
                 const putData = {   
-                    IDS_CONSOLIDACOES: idsFaturas.replace(/(^,|,$)/g, ''),
-                    IDFUNCIONARIO: parseInt(usuarioLogado.id),
+                    IDEMPRESA: Number(rowData.IDEMPRESA),
+                    DTPROCESSAMENTO: rowData.DTPROCESSAMENTO,
+                    QTDTOTALFATURAS: Number(rowData.QTDTOTALFATURAS),
+                    VRTOTALRECEBIDO: Number(rowData.VRTOTALRECEBIDO),
+                    IDFUNCIONARIO: Number(usuarioLogado.id),
+         
                 }
         
                 try {
         
-                    const response = await post('/consolidacao-faturas-integracao', putData)
+                    // const response = await post('/criar-consolidacao-faturas', putData)
+                    const response = await post('/cr', putData)
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/INTEGRAR TODAS CONSOLIDACOES FATURAS SELECIONADAS`,
+                        PATHFUNCAO: ``,
                         DADOS: textDados,
                         IP: ipUsuario
                     }

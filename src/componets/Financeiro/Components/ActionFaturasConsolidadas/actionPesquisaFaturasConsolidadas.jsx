@@ -206,7 +206,7 @@ export const ActionPesquisaFaturasConsolidadas = ({ usuarioLogado, ID }) => {
         <ActionMain
           linkComponentAnterior={["Home"]}
           linkComponent={["Lista de Faturas"]}
-          title="Faturas por Lojas e Período"
+          title="Faturas Consolidadas por Lojas e Período"
           subTitle={empresaSelecionadaNome}
 
           InputFieldDTInicioComponent={InputField}
@@ -263,6 +263,8 @@ export const ActionPesquisaFaturasConsolidadas = ({ usuarioLogado, ID }) => {
           optionsModulos={optionsModulos}
           usuarioLogado={usuarioLogado}
           handleClick={handleClick}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
         />
       )}
 
