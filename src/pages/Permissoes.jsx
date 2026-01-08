@@ -43,8 +43,6 @@ export const Permissoes = ({}) => {
         handleSubmit
     } = useEditarPermissaoUsuario();
 
-    
-
     const [menuVisivel, setMenuVisivel] = useState(false)
     const [menusPermitidos, setMenusPermitidos] = useState([moduloSelecionado]);
     const [moduloSelecionadoObj, setModuloSelecionadoObj] = useState(null);
