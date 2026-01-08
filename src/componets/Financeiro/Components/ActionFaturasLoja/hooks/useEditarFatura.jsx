@@ -4,8 +4,7 @@ import axios from 'axios'
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
-export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
-    const [usuarioLogado, setUsuarioLogado] = useState(null);
+export const useEditarFatura = ({ dadosDetalheFaturaCaixa, optionsModulos, handleClose, usuarioLogado }) => {
     const [horarioAtual, setHorarioAtual] = useState('');
     const [despesaSelecionada, setDespesaSelecionada] = useState(null);
     const [valorFatura, setValorFatura] = useState('');
@@ -23,8 +22,8 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
             let usuarioIP = ipWhoisData?.ip;
 
             if (!usuarioIP) {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
             }
 
             setIpUsuario(usuarioIP);
@@ -36,28 +35,29 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
     };
 
     useEffect(() => {
-        if(dadosDetalheFaturaCaixa.length > 0) {
+        if (dadosDetalheFaturaCaixa.length > 0) {
             setEmpresaSelecionada(dadosDetalheFaturaCaixa[0].NOFANTASIA);
             setCaixa(`${dadosDetalheFaturaCaixa[0]?.IDDETALHEFATURA} - ${dadosDetalheFaturaCaixa[0]?.DSCAIXA} - ${dadosDetalheFaturaCaixa[0].NUCODAUTORIZACAO} `);
             setCodAutorizacao(dadosDetalheFaturaCaixa[0].NUCODAUTORIZACAO);
             setCodPix(dadosDetalheFaturaCaixa[0].NUAUTORIZACAO);
             setValorFatura(dadosDetalheFaturaCaixa[0].VRRECEBIDO);
-            setStPixSelecionado({value: dadosDetalheFaturaCaixa[0].STPIX, label: dadosDetalheFaturaCaixa[0].STPIX ? 'SIM' : 'NÃO'});
-            setStatusSelecionado({value: dadosDetalheFaturaCaixa[0].STCANCELADO, label: dadosDetalheFaturaCaixa[0].STCANCELADO ? 'CANCELADO' : 'ATIVO'});
+            setStPixSelecionado({ value: dadosDetalheFaturaCaixa[0].STPIX, label: dadosDetalheFaturaCaixa[0].STPIX ? 'SIM' : 'NÃO' });
+            setStatusSelecionado({ value: dadosDetalheFaturaCaixa[0].STCANCELADO, label: dadosDetalheFaturaCaixa[0].STCANCELADO ? 'CANCELADO' : 'ATIVO' });
         }
-        
+
     }, [dadosDetalheFaturaCaixa]);
-    
+
 
     useEffect(() => {
         const currentDate = new Date();
-        const formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit'})
+        const formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         setHorarioAtual(formattedTime);
     }, []);
 
 
+
     const onSubmit = async (data) => {
-        if(optionsModulos[0]?.ALTERAR == 'False') {
+        if (optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'top-end',
                 icon: 'error',
@@ -65,13 +65,13 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
-                    container: 'custom-swal', 
+                    container: 'custom-swal',
                 },
             });
             return;
         }
-        
-        if(codAutorizacao == '') {
+
+        if (codAutorizacao == '') {
             Swal.fire({
                 position: 'top-end',
                 icon: 'error',
@@ -79,13 +79,13 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
-                    container: 'custom-swal', 
+                    container: 'custom-swal',
                 },
             });
             return;
         }
 
-        if(valorFatura == '') {
+        if (valorFatura == '') {
             Swal.fire({
                 position: 'top-end',
                 icon: 'error',
@@ -93,7 +93,7 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
-                    container: 'custom-swal', 
+                    container: 'custom-swal',
                 },
             });
             return;
@@ -102,14 +102,14 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
         const putData = {
             IDDETALHEFATURA: parseInt(dadosDetalheFaturaCaixa[0].IDDETALHEFATURA),
             NUCODAUTORIZACAO: codAutorizacao,
-            VRRECEBIDO:  parseFloat(valorFatura),
+            VRRECEBIDO: parseFloat(valorFatura),
             NUAUTORIZACAO: codPix,
             STPIX: stPixSelecionado,
             STCANCELADO: statusSelecionado,
         }
 
         try {
-
+            
             const response = await put('/atualizarFatura/:id', putData)
             const textDados = JSON.stringify(putData)
             const ipUsuario = await getIPUsuario();
@@ -119,22 +119,23 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
                 DADOS: textDados,
                 IP: ipUsuario
             }
-            
+
             const responsePost = await post('/log-web', postData)
             Swal.fire({
-                position: 'top-end',
+                position: 'center',
                 icon: 'success',
                 title: 'Atualizado com sucesso!',
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
-                    container: 'custom-swal', 
+                    container: 'custom-swal',
                 },
             })
 
             handleClose();
             return responsePost.data;
         } catch (error) {
+            
             const textDados = JSON.stringify(putData)
             const ipUsuario = await getIPUsuario();
             const postData = {
@@ -143,7 +144,7 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
                 DADOS: textDados,
                 IP: ipUsuario
             }
-            
+
             const responsePost = await post('/log-web', postData)
 
 
@@ -154,7 +155,7 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
-                    container: 'custom-swal', 
+                    container: 'custom-swal',
                 },
             });
             console.error('Erro Alterar Fatura:', error);
@@ -163,14 +164,14 @@ export const useEditarFatura = ({dadosDetalheFaturaCaixa, optionsModulos}) => {
     }
 
     const OptionsStatus = [
-        {id:  0,  value: "True", label: "CANCELADO" },
-        {id:  1,  value: "False", label: "ATIVO" },
+        { id: 0, value: "True", label: "CANCELADO" },
+        { id: 1, value: "False", label: "ATIVO" },
     ]
     const OptionsPIX = [
-        {id:  0,  value: "True", label: "SIM" },
-        {id:  1,  value: "False", label: "NÃO" },
+        { id: 0, value: "True", label: "SIM" },
+        { id: 1, value: "False", label: "NÃO" },
     ]
-    
+
     return {
         valorFatura,
         despesaSelecionada,
