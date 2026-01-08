@@ -128,7 +128,7 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
 
       await post('/log-web', postData)
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'success',
         title: 'Cadastrado com sucesso!',
         customClass:{
@@ -154,7 +154,7 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
       const responsePost = await post('/log-web', postData)
 
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'error',
         title: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.',
         customClass: {
