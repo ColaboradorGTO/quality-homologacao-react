@@ -39,43 +39,54 @@ export const useEditarPermissaoUsuario = () => {
     }
   }, [navigate]);
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
+    let usuarioIP = null;
 
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario',
-    async () => {
-      const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}`);
-        
-      return response.data;
-    },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
-  );
+    try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
+    }
+
+    if (!usuarioIP) {
+        try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+        } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+};
+    
+
+  // const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+  //   'menus-usuario',
+  //   async () => {
+  //     const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}`);
+  //       console.log(response.data, 'permissao usuario');
+  //     return response.data;
+  //   },
+  //   { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  // );
 
   
   
   const handleSubmit = async (e) => {
   e.preventDefault();
   
-  if(optionsModulos[0]?.ALTERAR == 'False') {
-    Swal.fire({
-      icon: 'error',
-      title: 'Atenção',
-      text: 'Você não tem permissão para alterar as permissões de usuário.',
-      showConfirmButton: false,
-      timer: 1500
-    });
-    return;
-  }
+  // if(optionsModulos[0]?.ALTERAR == 'False') {
+  //   Swal.fire({
+  //     icon: 'error',
+  //     title: 'Atenção',
+  //     text: 'Você não tem permissão para alterar as permissões de usuário.',
+  //     showConfirmButton: false,
+  //     timer: 1500
+  //   });
+  //   return;
+  // }
   
   if (moduloSelecionado == '') {
     Swal.fire({
@@ -132,6 +143,7 @@ export const useEditarPermissaoUsuario = () => {
 
   try {
     const responseMenusUsuario = await get(`/menus-usuario?idUsuario=${funcionarioSelecionado.value}`);
+    console.log(funcionarioSelecionado.value, 'funcionarioSelecionado.value');
     const menusExistentes = responseMenusUsuario.data || [];
     
     const menuFilhoExistentes = [];

@@ -11,24 +11,94 @@ import HeaderTable from "../../../Tables/headerTable";
 import { IoMdCheckmark } from "react-icons/io";
 import { toFloat } from "../../../../utils/toFloat";
 import { useConfirmarConsolidacaoFatura } from "./hooks/useConfirmarConsolidacaoFatura";
+import Swal from "sweetalert2";
+import { Checkbox } from "primereact/checkbox";
 
-
-export const ActionListaFaturasConsolidadas = ({ 
-  dadosDetalheFatura, 
-  optionsModulos, 
-  usuarioLogado, 
-  handleClick, 
+export const ActionListaFaturasConsolidadas = ({
+  dadosDetalheFatura,
+  optionsModulos,
+  usuarioLogado,
+  handleClick,
+  selectedItems,
+  setSelectedItems,
 }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
+  const [first, setFirst] = useState(0);
+  const [rowState, setRowState] = useState(10);
+  // const [selectedItems, setSelectedItems] = useState([]);
+  const [btnVisivel, setBtnVisivel] = useState(false);
   const dataTableRef = useRef();
 
   const {
     confirmar
   } = useConfirmarConsolidacaoFatura({ optionsModulos, usuarioLogado, handleClick });
-  
+
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
+  };
+
+  const onPage = (event) => {
+    setFirst(event.first);
+    setRowState(event.rows)
+  }
+
+  const getVisibleItems = () => {
+    const start = Number.isInteger(first) ? first : 0;
+    const cnt = Number.isInteger(rowState) ? rowState : 10;
+    return dados.slice(start, start + cnt)
+  };
+
+  const isAllVisibleSelected = () => {
+    const visiveis = getVisibleItems();
+    if (!visiveis || visiveis.length === 0) return false;
+    return visiveis.every(v => selectedItems.some(s => s.IDPERFIL === v.IDPERFIL));
+  }
+
+  const onSelectAllChange = (e) => {
+    const checked = e?.checked ?? e?.target?.checked ?? false;
+    if (!checked) {
+      setBtnVisivel(false);
+      setSelectedItems([]);
+      return;
+    }
+    Swal.fire({
+      icon: 'question',
+      title: 'Selecione o modo de seleção',
+      text: 'Deseja selecionar todos da tabela ou somente o que está em tela?',
+      showConfirmButton: true,
+      showCancelButton: true,
+      showCloseButton: true,
+      confirmButtonText: 'Todos os registros',
+      cancelButtonText: 'Apenas o que está tela',
+      cancelButtonColor: '#2196F3',
+      allowOutsideClick: false,
+    }).then((result) => {
+
+      if (result.isConfirmed) {
+        // setBtnVisivel(true);
+        // setSelectedItems([...dados]);
+
+        const filtrados = dados.filter(item => item.QTDFATURAS === item.QTDFATURASCONFERIDAS);
+        setBtnVisivel(true);
+        setSelectedItems([...filtrados]);
+        return;
+      }
+
+      if (result.dismiss === Swal.DismissReason.cancel) {
+        const visiveis = getVisibleItems();
+        const visivelFiltrados = visiveis.filter(item => item.QTDFATURAS === item.QTDFATURASCONFERIDAS);
+        setBtnVisivel(true);
+        setSelectedItems([...visivelFiltrados]);
+        // setBtnVisivel(true);
+        // setSelectedItems([...visiveis]);
+        return;
+      }
+      setBtnVisivel(false); setSelectedItems([]);
+      return;
+
+    })
+
   };
 
   const handlePrint = useReactToPrint({
@@ -75,7 +145,7 @@ export const ActionListaFaturasConsolidadas = ({
 
   const dados = dadosDetalheFatura.map((item, index) => {
     let contador = index + 1;
-    
+
     return {
       contador,
       NOFANTASIA: item.NOFANTASIA,
@@ -96,6 +166,43 @@ export const ActionListaFaturasConsolidadas = ({
   }
 
   const colunasListaFatura = [
+    {
+      field: 'Marcar Todos',
+      selectionMode: 'multiple',
+      header: (
+        <div className="custom-control custom-checkbox">
+          <Checkbox
+            checked={isAllVisibleSelected()}
+            onChange={onSelectAllChange}
+          />
+          <p style={{  fontSize: '1rem' }}>Marcar Todos</p>
+        </div>
+      ),
+      body: (rowData) => {
+        if (rowData.QTDFATURAS != rowData.QTDFATURASCONFERIDAS) {
+          return null
+        } else {
+          return (
+            <div className="custom-control custom-checkbox">
+              <Checkbox
+                checked={selectedItems.some(item => item.IDEMPRESA === rowData.IDEMPRESA)}
+
+                onChange={(e) => {
+                  let _selected = [...selectedItems];
+                  if (e.checked) {
+                    _selected.push(rowData);
+                  } else {
+                    _selected = _selected.filter(item => item.IDEMPRESA !== rowData.IDEMPRESA);
+                  }
+                  setSelectedItems(_selected);
+                }}
+              />
+            </div>
+          );
+        }
+      },
+      sortable: true,
+    },
     {
       field: 'contador',
       header: 'Nº',

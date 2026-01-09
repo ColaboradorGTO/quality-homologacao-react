@@ -578,6 +578,7 @@ export const ActionListaConsultaVouchers = ({dadosVoucher, usuarioLogado, option
     }
   };
 
+  // console.log(optionsModulos[0], 'optionsModulos[0]')
   const handleClickEditar = async (row) => {
     if(optionsModulos[0]?.ALTERAR == 'True'){
       if (row.IDVOUCHER) {

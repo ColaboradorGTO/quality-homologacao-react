@@ -3,7 +3,7 @@ import { post } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useConfirmarConsolidacaoFatura = ({ optionsModulos, usuarioLogado, handleClickConciliar }) => {
+export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, handleClick}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
@@ -56,14 +56,17 @@ export const useConfirmarConsolidacaoFatura = ({ optionsModulos, usuarioLogado, 
             if (result.isConfirmed) {
 
                 const putData = {
-                    IDS_CONSOLIDACOES: String(rowData.IDCONSOLIDACAOFATURA),
-                    IDFUNCIONARIO: parseInt(usuarioLogado.id),
+                    IDEMPRESA: Number(rowData.IDEMPRESA),
+                    DTPROCESSAMENTO: rowData.DTPROCESSAMENTO,
+                    QTDTOTALFATURAS: Number(rowData.QTDFATURAS),
+                    VRTOTALRECEBIDO: Number(rowData.VRTOTALRECEBIDO),
+                    IDFUNCIONARIO: Number(usuarioLogado.id),
                 }
 
 
                 try {
-
-                    const response = await post('/consolidacao-faturas-integracao', putData)
+        
+                    const response = await post('/criar-consolidacao-faturas', putData)
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
@@ -84,8 +87,8 @@ export const useConfirmarConsolidacaoFatura = ({ optionsModulos, usuarioLogado, 
                             container: 'custom-swal',
                         },
                     })
-
-                    handleClickConciliar();
+        
+                    handleClick();
                     return response.data;
                 } catch (error) {
                     const textDados = JSON.stringify(putData)

@@ -159,6 +159,8 @@ export const Permissoes = ({}) => {
         icon: modulo.src,
         command: () => selecioneModulos(modulo.DSMODULO), 
     }));
+
+    console.log(dadosFuncionarios, 'dadosFuncionarios')
     return (
 
         <Fragment>
@@ -237,7 +239,7 @@ export const Permissoes = ({}) => {
                                     <Select
                                         options={dadosFuncionarios?.map((item) => ({
                                             value: item.IDFUNCIONARIO,
-                                            label: item.NOFUNCIONARIO
+                                            label: `${item.NOLOGIN} - ${item.NOFUNCIONARIO} `
                                         }))}
                                         value={funcionarioSelecionado}
                                         onChange={(e) => setFuncionarioSelecionado(e)}
