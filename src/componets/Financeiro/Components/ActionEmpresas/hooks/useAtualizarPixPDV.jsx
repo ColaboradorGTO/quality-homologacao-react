@@ -54,11 +54,11 @@ export const useAtualizarPixPDV = ({dadosPixPDV, handleClose, optionsModulos, us
         }
 
         const putData = {
-            IDEMPRESA: dadosPixPDV[0]?.IDEMPRESA,
-            NOFANTASIA: dadosPixPDV[0]?.NOFANTASIA,
+            IDEMPRESA: Number(dadosPixPDV[0]?.IDEMPRESA),
+            NOFANTASIA: String(dadosPixPDV[0]?.NOFANTASIA),
             IDPSPPIX: pixSelecionado,
             IDPSPPIXFATURA: faturaSelecionado,
-            USER: usuarioLogado.id
+            USER: String(usuarioLogado.id)
         }
 
         try {

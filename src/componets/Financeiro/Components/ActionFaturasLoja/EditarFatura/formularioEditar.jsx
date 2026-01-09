@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import Select from 'react-select'
 import { useEditarFatura } from "../hooks/useEditarFatura"
 
-export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, optionsModulos }) => {
+export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, optionsModulos, usuarioLogado }) => {
   const { register, handleSubmit, errors } = useForm();
   const {
     valorFatura,
@@ -25,7 +25,7 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
     setValorFatura,
     setEmpresaSelecionada,
     setCaixa
-  } = useEditarFatura({ dadosDetalheFaturaCaixa, optionsModulos });
+  } = useEditarFatura({ dadosDetalheFaturaCaixa, optionsModulos, handleClose, usuarioLogado });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

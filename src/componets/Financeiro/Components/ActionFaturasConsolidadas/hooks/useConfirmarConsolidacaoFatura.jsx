@@ -12,8 +12,8 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
             let usuarioIP = ipWhoisData?.ip;
 
             if (!usuarioIP) {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
             }
 
             setIpUsuario(usuarioIP);
@@ -24,10 +24,8 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
         }
     };
 
-
-
     const confirmar = async (rowData) => {
-        if(optionsModulos[0]?.ALTERAR == 'False') {
+        if (optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
                 icon: 'error',
@@ -35,7 +33,7 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
                 showConfirmButton: true,
                 timer: 3000,
                 customClass: {
-                    container: 'custom-swal', 
+                    container: 'custom-swal',
                 },
             });
             return;
@@ -54,9 +52,9 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
             },
             buttonsStyling: false
         }).then(async (result) => {
-      
+
             if (result.isConfirmed) {
-            
+
                 const putData = {
                     IDEMPRESA: Number(rowData.IDEMPRESA),
                     DTPROCESSAMENTO: rowData.DTPROCESSAMENTO,
@@ -64,8 +62,8 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
                     VRTOTALRECEBIDO: Number(rowData.VRTOTALRECEBIDO),
                     IDFUNCIONARIO: Number(usuarioLogado.id),
                 }
-        
-            
+
+
                 try {
         
                     const response = await post('/criar-consolidacao-faturas', putData)
@@ -77,7 +75,7 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
                         DADOS: textDados,
                         IP: ipUsuario
                     }
-                    
+
                     await post('/log-web', postData)
                     Swal.fire({
                         position: 'center',
@@ -86,7 +84,7 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
                         showConfirmButton: false,
                         timer: 3000,
                         customClass: {
-                            container: 'custom-swal', 
+                            container: 'custom-swal',
                         },
                     })
         
@@ -101,10 +99,10 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
                         DADOS: textDados,
                         IP: ipUsuario
                     }
-                    
+
                     const responsePost = await post('/log-web', postData)
-        
-        
+
+
                     Swal.fire({
                         position: 'center',
                         icon: 'error',
@@ -112,7 +110,7 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
                         showConfirmButton: false,
                         timer: 3000,
                         customClass: {
-                            container: 'custom-swal', 
+                            container: 'custom-swal',
                         },
                     });
                     console.error('Erro Confirmar Consolidação Faturas:', error);
@@ -122,10 +120,10 @@ export const useConfirmarConsolidacaoFatura = ({optionsModulos, usuarioLogado, h
                 return;
             }
         });
-        
+
     }
 
-    
+
     return {
         confirmar
     }
