@@ -62,31 +62,33 @@ export const useConsolidarTodasFaturas = ({
 
             if (result.isConfirmed) {
             
-                const idEmpresas = selectedItems.map(item => item.IDEMPRESA).join(',');
-                console.log(selectedItems, 'selectedItems');
-                const putData = {   
-                    IDEMPRESA: Number(rowData.IDEMPRESA),
-                    DTPROCESSAMENTO: rowData.DTPROCESSAMENTO,
-                    QTDTOTALFATURAS: Number(rowData.QTDTOTALFATURAS),
-                    VRTOTALRECEBIDO: Number(rowData.VRTOTALRECEBIDO),
-                    IDFUNCIONARIO: Number(usuarioLogado.id),
-         
-                }
-        
+                
                 try {
-        
-                    // const response = await post('/criar-consolidacao-faturas', putData)
-                    const response = await post('/cr', putData)
-                    const textDados = JSON.stringify(putData)
-                    const ipUsuario = await getIPUsuario();
-                    const postData = {
-                        IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: ``,
-                        DADOS: textDados,
-                        IP: ipUsuario
+                    for(let i = 0; i < selectedItems.length; i++) {
+                        const rowData = selectedItems[i];
+                        const putData = {   
+                            IDEMPRESA: Number(rowData.IDEMPRESA),
+                            DTPROCESSAMENTO: rowData.DTPROCESSAMENTO,
+                            QTDTOTALFATURAS: Number(rowData.QTDFATURAS),
+                            VRTOTALRECEBIDO: Number(rowData.VRTOTALRECEBIDO),
+                            IDFUNCIONARIO: Number(usuarioLogado.id),
+                 
+                        };
+
+                        
+                        const response = await post('/criar-consolidacao-faturas', putData)
+                        const textDados = JSON.stringify(putData)
+                        await getIPUsuario();
+                        const postData = {
+                            IDFUNCIONARIO: String(usuarioLogado.id),
+                            PATHFUNCAO: ``,
+                            DADOS: textDados,
+                            IP: ipUsuario
+                        }
+                        
+                        await post('/log-web', postData)
                     }
-                    
-                    await post('/log-web', postData)
+        
                     Swal.fire({
                         position: 'center',
                         icon: 'success',
@@ -99,18 +101,18 @@ export const useConsolidarTodasFaturas = ({
                     })
         
                     handleClickConciliar();
-                    return response.data;   
+                   
                 } catch (error) {
-                    const textDados = JSON.stringify(putData)
-                    const ipUsuario = await getIPUsuario();
-                    const postData = {
-                        IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/ERRO AO INTEGRAR TODAS CONSOLIDACOES FATURAS SELECIONADAS`,
-                        DADOS: textDados,
-                        IP: ipUsuario
-                    }
+                    // const textDados = JSON.stringify(putData)
+                    // const ipUsuario = await getIPUsuario();
+                    // const postData = {
+                    //     IDFUNCIONARIO: String(usuarioLogado.id),
+                    //     PATHFUNCAO: `FINANCEIRO/ERRO AO INTEGRAR TODAS CONSOLIDACOES FATURAS SELECIONADAS`,
+                    //     DADOS: textDados,
+                    //     IP: ipUsuario
+                    // }
                     
-                    const responsePost = await post('/log-web', postData)
+                    // const responsePost = await post('/log-web', postData)
         
         
                     Swal.fire({
@@ -124,7 +126,7 @@ export const useConsolidarTodasFaturas = ({
                         },
                     });
                     console.error('Erro Conferir Todas Faturas:', error);
-                    return responsePost.data;
+                    // return responsePost.data;
                 }
             } else {
                 return;
