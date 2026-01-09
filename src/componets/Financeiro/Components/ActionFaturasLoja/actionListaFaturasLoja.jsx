@@ -490,6 +490,7 @@ export const ActionListaFaturasLoja = ({
         handleClose={() => setModalFaturaVisivel(false)}
         dadosDetalheFaturaCaixa={dadosDetalheFaturaCaixa}
         optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
       />
     </Fragment>
   )
