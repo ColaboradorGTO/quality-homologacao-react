@@ -111,6 +111,7 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
         }
       })
 
+      handleClose()
       return response.data;
     } catch (error) {
       const textDados = JSON.stringify(postData)

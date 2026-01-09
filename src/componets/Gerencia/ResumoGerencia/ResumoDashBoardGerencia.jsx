@@ -57,7 +57,6 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
     async () => {
       const idEmpresa =  usuarioLogado?.IDEMPRESA;
       
-      console.log(usuarioLogado?.IDEMPRESA, 'idEmpresa')
       const response = await get(`/lista-caixas-fechados-nao-conferido?idEmpresa=${idEmpresa}`);
       return response.data;
      
