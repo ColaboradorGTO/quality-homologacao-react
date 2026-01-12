@@ -38,7 +38,6 @@ export const ActionPesquisaConferenciaCaixa = ({usuarioLogado, ID, optionsEmpres
   }, [])
   
 
-
   const fetchCaixaMovimento = async () => {
     const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
     const urlBase = `/movimento-caixa-gerencia?idEmpresa=${idEmpresa}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;

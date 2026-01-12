@@ -41,35 +41,35 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
-  
+
   const handlePrint = useReactToPrint({
     content: () => dataTableRef.current,
     documentTitle: 'Movimento dos Caixas',
   });
-  
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Movimento dos Caixas');
     XLSX.writeFile(workbook, 'conferencia_caixa.xlsx');
   };
-  
+
   const exportToPDF = () => {
     const doc = new jsPDF();
-   
+
     doc.autoTable({
-      head: [['Nº', 'Caixa', 'Fechamento',  'Operador', 'Venda Dinheiro', 'Dineiro Informado', 'Recebido Fatura', 'Quebra Sistema', 'Situação', 'Conferido']],
+      head: [['Nº', 'Caixa', 'Fechamento', 'Operador', 'Venda Dinheiro', 'Dineiro Informado', 'Recebido Fatura', 'Quebra Sistema', 'Situação', 'Conferido']],
       body: dados.map(item => [
-        item.contador, 
-        item.DSCAIXAFECHAMENTO, 
-        item.DTABERTURA, 
-        item.OPERADORFECHAMENTO, 
-        formatMoeda(item.TOTALFECHAMENTODINHEIROFISICO), 
-        formatMoeda(item.TOTALFECHAMENTODINHEIRO), 
-        formatMoeda(item.TOTALAJUSTEFATURA), 
-        formatM(item.vrFechamentoQuebraCaixa), 
-        formatMoeda( item.VRQUEBRAEFETIVADO), 
-        item.STFECHADOMOVIMENTO, 
+        item.contador,
+        item.DSCAIXAFECHAMENTO,
+        item.DTABERTURA,
+        item.OPERADORFECHAMENTO,
+        formatMoeda(item.TOTALFECHAMENTODINHEIROFISICO),
+        formatMoeda(item.TOTALFECHAMENTODINHEIRO),
+        formatMoeda(item.TOTALAJUSTEFATURA),
+        formatM(item.vrFechamentoQuebraCaixa),
+        formatMoeda(item.VRQUEBRAEFETIVADO),
+        item.STFECHADOMOVIMENTO,
         item.STCONFERIDOMOVIMENTO
       ]),
       autoPrint: true,
@@ -85,12 +85,12 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
     const vrTotalAjusteFatura = item.TOTALAJUSTEFATURA > 0 ? item.TOTALAJUSTEFATURA : item.TOTALFECHAMENTOFATURA;
     let vrTotalFechamentoDinheiro = 0;
     let vrTotalAjusteDinheiro = item.TOTALAJUSTEDINHEIRO;
-    if(vrTotalAjusteDinheiro > 0) {
+    if (vrTotalAjusteDinheiro > 0) {
       vrTotalFechamentoDinheiro = vrTotalAjusteDinheiro;
     } else {
       vrTotalFechamentoDinheiro = item.TOTALFECHAMENTODINHEIRO;
     }
-    const vrFechamentoQuebraCaixa =  vrTotalFechamentoDinheiro - toFloat(item.TOTALFECHAMENTODINHEIROFISICO)
+    const vrFechamentoQuebraCaixa = vrTotalFechamentoDinheiro - toFloat(item.TOTALFECHAMENTODINHEIROFISICO)
 
     return {
       ID: item.ID,
@@ -124,7 +124,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
   const calcularTotalInformadoDinheiro = () => {
     return dados.reduce((total, dados) => total + parseFloat(dados.vrTotalFechamentoDinheiro), 0);
   }
-  
+
   const calcularTotalRecebidoFatura = () => {
     return dados.reduce((total, dados) => total + parseFloat(dados.vrTotalAjusteFatura), 0);
   }
@@ -132,8 +132,8 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
   const calcularTotalQuebraSistema = () => {
     return dados.reduce((total, dados) => total + parseFloat(dados.vrFechamentoQuebraCaixa), 0);
   }
-  
-  const calcularTotalQuebraLancado  = () => {
+
+  const calcularTotalQuebraLancado = () => {
     return dados.reduce((total, dados) => total + toFloat(dados.VRQUEBRAEFETIVADO), 0);
   }
 
@@ -159,9 +159,9 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
     {
       field: 'OPERADORFECHAMENTO',
       header: 'Operador',
-      body: row => ( 
-        <p style={{width: '350px', margin: '0px', fontWeight: 600}}> 
-         {row.OPERADORFECHAMENTO}
+      body: row => (
+        <p style={{ width: '350px', margin: '0px', fontWeight: 600 }}>
+          {row.OPERADORFECHAMENTO}
         </p>
       ),
       footer: 'Total Lançamentos',
@@ -189,12 +189,12 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
       field: 'vrFechamentoQuebraCaixa',
       header: 'Quebra Sistema',
       body: row => (
-       
 
-          <th style={{ color: row.vrFechamentoQuebraCaixa > 0 ? 'blue' : 'red' }}>
-            {row.vrFechamentoQuebraCaixa > 0 ? `+${formatMoeda(row.vrFechamentoQuebraCaixa)}` : `-${formatMoeda(Math.abs(row.vrFechamentoQuebraCaixa))}`}
-          </th>
-     
+
+        <th style={{ color: row.vrFechamentoQuebraCaixa > 0 ? 'blue' : 'red' }}>
+          {row.vrFechamentoQuebraCaixa > 0 ? `+${formatMoeda(row.vrFechamentoQuebraCaixa)}` : `-${formatMoeda(Math.abs(row.vrFechamentoQuebraCaixa))}`}
+        </th>
+
       ),
       sortable: true,
     },
@@ -202,12 +202,12 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
       field: 'VRQUEBRAEFETIVADO',
       header: 'Quebra Lançado',
       body: row => (
-       
 
-          <th style={{ color: row.VRQUEBRAEFETIVADO > 0 ? 'blue' : 'red', }}>
-            {row.VRQUEBRAEFETIVADO > 0 ? `+${formatMoeda(row.VRQUEBRAEFETIVADO)}` : `-${formatMoeda(Math.abs(row.VRQUEBRAEFETIVADO))}`}
-          </th>
-        
+
+        <th style={{ color: row.VRQUEBRAEFETIVADO > 0 ? 'blue' : 'red', }}>
+          {row.VRQUEBRAEFETIVADO > 0 ? `+${formatMoeda(row.VRQUEBRAEFETIVADO)}` : `-${formatMoeda(Math.abs(row.VRQUEBRAEFETIVADO))}`}
+        </th>
+
       ),
       sortable: true,
     },
@@ -243,7 +243,9 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
                     disabledBTN={true}
                     Icon={MdMoneyOff}
                     onClickButton={() => handleClickAjusteFechamento(row)}
-                    iconSize={18}
+                    iconSize={20}
+                    width="35px"
+                    height="35px"
                   />
                 </div>
                 <div className="p-1">
@@ -253,7 +255,9 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
                     disabledBTN={true}
                     Icon={FaUserAltSlash}
                     onClickButton={() => handleClickCadastroQuebra(row)}
-                    iconSize={18}
+                    iconSize={20}
+                    width="35px"
+                    height="35px"
                   />
                 </div>
                 <div className="p-1">
@@ -262,7 +266,9 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
                     cor={"info"}
                     Icon={MdOutlineLocalPrintshop}
                     onClickButton={() => handleClickCadastroFatura(row)}
-                    iconSize={18}
+                    iconSize={20}
+                    width="35px"
+                    height="35px"
                   />
                 </div>
                 <div className="p-1">
@@ -271,84 +277,98 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
                     cor={"warning"}
                     Icon={MdOutlineLocalPrintshop}
                     onClickButton={() => handleClickImprimir(row)}
-                    iconSize={18}
+                    iconSize={20}
+                    width="35px"
+                    height="35px"
                   />
 
-                {(row.TOTALAJUSTEDINHEIRO > 0 || row.TOTALAJUSTEFATURA > 0) && (
-                <ButtonTable
-                  titleButton={"Imprimir Ajuste Fechamento Caixa"}
-                  cor={"primary"}
-                  Icon={MdOutlineLocalPrintshop}
-                  onClickButton={() => handleClickImprimir(row)}
-                  iconSize={18}
-                />)}
+                  {(row.TOTALAJUSTEDINHEIRO > 0 || row.TOTALAJUSTEFATURA > 0) && (
+                    <ButtonTable
+                      titleButton={"Imprimir Ajuste Fechamento Caixa"}
+                      cor={"primary"}
+                      Icon={MdOutlineLocalPrintshop}
+                      onClickButton={() => handleClickImprimir(row)}
+                      iconSize={20}
+                      width="35px"
+                      height="35px"
+                    />)}
                 </div>
               </div>
-            ) 
-           
+            )
+
           } else {
             return (
-              <div className="p-1 " style={{display: 'flex'}}>
-              Lista 2
-              <div className="" style={{display: 'flex'}}>
-                <ButtonTable
-                  titleButton={"Ajustar Fechamento Caixa"}
-                  cor={"warning"}
-                  Icon={FaCashRegister}
-                  onClickButton={() => handleClickAjusteFechamento(row)}
-                  iconSize={18}
-                  className="mr-3"
-                />
-               
-                <ButtonTable
-                  titleButton={"Lançar Quebra de Caixa"}
-                  cor={"info"}
-                  Icon={GiTakeMyMoney}
-                  onClickButton={() => handleClickCadastroQuebra(row)}
-                  iconSize={20}
-                  className="mr-3"
-                />
-            
-              
-                <ButtonTable
-                  titleButton={"Lançar Faturas"}
-                  cor={"primary"}
-                  Icon={FaCcMastercard}
-                  onClickButton={() => handleClickCadastroFatura(row)}
-                  iconSize={18}
-                  className="mr-3"
-                />
-            
-                <ButtonTable
-                  titleButton={"Confirmar Conferência do Caixa"}
-                  cor={"success"}
-                  disabledBTN={true}
-                  Icon={FaCheck}
-                  onClickButton={() => handleConferir(row)}
-                  iconSize={18}
-                  className="mr-3"
-                />
-               
-                {(row.TOTALAJUSTEDINHEIRO > 0 || row.TOTALAJUSTEFATURA > 0) && (
-                <ButtonTable
-                  titleButton={"Imprimir Ajuste Fechamento Caixa"}
-                  cor={"primary"}
-                  Icon={MdOutlineLocalPrintshop}
-                  onClickButton={() => handleClickImprimir(row)}
-                  iconSize={18}
-                />)}
-              
-              </div>
+              <div className="p-1 " style={{ display: 'flex' }}>
+
+                <div className="" style={{ display: 'flex' }}>
+                  <ButtonTable
+                    titleButton={"Ajustar Fechamento Caixa"}
+                    cor={"warning"}
+                    Icon={FaCashRegister}
+                    onClickButton={() => handleClickAjusteFechamento(row)}
+                    iconSize={20}
+                    width="35px"
+                    height="35px"
+                    className="mr-3"
+                  />
+
+                  <ButtonTable
+                    titleButton={"Lançar Quebra de Caixa"}
+                    cor={"info"}
+                    Icon={GiTakeMyMoney}
+                    onClickButton={() => handleClickCadastroQuebra(row)}
+                    iconSize={20}
+                    width="35px"
+                    height="35px"
+                    className="mr-3"
+                  />
+
+
+                  <ButtonTable
+                    titleButton={"Lançar Faturas"}
+                    cor={"primary"}
+                    Icon={FaCcMastercard}
+                    onClickButton={() => handleClickCadastroFatura(row)}
+                    iconSize={20}
+                    width="35px"
+                    height="35px"
+                    className="mr-3"
+                  />
+
+                  <ButtonTable
+                    titleButton={"Confirmar Conferência do Caixa"}
+                    cor={"success"}
+                    disabledBTN={true}
+                    Icon={FaCheck}
+                    onClickButton={() => handleConferir(row)}
+                    iconSize={20}
+                    width="35px"
+                    height="35px"
+                    className="mr-3"
+                  />
+
+                  {(row.TOTALAJUSTEDINHEIRO > 0 || row.TOTALAJUSTEFATURA > 0) && (
+                    <ButtonTable
+                      titleButton={"Imprimir Ajuste Fechamento Caixa"}
+                      cor={"primary"}
+                      Icon={MdOutlineLocalPrintshop}
+                      onClickButton={() => handleClickImprimir(row)}
+                      iconSize={20}
+                      width="35px"
+                      height="35px"
+                    />)}
+
+                </div>
               </div>
 
             )
           }
 
         } else if (row.STFECHADOMOVIMENTO == 'False' && row.STCONFERIDOMOVIMENTO == 0) {
-          return (<p style={{width: '300px', margin: '0px', fontWeight: 600}}>CAIXA ABERTO, NÃO É POSSÍVEL FAZER LANÇAMENTOS. SE NÃO FOR POSSÍVEL FECHAR O CAIXA, ENTRAR EM CONTATO COM O SUPORTE.</p>)
+          return (<p style={{ width: '300px', margin: '0px', fontWeight: 600 }}>CAIXA ABERTO, NÃO É POSSÍVEL FAZER LANÇAMENTOS. SE NÃO FOR POSSÍVEL FECHAR O CAIXA, ENTRAR EM CONTATO COM O SUPORTE.</p>)
         } else if (row.STFECHADOMOVIMENTO == 'True' && row.STCONFERIDOMOVIMENTO > 0) {
           return (
-            <div style={{width: '250px' }}>
+            <div style={{ width: '250px' }}>
               <th>CAIXA CONFERIDO, NÃO É POSSÍVEL FAZER LANÇAMENTOS. PARA FAZER QUALQUER ALTERAÇÃO, ENTRAR EM CONTATO COM O SUPORTE</th>
             </div>
           )
@@ -358,7 +378,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
   ]
 
   const handleConferir = async (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'False') {
+    if (optionsModulos[0]?.ALTERAR == 'False') {
       Swal.fire({
         icon: 'error',
         title: 'Atenção!',
@@ -457,7 +477,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
           container: 'custom-swal',
         },
       });
-    }  
+    }
   };
 
   const handleCadastrarFatura = async (ID) => {
@@ -487,7 +507,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
           container: 'custom-swal',
         },
       });
-    }  
+    }
   };
 
   const handleImprimir = async (ID) => {
@@ -517,7 +537,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
           container: 'custom-swal',
         },
       });
-    }  
+    }
   };
 
   const footerGroup = (
@@ -528,7 +548,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
         <Column footer={formatMoeda(calcularTotalInformadoDinheiro())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
         <Column footer={formatMoeda(calcularTotalRecebidoFatura())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
         <Column footer={formatMoeda(calcularTotalQuebraSistema())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
-        <Column footer={formatMoeda(calcularTotalQuebraLancado())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem'  }} />
+        <Column footer={formatMoeda(calcularTotalQuebraLancado())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
         <Column colSpan={3} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }} />
       </Row>
     </ColumnGroup>
@@ -593,42 +613,42 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
 
         </div>
       </div>
-        <ActionAjusteMovimentoCaixaModal 
-          show={modalAjusteFechamento}
-          handleClose={() => setModalAjusteFechamento(false)}
-          dadosDetalheFechamento={dadosDetalheFechamento}
-          usuarioLogado={usuarioLogado}
-          optionsModulos={optionsModulos}
-        />
+      <ActionAjusteMovimentoCaixaModal
+        show={modalAjusteFechamento}
+        handleClose={() => setModalAjusteFechamento(false)}
+        dadosDetalheFechamento={dadosDetalheFechamento}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+      />
 
-        <ActionCadastrarQuebraCaixaModal
-          show={modalCastroQuebraCaixa}
-          handleClose={() => setModalCastroQuebraCaixa(false)}
-          dadosDetelheCaixa={dadosDetelheCaixa}
-          usuarioLogado={usuarioLogado}
-          optionsModulos={optionsModulos}
-        />
+      <ActionCadastrarQuebraCaixaModal
+        show={modalCastroQuebraCaixa}
+        handleClose={() => setModalCastroQuebraCaixa(false)}
+        dadosDetelheCaixa={dadosDetelheCaixa}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+      />
 
-        <ActionCadastrarFaturaModal 
-          show={modalCastroFatura}
-          handleClose={() => setModalCastroFatura(false)}
-          dadosDetelheFatura={dadosDetelheFatura}
-          usuarioLogado={usuarioLogado}
-          optionsModulos={optionsModulos}
-        />
+      <ActionCadastrarFaturaModal
+        show={modalCastroFatura}
+        handleClose={() => setModalCastroFatura(false)}
+        dadosDetelheFatura={dadosDetelheFatura}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+      />
 
 
-        <ActionImprimirAjusteModal 
-          show={modalImprimir}
-          handleClose={() => setModalImprimir(false)}
-          dadosDetelheImprimir={dadosDetelheImprimir}
-        />
+      <ActionImprimirAjusteModal
+        show={modalImprimir}
+        handleClose={() => setModalImprimir(false)}
+        dadosDetelheImprimir={dadosDetelheImprimir}
+      />
 
-        <ActionImprimirRecibos 
-          show={imprimirRecibo}
-          handleClose={() => setImprimirRecibo(false)}
-          dadosDetelheImprimir={dadosDetelheImprimir}
-        />
+      <ActionImprimirRecibos
+        show={imprimirRecibo}
+        handleClose={() => setImprimirRecibo(false)}
+        dadosDetelheImprimir={dadosDetelheImprimir}
+      />
     </Fragment>
   )
 }
