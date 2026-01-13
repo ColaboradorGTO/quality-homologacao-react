@@ -10,7 +10,8 @@ export const useEditarOT = ({
   handleClick,
   handleClose,
   optionsModulos,
-  usuarioLogado
+  usuarioLogado,
+  setDadosDetalheTransferencia
 }) => {
   const [empresaOrigem, setEmpresaOrigem] = useState('')
   const [empresaDestino, setEmpresaDestino] = useState('')
@@ -66,16 +67,71 @@ export const useEditarOT = ({
     { staleTime: 5 * 60 * 1000 }
   );
 
-  const { data: dadosProdutos = [], error: errorProduto, isLoading: isLoadingProduto } = useQuery(
-    ['funcionarios-loja', produto],
+  const { data: dadosProdutos = [] } = useQuery(
+    ['listaProdutos', produto],
     async () => {
-      const response = await get(`/listaProdutos?idEmpresa=${usuarioLogado?.IDEMPRESA}&dsProduto=${produto}`);
+      const response = await get(
+        `/listaProdutos?idEmpresa=${usuarioLogado?.IDEMPRESA}&idProduto=${produto}&page=1`
+      );
+
+      setDadosDetalheTransferencia(prev => {
+        const novos = [...prev];
+
+        response.data.forEach(novo => {
+          const index = novos.findIndex(p => p.IDPRODUTO === novo.IDPRODUTO);
+
+          if (index >= 0) {
+            novos[index] = {
+              ...novos[index],
+              QTDEXPEDICAO: novos[index].QTDEXPEDICAO + 1
+            };
+          } else {
+            novos.push({
+              IDPRODUTO: novo.IDPRODUTO,
+              NUCODBARRAS: novo.NUCODBARRAS,
+              DSNOME: novo.DSNOME,
+
+              VLRUNITVENDA: Number(novo.PRECOVENDA || 0),
+              VLRUNITCUSTO: Number(novo.PRECOCUSTO || 0),
+
+              QTDEXPEDICAO: 1,
+              QTDRECEPCAO: 0,
+              QTDDIFERENCA: 0,
+              QTDAJUSTE: 0,
+
+              IDSTATUSOT: 1
+            });
+          }
+        });
+
+        return novos;
+      });
+
+      setProduto("");
       return response.data;
     },
-    { enabled: produto.length > 4, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    {
+      enabled: Boolean(produto && produto.length > 8)
+    }
   );
 
 
+  useEffect(() => {
+    if (produto.length > 4 && empresaDestino <= 0) {
+      Swal.fire({
+        title: 'A Loja de Origem e Destino devem ser Preenchidas!',
+        icon: 'info',
+        confirmButtonText: 'Ok',
+        customClass: {
+          container: 'custom-swal',
+        }
+      });
+      setProduto("");
+      return;
+    }
+  }, [produto, empresaDestino]);
+
+  console.log(produto, "produto")
 
   const onSubmit = async () => {
     if (dadosProdutos.length > 200) {
@@ -90,57 +146,71 @@ export const useEditarOT = ({
       return;
     }
 
-    const dadosdetalheot = dadosDetalheTransferencia.map((item) => ({
-      IDPRODUTO: item.IDPRODUTO,
-      QTDEXPEDICAO: item.QTDEXPEDICAO,
+    const dadosdetalheot = dadosDetalheTransferencia.map(item => ({
+      IDPRODUTO: String(item.IDPRODUTO ?? ""),
+      QTDEXPEDICAO: Number(item.QTDEXPEDICAO) || 0, 
       QTDRECEPCAO: 0,
       QTDDIFERENCA: 0,
       QTDAJUSTE: 0,
-      VLRUNITVENDA: item.VLRUNITVENDA,
-      VLRUNITCUSTO: item.VLRUNITCUSTO,
-      STCONFERIDO: 'False',
+      VLRUNITVENDA: Number(item.VLRUNITVENDA) || 0,
+      VLRUNITCUSTO: Number(item.VLRUNITCUSTO) || 0,
+      STCONFERIDO: "False",
       IDUSRAJUSTE: 0,
-      STATIVO: 'True',
-      STFALTA: 'False',
-      STSOBRA: 'False',
+      STATIVO: "True",
+      STFALTA: "False",
+      STSOBRA: "False"
     }));
 
     const nCtTotalItens = dadosdetalheot.length;
-    const nQtdTotalItens = dadosdetalheot.reduce((acc, item) => acc + item.QTDEXPEDICAO, 0);
-    const dVlrTotalVenda = dadosdetalheot.reduce((acc, item) => acc + (item.QTDEXPEDICAO * item.VLRUNITVENDA), 0);
-    const dVlrTotalCusto = dadosdetalheot.reduce((acc, item) => acc + (item.QTDEXPEDICAO * item.VLRUNITCUSTO), 0);
+    const nQtdTotalItens = dadosdetalheot.reduce((acc, item) => acc + (Number(item.QTDEXPEDICAO) || 0),0);
+    const dVlrTotalVenda = dadosdetalheot.reduce((acc, item) => acc + ((Number(item.QTDEXPEDICAO) || 0) * (Number(item.VLRUNITVENDA) || 0)),0);
+    const dVlrTotalCusto = dadosdetalheot.reduce((acc, item) => acc + ((Number(item.QTDEXPEDICAO) || 0) * (Number(item.VLRUNITCUSTO) || 0)),0);
 
     const postData = {
-      IDRESUMOOT: dadosDetalheTransferencia[0]?.IDRESUMOOT,
-      IDEMPRESAORIGEM: dadosDetalheTransferencia[0]?.IDEMPRESAORIGEM,
-      IDEMPRESADESTINO: dadosDetalheTransferencia[0]?.IDEMPRESADESTINO,
-      IDOPERADOREXPEDICAO: usuarioLogado?.id,
+      IDRESUMOOT: Number(dadosDetalheTransferencia?.[0]?.IDRESUMOOT),
+      IDEMPRESAORIGEM: Number(dadosDetalheTransferencia?.[0]?.IDEMPRESAORIGEM),
+      IDSTATUSOT: 1,
       NUTOTALITENS: nCtTotalItens,
       QTDTOTALITENS: nQtdTotalItens,
-      QTDTOTALITENSRECEPCIONADO: 0,
-      QTDTOTALITENSDIVERGENCIA: 0,
-      NUTOTALVOLUMES: 0,
-      TPVOLUME: "",
-      VRTOTALCUSTO: dVlrTotalCusto,
-      VRTOTALVENDA: dVlrTotalVenda,
-      DTRECEPCAO: "",
-      IDOPERADORRECEPTOR: 0,
-      DSOBSERVACAO: "",
-      IDUSRCANCELAMENTO: 0,
-      IDSTDIVERGENCIA: 0,
-      OBSDIVERGENCIA: "",
-      STEMISSAONFE: "False",
-      NUMERONFE: "",
-      STENTRADAINVENTARIO: "False",
-      QTDCONFERENCIA: 0,
-      IDSTATUSOT: parseInt(1),
-      IDUSRAJUSTE: 0,
-      DTAJUSTE: "",
-      QTDTOTALITENSAJUSTE: 0,
-      dadosdetalheot: dadosdetalheot,
-      DATAEXPEDICAO: "",
-      DTULTALTERACAO: "",
+      VRTOTALCUSTO: Number(dVlrTotalCusto) || 0,
+      VRTOTALVENDA: Number(dVlrTotalVenda) || 0,
+      DSOBSERVACAO: "Ajuste de itens e valores antes da emissão.",
+      dadosdetalheot
     };
+
+    /*  const postData = {
+       IDRESUMOOT: dadosDetalheTransferencia[0]?.IDRESUMOOT,
+       IDEMPRESAORIGEM: dadosDetalheTransferencia[0]?.IDEMPRESAORIGEM,
+       IDSTATUSOT: parseInt(1),
+       IDEMPRESADESTINO: dadosDetalheTransferencia[0]?.IDEMPRESADESTINO,
+       IDOPERADOREXPEDICAO: usuarioLogado?.id,
+       NUTOTALITENS: nCtTotalItens,
+       QTDTOTALITENS: nQtdTotalItens,
+       VRTOTALCUSTO: Number(dVlrTotalCusto),
+       VRTOTALVENDA: Number(dVlrTotalVenda),    
+       DSOBSERVACAO: "teste front", 
+       dadosdetalheot: dadosdetalheot,                
+       QTDTOTALITENSAJUSTE: 0,
+       QTDTOTALITENSRECEPCIONADO: 0,
+       QTDTOTALITENSDIVERGENCIA: 0,
+       NUTOTALVOLUMES: 0, 
+       TPVOLUME: "",
+       DTRECEPCAO: "",
+       IDOPERADORRECEPTOR: 0,
+       IDUSRCANCELAMENTO: 0,
+       IDSTDIVERGENCIA: 0,
+       OBSDIVERGENCIA: "",
+       STEMISSAONFE: "False",
+       NUMERONFE: "",
+       STENTRADAINVENTARIO: "False",
+       QTDCONFERENCIA: 0,
+       IDUSRAJUSTE: 0,
+       DTAJUSTE: "",
+       DATAEXPEDICAO: "",
+       DTULTALTERACAO: "",
+       STFALTA :"False",
+       STSOBRA: "False"
+     }; */
 
     try {
 
@@ -179,7 +249,6 @@ export const useEditarOT = ({
       };
 
       const responsePost = await post('/log-web', createData)
-
 
       Swal.fire({
         title: 'Erro',

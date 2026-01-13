@@ -9,7 +9,8 @@ export const ActionEditarOTModal = ({
   dadosDetalheTransferencia, 
   handleClick,
   optionsModulos,
-  usuarioLogado 
+  usuarioLogado,
+  setDadosDetalheTransferencia
 }) => {
 
   return (
@@ -32,6 +33,7 @@ export const ActionEditarOTModal = ({
           <Modal.Body >
             <FormularioEditar
               dadosDetalheTransferencia={dadosDetalheTransferencia}
+              setDadosDetalheTransferencia={setDadosDetalheTransferencia}
               handleClose={handleClose}
               optionsModulos={optionsModulos}
               usuarioLogado={usuarioLogado}

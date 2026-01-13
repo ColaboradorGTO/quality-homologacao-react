@@ -9,9 +9,10 @@ import * as XLSX from 'xlsx';
 import HeaderTable from "../../../../Tables/headerTable";
 import { FaMinus, FaRegTrashAlt } from "react-icons/fa";
 import { ButtonTable } from "../../../../ButtonsTabela/ButtonTable";
+import Swal from "sweetalert2";
 
 
-export const ActionListaProdutos = ({ 
+export const ActionListaProdutos = ({
   dadosProdutosTabela,
   setDadosProdutosTabela,
 }) => {
@@ -71,7 +72,7 @@ export const ActionListaProdutos = ({
       DSNOME: item.DSNOME,
       PRECOVENDA: item.PRECOVENDA,
       PRECOCUSTO: item.PRECOCUSTO,
-      qtd
+      qtd: item.QUANTIDADE
     };
   });
 
@@ -163,17 +164,43 @@ export const ActionListaProdutos = ({
   };
 
   const handleRemoverProduto = (produto) => {
+    const itemAtual = dadosProdutosTabela.find(
+      item => item.IDPRODUTO === produto.IDPRODUTO
+    );
+
+    if (!itemAtual) return;
+
+    if (itemAtual.QUANTIDADE === 1) {
+      const modalElement = document.querySelector('.modal.show');
+
+      Swal.fire({
+        title: 'Atenção',
+        text: 'Essa ação irá excluir o produto da O.T. Deseja prosseguir?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Sim, remover',
+        cancelButtonText: 'Cancelar',
+        target: modalElement,
+        customClass: {
+          popup: 'custom-swal'
+        }
+      }).then(result => {
+        if (result.isConfirmed) {
+          setDadosProdutosTabela(prev =>
+            prev.filter(item => item.IDPRODUTO !== produto.IDPRODUTO)
+          );
+        }
+      });
+      return;
+    }
     setDadosProdutosTabela(prev =>
-      prev
-        .map(item =>
-          item.IDPRODUTO === produto.IDPRODUTO
-            ? { ...item, qtd: item.qtd > 1 ? item.qtd - 1 : item.qtd }
-            : item
-        )
-        .filter(item => item.IDPRODUTO !== produto.IDPRODUTO || item.qtd > 0)
+      prev.map(item =>
+        item.IDPRODUTO === produto.IDPRODUTO
+          ? { ...item, QUANTIDADE: item.QUANTIDADE - 1 }
+          : item
+      )
     );
   };
- 
 
   return (
     <Fragment>

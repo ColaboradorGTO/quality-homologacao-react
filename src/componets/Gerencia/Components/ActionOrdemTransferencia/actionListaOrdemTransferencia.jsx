@@ -22,7 +22,6 @@ import { ActionEditarFaturamentoOTModal } from "./ActionVisualizarOT/actionEdita
 import { ActionConfeirirOTModal } from "./ActionConferirModal/modalConferirOT";
 import { FiNavigation } from "react-icons/fi";
 
-
 export const ActionListaOrdemTransferencia = ({ 
   dadosConferencia, 
   optionsModulos, 
@@ -182,7 +181,7 @@ export const ActionListaOrdemTransferencia = ({
                   height="35px"
                   iconColor={"#fff"}
                   cor={"info"}
-                  // disabledBTN={[1, 2].indexOf(row.IDSTATUSOT) >= 0}
+                  disabledBTN={[1, 2].indexOf(row.IDSTATUSOT) >= 0}
                 />
               </div>
 
@@ -231,7 +230,7 @@ export const ActionListaOrdemTransferencia = ({
                   height="35px"
                   iconColor={"#fff"}
                   cor={"primary"}
-                  disabledBTN={[1, 2].indexOf(row.IDSTATUSOT) >= 0 }
+                 disabledBTN={[1, 2].indexOf(row.IDSTATUSOT) >= 0 }
                 />
               
 
@@ -476,6 +475,7 @@ export const ActionListaOrdemTransferencia = ({
         show={modalEditar}
         handleClose={() => setModalEditar(false)}
         dadosDetalheTransferencia={dadosDetalheTransferencia}
+        setDadosDetalheTransferencia={setDadosDetalheTransferencia}
         optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}
         handleClick={handleClick}

@@ -97,6 +97,7 @@ export const ActionPesquisaEmpresas = ({usuarioLogado, ID}) => {
           value: empresa.IDEMPRESA,
           label: empresa.NOFANTASIA,
         }))}
+        
         valueSelectEmpresa={empresaSelecionada}
         onChangeSelectEmpresa={handleSelectEmpresa}
 
