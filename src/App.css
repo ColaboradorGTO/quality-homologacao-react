@@ -8,6 +8,7 @@
 .custom-swal {
   z-index: 9999 !important; /* Garantindo que o z-index tenha prioridade */
 }
+
 .logo {
   height: 6em;
   padding: 1.5em;

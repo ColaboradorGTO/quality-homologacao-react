@@ -1,4 +1,4 @@
-import * as yup from "yup";
+/* import * as yup from "yup";
 
 export const schema = yup.object().shape({
     produtoIncluir: yup.string()
@@ -8,3 +8,4 @@ export const schema = yup.object().shape({
     //     .required('Loja Destino Obrigatório')
 
 });
+ */

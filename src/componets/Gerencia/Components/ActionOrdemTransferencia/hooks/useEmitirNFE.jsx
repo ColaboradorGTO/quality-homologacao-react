@@ -3,9 +3,9 @@ import { post, put } from "../../../../../api/funcRequest";
 import { useState } from "react";
 import axios from "axios";
 
-export const useEmitirNFE = ({usuarioLogado, optionsModulos, handleClick }) => {
+export const useEmitirNFE = ({ usuarioLogado, optionsModulos, handleClick }) => {
     const [ipUsuario, setIpUsuario] = useState('');
-    
+
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
@@ -17,19 +17,19 @@ export const useEmitirNFE = ({usuarioLogado, optionsModulos, handleClick }) => {
         }
 
         if (!usuarioIP) {
-        try {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
-        } catch (error) {
-            console.error("Erro ao buscar IP via ipify.org:", error);
-        }
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
         }
         setIpUsuario(usuarioIP);
         return usuarioIP;
     };
 
     const handleFaturarOT = async (row) => {
-        if(optionsModulos[0]?.ALTERAR == 'False') {
+        if (optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 title: 'Atenção',
                 text: 'Você não tem permissão para Emitir NFE.',
@@ -42,7 +42,6 @@ export const useEmitirNFE = ({usuarioLogado, optionsModulos, handleClick }) => {
             return;
         }
 
-        
         Swal.fire({
             icon: 'question',
             title: `Deseja Realmente Emitir NFE?`,
@@ -58,13 +57,20 @@ export const useEmitirNFE = ({usuarioLogado, optionsModulos, handleClick }) => {
             timer: 3000,
             preConfirm: async () => {
                 const putData = {
-                    IDSTATUSOT: parseInt(3),
-                    IDRESUMOOT: parseInt(row.IDRESUMOOT),
-                    IDEMPRESAORIGEM: parseInt(row.IDEMPRESAORIGEM),
+                    IDRESUMOOT: Number(row.IDRESUMOOT),
+                    IDEMPRESAORIGEM: Number(row.IDEMPRESAORIGEM), 
+                    IDSTATUSOT: 3,
+                    NUTOTALVOLUMES: 0,
+                    TPVOLUME: "",
                 };
+                /*  const putData = {
+                     IDSTATUSOT: parseInt(3),
+                     IDRESUMOOT: parseInt(row.IDRESUMOOT),
+                     IDEMPRESAORIGEM: parseInt(row.IDEMPRESAORIGEM),
+                 }; */
                 try {
                     const response = await put('/resumo-ordem-transferencia/:id', putData);
-                
+
                     const textDados = JSON.stringify(putData);
                     const textoFuncao = `GERENCIA/NFE Emitida com sucesso!`;
                     const ipUsuario = await getIPUsuario();
@@ -91,12 +97,12 @@ export const useEmitirNFE = ({usuarioLogado, optionsModulos, handleClick }) => {
                 } catch (error) {
                     const textDados = JSON.stringify(putData);
                     const textoFuncao = 'GERENCIA/ERRO AO EMITIR NFE';
-                    const ipUsuario =  await getIPUsuario();
+                    const ipUsuario = await getIPUsuario();
                     const createData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
                         PATHFUNCAO: textoFuncao,
                         DADOS: textDados,
-                        IP: ipUsuario   
+                        IP: ipUsuario
                     };
 
                     await post('/log-web', createData);

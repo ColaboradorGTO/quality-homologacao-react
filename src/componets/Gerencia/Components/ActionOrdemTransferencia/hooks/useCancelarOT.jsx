@@ -1,9 +1,7 @@
-
 import { useState } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { post, put } from "../../../../../api/funcRequest";
-
 
 export const useCancelarOT = ({usuarioLogado, optionsModulos, handleClick}) => {
     const [ipUsuario, setIpUsuario] = useState('');

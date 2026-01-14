@@ -9,8 +9,9 @@ import * as XLSX from 'xlsx';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { formatMoeda } from "../../../../../utils/formatMoeda";
+import Swal from "sweetalert2";
 
-export const ActionListaProdutos = ({dadosDetalheTransferencia}) => {
+export const ActionListaProdutos = ({ dadosDetalheTransferencia, setDadosDetalheTransferencia }) => {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const dataTableRef = useRef();
 
@@ -56,30 +57,29 @@ export const ActionListaProdutos = ({dadosDetalheTransferencia}) => {
         doc.save('controle_transferencia.pdf');
     };
 
-    console.log(dadosDetalheTransferencia, 'dadosDetalheTransferencia')
     const dados = dadosDetalheTransferencia.map((item, index) => {
         let contador = index + 1;
-        let quantidade = 1;
         return {
             IDRESUMOOT: item.IDRESUMOOT,
             IDPRODUTO: item.IDPRODUTO,
             IDEMPRESAORIGEM: item.IDEMPRESAORIGEM,
             NUCODBARRAS: item.NUCODBARRAS,
             DSNOME: item.DSNOME,
-            VLRUNITVENDA: item.VLRUNITVENDA,
-            VLRUNITCUSTO: item.VLRUNITCUSTO,
-            QTDEXPEDICAO: parseInt(item.QTDEXPEDICAO),
+            VLRUNITVENDA: Number(item.VLRUNITVENDA ?? item.PRECOVENDA ?? 0),
+            VLRUNITCUSTO: Number(item.VLRUNITCUSTO ?? item.PRECOCUSTO ?? 0),
+            QTDEXPEDICAO: Number(item.QTDEXPEDICAO ?? item.QUANTIDADE ?? 1),
+            IDSTATUSOT: Number(item.IDSTATUSOT ?? 1),
             QTDRECEPCAO: parseInt(item.QTDRECEPCAO),
             QTDDIFERENCA: parseInt(item.QTDDIFERENCA),
             QTDAJUSTE: parseInt(item.QTDAJUSTE),
             IDEMPRESADESTINO: item.IDEMPRESADESTINO,
             QTDCONFERENCIA: parseInt(item.QTDCONFERENCIA),
-            IDSTATUSOT: parseInt(item.IDSTATUSOT),
-            quantidade,
+            IDSTATUSOT: Number(item.IDSTATUSOT ?? 1),
+            quantidade: Number(item.QTDEXPEDICAO),
             contador
         }
     })
-    
+
     const colunasDetalheTransferencia = [
         {
             field: 'IDPRODUTO',
@@ -114,7 +114,7 @@ export const ActionListaProdutos = ({dadosDetalheTransferencia}) => {
         {
             field: 'quantidade',
             header: 'QTD',
-            body: row => <th>{row.quantidade}</th>,
+            body: row => <th>{row.QTDEXPEDICAO}</th>,
             sortable: true,
         },
         {
@@ -122,7 +122,7 @@ export const ActionListaProdutos = ({dadosDetalheTransferencia}) => {
             header: 'Opções',
             button: true,
             body: (row) => {
-                if(row.IDSTATUSOT === 1) {
+                if (row.IDSTATUSOT === 1) {
                     return (
                         <div
                             style={{
@@ -136,7 +136,7 @@ export const ActionListaProdutos = ({dadosDetalheTransferencia}) => {
 
                                 <ButtonTable
                                     titleButton={"Diminuir Quantidade"}
-                                    onClickButton={() => handleDiminuirQuantidade(row)}
+                                    onClickButton={() => handleRemoverProduto(row)}
                                     Icon={FaMinus}
                                     iconSize={16}
                                     iconColor={"#fff"}
@@ -169,21 +169,66 @@ export const ActionListaProdutos = ({dadosDetalheTransferencia}) => {
         }
     ]
 
-    const handleDiminuirQuantidade = (row) => {
-        setDados((prevDados) =>
-            prevDados.map((item) => {
-                if (item.IDPRODUTO === row.IDPRODUTO) {
-                    return { ...item, quantidade: Math.max(item.quantidade - 1, 0) }; 
-                }
-                return item;
-            })
-        );
+    const handleExcluirProduto = (produto) => {
+        const modalElement = document.querySelector('.modal.show');
+
+        Swal.fire({
+            title: 'Atenção',
+            text: 'Essa ação irá excluir o produto da O.T, Deseja prosseguir?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Sim, remover',
+            cancelButtonText: 'Cancelar',
+            target: modalElement,
+            customClass: {
+                popup: 'custom-swal'
+            }
+        }).then(result => {
+            if (result.isConfirmed) {
+                setDadosDetalheTransferencia(prev =>
+                    prev.filter(item => item.IDPRODUTO !== produto.IDPRODUTO)
+                );
+            }
+        })
     };
 
-  
-    const handleExcluirProduto = (row) => {
-        setDados((prevDados) =>
-            prevDados.filter((item) => item.IDPRODUTO !== row.IDPRODUTO)
+
+    const handleRemoverProduto = (produto) => {
+        const itemAtual = dadosDetalheTransferencia.find(
+            item => item.IDPRODUTO === produto.IDPRODUTO
+        );
+
+        if (!itemAtual) return;
+
+        if (itemAtual.QTDEXPEDICAO === 1) {
+            const modalElement = document.querySelector('.modal.show');
+
+            Swal.fire({
+                title: 'Atenção',
+                text: 'Essa ação irá excluir o produto da O.T. Deseja prosseguir?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'Sim, remover',
+                cancelButtonText: 'Cancelar',
+                target: modalElement,
+                customClass: {
+                    popup: 'custom-swal'
+                }
+            }).then(result => {
+                if (result.isConfirmed) {
+                    setDadosDetalheTransferencia(prev =>
+                        prev.filter(item => item.IDPRODUTO !== produto.IDPRODUTO)
+                    );
+                }
+            });
+            return;
+        }
+        setDadosDetalheTransferencia(prev =>
+            prev.map(item =>
+                item.IDPRODUTO === produto.IDPRODUTO
+                    ? { ...item, QTDEXPEDICAO: item.QTDEXPEDICAO - 1 }
+                    : item
+            )
         );
     };
 

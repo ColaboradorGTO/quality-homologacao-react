@@ -7,9 +7,11 @@ import { InputFieldModal } from "../../../../Buttons/InputFieldModal";
 import Select from 'react-select';
 import { ActionListaProdutos } from "./actionListaProdutos";
 import FormField from "../../../../Formularios/FormField";
-import { schema } from './schemaValidationIncluirOT';
+//import { schema } from './schemaValidationIncluirOT';
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { AlertError } from "../../../../Inputs/alertError";
+import { useEffect } from "react";
+import { on } from "events";
 
 export const FormularioIncuirOT = ({ handleClose, handleClick, usuarioLogado, optionsModulos }) => {
   const { handleSubmit, formState: { errors }, clearErrors, control, setError } = useForm({
@@ -31,7 +33,13 @@ export const FormularioIncuirOT = ({ handleClose, handleClick, usuarioLogado, op
     onSubmit,
   } = useSalvarOT({ handleClick, handleClose, usuarioLogado, optionsModulos });
 
-  const handleValidatedSubmit = async () => {
+  useEffect(() => {
+    if (usuarioLogado?.IDEMPRESA) {
+      setEmpresaOrigem(usuarioLogado.IDEMPRESA);
+    }
+  }, [usuarioLogado, setEmpresaOrigem]);
+
+ /*  const handleValidatedSubmit = async () => {
     try {
 
       const dadosParaValidar = {
@@ -61,11 +69,11 @@ export const FormularioIncuirOT = ({ handleClose, handleClick, usuarioLogado, op
       const errorMessages = validationError.errors || [validationError.message];
       console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
     }
-  };
+  }; */
 
   return (
     <Fragment>
-      <form onSubmit={handleSubmit(handleValidatedSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <div className="row" >
           <div className="col-sm-6 col-xl-6">
             <InputFieldModal
@@ -78,24 +86,29 @@ export const FormularioIncuirOT = ({ handleClose, handleClick, usuarioLogado, op
             />
           </div>
           <div className="col-sm-6 col-xl-6" >
-              <label className="form-label" htmlFor={""}>Loja Destino</label>
-              <Select
+            <label className="form-label" htmlFor={""}>Loja Destino</label>
+            <Select
+              label={"Loja Destino"}
+              options={dadosEmpresa.map((item) => ({
+                value: item.IDEMPRESA,
+                label: item.NOFANTASIA,
+                isDisabled: item.IDEMPRESA === empresaOrigem
+              }))}
 
-                label={"Loja Destino"}
-                options={dadosEmpresa.map((item) => ({
-                    value: item.IDEMPRESA,
-                    label: item.NOFANTASIA
-                }))}
-                value={empresaDestino}
-                onChange={(e) =>  setEmpresaDestino(e)}
+              value={empresaDestino}
+              onChange={(e) => {
+                if (e?.value === empresaOrigem) return;
+                setEmpresaDestino(e);
+              }}
 
             />
+
             {errors.empresaDestino && (
-                <AlertError
-                    error={errors.empresaDestino}
-                    onClose={clearErrors}
-                    fieldName="empresaDestino"
-                />
+              <AlertError
+                error={errors.empresaDestino}
+                onClose={clearErrors}
+                fieldName="empresaDestino"
+              />
             )}
           </div>
         </div>
@@ -130,7 +143,7 @@ export const FormularioIncuirOT = ({ handleClose, handleClick, usuarioLogado, op
               textButton={"Salvar"}
               cor={"info"}
               className={"mr-4"}
-              onClickButtonType={handleValidatedSubmit}
+              onClickButtonType={onSubmit}
 
             />
           </div>

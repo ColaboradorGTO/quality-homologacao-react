@@ -45,21 +45,37 @@ export const useSalvarOT = ({ handleClick, handleClose, optionsModulos, usuarioL
   );
 
 
-  const { data: dadosProdutos = [], error: errorProdutos, isLoading: isLoadingProdutos, refetch: refetchProdutos } = useQuery(
+  const { data: dadosProdutos = [], isLoading: isLoadingProdutos } = useQuery(
     ['listaProdutos', produto, usuarioLogado?.IDEMPRESA],
     async () => {
 
       const response = await get(`/listaProdutos?idEmpresa=${usuarioLogado?.IDEMPRESA}&idProduto=${produto}&page=1 `);
-      setDadosProdutosTabela(prev => {
-        const novosProdutos = response.data.filter(
-          novo => !prev.some(prod => prod.IDPRODUTO === novo.IDPRODUTO)
-        );
-        return [...prev, ...novosProdutos];
-      });
 
+      setDadosProdutosTabela(prev => {
+        const novos = [...prev];
+
+        response.data.forEach(novo => {
+          const index = novos.findIndex(p => p.IDPRODUTO === novo.IDPRODUTO);
+
+          if (index >= 0) {
+            novos[index] = {
+              ...novos[index],
+              QUANTIDADE: (novos[index].QUANTIDADE || 1) + 1
+            };
+          } else {
+            novos.push({
+              ...novo,
+              QUANTIDADE: 1
+            });
+          }
+        });
+
+        return novos;
+      });
+      setProduto("");
       return response.data;
     },
-    { enabled: produto.length > 8, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { enabled: !!(produto.length > 8 && empresaDestino?.value && usuarioLogado?.IDEMPRESA) }
   );
 
   useEffect(() => {
@@ -72,18 +88,33 @@ export const useSalvarOT = ({ handleClick, handleClose, optionsModulos, usuarioL
           container: 'custom-swal',
         }
       });
-      // setProduto(""); 
+      setProduto("");
       return;
     }
-  }, [dadosProdutos, produto]);
+  }, [produto, empresaDestino]);
 
-  useEffect(() => {
-    if (produto.length > 5) {
+  /*  useEffect(() => {
+     if (produto.length > 4 && empresaDestino <= 0) {
+       Swal.fire({
+         title: 'A Loja de Origem e Destino devem ser Preenchidas!',
+         icon: 'info',
+         confirmButtonText: 'Ok',
+         customClass: {
+           container: 'custom-swal',
+         }
+       });
+       // setProduto(""); 
+       return;
+     }
+   }, [dadosProdutos, produto]); */
 
-      refetchProdutos();
-    }
-  }, [dadosProdutos, produto]);
-
+  /*   useEffect(() => {
+      if (produto.length > 5) {
+  
+        refetchProdutos();
+      }
+    }, [dadosProdutos, produto]);
+   */
 
   const onSubmit = async () => {
     if (optionsModulos[0]?.CRIAR == 'False') {
@@ -105,7 +136,7 @@ export const useSalvarOT = ({ handleClick, handleClose, optionsModulos, usuarioL
       var dVlrTotalCusto = 0;
 
       const dadosdetalheot = dadosProdutosTabela.map((item) => {
-        const nQtdProduto = 1;
+        const nQtdProduto = Number(item.QUANTIDADE);
         const nVlrVenda = parseFloat(item.PRECOVENDA);
         const nVlrCusto = parseFloat(item.PRECOCUSTO);
 
@@ -191,7 +222,7 @@ export const useSalvarOT = ({ handleClick, handleClose, optionsModulos, usuarioL
       handleClick();
       return response.data;
     } catch (error) {
-       var nCtTotalItens = 0;
+      var nCtTotalItens = 0;
       var nQtdTotalItens = 0;
       var dVlrTotalVenda = 0;
       var dVlrTotalCusto = 0;
@@ -254,7 +285,7 @@ export const useSalvarOT = ({ handleClick, handleClose, optionsModulos, usuarioL
         dadosdetalheot: dadosdetalheot,
       };
 
-      
+
       const textDados = JSON.stringify(postData);
       let textoFuncao = 'EXPEDICAO/ERRO AO CRIAR OT COM SUCESSO';
       const ipUsuario = await getIPUsuario();

@@ -38,7 +38,7 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
       setDadosEtiquetas([]);
       setModalAcumulador(true);
     } else if (preco > 0 || dadosEtiquetas.length > 0) {
-      setModalDetalhar(true);
+      //setModalDetalhar(true);
       setDadosEtiquetas(dadosEtiquetas)
     
       const { value: formValues, isDismissed } = await Swal.fire({

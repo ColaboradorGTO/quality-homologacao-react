@@ -3,17 +3,21 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { FaRegSave } from "react-icons/fa"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
-import { useForm } from "react-hook-form"
+import { Controller, useForm } from "react-hook-form"
 import { ActionListaProdutos } from "./actionListaProdutos"
 import { useEditarOT } from "../hooks/useEditarOT"
-export const FormularioEditar = ({ 
-    handleClose, 
-    dadosDetalheTransferencia, 
+import FormField from "../../../../Formularios/FormField"
+export const FormularioEditar = ({
+    handleClose,
+    dadosDetalheTransferencia,
     handleClick,
     optionsModulos,
-    usuarioLogado 
+    usuarioLogado,
+    setDadosDetalheTransferencia
 }) => {
-    const { register, handleSubmit, errors } = useForm();
+    const { handleSubmit, formState: { errors }, clearErrors, control, setError } = useForm({
+    mode: "onChange"
+  });
     const {
         empresaOrigem,
         setEmpresaOrigem,
@@ -24,7 +28,7 @@ export const FormularioEditar = ({
         dadosProdutos,
         dadosEmpresa,
         onSubmit,
-    } = useEditarOT({ handleClick, handleClose, dadosDetalheTransferencia, optionsModulos, usuarioLogado });
+    } = useEditarOT({ handleClick, handleClose, dadosDetalheTransferencia, optionsModulos, usuarioLogado, setDadosDetalheTransferencia });
 
     return (
         <Fragment>
@@ -40,7 +44,7 @@ export const FormularioEditar = ({
                         />
                     </div>
                     <div className="col-sm-6 col-xl-6" data-select2-id="735">
-                      
+
                         <InputFieldModal
                             label={"Loja Destino"}
                             type="text"
@@ -54,13 +58,25 @@ export const FormularioEditar = ({
 
                 <div className="row mt-4">
                     <div className="col-sm-6 col-xl-6">
-                        <InputFieldModal
-                            label={"Produto"}
-                            type="text"
-                            value={produto}
-                            onChangeModal={(e) => setProduto(e.target.value)}
-                            readOnly={dadosDetalheTransferencia[0]?.IDSTATUSOT != 1}
+                        <Controller
+                            name="produtoIncluir"
+                            control={control}
+                            render={({ field }) => (
+                                <FormField
+                                    name="produtoIncluir"
+                                    label={"Produto"}
+                                    type="text"
+                                    value={produto}
+                                    onChange={(e) => setProduto(e.target.value)}
+                                    readOnly={dadosDetalheTransferencia[0]?.IDSTATUSOT !== 1}
+                                    errors={errors}
+                                    clearErrors={clearErrors}
+                                
+                                />
+
+                            )}
                         />
+                        {console.log(dadosDetalheTransferencia, "dadosDetalheTransferencia")}
                     </div>
                 </div>
 
@@ -83,7 +99,10 @@ export const FormularioEditar = ({
                     </div>
                 </div>
 
-                <ActionListaProdutos dadosDetalheTransferencia={dadosDetalheTransferencia} />
+                <ActionListaProdutos
+                    dadosDetalheTransferencia={dadosDetalheTransferencia}
+                    setDadosDetalheTransferencia={setDadosDetalheTransferencia}
+                />
                 <FooterModal
                     ButtonTypeFechar={ButtonTypeModal}
                     textButtonFechar={"Fechar"}

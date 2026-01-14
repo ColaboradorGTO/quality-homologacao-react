@@ -112,7 +112,9 @@ export const ActionListaEtiquetaRemarcacao = ({ dadosAcumuladorEtiquetas, setDad
           titleButton="Excluir"
           onClickButton={() => handleExcluirEtiqueta(row.idEtiqueta)}
           Icon={BsTrash3}
-          iconSize={20}
+          iconSize={22}
+          width="35px"
+          height="35px"
           iconColor="#fff"
           cor="danger"
         />

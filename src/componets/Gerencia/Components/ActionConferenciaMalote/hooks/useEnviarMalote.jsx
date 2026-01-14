@@ -16,7 +16,9 @@ export const useEnviarMalote = ({salvarDadosMalotes, dadosDetalhesMalote, handle
   };
 
   const dataFormatadaISO = formatarDataParaISO(salvarDadosMalotes?.DTHORAFECHAMENTOFORMATADA);
-  
+
+  console.log(salvarDadosMalotes, "dataFormatadaISO");
+
   useEffect(() => {
     getIPUsuario();
   }, [usuarioLogado]);
@@ -34,17 +36,17 @@ export const useEnviarMalote = ({salvarDadosMalotes, dadosDetalhesMalote, handle
 
     IDEMPRESA: usuarioLogado?.IDEMPRESA,
     DATAMOVIMENTOCAIXA: dataFormatadaISO,
-    VRDINHEIRO: Number(salvarDadosMalotes?.VALORTOTALDINHEIRO),
-    VRCARTAO: Number(salvarDadosMalotes?.VALORTOTALCARTAO),
-    VRPOS: Number(salvarDadosMalotes?.VALORTOTALPOS),
-    VRPIX: Number(salvarDadosMalotes?.VALORTOTALPIX),
-    VRCONVENIO: Number(salvarDadosMalotes?.VALORTOTALCONVENIO),
-    VRVOUCHER: Number(salvarDadosMalotes?.VALORTOTALVOUCHER),
-    VRFATURA: Number(salvarDadosMalotes?.VALORTOTALFATURA),
-    VRFATURAPIX: Number(salvarDadosMalotes?.VALORTOTALFATURAPIX),
-    VRDESPESA: Number(salvarDadosMalotes?.vrTotalDespesa),
-    VRTOTALRECEBIDO: Number(salvarDadosMalotes?.vrTotalVendido),
-    VRDISPONIVEL: Number(salvarDadosMalotes?.vrDisponivel),
+    VRDINHEIRO: Number(salvarDadosMalotes?.VALORTOTALDINHEIRO || 0),
+    VRCARTAO: Number(salvarDadosMalotes?.VALORTOTALCARTAO || 0),
+    VRPOS: Number(salvarDadosMalotes?.VALORTOTALPOS || 0),
+    VRPIX: Number(salvarDadosMalotes?.VALORTOTALPIX || 0),
+    VRCONVENIO: Number(salvarDadosMalotes?.VALORTOTALCONVENIO || 0),
+    VRVOUCHER: Number(salvarDadosMalotes?.VALORTOTALVOUCHER || 0),
+    VRFATURA: Number(salvarDadosMalotes?.VALORTOTALFATURA || 0),
+    VRFATURAPIX: Number(salvarDadosMalotes?.VALORTOTALFATURAPIX || 0),
+    VRDESPESA: Number(salvarDadosMalotes?.vrTotalDespesa || 0),
+    VRTOTALRECEBIDO: Number(salvarDadosMalotes?.vrTotalVendido || 0),
+    VRDISPONIVEL: Number(salvarDadosMalotes?.vrDisponivel ||0),
     OBSERVACAOLOJA: '',
     IDUSERCRIACAO: usuarioLogado?.id,
     IDUSERULTIMAALTERACAO: usuarioLogado?.id,
