@@ -66,10 +66,9 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
             }
 
             const errorMessages = validationError.errors || [validationError.message];
-            console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+            //console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
     };
-    console.log(contaBancoSelecionada, "contaBancoSelecionada");
     return (
         <Fragment>
             <form onSubmit={handleSubmit(handleValidatedSubmit)}>
