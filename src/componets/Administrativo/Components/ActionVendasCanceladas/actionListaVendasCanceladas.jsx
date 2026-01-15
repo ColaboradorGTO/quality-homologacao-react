@@ -296,13 +296,13 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
     {
       field: 'NOFUNCIOCANCEL',
       header: 'Cancelado Por',
-      body: row => <th style={{ textTransform: 'uppercase' }}> {row.NOFUNCIOCANCEL}</th>,
+      body: row => <th style={{ textTransform: 'uppercase'}}> {row.NOFUNCIOCANCEL}</th>,
       sortable: true,
     },
     {
       field: 'NOFUNCAOCANCEL',
       header: 'Função',
-      body: row => <th style={{ }}> {row.NOFUNCAOCANCEL}</th>,
+      body: row => <th style={{ textTransform: 'uppercase' }}> {row.NOFUNCAOCANCEL}</th>,
       sortable: true,
     },
     {
