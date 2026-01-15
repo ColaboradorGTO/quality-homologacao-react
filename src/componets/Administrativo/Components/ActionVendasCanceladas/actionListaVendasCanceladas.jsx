@@ -296,7 +296,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
     {
       field: 'NOFUNCIOCANCEL',
       header: 'Cancelado Por',
-      body: row => <th style={{ }}> {row.NOFUNCIOCANCEL.toUpperCase()}</th>,
+      body: row => <th style={{ textTransform: 'uppercase' }}> {row.NOFUNCIOCANCEL}</th>,
       sortable: true,
     },
     {
@@ -308,7 +308,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
     {
       field: 'TXTMOTIVOCANCELAMENTO',
       header: 'Motivo',
-      body: row => <th style={{margin: 0, width: '200px' }}> {row.TXTMOTIVOCANCELAMENTO.toUpperCase()}</th>,
+      body: row => <th style={{margin: 0, width: '200px', textTransform: 'uppercase' }}> {row.TXTMOTIVOCANCELAMENTO}</th>,
       sortable: true,
 
     },
