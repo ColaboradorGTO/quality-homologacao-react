@@ -68,6 +68,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
 
     setValorDistribuir(parseFloat(venda?.venda?.VRTOTALVENDA));
 
+    console.log(venda.venda.VRTOTALVENDA, 'valorDistribuir');
     const temPagamento = venda?.vendaPagamento?.length > 0;
 
     setItemAtual(temPagamento ? venda.vendaPagamento[0].pag.NITEM : null);
@@ -75,6 +76,9 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
   }, [dadosDetalheRecebimentos]);
 
   useEffect(() => {
+    const venda = dadosDetalheRecebimentos?.[0];
+    const valorTotalVenda = toFloat(venda?.venda?.VRTOTALVENDA);
+
     const dinheiro = toFloat(valorDinheiro);
     const pix = toFloat(valorPix);
     const cartao1 = toFloat(vrCartao);
@@ -83,13 +87,12 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     const pos = toFloat(vrPos);
     const pos2 = toFloat(vrPos2);
     const voucher = toFloat(vrVoucher);
-    const somaValores = toFloat(dinheiro )+ toFloat(pix) + toFloat(cartao1) + toFloat(cartao2) + toFloat(cartao3) + toFloat(pos) + toFloat(pos2) + toFloat(voucher);
-    // const somaDiferenca = toFloat(dadosDetalheRecebimentos[0]?.venda.VRTOTALVENDA) - toFloat(somaValores);
-    const somaDiferenca =  toFloat(somaValores);
+    
+    const somaValores = dinheiro + pix + cartao1 + cartao2 + cartao3 + pos + pos2 + voucher;
+    const somaDiferenca = valorTotalVenda - somaValores;
+    
+    setValorDistribuir(parseFloat(somaDiferenca).toFixed(2));
 
-    setValorDistribuir(toFloat(somaDiferenca).toFixed(2));
-    console.log(valorDistribuir, 'valorDistribuir');
-    console.log('somaValores', somaValores);
   }, [valorDinheiro, valorPix, vrCartao, vrCartao2, vrCartao3, vrPos, vrPos2, vrVoucher, dadosDetalheRecebimentos]);
   
 
@@ -887,15 +890,15 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     return response.data;
   }
 
-  const cancelarVendaPagamento = () => {
+  const cancelarVendaPagamento = async () => {
+    // 387.91
 
-
+    console.log('valorDistribuir', valorDistribuir);
     if (valorDistribuir > 0) {
-      console.log('valorDistribuir', valorDistribuir);
       Swal.fire({
         position: 'center',
         icon: 'error',
-        title: 'Distribua o valor restante.',
+        title: 'A soma dos valores é menor que o valor da Venda.',
         showConfirmButton: false,
         timer: 3000,
         customClass: {
@@ -911,7 +914,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         IDFUNCIONARIOCANCELA: usuarioLogado.id,
         TXTMOTIVOCANCELA: motivoAlteracao
       };
-      const response = put('/alterar-venda-pagamento/:id', dados)
+      await put('/alterar-venda-pagamento/:id', dados)
       Swal.fire({
         position: 'center',
         icon: 'success',
@@ -923,7 +926,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         }
       })
       enviarPagamento();
-      return response.data;
+      return true;
     }
   };
 

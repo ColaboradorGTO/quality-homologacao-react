@@ -9,6 +9,7 @@ import { formatMoeda } from "../../../../../utils/formatMoeda";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { useForm } from "react-hook-form";
+import { mascaraValor } from "../../../../../utils/mascaraValor";
 
 export const FormularioAlteracaoPagamento = ({
   dadosDetalheRecebimentos, 
@@ -126,7 +127,8 @@ export const FormularioAlteracaoPagamento = ({
   const enviar = async () => {
     // e.preventDefault(); 
     const result = await cancelarVendaPagamento();
-    handleClose();
+    // handleClose();
+    console.log('resultado alteração pagamento:', result);
     return result;
   };
 
@@ -180,7 +182,7 @@ export const FormularioAlteracaoPagamento = ({
                     readOnly={true}
                     id="vrDistribuir"
                     label="Restante a Distribuir (menos Voucher)"
-                    value={formatMoeda(valorDistribuir)}
+                    value={console.log(valorDistribuir)}
                     onChangeModal={(e) => setValorDistribuir(e.target.value)}
                   />
                 </div>
@@ -192,7 +194,7 @@ export const FormularioAlteracaoPagamento = ({
                     className="form-control input"
                     id="vrDinheiro"
                     label="Valor Dinheiro"
-                    value={valorDinheiro}
+                    value={mascaraValor(valorDinheiro)}
                     onChangeModal={(e) => setValorDinheiro(e.target.value)}
                   />
                 </div>
@@ -207,7 +209,7 @@ export const FormularioAlteracaoPagamento = ({
                     className="form-control input"
                     id="vrPix"
                     label="Valor PIX"
-                    value={valorPix}
+                    value={mascaraValor(valorPix)}
                     onChangeModal={(e) => setValorPix(e.target.value)}
                   />
                 </div>
@@ -266,7 +268,7 @@ export const FormularioAlteracaoPagamento = ({
                     className="form-control input"
                     id="vrCartao"
                     label="Valor Cartão"
-                    value={vrCartao}
+                    value={mascaraValor(vrCartao)}
                     onChangeModal={(e) => setVrCartao(e.target.value)}
                   />
                 </div>
@@ -434,7 +436,7 @@ export const FormularioAlteracaoPagamento = ({
                         type={'text'}
                         id="vrCartao3"
                         label="Valor Cartão 3"
-                        value={vrCartao3}
+                        value={mascaraValor(vrCartao3)}
                         onChangeModal={(e) => setVrCartao3(e.target.value)}
                       />
                     </div>
@@ -513,7 +515,7 @@ export const FormularioAlteracaoPagamento = ({
                     id="vrPos"
                     type={"text"}
                     label="Valor POS"
-                    value={vrPos}
+                    value={mascaraValor(vrPos)}
                     onChangeModal={(e) => setVrPos(e.target.value)}
                   />
                 </div>
@@ -595,7 +597,7 @@ export const FormularioAlteracaoPagamento = ({
                         type={"text"}
                         id="vrPos2"
                         label="Valor POS 2"
-                        value={vrPos2}
+                        value={mascaraValor(vrPos2)}
                         onChangeModal={(e) => setVrPos2(e.target.value)}
                       />
                     </div>
@@ -632,7 +634,7 @@ export const FormularioAlteracaoPagamento = ({
                     className="form-control input"
                     readOnly={true}
                     label="Valor Voucher"
-                    value={vrVoucher}
+                    value={mascaraValor(vrVoucher)}
                     onChangeModal={(e) => setVrVoucher(e.target.value)}
                   />
                 </div>

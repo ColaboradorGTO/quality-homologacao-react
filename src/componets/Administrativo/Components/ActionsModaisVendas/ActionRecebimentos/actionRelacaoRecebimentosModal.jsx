@@ -38,7 +38,7 @@ export const ActionRelacaoRecebimentosModal = ({
   
             <ActionListaPagamentos  dadosDetalheRecebimentos={dadosDetalheRecebimentos} />
             <ActionListaProdutos dadosDetalheRecebimentos={dadosDetalheRecebimentos} />
-            {console.log(dadosDetalheRecebimentos, 'dadosDetalheRecebimentos')}
+           
             <FormularioAlteracaoPagamento 
               dadosDetalheRecebimentos={dadosDetalheRecebimentos} 
               handleClose={handleClose}
