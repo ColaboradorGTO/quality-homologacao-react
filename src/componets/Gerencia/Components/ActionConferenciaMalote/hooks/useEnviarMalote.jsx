@@ -5,7 +5,7 @@ import { post, put } from "../../../../../api/funcRequest";
 import { formataStringComEspaco } from "../../../../../utils/formataStringComEspaco";
 
 
-export const useEnviarMalote = ({salvarDadosMalotes, dadosDetalhesMalote, handleClick, handleClose, optionsModulos,usuarioLogado}) => {
+export const useEnviarMalote = ({ salvarDadosMalotes, dadosDetalhesMalote, handleClick, handleClose, optionsModulos, usuarioLogado }) => {
   const [ipUsuario, setIpUsuario] = useState('');
   const [observacaoLoja, setObservacaoLoja] = useState('');
 
@@ -24,12 +24,26 @@ export const useEnviarMalote = ({salvarDadosMalotes, dadosDetalhesMalote, handle
   }, [usuarioLogado]);
 
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
-  }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
 
   const criarPostData = () => ({
@@ -46,7 +60,7 @@ export const useEnviarMalote = ({salvarDadosMalotes, dadosDetalhesMalote, handle
     VRFATURAPIX: Number(salvarDadosMalotes?.VALORTOTALFATURAPIX || 0),
     VRDESPESA: Number(salvarDadosMalotes?.vrTotalDespesa || 0),
     VRTOTALRECEBIDO: Number(salvarDadosMalotes?.vrTotalVendido || 0),
-    VRDISPONIVEL: Number(salvarDadosMalotes?.vrDisponivel ||0),
+    VRDISPONIVEL: Number(salvarDadosMalotes?.vrDisponivel || 0),
     OBSERVACAOLOJA: '',
     IDUSERCRIACAO: usuarioLogado?.id,
     IDUSERULTIMAALTERACAO: usuarioLogado?.id,
@@ -76,8 +90,8 @@ export const useEnviarMalote = ({salvarDadosMalotes, dadosDetalhesMalote, handle
       input: 'textarea',
       inputPlaceholder: 'Digite sua observação aqui...',
       inputAttributes: {
-      'aria-label': 'Digite sua observação aqui',
-      style: 'text-transform: uppercase;', 
+        'aria-label': 'Digite sua observação aqui',
+        style: 'text-transform: uppercase;',
       },
       showCancelButton: true,
       cancelButtonColor: '#FD1381',
@@ -85,18 +99,18 @@ export const useEnviarMalote = ({salvarDadosMalotes, dadosDetalhesMalote, handle
       confirmButtonText: 'Enviar',
       cancelButtonText: 'Cancelar Envio',
       didOpen: () => {
-      const textarea = Swal.getInput();
-      if (textarea) {
-        textarea.addEventListener('input', function (e) {
-        e.target.value = e.target.value.toUpperCase();
-        });
-      }
+        const textarea = Swal.getInput();
+        if (textarea) {
+          textarea.addEventListener('input', function (e) {
+            e.target.value = e.target.value.toUpperCase();
+          });
+        }
       },
     });
   };
 
   const enviarMalote = async (postData) => {
-    if(optionsModulos[0]?.CRIAR == 'False') {
+    if (optionsModulos[0]?.CRIAR == 'False') {
       Swal.fire({
         icon: 'error',
         title: 'Erro!',
@@ -131,7 +145,7 @@ export const useEnviarMalote = ({salvarDadosMalotes, dadosDetalhesMalote, handle
   };
 
   const reenviarMalote = async (observacao) => {
-    if(optionsModulos[0]?.ALTERAR == 'False') {
+    if (optionsModulos[0]?.ALTERAR == 'False') {
       Swal.fire({
         icon: 'error',
         title: 'Erro!',
