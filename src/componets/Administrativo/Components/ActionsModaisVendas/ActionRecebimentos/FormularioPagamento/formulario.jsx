@@ -317,22 +317,40 @@ export const FormularioAlteracaoPagamento = ({
                   />
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    id="nuOperacao"
-                    label="NSU_CTF"
-                    value={nuOperacao}
-                    onChangeModal={(e) => setNuOperacao(e.target.value)}
+                  <Controller
+                    name="nuOperacao"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"NSU_CTF"}
+                        name="nuOperacao"
+                        type="text"
+                        value={nuOperacao}
+                        onChange={(e) => setNuOperacao(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
+         
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    id="nuAutorizacao"
-                    label="Nº Autorização"
-                    value={nuAutorizacao}
-                    onChangeModal={(e) => setNuAutorizacao(e.target.value)}
+                  <Controller
+                    name="nAutorizacao"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Nº Autorização"}
+                        name="nAutorizacao"
+                        type="text"
+                        value={nuAutorizacao}
+                        onChange={(e) => setNuAutorizacao(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
+
                 </div>
               </div>
             </div>
