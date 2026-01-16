@@ -492,7 +492,6 @@ export const FormularioAlteracaoPagamento = ({
                             onChange={(e) => setVrCartao2(e.target.value)}
                             errors={errors}
                             clearErrors={clearErrors}
-                          
                           />
                         )}
                       />
@@ -581,14 +580,20 @@ export const FormularioAlteracaoPagamento = ({
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'text'}
-                        id="nuAutorizacao3"
-                        label="Nº Autorização 3"
-                        value={nuAutorizacao3}
-                        onChangeModal={(e) => setNuAutorizacao3(e.target.value)}
+                      <Controller
+                        name="numeroAutorizacao3"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Nº Autorização 3"}
+                            name="numeroAutorizacao3"
+                            type="text"
+                            value={nuAutorizacao3}
+                            onChange={(e) => setNuAutorizacao3(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                   </div>
@@ -597,25 +602,37 @@ export const FormularioAlteracaoPagamento = ({
                 <div className="form-group">
                   <div className="row">
                     <div class="col-sm-6 col-md-3 col-xl-3">
-
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'text'}
-                        id="vrCartao3"
-                        label="Valor Cartão 3"
-                        value={vrCartao3}
-                        onChangeModal={(e) => setVrCartao3(e.target.value)}
+                     <Controller
+                        name="valorCartao3"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Valor Cartão 3"}
+                            name="valorCartao3"
+                            type="text"
+                            value={vrCartao3}
+                            onChange={(e) => setVrCartao3(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'number'}
-                        id="qtdParcelas3"
-                        label="Qtd Parcelas 3"
-                        value={qtdParcelas3}
-                        onChangeModal={(e) => setQtdParcelas3(e.target.value)}
+                      <Controller
+                        name="nParcelas3"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Qtd Parcelas 3"}
+                            name="nParcelas3"
+                            type="number"
+                            value={qtdParcelas3}
+                            onChange={(e) => setQtdParcelas3(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
