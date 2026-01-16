@@ -515,13 +515,20 @@ export const FormularioAlteracaoPagamento = ({
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'date'}
-                        id="dataParcela2"
-                        label="Data 1ª Parcela 2"
-                        value={dataParcela2}
-                        onChangeModal={(e) => setDataParcela2(e.target.value)}
+                      <Controller
+                        name="dataParcelaN2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Data 1ª Parcela 2"}
+                            name="dataParcelaN2"
+                            type="date"
+                            value={dataParcela2}
+                            onChange={(e) => setDataParcela2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
@@ -556,14 +563,21 @@ export const FormularioAlteracaoPagamento = ({
 
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'text'}
-                        id="nuOperacao3"
-                        label="NSU_CTF 3"
-                        value={nuOperacao3}
-                        onChangeModal={(e) => setNuOperacao3(e.target.value)}
+                      <Controller
+                        name="numeroOperacao3"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"NSU_CTF 3"}
+                            name="numeroOperacao3"
+                            type="text"
+                            value={nuOperacao3}
+                            onChange={(e) => setNuOperacao3(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
