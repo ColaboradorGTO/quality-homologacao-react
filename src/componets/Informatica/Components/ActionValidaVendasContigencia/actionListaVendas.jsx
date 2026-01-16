@@ -128,7 +128,7 @@ export const ActionListaVendas = ({ dadosVendas, usuarioLogado, optionsModulos }
 
           <div className="p-1">
             <ButtonTable
-              onClickButton={() => handleClick(row)}
+              onClickButton={() => clickDetalharVendaXML(row)}
               titleButton={"Visualizar XML"}
               Icon={GrView}
               iconSize={20}
@@ -152,7 +152,7 @@ export const ActionListaVendas = ({ dadosVendas, usuarioLogado, optionsModulos }
 
             />
           </div> */}
-          <div className="p-1">
+          {/* <div className="p-1">
             <ButtonTable
               onClickButton={() => clickDetalharVendaXML(row)}
               titleButton={"Inutilizar XML"}
@@ -207,7 +207,7 @@ export const ActionListaVendas = ({ dadosVendas, usuarioLogado, optionsModulos }
               height="40px"
 
             />
-          </div>
+          </div> */}
 
         </div>
       ),

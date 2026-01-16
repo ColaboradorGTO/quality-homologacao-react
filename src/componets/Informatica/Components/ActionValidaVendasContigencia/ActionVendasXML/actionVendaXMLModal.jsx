@@ -89,18 +89,12 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosDetalheVendasXML }
           </Modal.Body>
 
 
-            {/* <FooterModal
+            <FooterModal
               
               ButtonTypeCadastrar={ButtonTypeModal}
               textButtonCadastrar={"Copiar XML"}
               onClickButtonCadastrar={handleCopyXML}
               corCadastrar={"primary"}
-
-              ButtonTypeFechar={ButtonTypeModal}
-              textButtonFechar={"Enviar Sefaz"}
-              onClickButtonFechar={handleOpenNewTab}
-              corFechar={"info"}
-
 
               ButtonTypeConfirmar={ButtonTypeModal}
               textButtonConfirmar={"Download"}
@@ -112,9 +106,9 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosDetalheVendasXML }
               onClickButtonCancelar={handleClose}
               corCancelar={"danger"}
 
-            /> */}
+            />
 
-            <div className="footer d-flex justify-content-end p-3">
+            {/* <div className="footer d-flex justify-content-end p-3">
               <ButtonTypeModal
                 textButton={"Copiar"}
                 onClickButtonType={handleCopyXML}
@@ -144,7 +138,7 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosDetalheVendasXML }
                 onClickButtonType
                 cor={"secondary"}
               />
-            </div>
+            </div> */}
          
         </div>
       </Modal>
