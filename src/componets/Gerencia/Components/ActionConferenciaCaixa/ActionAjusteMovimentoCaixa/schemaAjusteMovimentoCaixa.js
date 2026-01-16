@@ -1,6 +1,5 @@
 import * as yup from "yup";
 
-// converte "1.234,56" ou "1234,56" ou "1234.56" em número
 const moneyToNumber = (value, originalValue) => {
   if (originalValue === null || originalValue === undefined) return undefined;
   if (typeof originalValue === "number") return originalValue;
@@ -8,7 +7,6 @@ const moneyToNumber = (value, originalValue) => {
   const s = String(originalValue).trim();
   if (!s) return undefined;
 
-  // remove R$, espaços, separador de milhar e troca vírgula por ponto
   const normalized = s
     .replace(/[R$\s]/g, "")
     .replace(/\./g, "")
@@ -38,14 +36,12 @@ export const schema = yup.object().shape({
   dataLancamento: yup
     .string()
     .required("Data lançamento é obrigatória")
-    // se você estiver usando datetime-local, isso aqui ajuda:
     .test("is-valid-date", "Data lançamento inválida", (value) => {
       if (!value) return false;
       const d = new Date(value);
       return !Number.isNaN(d.getTime());
     }),
 
-  // readOnly no UI, mas se quiser validar:
   dinheiroInformado: yup
     .number()
     .transform(moneyToNumber)

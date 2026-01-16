@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react"
+import { useState } from "react"
 import { post, put } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 import axios from "axios";
@@ -49,6 +49,7 @@ export const useAjusteMovimentoCaixa = ({ handleClose, dadosDetalheFechamento, u
             });
             return;
         }
+
         const txtObservacaoAjuste = motivoAjuste + '-' + 'Justificativa do Ajuste: ' + motivoAjuste + 'Data do Ajuste: ' + dataLancamento + 'Ajustado por: ' + usuarioLogado?.NOFUNCIONARIO
         const vrQuebraNova = dinheiroAjuste - dadosDetalheFechamento[0]?.TOTALFECHAMENTODINHEIROFISICO
         const putData = {
@@ -135,4 +136,5 @@ export const useAjusteMovimentoCaixa = ({ handleClose, dadosDetalheFechamento, u
         setFaturaAjuste,
         onSubmit
     }
+
 }

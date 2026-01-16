@@ -1,11 +1,9 @@
 import { Fragment } from "react"
 import Modal from 'react-bootstrap/Modal';
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
+import { FormularioCadastrarFaturas } from "./formularioCadastroFaturas";
 
-import { FormularioAjusteMovimentoCaixa } from "./formularioAjusteMovimentoCaixa";
-
-export const ActionAjusteMovimentoCaixaModal = ({ show, handleClose, dadosDetalheFechamento, usuarioLogado, optionsModulos }) => {
-
+export const ActionCadastrarFaturaModal = ({ show, handleClose, dadosDetelheFatura, usuarioLogado, optionsModulos }) => {
   return (
     <Fragment>
       <Modal
@@ -13,22 +11,21 @@ export const ActionAjusteMovimentoCaixaModal = ({ show, handleClose, dadosDetalh
         onHide={handleClose}
         size="lg"
         className="modal fade"
-        id="CadadiantamentoSalario"
         tabIndex={-1}
         role="dialog"
         aria-hidden="true"
       >
-
         <HeaderModal
-          title={"Movimento de Caixa da Loja"}
-          subTitle={"Ajustar Movimento de Caixa da Loja"}
+          title={"Dados da Fatura da Loja"}
+          subTitle={"Recebimento de Faturas da Loja"}
           handleClose={handleClose}
         />
         <Modal.Body>
-          <FormularioAjusteMovimentoCaixa
-            dadosDetalheFechamento={dadosDetalheFechamento}
-            usuarioLogado={usuarioLogado}
+          <FormularioCadastrarFaturas
+            show={show}
             handleClose={handleClose}
+            dadosDetelheFatura={dadosDetelheFatura}
+            usuarioLogado={usuarioLogado}
             optionsModulos={optionsModulos}
           />
         </Modal.Body>

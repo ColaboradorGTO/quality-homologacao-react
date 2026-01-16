@@ -3,7 +3,6 @@ import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { Controller, useForm } from "react-hook-form";
-import { InputFieldModal } from "../../../../Buttons/InputFieldModal";
 import { useCadastroQuebraCaixa } from "../hook/actionCadastrarQuebraCaixa";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schemaCadastrarQuebraCaixa";
@@ -70,7 +69,7 @@ export const FormularioCadastrarQuebraCaixa = ({ show, handleClose, dadosDetelhe
             }
 
             const errorMessages = validationError.errors || [validationError.message];
-            console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+            //console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
     };
     return (

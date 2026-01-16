@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react"
+import { Fragment } from "react"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { Controller, useForm } from "react-hook-form";
@@ -66,7 +66,7 @@ export const FormularioAjusteMovimentoCaixa = ({ handleClose, dadosDetalheFecham
         }
 
         const errorMessages = validationError.errors || [validationError.message];
-        console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+        //console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
     }
 };
 

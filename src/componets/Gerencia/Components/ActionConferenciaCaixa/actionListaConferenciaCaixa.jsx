@@ -10,7 +10,7 @@ import { FaCashRegister, FaCcMastercard, FaCheck, FaUserAltSlash } from "react-i
 import { GiTakeMyMoney } from "react-icons/gi";
 import { ActionAjusteMovimentoCaixaModal } from "./ActionAjusteMovimentoCaixa/actionAjusteMovimentoCaixaModal";
 import { ActionCadastrarQuebraCaixaModal } from "./ActionCadastrarQuebraCaixa/actionCadastrarQuebraCaixaModal";
-import { ActionCadastrarFaturaModal } from "./actionCadastrarFaturaModal";
+import { ActionCadastrarFaturaModal } from "./ActionCadastrarFaturasModal/actionCadastrarFaturaModal";
 import { ActionImprimirAjusteModal } from "./actionImprimirAjusteModal";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
