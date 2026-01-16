@@ -748,13 +748,20 @@ export const FormularioAlteracaoPagamento = ({
 
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    type={'date'}
-                    id="dataParcelaPOS"
-                    label="Data 1ª Parcela"
-                    value={dataParcelaPOS}
-                    onChangeModal={(e) => setDataParcelaPOS(e.target.value)}
+                  <Controller
+                    name="dataParcelaPos1"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Data 1ª Parcela"}
+                        name="dataParcelaPos1"
+                        type="date"
+                        value={dataParcelaPOS}
+                        onChange={(e) => setDataParcelaPOS(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
@@ -785,23 +792,37 @@ export const FormularioAlteracaoPagamento = ({
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        type={"text"}
-                        id="nuOperacaoPOS2"
-                        label="NSU_CTF 2"
-                        value={nuOperacaoPOS2}
-                        onChangeModal={(e) => setNuOperacaoPOS2(e.target.value)}
+                      <Controller
+                        name="numeroOperacaoPOS2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"NSU_CTF 2"}
+                            name="numeroOperacaoPOS2"
+                            type="text"
+                            value={nuOperacaoPOS2}
+                            onChange={(e) => setNuOperacaoPOS2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        type={"text"}
-                        id="nuAutorizacaoPOS2"
-                        label="Nº Autorização 2"
-                        value={nuAutorizacaoPOS2}
-                        onChangeModal={(e) => setNuAutorizacaoPOS2(e.target.value)}
+                      <Controller
+                        name="numeroAutorizacaoPOS2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Nº Autorização 2"}
+                            name="numeroAutorizacaoPOS2"
+                            type="text"
+                            value={nuAutorizacaoPOS2}
+                            onChange={(e) => setNuAutorizacaoPOS2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                   </div>
@@ -810,33 +831,54 @@ export const FormularioAlteracaoPagamento = ({
                 <div className="form-group">
                   <div className="row">
                     <div class="col-sm-6 col-md-3 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        type={"text"}
-                        id="vrPos2"
-                        label="Valor POS 2"
-                        value={vrPos2}
-                        onChangeModal={(e) => setVrPos2(e.target.value)}
+                      <Controller
+                        name="valorPos2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Valor POS 2"}
+                            name="valorPos2"
+                            type="text"
+                            value={vrPos2}
+                            onChange={(e) => setVrPos2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        type={"number"}
-                        id="qtdParcelasPOS2"
-                        label="Qtd Parcelas 2"
-                        value={qtdParcelasPOS2}
-                        onChangeModal={(e) => setQtdParcelasPOS2(e.target.value)}
+                      <Controller
+                        name="nqtdParcelasPos2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Qtd Parcelas 2"}
+                            name="nqtdParcelasPos2"
+                            type="number"
+                            value={qtdParcelasPOS2}
+                            onChange={(e) => setQtdParcelasPOS2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'date'}
-                        id="dataParcelaPOS2"
-                        label="Data 1ª Parcela 2"
-                        value={dataParcelaPOS2}
-                        onChangeModal={(e) => setDataParcelaPOS2(e.target.value)}
+                      <Controller
+                        name="dataParcelaPos2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Data 1ª Parcela 2"}
+                            name="dataParcelaPos2"
+                            type="date"
+                            value={dataParcelaPOS2}
+                            onChange={(e) => setDataParcelaPOS2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                   </div>
@@ -848,21 +890,37 @@ export const FormularioAlteracaoPagamento = ({
             <div className="form-group">
               <div className="row">
                 <div class="col-sm-6 col-md-4 col-xl-4">
-                  <InputFieldModal
-                    className="form-control input"
-                    readOnly={true}
-                    label="Valor Voucher"
-                    value={vrVoucher}
-                    onChangeModal={(e) => setVrVoucher(e.target.value)}
+                  <Controller
+                    name="valorVoucher"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Valor Voucher"}
+                        name="valorVoucher"
+                        type="text"
+                        value={vrVoucher}
+                        onChange={(e) => setVrVoucher(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
                 </div>
                 <div class="col-sm-6 col-md-4 col-xl-4">
-                  <InputFieldModal
-                    className="form-control input"
-                    readOnly={true}
-                    label="Nº Voucher"
-                    value={nuVoucher}
-                    onChangeModal={(e) => setNuVoucher(e.target.value)}
+                  <Controller
+                    name="numeroVoucher"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Numero Voucher"}
+                        name="numeroVoucher"
+                        type="text"
+                        value={nuVoucher}
+                        onChange={(e) => setNuVoucher(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -870,13 +928,20 @@ export const FormularioAlteracaoPagamento = ({
             <div className="form-group">
               <div className="row">
                 <div class="col-sm-12">
-                  <InputFieldModal
-                    className="form-control input"
-                    id={"motivoAlteracao"}
-                    type={"text"}
-                    label="Motivo da Alteração"
-                    value={motivoAlteracao}
-                    onChangeModal={(e) => setMotivoAlteracao(e.target.value)}
+                  <Controller
+                    name="motivo"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Motivo da Alteração"}
+                        name="motivo"
+                        type="text"
+                        value={motivoAlteracao}
+                        onChange={(e) => setMotivoAlteracao(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
                 </div>
               </div>
