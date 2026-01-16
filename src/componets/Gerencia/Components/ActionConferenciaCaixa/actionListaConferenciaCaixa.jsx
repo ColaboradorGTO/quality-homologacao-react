@@ -9,7 +9,7 @@ import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { FaCashRegister, FaCcMastercard, FaCheck, FaUserAltSlash } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
 import { ActionAjusteMovimentoCaixaModal } from "./ActionAjusteMovimentoCaixa/actionAjusteMovimentoCaixaModal";
-import { ActionCadastrarQuebraCaixaModal } from "./actionCadastrarQuebraCaixaModal";
+import { ActionCadastrarQuebraCaixaModal } from "./ActionCadastrarQuebraCaixa/actionCadastrarQuebraCaixaModal";
 import { ActionCadastrarFaturaModal } from "./actionCadastrarFaturaModal";
 import { ActionImprimirAjusteModal } from "./actionImprimirAjusteModal";
 import { jsPDF } from 'jspdf';
