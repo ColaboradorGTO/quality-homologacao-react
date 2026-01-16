@@ -12,7 +12,7 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 
 
-export const ActionPesquisaConferenciaCaixa = ({usuarioLogado, ID, optionsEmpresas }) => {
+export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, ID, optionsEmpresas }) => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -29,14 +29,14 @@ export const ActionPesquisaConferenciaCaixa = ({usuarioLogado, ID, optionsEmpres
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
-  
+
   useEffect(() => {
     const dataInicio = getDataAtual()
     const dataFinal = getDataAtual()
     setDataPesquisaInicio(dataInicio)
     setDataPesquisaFim(dataFinal)
   }, [])
-  
+
 
   const fetchCaixaMovimento = async () => {
     const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
@@ -45,7 +45,7 @@ export const ActionPesquisaConferenciaCaixa = ({usuarioLogado, ID, optionsEmpres
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
-           
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -79,11 +79,11 @@ export const ActionPesquisaConferenciaCaixa = ({usuarioLogado, ID, optionsEmpres
   );
 
   const handleClick = () => {
-    
+
     setCurrentPage(prevPage => prevPage + 1);
     refetchCaixaMovimento();
     setTabelaVisivel(true);
-   
+
   }
 
   return (
@@ -107,13 +107,13 @@ export const ActionPesquisaConferenciaCaixa = ({usuarioLogado, ID, optionsEmpres
         ]}
         onChangeSelectPendencia={(e) => setEmpresaSelecionada(e.value)}
         valueSelectPendencia={empresaSelecionada}
-        isVisible={{display: optionsModulos[0]?.ADMINISTRADOR == false ? "none" : "block"}}
+        isVisible={{ display: optionsModulos[0]?.ADMINISTRADOR == false ? "none" : "block" }}
 
         InputFieldDTInicioAComponent={InputField}
         valueInputFieldDTInicioA={dataPesquisaInicio}
         labelInputDTInicioA={"Data Início"}
         onChangeInputFieldDTInicioA={(e) => setDataPesquisaInicio(e.target.value)}
-        
+
         InputFieldDTFimAComponent={InputField}
         labelInputDTFimA={"Data Fim"}
         valueInputFieldDTFimA={dataPesquisaFim}
@@ -128,10 +128,10 @@ export const ActionPesquisaConferenciaCaixa = ({usuarioLogado, ID, optionsEmpres
       />
 
       {tabelaVisivel && (
-        <ActionListaConferenciaCaixa 
-          dadosMovimentosCaixa={dadosMovimentosCaixa} 
+        <ActionListaConferenciaCaixa
+          dadosMovimentosCaixa={dadosMovimentosCaixa}
           usuarioLogado={usuarioLogado}
-          optionsModulos={optionsModulos}  
+          optionsModulos={optionsModulos}
         />
       )}
 

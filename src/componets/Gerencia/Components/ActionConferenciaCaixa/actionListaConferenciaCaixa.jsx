@@ -234,8 +234,8 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
         if (row.STFECHADOMOVIMENTO == 'True' && row.STCONFERIDOMOVIMENTO == 0) {
           if (row.vrFechamentoQuebraCaixa === row.VRQUEBRAEFETIVADO) {
             return (
-              <div className="p-1 " style={{ display: 'flex', justifyContent: "space-between", background: '#000' }}  >
-                Lista 1
+              <div className="p-1 " style={{ display: 'flex', justifyContent: "space-between" }}  >
+      
                 <div className="p-1">
                   <ButtonTable
                     titleButton={"Sem permissão para Ajustar Fechamento Caixa"}
@@ -322,7 +322,6 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
                     height="35px"
                     className="mr-3"
                   />
-
 
                   <ButtonTable
                     titleButton={"Lançar Faturas"}
