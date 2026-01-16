@@ -713,13 +713,20 @@ export const FormularioAlteracaoPagamento = ({
             <div className="form-group">
               <div className="row">
                 <div class="col-sm-6 col-md-3 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    id="vrPos"
-                    type={"text"}
-                    label="Valor POS"
-                    value={vrPos}
-                    onChangeModal={(e) => setVrPos(e.target.value)}
+                  <Controller
+                    name="valorPos"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Valor POS"}
+                        name="valorPos"
+                        type="text"
+                        value={vrPos}
+                        onChange={(e) => setVrPos(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
