@@ -730,14 +730,22 @@ export const FormularioAlteracaoPagamento = ({
                   />
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    id="qtdParcelasPOS"
-                    type={"number"}
-                    label="Qtd Parcelas"
-                    value={qtdParcelasPOS}
-                    onChangeModal={(e) => setQtdParcelasPOS(e.target.value)}
+                  <Controller
+                    name="nqtdParcelasPos1"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Qtd Parcelas"}
+                        name="nqtdParcelasPos1"
+                        type="number"
+                        value={qtdParcelasPOS}
+                        onChange={(e) => setQtdParcelasPOS(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
+
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
                   <InputFieldModal
