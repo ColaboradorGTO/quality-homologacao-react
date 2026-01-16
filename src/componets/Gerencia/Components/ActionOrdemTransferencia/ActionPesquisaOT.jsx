@@ -12,7 +12,6 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { ActionIncluirOTModal } from "./ActionIncluirModalOT/actionIncluirOTModal";
 import Swal from "sweetalert2";
 
-
 export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
@@ -53,7 +52,7 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
   );
 
   const fetchListaConferencia = async () => {
-    const urlBase = `/resumo-ordem-transferencia?idTipoFiltro=2&idEmpresaOrigem=${usuarioLogado?.IDEMPRESA}&idEmpresaDestino=${-empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+    const urlBase = `/resumo-ordem-transferencia?idTipoFiltro=2&idEmpresaOrigem=${usuarioLogado?.IDEMPRESA}&idEmpresaDestino=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {                        
@@ -116,7 +115,6 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
       });
     }
   }
-
 
   return (
     <Fragment>
