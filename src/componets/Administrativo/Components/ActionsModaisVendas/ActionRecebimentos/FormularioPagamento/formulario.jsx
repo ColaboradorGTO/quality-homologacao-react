@@ -574,7 +574,6 @@ export const FormularioAlteracaoPagamento = ({
                             onChange={(e) => setNuOperacao3(e.target.value)}
                             errors={errors}
                             clearErrors={clearErrors}
-                          
                           />
                         )}
                       />
@@ -636,14 +635,20 @@ export const FormularioAlteracaoPagamento = ({
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'date'}
-                        id="dataParcela3"
-                        label="Data 1ª Parcela 3"
-                        value={dataParcela3}
-                        onChangeModal={(e) => setDataParcela3(e.target.value)}
+                      <Controller
+                        name="dataParcelaN3"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Data 1ª Parcela 3"}
+                            name="dataParcelaN3"
+                            type="date"
+                            value={dataParcela3}
+                            onChange={(e) => setDataParcela3(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
 
@@ -670,23 +675,37 @@ export const FormularioAlteracaoPagamento = ({
                   />
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    type={"text"}
-                    id="nuOperacaoPOS"
-                    label="NSU_CTF "
-                    value={nuOperacaoPOS}
-                    onChangeModal={(e) => setNuOperacaoPOS(e.target.value)}
+                  <Controller
+                    name="numeroOperacaoPOS"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"NSU_CTF"}
+                        name="numeroOperacaoPOS"
+                        type="text"
+                        value={nuOperacaoPOS}
+                        onChange={(e) => setNuOperacaoPOS(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    type={"text"}
-                    id="nuAutorizacaoPOS"
-                    label="Nº Autorização "
-                    value={nuAutorizacaoPOS}
-                    onChangeModal={(e) => setNuAutorizacaoPOS(e.target.value)}
+                  <Controller
+                    name="numeroAutorizacaoPOS"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Nº Autorização"}
+                        name="numeroAutorizacaoPOS"
+                        type="text"
+                        value={nuAutorizacaoPOS}
+                        onChange={(e) => setNuAutorizacaoPOS(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
                 </div>
               </div>
