@@ -480,22 +480,38 @@ export const FormularioAlteracaoPagamento = ({
                 <div className="form-group">
                   <div className="row">
                     <div class="col-sm-6 col-md-3 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        id="vrCartao2"
-                        label="Valor Cartão 2"
-                        value={vrCartao2}
-                        onChangeModal={(e) => setVrCartao2(e.target.value)}
+                      <Controller
+                        name="valorCartao2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Valor Cartão 2"}
+                            name="valorCartao2"
+                            type="text"
+                            value={vrCartao2}
+                            onChange={(e) => setVrCartao2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'number'}
-                        id="qtdParcelas2"
-                        label="Qtd Parcelas 2"
-                        value={qtdParcelas2}
-                        onChangeModal={(e) => setQtdParcelas2(e.target.value)}
+                      <Controller
+                        name="nParcelas2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Qtd Parcelas 2"}
+                            name="nParcelas2"
+                            type="number"
+                            value={qtdParcelas2}
+                            onChange={(e) => setQtdParcelas2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
