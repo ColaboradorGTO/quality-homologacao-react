@@ -8,7 +8,7 @@ import { usePagamento } from "../../../../../hooks/useAlteracaoPagamento";
 import { formatMoeda } from "../../../../../utils/formatMoeda";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form"
 import { mascaraValor } from "../../../../../utils/mascaraValor";
 
 export const FormularioAlteracaoPagamento = ({
@@ -17,7 +17,9 @@ export const FormularioAlteracaoPagamento = ({
   optionsModulos, 
   usuarioLogado 
 }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+    mode: "onChange"
+  });
   const {
     valorDistribuir,
     setValorDistribuir,

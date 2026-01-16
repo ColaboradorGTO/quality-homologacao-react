@@ -5,7 +5,7 @@ export const schema = yup.object({
   vrDinheiro: yup.string()
     .transform((value) => {
         if(typeof value === 'string') {
-            return value.replace('.', '').replace(',', '.');
+            return value.replace(/\./g, '').replace(',', '.');
         }
         return value;
     })

@@ -5,11 +5,26 @@ import { get } from "../../../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import Select from 'react-select';
 import { usePagamento } from "../../../../../../hooks/useAlteracaoPagamento";
-import { formatMoeda } from "../../../../../../utils/formatMoeda";
 import { FooterModal } from "../../../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../../../Buttons/ButtonTypeModal";
-import { useForm } from "react-hook-form";
-import { mascaraValor } from "../../../../../../utils/mascaraValor";
+import { useForm, Controller } from "react-hook-form"
+import { schema } from "./usePagamentoSchema";
+import FormField from "../../../../../Formularios/FormField";
+
+const formatarMoeda = (valor) => {
+  const apenasNumeros = valor.replace(/\D/g, '');
+  if (!apenasNumeros) return '';
+  if (apenasNumeros.length <= 2) return apenasNumeros;
+  
+  const centavos = apenasNumeros.slice(-2);
+  const inteiros = apenasNumeros.slice(0, -2);
+  
+  // Adiciona separadores de milhar (pontos)
+  const integrosFormatado = inteiros.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  
+  // Retorna no formato brasileiro: 3.333.333.333.333,33
+  return integrosFormatado + '.' + centavos;
+};
 
 export const FormularioAlteracaoPagamento = ({
   dadosDetalheRecebimentos, 
@@ -17,7 +32,10 @@ export const FormularioAlteracaoPagamento = ({
   optionsModulos, 
   usuarioLogado 
 }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+    mode: "onChange"
+  });
+
   const {
     valorDistribuir,
     setValorDistribuir,
@@ -115,6 +133,7 @@ export const FormularioAlteracaoPagamento = ({
     },
     { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
+
   const { data: optionsPagamentosPOS = [], error: errorPagamentosPOS, isLoading: isLoadingPagamentosPOS, refetch: refetchPagamentoPOS } = useQuery(
     'pagamento-pos',
     async () => {
@@ -123,6 +142,36 @@ export const FormularioAlteracaoPagamento = ({
     },
     { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
+
+  const handleValidatedSubmit = async () => {
+    try {
+      const dadosParaValidar = {
+        vrDinheiro: valorDinheiro,
+      }
+
+      await schema.validate(dadosParaValidar, { abortEarly: false });
+
+      onSubmit();
+
+    } catch (validationError) {
+      clearErrors();
+
+
+      if (validationError.inner && validationError.inner.length > 0) {
+        validationError.inner.forEach(error => {
+          if (error.path) {
+            setError(error.path, {
+              type: 'manual',
+              message: error.message
+            });
+          }
+        });
+      }
+
+      const errorMessages = validationError.errors || [validationError.message];
+      console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+    }
+  }
 
   const enviar = async () => {
     // e.preventDefault(); 
@@ -153,6 +202,7 @@ export const FormularioAlteracaoPagamento = ({
       setAlerta(true);
     }
   };
+  
   
   return (
 
@@ -190,12 +240,21 @@ export const FormularioAlteracaoPagamento = ({
               </div>
               <div class="row mt-4">
                 <div class="col-sm-3 col-md-3 col-xl-4">
-                  <InputFieldModal
-                    className="form-control input"
-                    id="vrDinheiro"
-                    label="Valor Dinheiro"
-                    value={valorDinheiro}
-                    onChangeModal={(e) => setValorDinheiro(e.target.value)}
+                  <Controller
+                    name="vrDinheiro"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Valor Dinheiro"}
+                        name="vrDinheiro"
+                        type="text"
+                        value={valorDinheiro}
+                        onChange={(e) => setValorDinheiro(formatarMoeda(e.target.value))}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+
+                    )}
                   />
                 </div>
               </div>
