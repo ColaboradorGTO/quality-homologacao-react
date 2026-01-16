@@ -281,13 +281,22 @@ export const FormularioAlteracaoPagamento = ({
 
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-9">
-                  <InputFieldModal
-                    className="form-control input"
-                    id="nuChavePix"
-                    label="Nº Chave PIX"
-                    value={nuChavePix}
-                    onChangeModal={(e) => setNuChavePix(e.target.value)}
+                  <Controller
+                    name="chavePix"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Nº Chave PIX"}
+                        name="chavePix"
+                        type="text"
+                        value={nuChavePix}
+                        onChange={(e) => setNuChavePix(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
+
                 </div>
               </div>
               <hr />
