@@ -108,7 +108,6 @@ export const ActionImprimirAjusteModal = ({ show, handleClose, dadosDetelheImpri
       sortable: true,
     },
 
-
   ]
   return (
     <Fragment>
@@ -140,7 +139,6 @@ export const ActionImprimirAjusteModal = ({ show, handleClose, dadosDetelheImpri
               </div>
 
             </div>
-
 
             <DataTable
               title="Vendas por Loja"

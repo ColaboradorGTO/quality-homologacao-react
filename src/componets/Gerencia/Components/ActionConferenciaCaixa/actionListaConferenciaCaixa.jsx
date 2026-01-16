@@ -8,9 +8,9 @@ import { MdMoneyOff, MdOutlineLocalPrintshop } from "react-icons/md";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { FaCashRegister, FaCcMastercard, FaCheck, FaUserAltSlash } from "react-icons/fa";
 import { GiTakeMyMoney } from "react-icons/gi";
-import { ActionAjusteMovimentoCaixaModal } from "./actionAjusteMovimentoCaixaModal";
-import { ActionCadastrarQuebraCaixaModal } from "./actionCadastrarQuebraCaixaModal";
-import { ActionCadastrarFaturaModal } from "./actionCadastrarFaturaModal";
+import { ActionAjusteMovimentoCaixaModal } from "./ActionAjusteMovimentoCaixa/actionAjusteMovimentoCaixaModal";
+import { ActionCadastrarQuebraCaixaModal } from "./ActionCadastrarQuebraCaixa/actionCadastrarQuebraCaixaModal";
+import { ActionCadastrarFaturaModal } from "./ActionCadastrarFaturasModal/actionCadastrarFaturaModal";
 import { ActionImprimirAjusteModal } from "./actionImprimirAjusteModal";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -234,8 +234,8 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
         if (row.STFECHADOMOVIMENTO == 'True' && row.STCONFERIDOMOVIMENTO == 0) {
           if (row.vrFechamentoQuebraCaixa === row.VRQUEBRAEFETIVADO) {
             return (
-              <div className="p-1 " style={{ display: 'flex', justifyContent: "space-between", background: '#000' }}  >
-                Lista 1
+              <div className="p-1 " style={{ display: 'flex', justifyContent: "space-between" }}  >
+      
                 <div className="p-1">
                   <ButtonTable
                     titleButton={"Sem permissão para Ajustar Fechamento Caixa"}
@@ -322,7 +322,6 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
                     height="35px"
                     className="mr-3"
                   />
-
 
                   <ButtonTable
                     titleButton={"Lançar Faturas"}
