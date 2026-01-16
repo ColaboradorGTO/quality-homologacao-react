@@ -416,7 +416,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
 
   const handleEditPagamento = async (IDVENDA) => {
     try {
-      const response = await get(`/recebimento?idVenda=${IDVENDA}`)
+      const response = await get(`/recebimento-resumo?idVenda=${IDVENDA}`)
       if (response) {
         setDadosPagamentoModal(response.data)
         setDadosDetalheRecebimentos(response.data)
