@@ -3,7 +3,7 @@ import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal"
 import Modal from 'react-bootstrap/Modal';
 import { ActionListaProdutos } from "./actionListaProdutos";
 import { ActionListaPagamentos } from "./actionListaPagamentos";
-import { FormularioAlteracaoPagamento } from "./formularioAlteracaoPagamento";
+import { FormularioAlteracaoPagamento } from "./FormularioPagamento/formulario";
 
 export const ActionRelacaoRecebimentosModal = ({ 
   dadosDetalheRecebimentos, 
@@ -38,7 +38,7 @@ export const ActionRelacaoRecebimentosModal = ({
   
             <ActionListaPagamentos  dadosDetalheRecebimentos={dadosDetalheRecebimentos} />
             <ActionListaProdutos dadosDetalheRecebimentos={dadosDetalheRecebimentos} />
-            {console.log(dadosDetalheRecebimentos, 'dadosDetalheRecebimentos')}
+           
             <FormularioAlteracaoPagamento 
               dadosDetalheRecebimentos={dadosDetalheRecebimentos} 
               handleClose={handleClose}
