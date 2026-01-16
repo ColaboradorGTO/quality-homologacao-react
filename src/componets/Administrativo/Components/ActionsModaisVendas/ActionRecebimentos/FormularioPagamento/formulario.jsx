@@ -318,12 +318,12 @@ export const FormularioAlteracaoPagamento = ({
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
                   <Controller
-                    name="nuOperacao"
+                    name="numeroOperacao"
                     control={control}
                     render={({ field }) => (
                       <FormField
                         label={"NSU_CTF"}
-                        name="nuOperacao"
+                        name="numeroOperacao"
                         type="text"
                         value={nuOperacao}
                         onChange={(e) => setNuOperacao(e.target.value)}
@@ -437,23 +437,41 @@ export const FormularioAlteracaoPagamento = ({
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'text'}
-                        id="nuOperacao2"
-                        label="NSU_CTF 2"
-                        value={nuOperacao2}
-                        onChangeModal={(e) => setNuOperacao2(e.target.value)}
+                  
+                      <Controller
+                        name="numeroOperacao2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"NSU_CTF 2"}
+                            name="numeroOperacao2"
+                            type="text"
+                            value={nuOperacao2}
+                            onChange={(e) => setNuOperacao2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          
+                          />
+                        )}
                       />
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
-                      <InputFieldModal
-                        className="form-control input"
-                        type={'text'}
-                        id="nuAutorizacao2"
-                        label="Nº Autorização 2"
-                        value={nuAutorizacao2}
-                        onChangeModal={(e) => setNuAutorizacao2(e.target.value)}
+
+                      <Controller
+                        name="numeroAutorizacao2"
+                        control={control}
+                        render={({ field }) => (
+                          <FormField
+                            label={"Nº Autorização 2"}
+                            name="numeroAutorizacao2"
+                            type="text"
+                            value={nuAutorizacao2}
+                            onChange={(e) => setNuAutorizacao2(e.target.value)}
+                            errors={errors}
+                            clearErrors={clearErrors}
+                          
+                          />
+                        )}
                       />
                     </div>
                   </div>

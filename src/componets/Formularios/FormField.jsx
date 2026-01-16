@@ -16,6 +16,7 @@ const FormField = ({
     clearErrors,
     value,
     onChange,
+    onFocus,
     mask,
     children,
     validation = {},
@@ -56,6 +57,7 @@ const FormField = ({
                 placeholder={placeholder}
                 value={mask ? mask(value) : value}
                 onChangeModal={onChange}
+                onFocus={onFocus}
                 {...props}
                 // {...register(name, {
                 //     required: required ? `${label} é obrigatório` : false,
