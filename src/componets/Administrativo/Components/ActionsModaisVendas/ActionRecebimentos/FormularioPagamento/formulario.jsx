@@ -358,21 +358,39 @@ export const FormularioAlteracaoPagamento = ({
             <div className="form-group">
               <div className="row">
                 <div class="col-sm-6 col-md-3 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    id="vrCartao"
-                    label="Valor Cartão"
-                    value={vrCartao}
-                    onChangeModal={(e) => setVrCartao(e.target.value)}
+                  <Controller
+                    name="valorCartao"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Valor Cartão"}
+                        name="valorCartao"
+                        type="text"
+                        value={vrCartao}
+                        onChange={(e) => setVrCartao(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
+             
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    id="qtdParcelas"
-                    label="Qtd Parcelas"
-                    value={qtdParcelas}
-                    onChangeModal={(e) => setQtdParcelas(e.target.value)}
+      
+                  <Controller
+                    name="nParcelas"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Qtd Parcelas"}
+                        name="nParcelas"
+                        type="number"
+                        value={qtdParcelas}
+                        onChange={(e) => setQtdParcelas(e.target.value)}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-3">
