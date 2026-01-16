@@ -253,7 +253,6 @@ export const FormularioAlteracaoPagamento = ({
                         errors={errors}
                         clearErrors={clearErrors}
                       />
-
                     )}
                   />
                 </div>
@@ -263,14 +262,23 @@ export const FormularioAlteracaoPagamento = ({
             </div>
             <div className="form-group">
               <div className="row">
-                <div class="col-sm-6 col-md-2 col-xl-3">
-                  <InputFieldModal
-                    className="form-control input"
-                    id="vrPix"
-                    label="Valor PIX"
-                    value={valorPix}
-                    onChangeModal={(e) => setValorPix(e.target.value)}
+                <div class="col-sm-6 col-md-2 col-xl-3">       
+                  <Controller
+                    name="vrPix"
+                    control={control}
+                    render={({ field }) => (
+                      <FormField
+                        label={"Valor PIX"}
+                        name="vrPix"
+                        type="text"
+                        value={valorPix}
+                        onChange={(e) => setValorPix(formatarMoeda(e.target.value))}
+                        errors={errors}
+                        clearErrors={clearErrors}
+                      />
+                    )}
                   />
+
                 </div>
                 <div class="col-sm-6 col-md-6 col-xl-9">
                   <InputFieldModal
