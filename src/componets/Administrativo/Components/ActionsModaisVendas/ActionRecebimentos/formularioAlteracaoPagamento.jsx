@@ -8,7 +8,8 @@ import { usePagamento } from "../../../../../hooks/useAlteracaoPagamento";
 import { formatMoeda } from "../../../../../utils/formatMoeda";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
-import { useForm } from "react-hook-form";
+import { useForm, Controller } from "react-hook-form"
+import { mascaraValor } from "../../../../../utils/mascaraValor";
 
 export const FormularioAlteracaoPagamento = ({
   dadosDetalheRecebimentos, 
@@ -16,7 +17,9 @@ export const FormularioAlteracaoPagamento = ({
   optionsModulos, 
   usuarioLogado 
 }) => {
-  const { register, handleSubmit, formState: { errors } } = useForm();
+  const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+    mode: "onChange"
+  });
   const {
     valorDistribuir,
     setValorDistribuir,
@@ -126,7 +129,8 @@ export const FormularioAlteracaoPagamento = ({
   const enviar = async () => {
     // e.preventDefault(); 
     const result = await cancelarVendaPagamento();
-    handleClose();
+    // handleClose();
+    // console.log('resultado alteração pagamento:', result);
     return result;
   };
 
@@ -180,7 +184,7 @@ export const FormularioAlteracaoPagamento = ({
                     readOnly={true}
                     id="vrDistribuir"
                     label="Restante a Distribuir (menos Voucher)"
-                    value={formatMoeda(valorDistribuir)}
+                    value={valorDistribuir}
                     onChangeModal={(e) => setValorDistribuir(e.target.value)}
                   />
                 </div>

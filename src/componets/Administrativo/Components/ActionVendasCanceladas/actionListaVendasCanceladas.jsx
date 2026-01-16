@@ -296,19 +296,19 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
     {
       field: 'NOFUNCIOCANCEL',
       header: 'Cancelado Por',
-      body: row => <th style={{ }}> {row.NOFUNCIOCANCEL.toUpperCase()}</th>,
+      body: row => <th style={{ textTransform: 'uppercase'}}> {row.NOFUNCIOCANCEL}</th>,
       sortable: true,
     },
     {
       field: 'NOFUNCAOCANCEL',
       header: 'Função',
-      body: row => <th style={{ }}> {row.NOFUNCAOCANCEL}</th>,
+      body: row => <th style={{ textTransform: 'uppercase' }}> {row.NOFUNCAOCANCEL}</th>,
       sortable: true,
     },
     {
       field: 'TXTMOTIVOCANCELAMENTO',
       header: 'Motivo',
-      body: row => <th style={{margin: 0, width: '200px' }}> {row.TXTMOTIVOCANCELAMENTO.toUpperCase()}</th>,
+      body: row => <th style={{margin: 0, width: '200px', textTransform: 'uppercase' }}> {row.TXTMOTIVOCANCELAMENTO}</th>,
       sortable: true,
 
     },
@@ -416,7 +416,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
 
   const handleEditPagamento = async (IDVENDA) => {
     try {
-      const response = await get(`/recebimento?idVenda=${IDVENDA}`)
+      const response = await get(`/recebimento-resumo?idVenda=${IDVENDA}`)
       if (response) {
         setDadosPagamentoModal(response.data)
         setDadosDetalheRecebimentos(response.data)
