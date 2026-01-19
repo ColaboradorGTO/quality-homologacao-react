@@ -81,4 +81,29 @@ export const schema = yup.object({
     .typeError('Valor em Cartão 3 inválido'),
     nParcelas3: yup.string(),
     dataParcelaN3: yup.string(),
+    numeroOperacaoPOS: yup.string(),
+    numeroAutorizacaoPOS: yup.string(),
+    valorPos: yup.string()
+        .transform((value) => {
+            if(typeof value === 'string') {
+                return value.replace(/\./g, '').replace(',', '.');
+            }
+            return value;
+        }
+    )
+    .typeError('Valor POS inválido'),
+    nqtdParcelasPos1: yup.string(),
+    dataParcelaPos1: yup.string(),
+    numeroOperacaoPOS2: yup.string(),
+    numeroAutorizacaoPOS2: yup.string(),
+    valorPos2: yup.string()
+        .transform((value) => {
+            if(typeof value === 'string') {
+                return value.replace(/\./g, '').replace(',', '.');
+            }
+            return value;
+        }
+    )
+    .typeError('Valor POS 2 inválido'),
+    nqtdParcelasPos2: yup.string(),
 });
