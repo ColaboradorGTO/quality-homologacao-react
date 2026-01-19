@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { adicionarMeses, getDataAtual } from "../utils/dataAtual";
 import { post, put } from "../api/funcRequest";
 import { toFloat } from "../utils/toFloat";
-
+import axios from "axios";
 
 export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioLogado}) => {
   const [incluirCartao2, setIncluirCartao2] = useState(false);
@@ -48,6 +48,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
   const [dataParcela1, setDataParcela1] = useState('');
   const [pagamentos, setPagamentos] = useState(false);
   const [itemAtual, setItemAtual] = useState(0);
+  const [ipUsuario, setIpUsuario] = useState('');
 
   useEffect(() => {
     const dataAtual = getDataAtual();
@@ -55,6 +56,28 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     setDataParcela2(dataAtual);
     setDataParcela3(dataAtual);
   }, [])
+
+  const getIPUsuario = async () => {
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
+    }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   useEffect(() => {
     const venda = dadosDetalheRecebimentos?.[0];
@@ -393,9 +416,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             }]
         
             await post('/alterar-venda-pagamento', dadosTEF2)
-
-            valorCartaoPagamento2 = parseFloat(vrCartao2);
-
           }
         }
 
@@ -435,7 +455,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           }]
 
           await post('/alterar-venda-pagamento', dadosTEF3)
-          valorCartaoPagamento3 = parseFloat(vrCartao3);
 
         } else {
           let valorCredito = 0;
@@ -499,7 +518,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         
             await post('/alterar-venda-pagamento', dadosTEF3)
 
-            valorCartaoPagamento3 = parseFloat(vrCartao3);
           }
 
         }
@@ -538,8 +556,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           }]
       
           await post('/alterar-venda-pagamento', dadosPOS)
-
-          valorPosPagamento = parseFloat(vrPos);
           
         } else {
           let valorCredito = 0;
@@ -604,8 +620,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             }];
           
             await post('/alterar-venda-pagamento', dadosPOS)
-
-            valorPosPagamento = parseFloat(vrPos)
           }
 
           valorPosPagamento = 0
@@ -706,8 +720,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           
             await post('/alterar-venda-pagamento', dadosPOS2)
 
-            valorPosPagamento = parseFloat(vrPos2)
-
           }
 
           valorPosPagamento = 0
@@ -749,9 +761,22 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
       }]
       
       const response = await put('/atualiza-recebimento-venda/:id', atualizarVenda)
-    
+      
+      const textDados = JSON.stringify(atualizarVenda)
+      let textoFuncao = 'ADMINISTRATIVO/ALTERAR PAGAMENTO DA VENDA';
+      const ipUsuario = await getIPUsuario();
+      const createData = {
+        IDFUNCIONARIO: String(usuarioLogado?.id),
+        PATHFUNCAO: textoFuncao,
+        DADOS: textDados,
+        IP: ipUsuario
+      }
+
+      await post('/log-web', createData)
+
       return response.data;
     } catch (error) {
+      
       console.error('Erro ao processar pagamento:', error);
       Swal.fire({
         position: 'top-center',
@@ -791,6 +816,19 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         TXTMOTIVOCANCELA: motivoAlteracao
       };
       await put('/alterar-venda-pagamento/:id', dados)
+
+      const textDados = JSON.stringify(dados)
+      let textoFuncao = 'ADMINISTRATIVO/CANCELAR VENDA PAGAMENTO';
+      const ipUsuario = await getIPUsuario();
+      const createData = {
+        IDFUNCIONARIO: String(usuarioLogado?.id),
+        PATHFUNCAO: textoFuncao,
+        DADOS: textDados,
+        IP: ipUsuario
+      }
+
+      await post('/log-web', createData)
+
       Swal.fire({
         position: 'center',
         icon: 'success',
