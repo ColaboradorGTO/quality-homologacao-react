@@ -147,6 +147,35 @@ export const FormularioAlteracaoPagamento = ({
     try {
       const dadosParaValidar = {
         vrDinheiro: valorDinheiro,
+        vrPix: valorPix,
+        chavePix: nuChavePix,
+        numeroOperacao: nuOperacao,
+        nAutorizacao: nuAutorizacao,
+        valorCartao: vrCartao,
+        nParcelas: qtdParcelas,
+        dataParcelaN1: dataParcela1,
+        numeroOperacao2: nuOperacao2,
+        numeroAutorizacao2: nuAutorizacao2,
+        valorCartao2: vrCartao2,
+        nParcelas2: qtdParcelas2,
+        dataParcelaN2: dataParcela2,
+        numeroOperacao3: nuOperacao3,
+        numeroAutorizacao3: nuAutorizacao3,
+        valorCartao3: vrCartao3,
+        nParcelas3: qtdParcelas3,
+        dataParcelaN3: dataParcela3,
+        numeroOperacaoPOS: nuOperacaoPOS,
+        numeroAutorizacaoPOS: nuAutorizacaoPOS,
+        valorPos: vrPos,
+        nqtdParcelasPos1: qtdParcelasPOS,
+        dataParcelaPos1: dataParcelaPOS,
+        numeroAutorizacaoPOS2: nuAutorizacaoPOS2,
+        valorPos2: vrPos2,
+        nqtdParcelasPos2: qtdParcelasPOS2,
+        datadaParcelaPos2: dataParcelaPOS2,
+        valorVoucher: vrVoucher,
+        numeroVoucher: nuVoucher,
+        motivo: motivoAlteracao
       }
 
       await schema.validate(dadosParaValidar, { abortEarly: false });
@@ -866,12 +895,12 @@ export const FormularioAlteracaoPagamento = ({
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
                       <Controller
-                        name="dataParcelaPos2"
+                        name="datadaParcelaPos2"
                         control={control}
                         render={({ field }) => (
                           <FormField
                             label={"Data 1ª Parcela 2"}
-                            name="dataParcelaPos2"
+                            name="datadaParcelaPos2"
                             type="date"
                             value={dataParcelaPOS2}
                             onChange={(e) => setDataParcelaPOS2(e.target.value)}
