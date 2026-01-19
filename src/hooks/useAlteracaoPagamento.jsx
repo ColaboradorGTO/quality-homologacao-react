@@ -82,19 +82,20 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
   useEffect(() => {
     const venda = dadosDetalheRecebimentos?.[0];
 
+    console.log('venda:', venda);
     setValorDistribuir(parseFloat(venda?.venda?.VRTOTALVENDA));
 
     if(venda?.vendaPagamento?.length > 0) {
 
       const nItemMaior = Math.max(...venda.vendaPagamento.map(pagamento => pagamento.pag.NITEM));
-
+      console.log('nItemMaior:', nItemMaior);
       setItemAtual(nItemMaior);
     } else {
       setItemAtual(0);
     }
 
   }, [dadosDetalheRecebimentos]);
-
+  console.log('itemAtual:', itemAtual);
   useEffect(() => {
     const venda = dadosDetalheRecebimentos?.[0];
     const vrDistribuir2 = toFloat(venda?.venda?.VRTOTALVENDA);
@@ -204,19 +205,15 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           VALORLIQUIDO: parseFloat(valorPix),
           DTPROCESSAMENTO: dataParcela1,
           NOTEF: 'PIX',
-          NUAUTORIZACAO: nuAutorizacao,
+          NUAUTORIZACAO: nuChavePix,
           STCANCELADO: 'False',
           IDFUNCIONARIO: usuarioLogado.id,
 
         }]
       
         await post('/alterar-venda-pagamento', dadosPix)
-
-        valorPixPagamento = parseFloat(valorPix);
         
-      } else {
-        valorPixPagamento = 0;
-      }
+      } 
 
       if (vrCartao > 0) {
 
@@ -353,7 +350,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           }]
 
           await post('/alterar-venda-pagamento', dadosTEF2)
-          valorCartaoPagamento2 = parseFloat(vrCartao2);
 
         } else {
           let valorCredito = 0;
@@ -419,9 +415,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           }
         }
 
-      } else {
-        valorCartaoPagamento2 = 0;
-      }
+      } 
 
       if (vrCartao3 > 0) {
 
@@ -749,7 +743,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
       }
 
       const vrTotalCartao = toFloat(vrCartao) + toFloat(vrCartao2) + toFloat(vrCartao3);
-      const vrTotalPos = toFloat(vrPos) + toFloat(vrPos2);
+      const vrTotalPos = toFloat(vrPos) + toFloat(vrPos2) + toFloat(valorPix)
       const atualizarVenda = [{
         IDVENDA: idVenda,
         VRRECDINHEIRO: parseFloat(valorDinheiro),

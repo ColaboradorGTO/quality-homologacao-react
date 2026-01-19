@@ -830,7 +830,7 @@ export const usePagamentoCorrigido = ({ dadosDetalheRecebimentos, optionsModulos
       // ATUALIZA RESUMO DA VENDA COM TOTAIS
       // =====================================================
       const VRTotalCartao = toFloat(vrCartao) + toFloat(vrCartao2) + toFloat(vrCartao3);
-      const VRTotalPOS = toFloat(vrPos) + toFloat(vrPos2);
+      const VRTotalPOS = toFloat(vrPos) + toFloat(vrPos2) + toFloat(valorPix);
 
       const dadosUpVenda = [{
         IDVENDA: idVenda,
