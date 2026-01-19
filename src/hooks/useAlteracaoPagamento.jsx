@@ -215,9 +215,9 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         const dadosTEF = [{
           IDVENDAPAGAMENTO: idVendaPagamento,
           IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-          NITEM: nItemAtual,
+          NITEM: parseInt(nItemAtual),
           TPAG: dsTipoPagamentoTEF.substring(0, 3),
-          DSTIPOPAGAMENTO: dsTipoPagamentoTEF,
+          DSTIPOPAGAMENTO: dsTipoPagamentoTEF.substring(4),
           VALORRECEBIDO: parseFloat(vrCartao),
           VALORDEDUZIDO: 0,
           VALORLIQUIDO: parseFloat(vrCartao),
@@ -290,7 +290,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             IDVENDA:idresumo,
             NITEM: parseInt(nItemAtual),
             TPAG: dsTipoPagamentoTEF.substring(0, 3),
-            DSTIPOPAGAMENTO: dsTipoPagamentoTEF,
+            DSTIPOPAGAMENTO: dsTipoPagamentoTEF.substring(4),
             VALORRECEBIDO: parseFloat(valorResultadoCredito),
             VALORDEDUZIDO: 0,
             VALORLIQUIDO: parseFloat(valorResultadoCredito),
@@ -318,19 +318,19 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     }
 
     if (vrCartao2 > 0) {
-      if (dsTipoPagamentoTEF2.substring(0, 3) == 0) {
-        Swal.fire({
-          position: 'center',
-          icon: 'error',
-          title: 'Informe a Descrição do Cartão TEF 2.',
-          showConfirmButton: false,
-          timer: 3000,
-          customClass: {
-            container: 'custom-swal',
-          }
-        });
-        return false;
-      }
+      // if (dsTipoPagamentoTEF2.substring(0, 3) == 0) {
+      //   Swal.fire({
+      //     position: 'center',
+      //     icon: 'error',
+      //     title: 'Informe a Descrição do Cartão TEF 2.',
+      //     showConfirmButton: false,
+      //     timer: 3000,
+      //     customClass: {
+      //       container: 'custom-swal',
+      //     }
+      //   });
+      //   return false;
+      // }
 
       if(qtdParcelas2 == 0) {
         let nItemAtual = itemAtual + 1
@@ -340,9 +340,9 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         const dadosTEF2 = [{
           IDVENDAPAGAMENTO: idVendaPagamento,
           IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-          NITEM: nItemAtual,
+          NITEM: parseInt(nItemAtual),
           TPAG: dsTipoPagamentoTEF2.substring(0, 3),
-          DSTIPOPAGAMENTO: dsTipoPagamentoTEF2,
+          DSTIPOPAGAMENTO: dsTipoPagamentoTEF2.substring(4),
           VALORRECEBIDO: parseFloat(vrCartao2),
           VALORDEDUZIDO: 0,
           VALORLIQUIDO: parseFloat(vrCartao2),
@@ -416,7 +416,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             IDVENDA:idresumo,
             NITEM: parseInt(nItemAtual),
             TPAG: dsTipoPagamentoTEF2.substring(0, 3),
-            DSTIPOPAGAMENTO: dsTipoPagamentoTEF2,
+            DSTIPOPAGAMENTO: dsTipoPagamentoTEF2.substring(4),
             VALORRECEBIDO: parseFloat(valorResultadoCredito2),
             VALORDEDUZIDO: 0,
             VALORLIQUIDO: parseFloat(valorResultadoCredito2),
@@ -446,19 +446,19 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     }
 
     if (vrCartao3 > 0) {
-      if (dsTipoPagamentoTEF3.substring(0, 3) == 0) {
-        Swal.fire({
-          position: 'center',
-          icon: 'error',
-          title: 'Informe a Descrição do Cartão TEF 3.',
-          showConfirmButton: false,
-          timer: 3000,
-          customClass: {
-            container: 'custom-swal',
-          }
-        });
-        return false;
-      }
+        // if (dsTipoPagamentoTEF3.substring(0, 3) == 0) {
+        //   Swal.fire({
+        //     position: 'center',
+        //     icon: 'error',
+        //     title: 'Informe a Descrição do Cartão TEF 3.',
+        //     showConfirmButton: false,
+        //     timer: 3000,
+        //     customClass: {
+        //       container: 'custom-swal',
+        //     }
+        //   });
+        //   return false;
+        // }
 
       if(qtdParcelas3 == 0) {
         let nItemAtual = itemAtual + 1
@@ -468,9 +468,9 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         const dadosTEF3 = [{
           IDVENDAPAGAMENTO: idVendaPagamento,
           IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-          NITEM: nItemAtual,
+          NITEM: parseInt(nItemAtual),
           TPAG: dsTipoPagamentoTEF3.substring(0, 3),
-          DSTIPOPAGAMENTO: dsTipoPagamentoTEF3,
+          DSTIPOPAGAMENTO: dsTipoPagamentoTEF3.substring(4),
           VALORRECEBIDO: parseFloat(vrCartao3),
           VALORDEDUZIDO: 0,
           VALORLIQUIDO: parseFloat(vrCartao3),
@@ -499,9 +499,9 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         let valor3 = parseFloat((vrCartao3/qtdParcelas3).toFixed(2));
 
         for(i = 1; i <= qtdParcelas3; i++) {
-           let nItemAtual = itemAtual + 1
+          let nItemAtual = itemAtual + 1
           let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA;
-             idVendaPagamento = idVendaPagamento + nItemAtual;
+          idVendaPagamento = idVendaPagamento + nItemAtual;
 
           valorParcela3 += valor3;
 
@@ -544,7 +544,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             IDVENDA:idresumo,
             NITEM: parseInt(nItemAtual),
             TPAG: dsTipoPagamentoTEF3.substring(0, 3),
-            DSTIPOPAGAMENTO: dsTipoPagamentoTEF3,
+            DSTIPOPAGAMENTO: dsTipoPagamentoTEF3.substring(4),
             VALORRECEBIDO: parseFloat(valorResultadoCredito3),
             VALORDEDUZIDO: 0,
             VALORLIQUIDO: parseFloat(valorResultadoCredito3),
@@ -574,19 +574,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     }
 
     if (vrPos > 0) {
-      if (dsTipoPagamentoPOS.substring(0, 3) == 0) {
-        Swal.fire({
-          position: 'center',
-          icon: 'error',
-          title: 'Informe a Descrição do Cartão POS.',
-          showConfirmButton: false,
-          timer: 3000,
-          customClass: {
-            container: 'custom-swal',
-          }
-        });
-        return false;
-      }
       if(qtdParcelasPOS == 0) {
         let nItemAtual = itemAtual + 1
         let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA+'-';
@@ -595,9 +582,9 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         const dadosPOS = [{
           IDVENDAPAGAMENTO: idVendaPagamento,
           IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-          NITEM: nItemAtual,
+          NITEM: parseInt(nItemAtual),
           TPAG: dsTipoPagamentoPOS.substring(0, 3),
-          DSTIPOPAGAMENTO: dsTipoPagamentoPOS,
+          DSTIPOPAGAMENTO: dsTipoPagamentoPOS.substring(4),
           VALORRECEBIDO: parseFloat(vrPos),
           VALORDEDUZIDO: 0,
           VALORLIQUIDO: parseFloat(vrPos),
@@ -672,7 +659,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             IDVENDA:idresumo,
             NITEM: parseInt(nItemAtual),
             TPAG: dsTipoPagamentoPOS.substring(0, 3),
-            DSTIPOPAGAMENTO: dsTipoPagamentoPOS,
+            DSTIPOPAGAMENTO: dsTipoPagamentoPOS.substring(4),
             VALORRECEBIDO: parseFloat(valorResultadoCreditoPos),
             VALORDEDUZIDO: 0,
             VALORLIQUIDO: parseFloat(valorResultadoCreditoPos),
@@ -700,30 +687,18 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     } 
     
     if (vrPos2 > 0) {
-      if (dsTipoPagamentoPOS2.substring(0, 3) == 0) {
-        Swal.fire({
-          position: 'center',
-          icon: 'error',
-          title: 'Informe a Descrição do Cartão POS2.',
-          showConfirmButton: false,
-          timer: 3000,
-          customClass: {
-            container: 'custom-swal',
-          }
-        });
-        return false;
-      }
+
       if(qtdParcelasPOS2 == 0) {
-         let nItemAtual = itemAtual + 1
+        let nItemAtual = itemAtual + 1
         let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA + '-';
         idVendaPagamento = idVendaPagamento + nItemAtual;
         
         const dadosPOS2 = [{
           IDVENDAPAGAMENTO: idVendaPagamento,
           IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-          NITEM: nItemAtual,
+          NITEM: parseInt(nItemAtual),
           TPAG: dsTipoPagamentoPOS2.substring(0, 3),
-          DSTIPOPAGAMENTO: dsTipoPagamentoPOS2,
+          DSTIPOPAGAMENTO: dsTipoPagamentoPOS2.substring(4),
           VALORRECEBIDO: parseFloat(vrPos2),
           VALORDEDUZIDO: 0,
           VALORLIQUIDO: parseFloat(vrPos2),
@@ -795,10 +770,10 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
 
           const dadosPOS2 = [{
             IDVENDAPAGAMENTO: idvendapag,
-            IDVENDA:idresumo,
+            IDVENDA: idresumo,
             NITEM: parseInt(nItemAtual),
             TPAG: dsTipoPagamentoPOS2.substring(0, 3),
-            DSTIPOPAGAMENTO: dsTipoPagamentoPOS2,
+            DSTIPOPAGAMENTO: dsTipoPagamentoPOS2.substring(4),
             VALORRECEBIDO: parseFloat(valorResultadoCreditoPos2),
             VALORDEDUZIDO: 0,
             VALORLIQUIDO: parseFloat(valorResultadoCreditoPos2),
@@ -834,7 +809,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
       const dadosVoucher = [{
         IDVENDAPAGAMENTO: idVendaPagamento,
         IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-        NITEM: nItemAtual,
+        NITEM: parseInt(nItemAtual),
         TPAG: '024',
         DSTIPOPAGAMENTO: 'VOUCHER',
         VALORRECEBIDO: parseFloat(vrVoucher),

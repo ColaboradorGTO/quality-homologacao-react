@@ -106,4 +106,16 @@ export const schema = yup.object({
     )
     .typeError('Valor POS 2 inválido'),
     nqtdParcelasPos2: yup.string(),
+    datadaParcelaPos2: yup.string(),
+    valorVoucher: yup.string()
+        .transform((value) => {
+            if(typeof value === 'string') {
+                return value.replace(/\./g, '').replace(',', '.');
+            }
+            return value;
+        }
+    )
+    .typeError('Valor do Voucher inválido'),
+    numeroVoucher: yup.string(),
+    motivoAlteracao: yup.string(),
 });
