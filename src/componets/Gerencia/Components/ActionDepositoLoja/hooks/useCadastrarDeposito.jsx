@@ -136,7 +136,7 @@ export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado
       return;
     }
 
-    const putData = {
+    const putData = [{
       IDEMPRESA: parseInt(usuarioLogado?.IDEMPRESA),
       IDUSR: parseInt(usuarioLogado?.id),
       IDCONTABANCO: parseInt(contaBancoSelecionada?.value),
@@ -147,7 +147,7 @@ export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado
       VRDEPOSITO: parseFloat(valorDeposito),
       STATIVO: 'True',
       STCANCELADO: 'False',
-    }
+    }]
 
     try {
 
