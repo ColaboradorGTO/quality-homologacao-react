@@ -10,6 +10,8 @@ import { ActionListaVendas } from "./actionListaVendas"
 import { FiSend } from "react-icons/fi"
 import { useAtualizarVendasContigencia } from "./hooks/useAtualizarVendasContigencia"
 import axios from "axios"
+import { useEffect } from "react"
+import { getDataAtual } from "../../../../utils/dataAtual"
 
 
 export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
@@ -18,6 +20,12 @@ export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
   const [dataFim, setDataFim] = useState('');
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(100);
+
+  useEffect(() => {
+    const dataAtual = getDataAtual();
+    setDataInicio(dataAtual);
+    setDataFim(dataAtual);
+  } , []);
 
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
