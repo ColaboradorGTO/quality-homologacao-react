@@ -16,6 +16,8 @@ export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
   const [numeroVenda, setNumeroVenda] = useState('');
   const [dataInicio, setDataInicio] = useState('');
   const [dataFim, setDataFim] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
 
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
@@ -27,57 +29,57 @@ export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
-  const fetchListaVendas = async () => {
-    const urlBase = axios.get(`https://gto.api.br/validarConsulta?dataInicio=${dataInicio}&dataFim=${dataFim}`);
-    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
-    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
-    try {
-      animacaoCarregamento('Carregando dados...', true);
+  // const fetchListaVendas = async () => {
+  //   const urlBase = axios.get(`https://gto.api.br/validarConsulta?dataInicio=${dataInicio}&dataFim=${dataFim}`);
+  //   let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+  //   urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+  //   try {
+  //     animacaoCarregamento('Carregando dados...', true);
                                                                       
-      const primeiraPagina = 1;
-      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
-      const page = primeiraResposta.page || primeiraPagina;
-      const pageSize = primeiraResposta.pageSize || 1000;
-      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
-      const totalPages = Math.ceil(totalRows / pageSize);
+  //     const primeiraPagina = 1;
+  //     const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+  //     const page = primeiraResposta.page || primeiraPagina;
+  //     const pageSize = primeiraResposta.pageSize || 1000;
+  //     const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+  //     const totalPages = Math.ceil(totalRows / pageSize);
 
-      let allData = [...(primeiraResposta.data || [])];
-      console.log('allData:', primeiraResposta.data);
+  //     let allData = [...(primeiraResposta.data || [])];
+  //     console.log('allData:', primeiraResposta.data);
 
-      if (totalPages > 1) {
-        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-          const responsePage = await get(`${urlApi}&page=${currentPage}`);
-          allData.push(...(responsePage.data || []));
-        }
-      }
-      return allData;
-    } catch (error) {
-      console.error('Erro ao buscar dados da api:', error);
-      throw error;
-    } finally {
-      fecharAnimacaoCarregamento();
-    }
-  };
+  //     if (totalPages > 1) {
+  //       for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+  //         animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+  //         const responsePage = await get(`${urlApi}&page=${currentPage}`);
+  //         allData.push(...(responsePage.data || []));
+  //       }
+  //     }
+  //     return allData;
+  //   } catch (error) {
+  //     console.error('Erro ao buscar dados da api:', error);
+  //     throw error;
+  //   } finally {
+  //     fecharAnimacaoCarregamento();
+  //   }
+  // };
   
-  const { data: dadosVendas = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaVendas } = useQuery(
-    'validarConsulta',
-    () => fetchListaVendas(),
-    { enabled: false }
-  );
-
-
   // const { data: dadosVendas = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaVendas } = useQuery(
-  //   'https://gto.api.br/validarConsulta',
-  //   async () => {
-  //     const response = await axios.get(`https://gto.api.br/validarConsulta?dataInicio=${dataInicio}&dataFim=${dataFim}`, 
-    
-  //     )
-  //     console.log('Response da consulta:', response.data);
-  //     return response.data.data;
-  //   },
+  //   'validarConsulta',
+  //   () => fetchListaVendas(),
   //   { enabled: false }
   // );
+
+
+  const { data: dadosVendas = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaVendas } = useQuery(
+    'https://gto.api.br/validarConsulta',
+    async () => {
+      const response = await axios.get(`https://gto.api.br/validarConsulta?dataInicio=${dataInicio}&dataFim=${dataFim}&page=${page}&pageSize=${pageSize}`, 
+    
+      )
+      console.log('Response da consulta:', response.data);
+      return response.data.data;
+    },
+    { enabled: false }
+  );
 
   const handleClick= () => {
     refetchListaVendas();
