@@ -166,19 +166,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
       }
 
       if (valorPix > 0) {
-        if (nuAutorizacao == '') {
-          Swal.fire({
-            position: 'top-center',
-            icon: 'error',
-            title: 'Informe a chave PIX!',
-            showConfirmButton: false,
-            timer: 3000,
-            customClass: {
-              container: 'custom-swal',
-            }
-          });
-          return false;
-        }
         nItemAtualLocal++;
         const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`; 
         
@@ -210,21 +197,23 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
 
       if (vrCartao > 0) {
 
-        if(qtdParcelas == 0) {
-          let nItemAtual = itemAtual + 1
-          let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA + '-';
-          idVendaPagamento = idVendaPagamento + nItemAtual;
+        const qtd = parseInt(qtdParcelas) || 0;
+        
+        if(qtd == 0) {
+          nItemAtualLocal++; // ✅ INCREMENTA
+          const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
     
           const dadosTEF = [{
             IDVENDAPAGAMENTO: idVendaPagamento,
-            IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-            NITEM: parseInt(nItemAtual),
+            IDVENDA: idVenda,
+            NITEM: nItemAtualLocal,
             TPAG: dsTipoPagamentoTEF.substring(0, 3),
             DSTIPOPAGAMENTO: dsTipoPagamentoTEF.substring(4),
             VALORRECEBIDO: parseFloat(vrCartao),
             VALORDEDUZIDO: 0,
             VALORLIQUIDO: parseFloat(vrCartao),
             DTPROCESSAMENTO: dataParcela1,
+            DTVENCIMENTO: dataParcela1,
             NPARCELAS: 0,
             NOTEF: 'TEF',
             NUAUTORIZADOR: dsTipoPagamentoTEF,
@@ -243,65 +232,56 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
 
         } else {
           let valorCredito = 0;
-          let valorResultadoCredito = 0;
           let valorParcela = 0;
-          let valor = parseFloat((vrCartao/qtdParcelas).toFixed(2));
+          const valor = parseFloat((vrCartao / qtd).toFixed(2));
 
           for(i = 1; i <= qtdParcelas; i++) {
-            let nItemAtual = itemAtual + 1
-            let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA;
-            idVendaPagamento = idVendaPagamento + nItemAtual;
+            nItemAtualLocal++; // ✅ INCREMENTA A CADA ITERAÇÃO
+            const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
 
             valorParcela += valor;
 
-            if(i==1) {
-              finalParcelaCredito = dataParcela1;
-            } else {
-              dataParcela1 = adicionarMeses(dataParcela1);
+            let dataVencimento = dataParcela1;
+            if (i > 1) {
+              for (let j = 1; j < i; j++) {
+                dataVencimento = adicionarMeses(dataVencimento);
+              }
             }
 
-            const [ano, mes, dia] = finalParcelaCredito.split('-').map(Number);
-            const dataAjustada = new Date(ano, mes - 1, dia);
-
-            if((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
-              dataAjustada.setDate(30);
-            } else if(mes === 2 && ( dia > 28 || dia === 31)) {
-              dataAjustada.setDate(dataAjustada.getDate() - (dia === 31 ? 3 : 2));
+              // Ajusta data se necessário
+            const [ano, mes, dia] = dataVencimento.split('-').map(Number);
+            if ((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
+              dataVencimento = `${ano}-${String(mes).padStart(2, '0')}-30`;
+            } else if (mes === 2 && dia > 28) {
+              const ehBissexto = (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+              dataVencimento = `${ano}-02-${ehBissexto ? '29' : '28'}`;
             }
 
-            finalParcelaCredito = format(dataAjustada, 'yyyy-MM-dd');
-            if(i == qtdParcelas) {
-              if(valorParcela > vrCartao) {
+            let valorFinal = valor;
+            if (i === qtd) {
+              if (valorParcela > vrCartao) {
                 valorCredito = parseFloat((valorParcela - vrCartao).toFixed(2));
-                valorResultadoCredito = valorCredito - valor;
-              }
-
-              if(valorParcela < vrCartao) {
+                valorFinal = valor - valorCredito;
+              } else if (valorParcela < vrCartao) {
                 valorCredito = parseFloat((vrCartao - valorParcela).toFixed(2));
-                valorResultadoCredito = valorCredito + valor;
+                valorFinal = valor + valorCredito;
               }
-
-              if(valorParcela == vrCartao) {
-                valorResultadoCredito = valor 
-              }
-            } else {
-              valorResultadoCredito = valor;
             }
 
             const dadosTEF = [{
-              IDVENDAPAGAMENTO: idvendapag,
-              IDVENDA:idresumo,
-              NITEM: parseInt(nItemAtual),
+              IDVENDAPAGAMENTO: idVendaPagamento,
+              IDVENDA: idVenda,
+              NITEM: nItemAtualLocal,
               TPAG: dsTipoPagamentoTEF.substring(0, 3),
               DSTIPOPAGAMENTO: dsTipoPagamentoTEF.substring(4),
-              VALORRECEBIDO: parseFloat(valorResultadoCredito),
+              VALORRECEBIDO: parseFloat(valorFinal),
               VALORDEDUZIDO: 0,
-              VALORLIQUIDO: parseFloat(valorResultadoCredito),
+              VALORLIQUIDO: parseFloat(valorFinal),
               DTPROCESSAMENTO: dataParcela1,
-              DTVENCIMENTO: finalParcelaCredito,
+              DTVENCIMENTO: dataVencimento,
               NPARCELAS: parseInt(qtdParcelas),
               NOTEF:'TEF',
-              NOAUTORIZADOR: dsTipoPagamentoTEF,
+              NOAUTORIZADOR: dsTipoPagamentoTEF.substring(4),
               NOCARTAO:'NÃO INFORMADO',
               NUOPERACAO: nuOperacao,
               NSUTEF: nuOperacao,
@@ -316,20 +296,19 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             valorCartaoPagamento = parseFloat(vrCartao);
           }
         }
-      } else {
-        valorCartaoPagamento = 0;
       }
 
       if (vrCartao2 > 0) {
-        if(qtdParcelas2 == 0) {
-          let nItemAtual = itemAtual + 1
-          let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA + '-';
-          idVendaPagamento = idVendaPagamento + nItemAtual;
+        const qtd = parseInt(qtdParcelas2) || 0;
+        
+        if(qtd == 0) {
+          nItemAtualLocal++;
+          const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
     
           const dadosTEF2 = [{
             IDVENDAPAGAMENTO: idVendaPagamento,
-            IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-            NITEM: parseInt(nItemAtual),
+            IDVENDA: idVenda,
+            NITEM: nItemAtualLocal,
             TPAG: dsTipoPagamentoTEF2.substring(0, 3),
             DSTIPOPAGAMENTO: dsTipoPagamentoTEF2.substring(4),
             VALORRECEBIDO: parseFloat(vrCartao2),
@@ -339,7 +318,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             DTVENCIMENTO: dataParcela2,
             NPARCELAS: 0,
             NOTEF: 'TEF',
-            NUAUTORIZADOR: dsTipoPagamentoTEF2,
+            NUAUTORIZADOR: dsTipoPagamentoTEF2.substring(4),
             NOCARTAO: 'NÃO INFORMADO',
             NUOPERACAO: nuOperacao2,
             NSUTEF: nuOperacao2,
@@ -354,66 +333,56 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           valorCartaoPagamento2 = parseFloat(vrCartao2);
 
         } else {
-          let valorCredito2 = 0;
-          let valorResultadoCredito2 = 0;
-          let valorParcela2 = 0;
-          let valor2 = parseFloat((vrCartao2/qtdParcelas2).toFixed(2));
+          let valorCredito = 0;
+          let valorParcela = 0;
+          const valor = parseFloat((vrCartao2 / qtd).toFixed(2));
 
-          for(i = 1; i <= qtdParcelas2; i++) {
-            let nItemAtual = itemAtual + 1
-            let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA;
-            idVendaPagamento = idVendaPagamento + nItemAtual;
+          for(i = 1; i <= qtd; i++) {
+            nItemAtualLocal++;
+            const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
 
-            valorParcela2 += valor2;
+            valorParcela += valor;
 
-            if(i==1) {
-              finalParcelaCredito2 = dataParcela2;
-            } else {
-              dataParcela2 = adicionarMeses(dataParcela2);
+            let dataVencimento = dataParcela2;
+            if (i > 1) {
+              for (let j = 1; j < i; j++) {
+                dataVencimento = adicionarMeses(dataVencimento);
+              }
             }
 
-            const [ano, mes, dia] = finalParcelaCredito2.split('-').map(Number);
-            const dataAjustada = new Date(ano, mes - 1, dia);
-
-            if((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
-              dataAjustada.setDate(30);
-            } else if(mes === 2 && ( dia > 28 || dia === 31)) {
-              dataAjustada.setDate(dataAjustada.getDate() - (dia === 31 ? 3 : 2));
+            const [ano, mes, dia] = dataVencimento.split('-').map(Number);
+            if ((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
+              dataVencimento = `${ano}-${String(mes).padStart(2, '0')}-30`;
+            } else if (mes === 2 && dia > 28) {
+              const ehBissexto = (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+              dataVencimento = `${ano}-02-${ehBissexto ? '29' : '28'}`;
             }
 
-            finalParcelaCredito2 = format(dataAjustada, 'yyyy-MM-dd');
-            if(i == qtdParcelas2) {
-              if(valorParcela2 > vrCartao2) {
-                valorCredito2 = parseFloat((valorParcela2 - vrCartao2).toFixed(2));
-                valorResultadoCredito2 = valorCredito2 - valor2;
+            let valorFinal = valor;
+            if (i === qtd) {
+              if (valorParcela > vrCartao2) {
+                valorCredito = parseFloat((valorParcela - vrCartao2).toFixed(2));
+                valorFinal = valor - valorCredito;
+              } else if (valorParcela < vrCartao2) {
+                valorCredito = parseFloat((vrCartao2 - valorParcela).toFixed(2));
+                valorFinal = valor + valorCredito;
               }
-
-              if(valorParcela2 < vrCartao2) {
-                valorCredito2 = parseFloat((vrCartao2 - valorParcela2).toFixed(2));
-                valorResultadoCredito2 = valorCredito2 + valor2;
-              }
-
-              if(valorParcela2 == vrCartao2) {
-                valorResultadoCredito2 = valor2; 
-              }
-            } else {
-              valorResultadoCredito2 = valor2;
             }
 
             const dadosTEF2 = [{
-              IDVENDAPAGAMENTO: idvendapag,
-              IDVENDA:idresumo,
-              NITEM: parseInt(nItemAtual),
+              IDVENDAPAGAMENTO: idVendaPagamento,
+              IDVENDA:idVenda,
+              NITEM: nItemAtualLocal,
               TPAG: dsTipoPagamentoTEF2.substring(0, 3),
               DSTIPOPAGAMENTO: dsTipoPagamentoTEF2.substring(4),
-              VALORRECEBIDO: parseFloat(valorResultadoCredito2),
+              VALORRECEBIDO: parseFloat(valorFinal),
               VALORDEDUZIDO: 0,
-              VALORLIQUIDO: parseFloat(valorResultadoCredito2),
+              VALORLIQUIDO: parseFloat(valorFinal),
               DTPROCESSAMENTO: dataParcela2,
-              DTVENCIMENTO: finalParcelaCredito2,
-              NPARCELAS: parseInt(qtdParcelas2),
+              DTVENCIMENTO: dataVencimento,
+              NPARCELAS: parseInt(qtd),
               NOTEF:'TEF',
-              NOAUTORIZADOR: dsTipoPagamentoTEF2,
+              NOAUTORIZADOR: dsTipoPagamentoTEF2.substring(4),
               NOCARTAO:'NÃO INFORMADO',
               NUOPERACAO: nuOperacao2,
               NSUTEF: nuOperacao2,
@@ -436,15 +405,15 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
 
       if (vrCartao3 > 0) {
 
+        const qtd = parseInt(qtdParcelas3) || 0;
         if(qtdParcelas3 == 0) {
-          let nItemAtual = itemAtual + 1
-          let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA + '-';
-          idVendaPagamento = idVendaPagamento + nItemAtual;
+          nItemAtualLocal++;
+          const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
         
           const dadosTEF3 = [{
             IDVENDAPAGAMENTO: idVendaPagamento,
-            IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-            NITEM: parseInt(nItemAtual),
+            IDVENDA: idVenda,
+            NITEM: nItemAtualLocal,
             TPAG: dsTipoPagamentoTEF3.substring(0, 3),
             DSTIPOPAGAMENTO: dsTipoPagamentoTEF3.substring(4),
             VALORRECEBIDO: parseFloat(vrCartao3),
@@ -454,7 +423,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             DTVENCIMENTO: dataParcela3,
             NPARCELAS: 0,
             NOTEF: 'TEF',
-            NUAUTORIZADOR: dsTipoPagamentoTEF3,
+            NUAUTORIZADOR: dsTipoPagamentoTEF3.substring(4),
             NOCARTAO: 'NÃO INFORMADO',
             NUOPERACAO: nuOperacao3,
             NSUTEF: nuOperacao3,
@@ -469,66 +438,56 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           valorCartaoPagamento3 = parseFloat(vrCartao3);
 
         } else {
-          let valorCredito3 = 0;
-          let valorResultadoCredito3 = 0;
-          let valorParcela3 = 0;
-          let valor3 = parseFloat((vrCartao3/qtdParcelas3).toFixed(2));
+          let valorCredito = 0;
+          let valorParcela = 0;
+          const valor = parseFloat((vrCartao3 / qtd).toFixed(2));
 
           for(i = 1; i <= qtdParcelas3; i++) {
-            let nItemAtual = itemAtual + 1
-            let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA;
-            idVendaPagamento = idVendaPagamento + nItemAtual;
+            nItemAtualLocal++;
+            const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
 
-            valorParcela3 += valor3;
+            valorParcela += valor;
 
-            if(i==1) {
-              finalParcelaCredito3 = dataParcela3;
-            } else {
-              dataParcela3 = adicionarMeses(dataParcela3);
+            let dataVencimento = dataParcela3;
+            if (i > 1) {
+              for (let j = 1; j < i; j++) {
+                dataVencimento = adicionarMeses(dataVencimento);
+              }
             }
 
-            const [ano, mes, dia] = finalParcelaCredito3.split('-').map(Number);
-            const dataAjustada = new Date(ano, mes - 1, dia);
-
-            if((mes == 4 || mes == 6 || mes == 9 || mes == 11) && dia == 31) {
-              dataAjustada.setDate(30);
-            } else if(mes === 2 && ( dia > 28 || dia === 31)) {
-              dataAjustada.setDate(dataAjustada.getDate() - (dia === 31 ? 3 : 2));
+            const [ano, mes, dia] = dataVencimento.split('-').map(Number);
+            if ((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
+              dataVencimento = `${ano}-${String(mes).padStart(2, '0')}-30`;
+            } else if (mes === 2 && dia > 28) {
+              const ehBissexto = (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+              dataVencimento = `${ano}-02-${ehBissexto ? '29' : '28'}`;
             }
 
-            finalParcelaCredito3 = format(dataAjustada, 'yyyy-MM-dd');
-            if(i == qtdParcelas3) {
-              if(valorParcela3 > vrCartao3) {
-                valorCredito3 = parseFloat((valorParcela3 - vrCartao3).toFixed(2));
-                valorResultadoCredito3 = valorCredito3 - valor3;
+            let valorFinal = valor;
+            if (i === qtd) {
+              if (valorParcela > vrCartao3) {
+                valorCredito = parseFloat((valorParcela - vrCartao3).toFixed(2));
+                valorFinal = valor - valorCredito;
+              } else if (valorParcela < vrCartao3) {
+                valorCredito = parseFloat((vrCartao3 - valorParcela).toFixed(2));
+                valorFinal = valor + valorCredito;
               }
-
-              if(valorParcela3 < vrCartao3) {
-                valorCredito3 = parseFloat((vrCartao3 - valorParcela3).toFixed(2));
-                valorResultadoCredito3 = valorCredito3 + valor3;
-              }
-
-              if(valorParcela3 == vrCartao3) {
-                valorResultadoCredito3 = valor3; 
-              }
-            } else {
-              valorResultadoCredito3 = valor3;
             }
 
             const dadosTEF3 = [{
-              IDVENDAPAGAMENTO: idvendapag,
-              IDVENDA:idresumo,
-              NITEM: parseInt(nItemAtual),
+              IDVENDAPAGAMENTO: idVendaPagamento,
+              IDVENDA:idVenda,
+              NITEM: nItemAtualLocal,
               TPAG: dsTipoPagamentoTEF3.substring(0, 3),
               DSTIPOPAGAMENTO: dsTipoPagamentoTEF3.substring(4),
-              VALORRECEBIDO: parseFloat(valorResultadoCredito3),
+              VALORRECEBIDO: parseFloat(valorFinal),
               VALORDEDUZIDO: 0,
-              VALORLIQUIDO: parseFloat(valorResultadoCredito3),
+              VALORLIQUIDO: parseFloat(valorFinal),
               DTPROCESSAMENTO: dataParcela3,
-              DTVENCIMENTO: finalParcelaCredito3,
-              NPARCELAS: parseInt(qtdParcelas3),
+              DTVENCIMENTO: dataVencimento,
+              NPARCELAS: parseInt(qtd),
               NOTEF:'TEF',
-              NOAUTORIZADOR: dsTipoPagamentoTEF3,
+              NOAUTORIZADOR: dsTipoPagamentoTEF3.substring(4),
               NOCARTAO:'NÃO INFORMADO',
               NUOPERACAO: nuOperacao3,
               NSUTEF: nuOperacao3,
@@ -545,8 +504,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
 
         }
 
-      } else {
-        valorCartaoPagamento3 = 0;
       }
 
       if (vrPos > 0) {
