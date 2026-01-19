@@ -318,20 +318,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     }
 
     if (vrCartao2 > 0) {
-      // if (dsTipoPagamentoTEF2.substring(0, 3) == 0) {
-      //   Swal.fire({
-      //     position: 'center',
-      //     icon: 'error',
-      //     title: 'Informe a Descrição do Cartão TEF 2.',
-      //     showConfirmButton: false,
-      //     timer: 3000,
-      //     customClass: {
-      //       container: 'custom-swal',
-      //     }
-      //   });
-      //   return false;
-      // }
-
       if(qtdParcelas2 == 0) {
         let nItemAtual = itemAtual + 1
         let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA + '-';
@@ -972,39 +958,3 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     cancelarVendaPagamento
   };
 };
-
-
-
-// if(i==1) {
-//   let finalParcelaCredito = dataParcela1;
-// } else {
-//   dataParcela1 = dataParcela1.split('-');
-
-//   let dt = new Date(dataParcela1[0], dataParcela1[1], dataParcela1[2]);
-
-//   e = i -1;
-//   finalParcelaCredito = dt.setMonth(dt.getMonth() + e);
-
-//   var dataParcCartao = new Date(finalparcelacredTeste);
-//   var diaParcCartao = dataParcCartao.getDate(); // 1-31
-//   var mesParcCartao = dataParcCartao.getMonth(); // 0-11 (zero=janeiro)
-//   var ano4ParcCartao = dataParcCartao.getFullYear(); // 4 dígitos
-  
-//   mesParcCartaoatual = (mesParcCartao + 1);
-//   mesParcCartaoatualFormatado = String(mesParcCartaoatual);
-//   diachekCartao = String(diaParcCartao);
-
-//   if(mesParcCartaoatual == 4 || mesParcCartaoatual == 6 || mesParcCartaoatual == 9 || mesParcCartaoatual == 11){
-//     if(diaParcCartao == 31){
-//         var diachekCartao = String(diaParcCartao - 1);
-//     }
-//   }else if(mesParcCartaoatual == 2){
-//       if(diaParcCartao == 30){
-//           var diachekCartao = String(diaParcCartao - 2);
-//       }else if (diaParcCartao == 31){
-//           var diachekCartao = String(diaParcCartao - 3);
-//       }
-//   }
-
-//   finalParcelaCredito = ano4ParcCartao + '-' + (mesParcCartaoatualFormatado.padStart(2, '0')) + '-' + diachekCartao.padStart(2, '0');
-// }
