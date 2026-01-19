@@ -507,15 +507,17 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
       }
 
       if (vrPos > 0) {
+
+        const qtd = parseInt(qtdParcelasPOS) || 0;
+
         if(qtdParcelasPOS == 0) {
-          let nItemAtual = itemAtual + 1
-          let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA+'-';
-          idVendaPagamento = idVendaPagamento + nItemAtual;
+          nItemAtualLocal++;
+          const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
         
           const dadosPOS = [{
             IDVENDAPAGAMENTO: idVendaPagamento,
-            IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-            NITEM: parseInt(nItemAtual),
+            IDVENDA: idVenda,
+            NITEM: nItemAtualLocal,
             TPAG: dsTipoPagamentoPOS.substring(0, 3),
             DSTIPOPAGAMENTO: dsTipoPagamentoPOS.substring(4),
             VALORRECEBIDO: parseFloat(vrPos),
@@ -525,7 +527,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             DTVENCIMENTO: dataParcelaPOS,
             NPARCELAS: 0,
             NOTEF: 'POS',
-            NUAUTORIZADOR: dsTipoPagamentoPOS,
+            NUAUTORIZADOR: dsTipoPagamentoPOS.substring(4),
             NOCARTAO: 'NÃO INFORMADO',
             NUOPERACAO: nuOperacaoPOS,
             NSUTEF: nuOperacaoPOS,
@@ -540,67 +542,58 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           valorPosPagamento = parseFloat(vrPos);
           
         } else {
-
-          valorCreditoPos = 0;
-          valorResultadoCreditoPos = 0;
-          valorParcelaPos = 0;
-          valorPos = parseFloat((vrPos/qtdParcelasPOS).toFixed(2));
+          let valorCredito = 0;
+          let valorParcela = 0;
+          const valor = parseFloat((vrPos / qtd).toFixed(2));
+          
           
           for(i = 1; i <= qtdParcelasPOS2; i++) {
-            let nItemAtual = itemAtual + 1
-            let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA;
-            idVendaPagamento = idVendaPagamento + nItemAtual;
+            nItemAtualLocal++;
+            const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
 
-            valorParcelaPos += valorPos;
+            valorParcela += valor;
 
-            if(i==1) {
-              finalParcelaCreditoPos = dataParcelaPOS;
-            } else {
-              dataParcelaPOS = adicionarMeses(dataParcelaPOS);
+            let dataVencimento = dataParcelaPOS;
+            if (i > 1) {
+              for (let j = 1; j < i; j++) {
+                dataVencimento = adicionarMeses(dataVencimento);
+              }
             }
 
-            const [ano, mes, dia] = finalParcelaCreditoPos.split('-').map(Number);
-            const dataAjustada = new Date(ano, mes - 1, dia);
-
-            if((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
-              dataAjustada.setDate(30);
-            } else if(mes === 2 && ( dia > 28 || dia === 31)) {
-              dataAjustada.setDate(dataAjustada.getDate() - (dia === 31 ? 3 : 2));
+            const [ano, mes, dia] = dataVencimento.split('-').map(Number);
+            if ((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
+              dataVencimento = `${ano}-${String(mes).padStart(2, '0')}-30`;
+            } else if (mes === 2 && dia > 28) {
+              const ehBissexto = (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+              dataVencimento = `${ano}-02-${ehBissexto ? '29' : '28'}`;
             }
 
-            finalParcelaCreditoPos = format(dataAjustada, 'yyyy-MM-dd');
-            if(i == qtdParcelasPOS) {
-              if(valorParcelaPos > vrPos) {
-                valorCreditoPos = parseFloat((valorParcelaPos - vrPos).toFixed(2));
-                valorResultadoCreditoPos = valorCreditoPos - valorPos;
+            let valorFinal = valor;
+            if (i === qtd) {
+              if (valorParcela > vrPos) {
+                valorCredito = parseFloat((valorParcela - vrPos).toFixed(2));
+                valorFinal = valor - valorCredito;
+              } else if (valorParcela < vrPos) {
+                valorCredito = parseFloat((vrPos - valorParcela).toFixed(2));
+                valorFinal = valor + valorCredito;
               }
-
-              if(valorParcelaPos < vrPos) {
-                valorCreditoPos = parseFloat((vrPos - valorParcelaPos).toFixed(2));
-                valorResultadoCreditoPos = valorCreditoPos + valorPos;
-              }
-
-              if(valorParcelaPos == vrPos) {
-                valorResultadoCreditoPos = valorPos; 
-              }
-            } else {
-              valorResultadoCreditoPos = valorPos;
             }
+
 
             const dadosPOS = [{
-              IDVENDAPAGAMENTO: idvendapag,
-              IDVENDA:idresumo,
-              NITEM: parseInt(nItemAtual),
+              IDVENDAPAGAMENTO: idVendaPagamento,
+              IDVENDA: idVenda,
+              NITEM: nItemAtualLocal,
               TPAG: dsTipoPagamentoPOS.substring(0, 3),
               DSTIPOPAGAMENTO: dsTipoPagamentoPOS.substring(4),
-              VALORRECEBIDO: parseFloat(valorResultadoCreditoPos),
+              VALORRECEBIDO: parseFloat(valorFinal),
               VALORDEDUZIDO: 0,
-              VALORLIQUIDO: parseFloat(valorResultadoCreditoPos),
+              VALORLIQUIDO: parseFloat(valorFinal),
               DTPROCESSAMENTO: dataParcelaPOS,
-              DTVENCIMENTO: finalParcelaCreditoPos,
-              NPARCELAS: parseInt(qtdParcelasPOS),
+              DTVENCIMENTO: dataVencimento,
+              NPARCELAS: parseInt(qtd),
               NOTEF:'POS',
-              NOAUTORIZADOR: dsTipoPagamentoPOS,
+              NOAUTORIZADOR: dsTipoPagamentoPOS.substring(4),
               NOCARTAO:'NÃO INFORMADO',
               NUOPERACAO: nuOperacaoPOS,
               NSUTEF: nuOperacaoPOS,
@@ -620,26 +613,26 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
       } 
       
       if (vrPos2 > 0) {
-
-        if(qtdParcelasPOS2 == 0) {
-          let nItemAtual = itemAtual + 1
-          let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA + '-';
-          idVendaPagamento = idVendaPagamento + nItemAtual;
+        const qtd = parseInt(qtdParcelasPOS2) || 0;
+        
+        if(qtd == 0) {
+          nItemAtualLocal++;
+          const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
           
           const dadosPOS2 = [{
             IDVENDAPAGAMENTO: idVendaPagamento,
-            IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-            NITEM: parseInt(nItemAtual),
+            IDVENDA: idVenda,
+            NITEM: parseInt(nItemAtualLocal),
             TPAG: dsTipoPagamentoPOS2.substring(0, 3),
             DSTIPOPAGAMENTO: dsTipoPagamentoPOS2.substring(4),
             VALORRECEBIDO: parseFloat(vrPos2),
             VALORDEDUZIDO: 0,
             VALORLIQUIDO: parseFloat(vrPos2),
-            DTPROCESSAMENTO: dataParcelaPOS,
-            DTVENCIMENTO: dataParcelaPOS2,
+            DTPROCESSAMENTO: dataParcelaPOS2,
+            DTVENCIMENTO: dataVencimento,
             NPARCELAS: 0,
             NOTEF: 'POS',
-            NUAUTORIZADOR: dsTipoPagamentoPOS2,
+            NUAUTORIZADOR: dsTipoPagamentoPOS2.substring(4),
             NOCARTAO: 'NÃO INFORMADO',
             NUOPERACAO: nuOperacaoPOS2,
             NSUTEF: nuOperacaoPOS2,
@@ -650,71 +643,58 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           }]
       
           await post('/alterar-venda-pagamento', dadosPOS2)
-
-          valorPosPagamento2 = parseFloat(vrPos2);
         
         } else {
-
-          valorCreditoPos2 = 0;
-          valorResultadoCreditoPos2 = 0;
-          valorParcelaPos2 = 0;
-          valorPos2 = parseFloat((vrPos2/qtdParcelasPOS2).toFixed(2));
+          let valorCredito = 0;
+          let valorParcela = 0;
+          const valor = parseFloat((vrPos2 / qtd).toFixed(2));
           
-          for(i = 1; i <= qtdParcelasPOS2; i++) {
-            let nItemAtual = itemAtual + 1
-            let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA;
-            idVendaPagamento = idVendaPagamento + nItemAtual;
+          for(i = 1; i <= qtd; i++) {
+            nItemAtualLocal++;
+            const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
 
-            valorParcelaPos2 += valorPos2;
+            valorParcela += valor;
 
-            if(i==1) {
-              finalParcelaCreditoPos2 = dataParcelaPOS2;
-            } else {
-              dataParcelaPOS2 = adicionarMeses(dataParcelaPOS2);
+            let dataVencimento = dataParcelaPOS2;
+            if (i > 1) {
+              for (let j = 1; j < i; j++) {
+                dataVencimento = adicionarMeses(dataVencimento);
+              }
             }
 
-            const [ano, mes, dia] = finalParcelaCreditoPos2.split('-').map(Number);
-            const dataAjustada = new Date(ano, mes - 1, dia);
-
-            if((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
-              dataAjustada.setDate(30);
-            } else if(mes === 2 && ( dia > 28 || dia === 31)) {
-              dataAjustada.setDate(dataAjustada.getDate() - (dia === 31 ? 3 : 2));
+            const [ano, mes, dia] = dataVencimento.split('-').map(Number);
+            if ((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
+              dataVencimento = `${ano}-${String(mes).padStart(2, '0')}-30`;
+            } else if (mes === 2 && dia > 28) {
+              const ehBissexto = (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+              dataVencimento = `${ano}-02-${ehBissexto ? '29' : '28'}`;
             }
 
-            finalParcelaCreditoPos2 = format(dataAjustada, 'yyyy-MM-dd');
-            if(i == qtdParcelasPOS2) {
-              if(valorParcelaPos2 > vrPos2) {
-                valorCreditoPos2 = parseFloat((valorParcelaPos2 - vrPos2).toFixed(2));
-                valorResultadoCreditoPos2 = valorCreditoPos2 - valorPos2;
+            let valorFinal = valor;
+            if (i === qtd) {
+              if (valorParcela > vrPos2) {
+                valorCredito = parseFloat((valorParcela - vrPos2).toFixed(2));
+                valorFinal = valor - valorCredito;
+              } else if (valorParcela < vrPos2) {
+                valorCredito = parseFloat((vrPos2 - valorParcela).toFixed(2));
+                valorFinal = valor + valorCredito;
               }
-
-              if(valorParcelaPos2 < vrPos2) {
-                valorCreditoPos2 = parseFloat((vrPos2 - valorParcelaPos2).toFixed(2));
-                valorResultadoCreditoPos2 = valorCreditoPos2 + valorPos2;
-              }
-
-              if(valorParcelaPos2 == vrPos2) {
-                valorResultadoCreditoPos2 = valorPos2; 
-              }
-            } else {
-              valorResultadoCreditoPos2 = valorPos2;
             }
 
             const dadosPOS2 = [{
-              IDVENDAPAGAMENTO: idvendapag,
-              IDVENDA: idresumo,
-              NITEM: parseInt(nItemAtual),
+              IDVENDAPAGAMENTO: idVendaPagamento,
+              IDVENDA: idVenda,
+              NITEM: parseInt(nItemAtualLocal),
               TPAG: dsTipoPagamentoPOS2.substring(0, 3),
               DSTIPOPAGAMENTO: dsTipoPagamentoPOS2.substring(4),
-              VALORRECEBIDO: parseFloat(valorResultadoCreditoPos2),
+              VALORRECEBIDO: parseFloat(valorFinal),
               VALORDEDUZIDO: 0,
-              VALORLIQUIDO: parseFloat(valorResultadoCreditoPos2),
-              DTPROCESSAMENTO: dataParcelaPOS,
-              DTVENCIMENTO: finalParcelaCreditoPos2,
-              NPARCELAS: parseInt(qtdParcelasPOS2),
+              VALORLIQUIDO: parseFloat(valorFinal),
+              DTPROCESSAMENTO: dataParcelaPOS2,
+              DTVENCIMENTO: dataVencimento,
+              NPARCELAS: qtd,
               NOTEF:'POS',
-              NOAUTORIZADOR: dsTipoPagamentoPOS2,
+              NOAUTORIZADOR: dsTipoPagamentoPOS2.substring(4),
               NOCARTAO:'NÃO INFORMADO',
               NUOPERACAO: nuOperacaoPOS2,
               NSUTEF: nuOperacaoPOS2,
@@ -735,14 +715,13 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
       } 
 
       if (vrVoucher > 0) {
-        let nItemAtual = itemAtual + 1
-        let idVendaPagamento = dadosDetalheRecebimentos[0]?.venda.IDVENDA + '-';
-        idVendaPagamento = idVendaPagamento + nItemAtual;
+        nItemAtualLocal++;
+        const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
 
         const dadosVoucher = [{
           IDVENDAPAGAMENTO: idVendaPagamento,
-          IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-          NITEM: parseInt(nItemAtual),
+          IDVENDA: idVenda,
+          NITEM: parseInt(nItemAtualLocal),
           TPAG: '024',
           DSTIPOPAGAMENTO: 'VOUCHER',
           VALORRECEBIDO: parseFloat(vrVoucher),
@@ -755,22 +734,18 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         
         await post('/alterar-venda-pagamento', dadosVoucher)
 
-        valorVoucherPagamento = parseFloat(vrVoucher);
-      } else {
-        valorVoucherPagamento = 0;
       }
 
-      let vrTotalCartao = valorCartaoPagamento + valorCartaoPagamento2 + valorCartaoPagamento3;
-      let vrTotalPos = valorPosPagamento + valorPosPagamento2 + valorPixPagamento;
-      let vrConvenioPagamento = dadosDetalheRecebimentos[0].venda.VRRECCONVENIO
+      const vrTotalCartao = toFloat(vrCartao) + toFloat(vrCartao2) + toFloat(vrCartao3);
+      const vrTotalPos = toFloat(vrPos) + toFloat(vrPos2);
       const atualizarVenda = [{
-        IDVENDA: dadosDetalheRecebimentos[0].venda.IDVENDA,
-        VRRECDINHEIRO: parseFloat(valorDinheiroPagamento),
-        VRRECCONVENIO: parseFloat(vrConvenioPagamento),
+        IDVENDA: idVenda,
+        VRRECDINHEIRO: parseFloat(valorDinheiro),
+        VRRECCONVENIO: 0,
         VRRECCHEQUE: 0,
         VRRECCARTAO: vrTotalCartao,
         VRRECPOS: vrTotalPos,
-        VRRECVOUCHER: valorVoucherPagamento,
+        VRRECVOUCHER: vrVoucher,
       }]
       
       const response = await put('/atualiza-recebimento-venda/:id', atualizarVenda)
