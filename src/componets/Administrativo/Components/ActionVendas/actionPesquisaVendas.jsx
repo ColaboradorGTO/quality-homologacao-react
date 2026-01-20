@@ -7,6 +7,7 @@ import { ActionListaVendas } from "./actionListaVendas"
 import { AiOutlineSearch } from "react-icons/ai"
 import { useQuery } from "react-query"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
+import Swal from "sweetalert2"
 
 export const ActionPesquisaVendas = () => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -53,35 +54,23 @@ export const ActionPesquisaVendas = () => {
     { enabled: false, }
   );
 
-
-  // const { data: dadosVendas = [], error: erroQuebra, isLoading: isLoadingQuebra, refetch } = useQuery(
-  //   'lista-venda',
-  //   async () => {
-  //     const response = await get(`/lista-venda?idVenda=${idVenda}`);
-
-  //     return response.data;
-  //   },
-  //   { enabled: false, staleTime: 60 * 60 * 1000 }
-  // );
-
-
   const handleInputChange = (e) => {
     setIdVenda(e.target.value)
   }
 
   const handleClick = async () => {
-    // if(!idVenda) {
-    //   Swal.fire({
-    //     icon: 'warning',
-    //     title: 'Atenção Informe o ID da Venda',
-    //     text: 'O campo de pesquisa não pode estar vazio.',
-    //     confirmButtonText: 'OK'
-    //   })
-    //   return
-    // }
-    setTabelaVisivel(true)
-
-    refetchVendasAtiva();
+    if(!idVenda) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção Informe o ID da Venda',
+        text: 'O campo de pesquisa não pode estar vazio.',
+        confirmButtonText: 'OK'
+      })
+      return
+    } else {
+      setTabelaVisivel(true);
+      refetchVendasAtiva();
+    }
   }
 
   return (
