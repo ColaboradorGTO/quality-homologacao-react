@@ -19,10 +19,8 @@ const formatarMoeda = (valor) => {
   const centavos = apenasNumeros.slice(-2);
   const inteiros = apenasNumeros.slice(0, -2);
   
-  // Adiciona separadores de milhar (pontos)
   const integrosFormatado = inteiros.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   
-  // Retorna no formato brasileiro: 3.333.333.333.333,33
   return integrosFormatado + '.' + centavos;
 };
 
@@ -119,7 +117,8 @@ export const FormularioAlteracaoPagamento = ({
     setIncluirCartao3,
     incluirPos2,
     setIncluirPos2,
-    cancelarVendaPagamento
+    onSubmit,
+    // cancelarVendaPagamento
   } = usePagamento({dadosDetalheRecebimentos,  optionsModulos, usuarioLogado });
 
   const [alerta, setAlerta] = useState(false);
@@ -169,6 +168,7 @@ export const FormularioAlteracaoPagamento = ({
         valorPos: vrPos,
         nqtdParcelasPos1: qtdParcelasPOS,
         dataParcelaPos1: dataParcelaPOS,
+        numeroOperacaoPOS2: nuOperacaoPOS2,
         numeroAutorizacaoPOS2: nuAutorizacaoPOS2,
         valorPos2: vrPos2,
         nqtdParcelasPos2: qtdParcelasPOS2,
@@ -178,9 +178,13 @@ export const FormularioAlteracaoPagamento = ({
         motivo: motivoAlteracao
       }
 
+      
+  
       await schema.validate(dadosParaValidar, { abortEarly: false });
-
-      onSubmit();
+      console.log('Dados validados :', dadosParaValidar);
+      await onSubmit();
+      // handleClose();
+      // onSubmit();
 
     } catch (validationError) {
       clearErrors();
@@ -196,7 +200,7 @@ export const FormularioAlteracaoPagamento = ({
           }
         });
       }
-
+      console.log('Erro de validação:', validationError);
       const errorMessages = validationError.errors || [validationError.message];
       console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
     }
@@ -204,7 +208,7 @@ export const FormularioAlteracaoPagamento = ({
 
   const enviar = async () => {
     // e.preventDefault(); 
-    const result = await cancelarVendaPagamento();
+    const result = await onSubmit();
     // handleClose();
     // console.log('resultado alteração pagamento:', result);
     return result;
@@ -213,6 +217,7 @@ export const FormularioAlteracaoPagamento = ({
   const handleClickCartão2 = () => {
     setIncluirCartao2(prev => !prev)
   }
+
   const handleClickCartão3 = () => {
     setIncluirCartao3(prev => !prev)
   }
@@ -252,7 +257,7 @@ export const FormularioAlteracaoPagamento = ({
 
       {pagamentos && (
         <>
-          <form onSubmit={handleSubmit(enviar)}>
+          <form onSubmit={handleSubmit(handleValidatedSubmit)}>
             <div class="form-group">
               <div class="row">
                 <div class="col-sm-6 col-md-3 col-xl-4">
@@ -986,7 +991,7 @@ export const FormularioAlteracaoPagamento = ({
               corFechar={"secondary"}
 
               ButtonTypeCadastrar={ButtonTypeModal}
-              onClickButtonCadastrar={handleSubmit}
+              onClickButtonCadastrar={handleValidatedSubmit}
               textButtonCadastrar={"Finalizar Alteração de Pagamentos"}
               corCadastrar={"success"}
             />

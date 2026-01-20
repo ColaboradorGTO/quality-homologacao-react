@@ -28,6 +28,7 @@ export const schema = yup.object({
         return value;
     })
     .typeError('Valor em Dinheiro inválido'),
+    // .required('Valor em Dinheiro é obrigatório'),
     
    vrPix: yup.string()
     .transform((value) => {
@@ -40,8 +41,8 @@ export const schema = yup.object({
     chavePix: yup.string()
     .when('vrPix', {
         is: (vrPix) => parseFloat(vrPix) > 0,
-        then: yup.string().required('Chave Pix é obrigatória quando há valor em Pix'),
-        otherwise: yup.string().notRequired(),
+        then: (schema) => schema.required('Chave Pix é obrigatória quando há valor em Pix'),
+        otherwise: (schema) => schema.notRequired(),
     }),
     numeroOperacao: yup.string(),
     nAutorizacao: yup.string(),
@@ -117,5 +118,5 @@ export const schema = yup.object({
     )
     .typeError('Valor do Voucher inválido'),
     numeroVoucher: yup.string(),
-    motivoAlteracao: yup.string(),
+    motivo: yup.string(),
 });

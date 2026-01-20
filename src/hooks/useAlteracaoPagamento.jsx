@@ -756,7 +756,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     }
   }
 
-  const cancelarVendaPagamento = async () => {
+  const onSubmit = async () => {
 
     if (valorDistribuir > 0) {
       Swal.fire({
@@ -891,6 +891,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
     incluirPos2,
     setIncluirPos2,
     enviarPagamento,
-    cancelarVendaPagamento
+    onSubmit,
+    // cancelarVendaPagamento
   };
 };
