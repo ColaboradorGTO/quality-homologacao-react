@@ -81,21 +81,20 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
 
   useEffect(() => {
     const venda = dadosDetalheRecebimentos?.[0];
-
-    console.log('venda:', venda);
+    
     setValorDistribuir(parseFloat(venda?.venda?.VRTOTALVENDA));
 
     if(venda?.vendaPagamento?.length > 0) {
 
       const nItemMaior = Math.max(...venda.vendaPagamento.map(pagamento => pagamento.pag.NITEM));
-      console.log('nItemMaior:', nItemMaior);
+      
       setItemAtual(nItemMaior);
     } else {
       setItemAtual(0);
     }
 
   }, [dadosDetalheRecebimentos]);
-  console.log('itemAtual:', itemAtual);
+ 
   useEffect(() => {
     const venda = dadosDetalheRecebimentos?.[0];
     const vrDistribuir2 = toFloat(venda?.venda?.VRTOTALVENDA);
@@ -152,7 +151,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
       let nItemAtualLocal = itemAtual;
 
       if (valorDinheiro > 0) {
-        nItemAtualLocal++; // ✅ INCREMENTA
+        nItemAtualLocal++; 
         const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
 
         const dadosDinheiro = [{
@@ -171,14 +170,12 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         }]
         
         await post('/alterar-venda-pagamento', dadosDinheiro)
-        
       } 
 
       if (valorPix > 0) {
         nItemAtualLocal++;
         const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`; 
         
-
         const dadosPix = [{
           IDVENDAPAGAMENTO: idVendaPagamento,
           IDVENDA: idVenda,
@@ -196,7 +193,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         }]
       
         await post('/alterar-venda-pagamento', dadosPix)
-        
       } 
 
       if (vrCartao > 0) {
@@ -204,7 +200,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         const qtd = parseInt(qtdParcelas) || 0;
         
         if(qtd == 0) {
-          nItemAtualLocal++; // ✅ INCREMENTA
+          nItemAtualLocal++; 
           const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
     
           const dadosTEF = [{
@@ -232,15 +228,13 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           }]
       
           await post('/alterar-venda-pagamento', dadosTEF)
-          valorCartaoPagamento = parseFloat(vrCartao);
-
         } else {
           let valorCredito = 0;
           let valorParcela = 0;
           const valor = parseFloat((vrCartao / qtd).toFixed(2));
 
           for(i = 1; i <= qtdParcelas; i++) {
-            nItemAtualLocal++; // ✅ INCREMENTA A CADA ITERAÇÃO
+            nItemAtualLocal++; 
             const idVendaPagamento = `${idVenda}-${nItemAtualLocal}`;
 
             valorParcela += valor;
@@ -252,7 +246,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
               }
             }
 
-              // Ajusta data se necessário
+            
             const [ano, mes, dia] = dataVencimento.split('-').map(Number);
             if ((mes === 4 || mes === 6 || mes === 9 || mes === 11) && dia === 31) {
               dataVencimento = `${ano}-${String(mes).padStart(2, '0')}-30`;
@@ -296,8 +290,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             }]
           
             await post('/alterar-venda-pagamento', dadosTEF)
-
-            valorCartaoPagamento = parseFloat(vrCartao);
           }
         }
       }
@@ -599,8 +591,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           
             await post('/alterar-venda-pagamento', dadosPOS)
           }
-
-          valorPosPagamento = 0
         }
       } 
       
@@ -699,8 +689,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
             await post('/alterar-venda-pagamento', dadosPOS2)
 
           }
-
-          valorPosPagamento = 0
         }
       } 
 
@@ -723,7 +711,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         }]
         
         await post('/alterar-venda-pagamento', dadosVoucher)
-
       }
 
       const vrTotalCartao = toFloat(vrCartao) + toFloat(vrCartao2) + toFloat(vrCartao3);
@@ -770,9 +757,7 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
   }
 
   const cancelarVendaPagamento = async () => {
-    // 387.91
 
-    
     if (valorDistribuir > 0) {
       Swal.fire({
         position: 'center',
