@@ -169,7 +169,7 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado, ID}) =>
       />
 
       {tabelaVisivel &&
-         
+        
         <ActionListaVendasDescontoFuncionario 
           dadosVendasConvenio={dadosVendasConvenio} 
           usuarioLogado={usuarioLogado}  
