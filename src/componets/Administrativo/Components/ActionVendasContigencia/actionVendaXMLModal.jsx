@@ -11,64 +11,64 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosVendasXML }) => {
 
   const xmlData = dadosVendasXML[0]?.XML_FORMATADO;
 
-  const gerarDanfeViaApi = async () => {
-    try {
-      const idVenda = dadosVendasXML[0]?.IDVENDA;
-      const xmlData = dadosVendasXML[0]?.XML_FORMATADO;
+  // const gerarDanfeViaApi = async () => {
+  //   try {
+  //     const idVenda = dadosVendasXML[0]?.IDVENDA;
+  //     const xmlData = dadosVendasXML[0]?.XML_FORMATADO;
 
-      const response = await axios.post(
-        'https://api-quality.vercel.app/gerar-danfe',
-        { xml: xmlData, idVenda, consulta: '' },
-        {
-          responseType: 'arraybuffer',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/pdf'
-          },
-          timeout: 80000
-        }
-      );
+  //     const response = await axios.post(
+  //       'https://quality-api.vercel.app/gerar-danfe',
+  //       { xml: xmlData, idVenda, consulta: '' },
+  //       {
+  //         responseType: 'arraybuffer',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Accept': 'application/pdf'
+  //         },
+  //         timeout: 80000
+  //       }
+  //     );
 
-      if (!response.data || response.data.byteLength === 0) {
-        throw new Error('Resposta da API vazia');
-      }
+  //     if (!response.data || response.data.byteLength === 0) {
+  //       throw new Error('Resposta da API vazia');
+  //     }
 
-      // Crie o Blob e baixe
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `DANFE_${idVenda}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+  //     // Crie o Blob e baixe
+  //     const blob = new Blob([response.data], { type: 'application/pdf' });
+  //     const url = window.URL.createObjectURL(blob);
+  //     const link = document.createElement('a');
+  //     link.href = url;
+  //     link.setAttribute('download', `DANFE_${idVenda}.pdf`);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //     window.URL.revokeObjectURL(url);
 
-      Swal.fire({
-        title: 'Sucesso!',
-        text: 'DANFE gerado e baixado com sucesso.',
-        icon: 'success',
-        customClass: {
-          container: 'custom-swal',
-        },
-      });
-    } catch (error) {
-      console.error('Erro detalhado:', {
-        message: error.message,
-        response: error.response,
-        stack: error.stack
-      });
+  //     Swal.fire({
+  //       title: 'Sucesso!',
+  //       text: 'DANFE gerado e baixado com sucesso.',
+  //       icon: 'success',
+  //       customClass: {
+  //         container: 'custom-swal',
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error('Erro detalhado:', {
+  //       message: error.message,
+  //       response: error.response,
+  //       stack: error.stack
+  //     });
 
-      Swal.fire({
-        title: 'Falha na geração',
-        text: error.message || 'Erro ao gerar DANFE',
-        icon: 'error',
-        customClass: {
-          container: 'custom-swal',
-        },
-      });
-    }
-  };
+  //     Swal.fire({
+  //       title: 'Falha na geração',
+  //       text: error.message || 'Erro ao gerar DANFE',
+  //       icon: 'error',
+  //       customClass: {
+  //         container: 'custom-swal',
+  //       },
+  //     });
+  //   }
+  // };
 
   const handleCopyXML = () => {
     if (xmlData) {
@@ -159,19 +159,19 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosVendasXML }) => {
             corCadastrar={"primary"}
 
             ButtonTypeConfirmar={ButtonTypeModal}
-            textButtonConfirmar={"Gerar DANFE"}
-            onClickButtonConfirmar={gerarDanfeViaApi}
+            textButtonConfirmar={"Download XML"}
+            onClickButtonConfirmar={handleDownloadXML}
             corConfirmar={"warning"}
           />
 
           {/* Botão adicional para download XML */}
-          <div style={{ padding: '15px', textAlign: 'center', borderTop: '1px solid #dee2e6' }}>
+          {/* <div style={{ padding: '15px', textAlign: 'center', borderTop: '1px solid #dee2e6' }}>
             <ButtonTypeModal
               textButton={"Download XML"}
               onClickButtonType={handleDownloadXML}
               cor={"success"}
             />
-          </div>
+          </div> */}
 
         </div>
       </Modal>
