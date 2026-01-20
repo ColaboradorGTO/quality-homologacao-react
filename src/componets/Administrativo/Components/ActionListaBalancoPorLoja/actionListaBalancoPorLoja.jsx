@@ -242,6 +242,7 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
       const response = await get(`/novo-previa-balanco?idResumo=${IDRESUMOBALANCO}&idEmpresa=${IDEMPRESA}&diferenca=1&processa=1`)
       if (response.data && response.data.length > 0) {
         setDadosPreviaBalancoModal(response.data)
+        setModalPreviaBalanco(true)
         return response.data;
       } else {
   
@@ -325,6 +326,7 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
       const response = await get(`/coletor-balanco?idEmpresa=${IDEMPRESA}&idResumo=${IDRESUMOBALANCO}&diferenca=1&processa=0`)
       if (response.data && response.data.length > 0) {
         setDadosColetorBalanco(response.data)
+        setModalResumoBalanco(true)
         return response.data;
       } else {
         Swal.fire({
