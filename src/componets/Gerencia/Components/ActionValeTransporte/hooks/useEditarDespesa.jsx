@@ -3,22 +3,30 @@ import { put, post } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 import { useEffect, useState } from "react";
 
-export const useEditarDespesa = (usuarioLogado,  optionsModulos) => {
+export const useEditarDespesa = (usuarioLogado, optionsModulos, refetchDadosLoja) => {
   const [ipUsuario, setIpUsuario] = useState('');
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  };
+    let usuarioIP = null;
 
- 
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
+    }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
   const onSubmit = async (row, status) => {
     if (optionsModulos[0]?.ALTERAR !== 'True') {
       Swal.fire({
@@ -34,7 +42,7 @@ export const useEditarDespesa = (usuarioLogado,  optionsModulos) => {
       });
       return;
     }
-    
+
 
     const postData = {
       IDDESPESASLOJA: row.IDDESPESASLOJA,
@@ -55,7 +63,7 @@ export const useEditarDespesa = (usuarioLogado,  optionsModulos) => {
 
       const textDados = JSON.stringify(postData);
       const textoFuncao = 'FINANCEIRO/ATUALIZAÇÃO DE ESTATUS DA DESPESA';
-
+      const ipUsuario = await getIPUsuario()
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
@@ -64,9 +72,11 @@ export const useEditarDespesa = (usuarioLogado,  optionsModulos) => {
       };
 
       await post('/log-web', createData);
+      refetchDadosLoja()
     } catch (error) {
       const textDados = JSON.stringify(postData);
       const textoFuncao = 'FINANCEIRO/ERRO AO ATUALIZAR ESTATUS DA DESPESA';
+      const ipUsuario = await getIPUsuario()
 
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),

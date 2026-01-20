@@ -31,7 +31,7 @@ export const ActionPesquisaValeTransporte = ({ usuarioLogado, ID }) => {
   );
 
   
-  const { data: dadosDespesasLoja = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch } = useQuery(
+  const { data: dadosDespesasLoja = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchDadosLoja } = useQuery(
     'despesas-loja-empresa',
     async () => {
       const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
@@ -82,6 +82,7 @@ export const ActionPesquisaValeTransporte = ({ usuarioLogado, ID }) => {
         dadosDespesasLoja={dadosDespesasLoja} 
         optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}  
+        refetchDadosLoja={refetchDadosLoja}
       />
 
       <ActionCadastrarValeTransporte
