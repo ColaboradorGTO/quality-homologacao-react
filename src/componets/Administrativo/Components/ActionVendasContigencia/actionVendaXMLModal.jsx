@@ -161,7 +161,7 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosVendasXML }) => {
             ButtonTypeConfirmar={ButtonTypeModal}
             textButtonConfirmar={"Download XML"}
             onClickButtonConfirmar={handleDownloadXML}
-            corConfirmar={"warning"}
+            corConfirmar={"success"}
           />
 
           {/* Botão adicional para download XML */}
