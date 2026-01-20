@@ -132,16 +132,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
       });
       return false;
     }
-
-    let valorDinheiroPagamento = 0;
-    let valorPixPagamento = 0;
-    let valorCartaoPagamento = 0;
-    let valorCartaoPagamento2 = 0;
-    let valorCartaoPagamento3 = 0;
-    let valorPosPagamento = 0;
-    let valorPosPagamento2 = 0;
-    let valorVoucherPagamento = 0;
-
  
     if (valorDistribuir > 0) {
       Swal.fire({
@@ -181,13 +171,8 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
         }]
         
         await post('/alterar-venda-pagamento', dadosDinheiro)
-
-        valorDinheiroPagamento = parseFloat(valorDinheiro);
-
         
-      } else {
-        valorDinheiroPagamento  = 0;
-      }
+      } 
 
       if (valorPix > 0) {
         nItemAtualLocal++;
@@ -208,7 +193,6 @@ export const usePagamento = ({dadosDetalheRecebimentos, optionsModulos, usuarioL
           NUAUTORIZACAO: nuChavePix,
           STCANCELADO: 'False',
           IDFUNCIONARIO: usuarioLogado.id,
-
         }]
       
         await post('/alterar-venda-pagamento', dadosPix)
