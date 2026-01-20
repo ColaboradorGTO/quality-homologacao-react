@@ -82,8 +82,6 @@ export const ActionDetalheAlterarVendaModal = ({ show, handleClose, dadosVendasD
     XLSX.writeFile(workbook, 'venda_detalhe.xlsx');
   };
 
-  // const { data: dadosVendedor = [], error: errorVendedor, isLoading: isLoadingVendedor } = useFetchData('funcionario-ativo-por-empresa', `/funcionario-ativo-por-empresa?idEmpresa=${empresaSelecionada}`)
-
   const { data: dadosVendedor = [], error: errorVendedor, isLoading: isLoadingVendedor } = useQuery(
     'funcionario-ativo-por-empresa',
     async () => {
