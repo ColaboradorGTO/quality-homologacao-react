@@ -178,10 +178,10 @@ export const FormularioAlteracaoPagamento = ({
       }
   
       await schema.validate(dadosParaValidar, { abortEarly: false });
-      console.log('Dados validados :', dadosParaValidar);
+
       await onSubmit();
-      // handleClose();
-      // onSubmit();
+      await handleClose();
+     
 
     } catch (validationError) {
       clearErrors();
