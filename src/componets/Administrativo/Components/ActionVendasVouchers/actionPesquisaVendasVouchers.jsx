@@ -60,6 +60,7 @@ export const ActionPesquisaVendasVouchers = () => {
     refetchMarcas()
   }, [marcaSelecionada, refetchEmpresas]);
 
+  
   const fetchListaVendasVendedor = async ( ) => {
     
     const urlBase = `/lista-venda-cliente?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpfNumeroVenda}&nff=${numeroNFCE}&serie=${numeroSerie}&idSubGrupoEmpresarial=${marcaSelecionada}&idEmpresa=${empresaSelecionada}`;    
