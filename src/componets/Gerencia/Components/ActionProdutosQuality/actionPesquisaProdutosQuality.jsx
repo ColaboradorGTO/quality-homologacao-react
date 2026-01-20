@@ -28,7 +28,7 @@ export const ActionPesquisaProdutosQuality = ({ID, optionsEmpresas, usuarioLogad
 
   const fetchProdutosQuality = async () => {
     const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
-    const urlBase = `/produtoQuality?descricaoProduto=${descricaoProduto}&idEmpresa=${idEmpresa}&{idListaLoja=${usuarioLogado.ID_LISTA_LOJA}`;
+    const urlBase = `/produtoQuality?codBarrasOuNome=${descricaoProduto}&idEmpresa=${idEmpresa}&idListaLoja=${usuarioLogado.ID_LISTA_LOJA}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
