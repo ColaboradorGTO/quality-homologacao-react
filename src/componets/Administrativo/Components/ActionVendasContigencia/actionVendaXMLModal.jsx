@@ -1,15 +1,11 @@
-import { Fragment, useRef } from "react";
+import { Fragment } from "react";
 import Modal from 'react-bootstrap/Modal';
 import XMLViewer from 'react-xml-viewer';
 import Swal from 'sweetalert2';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import * as xml2js from 'xml2js';
 import { FooterModal } from "../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../Buttons/ButtonTypeModal";
 import { HeaderModal } from "../../../Modais/HeaderModal/HeaderModal";
 import { ScrollPanel } from 'primereact/scrollpanel';
-import { post } from "../../../../api/funcRequest";
 import axios from 'axios';
 export const ActionVendaXMLModal = ({ show, handleClose, dadosVendasXML }) => {
 
@@ -32,7 +28,7 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosVendasXML }) => {
           timeout: 80000
         }
       );
-      console.log('Buffer length:', response.data); // Verifica o tamanho do buffer
+
       if (!response.data || response.data.byteLength === 0) {
         throw new Error('Resposta da API vazia');
       }
