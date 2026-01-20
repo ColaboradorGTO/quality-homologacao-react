@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react"
+import { Fragment, useState } from "react"
 import { ActionMain } from "../../../Actions/actionMain";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
@@ -12,17 +12,27 @@ export const ActionPesquisaPrimeiroBalanco = ({usuarioLogado, ID }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [ipUsuario, setIpUsuario] = useState('');
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if(response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
-  }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
@@ -85,7 +95,7 @@ export const ActionPesquisaPrimeiroBalanco = ({usuarioLogado, ID }) => {
       })
         const textDados = JSON.stringify(putData)
         let textoFuncao = 'ADMINISTRATIVO/PREPARAR PRIMEIRO BALANÇO POR LOJA';
-    
+        const ipUsuario = await getIPUsuario();
         const postData = {  
           IDFUNCIONARIO: String(usuarioLogado.id),
           PATHFUNCAO:  textoFuncao,
@@ -93,12 +103,13 @@ export const ActionPesquisaPrimeiroBalanco = ({usuarioLogado, ID }) => {
           IP: ipUsuario
         }
 
-        const responsePost = await post('/log-web', postData)
+        await post('/log-web', postData)
 
-        return responsePost.data;
+        return response.data;
     } catch (error) {
       
       let textoFuncao = 'ADMINISTRATIVO/ERRO AO PREPARAR PRIMEIRO BALANÇO POR LOJA';
+      const ipUsuario = await getIPUsuario();
       const postData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO:  textoFuncao,
@@ -115,7 +126,7 @@ export const ActionPesquisaPrimeiroBalanco = ({usuarioLogado, ID }) => {
         timer: 1500 
       });
       
-    
+   
       return response.data;
     } 
   }

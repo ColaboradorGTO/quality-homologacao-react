@@ -14,19 +14,27 @@ export const useConsolidarBalanco = ({
     const [ipUsuario, setIpUsuario] = useState('');
 
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
-        }
-        return response.data;
-    }
+        let usuarioIP = null;
 
-  
+        try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
+
+        if (!usuarioIP) {
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
     
     const { data: dadosBalancoConsolidado = [], error: error, isLoading: isLoading, refetch: refetchConsolidado } = useQuery(
         'consolidar-balanco',
@@ -50,7 +58,7 @@ export const useConsolidarBalanco = ({
 
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'ADMINISTRATIVO/CONSOLIDAR BALANCO';
-
+            const ipUsuario = await getIPUsuario();
 
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
@@ -59,7 +67,7 @@ export const useConsolidarBalanco = ({
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postData)
+            await post('/log-web', postData)
 
             Swal.fire({
                 title: 'Atualizado com Sucesso!',
@@ -72,17 +80,19 @@ export const useConsolidarBalanco = ({
                 }
             })
             refetchConsolidado();
-            return responsePost.data;
+            return response.data;
 
         } catch (error) {
             let textoFuncao = 'ADMINISTRATIVO/ERRO AO CONSOLIDAR BALANCO';
+            const ipUsuario = await getIPUsuario();
+            const textDados = JSON.stringify(putData)
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
-                DADOS: 'ERRO AO CONSOLIDAR BALANCO',
+                DADOS: textDados,
                 IP: ipUsuario
             }
-            const responsePost = await post('/log-web', postData)
+            const response = await post('/log-web', postData)
             Swal.fire({
                 title: 'Erro ao Atualizar!',
                 text: 'Erro ao Atualizar',
@@ -93,7 +103,7 @@ export const useConsolidarBalanco = ({
                 }
             })
             console.error('Erro ao Tentar Consolidar o Balanço: ', error);
-            return responsePost.data;
+            return response.data;
         }
     }
 
