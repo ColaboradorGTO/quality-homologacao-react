@@ -6,7 +6,7 @@ import { formatMoeda } from "../../../../utils/formatMoeda";
 import { get } from "../../../../api/funcRequest";
 import { ActionDetalheVendaModal } from "./actionDetalheVendaModal";
 import { ActionDetalheVendaProdutoModal } from "./actionDetalheVendaProdutoModal";
-import { ActionDetalheRecebimentoModal } from "./ActionDetalheRecebimento/actionDetalheRecebimentoModal";
+import { ActionRelacaoRecebimentosModal } from "../ActionsModaisVendas/ActionRecebimentos/actionRelacaoRecebimentosModal";
 import { FaProductHunt } from "react-icons/fa";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { FcCurrencyExchange } from "react-icons/fc";
@@ -118,8 +118,6 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
       NOFUNCIOCANCEL: item.NOFUNCIOCANCEL,
       NOFUNCAOCANCEL: item.NOFUNCAOCANCEL,
       TXTMOTIVOCANCELAMENTO: item.TXTMOTIVOCANCELAMENTO ? 'Motivo Não Informado' : 'Motivo Não Informado',
-
-
     }
   });
 
@@ -492,7 +490,7 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
         dadosDetalheProduto={dadosDetalheProduto}
       />
 
-      <ActionDetalheRecebimentoModal 
+      <ActionRelacaoRecebimentosModal 
         show={detalheRecebimentoModal}
         handleClose={() => setDetalheRecebimentoModal(false)}
         dadosDetalheRecebimentos={dadosDetalheRecebimentos}
