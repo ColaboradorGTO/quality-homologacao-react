@@ -267,7 +267,6 @@ export const ActionListaBalancoAvulso = ({ dadosBalancoAvulso, usuarioLogado, op
 
       refetch()
       return response.data;
-
     } catch (error) {
       const textDados = JSON.stringify(putData)
       let textoFuncao = 'ADMINISTRATIVO/ALTERANDO QUANTIDADE DE PRODUTO NO BALANÇO AVULSO';
@@ -292,9 +291,7 @@ export const ActionListaBalancoAvulso = ({ dadosBalancoAvulso, usuarioLogado, op
         }
       })
       return responsePost.data;
-
     }
-
   }
 
 

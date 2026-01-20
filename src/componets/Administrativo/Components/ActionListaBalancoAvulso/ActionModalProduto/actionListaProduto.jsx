@@ -35,7 +35,7 @@ export const ActionListaProduto = ({
   const [detalhesProduto, setDetalhesProduto] = useState([]);
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
-  const navigate = useNavigate();
+
   const dataTableRef = useRef();
 
   const onPageChange = (event) => {
@@ -86,17 +86,27 @@ export const ActionListaProduto = ({
   };
 
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
-  }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   const { data: dadosBalancoAvulso = [], error: errorBalanco, isLoading: isLoadingBalanco, refetch: refetchBalanco } = useQuery(
     [ 'detalheBalancoAvulso', empresaSelecionada, usuarioLogado?.id],
@@ -266,7 +276,7 @@ export const ActionListaProduto = ({
     },
   ]
 
-  console.log(usuarioLogado, 'usuarioLogado')
+ 
   const onSubmit = async (IDPRODUTO, quantidade) => {
     if (optionsModulos[0]?.CRIAR == 'False') {
       Swal.fire({
@@ -302,7 +312,7 @@ export const ActionListaProduto = ({
         await put('/detalhe-balanco-avulso/:id', putData)
         const textDados = JSON.stringify(putData)
         let textoFuncao = 'ADMINISTRATIVO/ALTUALIZAÇÃO BALANÇO AVULSO';
-
+        const ipUsuario = await getIPUsuario();
         const postData = {
           IDFUNCIONARIO: String(usuarioLogado.id),
           PATHFUNCAO: textoFuncao,
@@ -340,11 +350,11 @@ export const ActionListaProduto = ({
           STCANCELADO: 'False',
           TOTALCONTAGEMGERAL: Number(quantidade) || 1,
         }
-         await post('/criar-detalhe-balanco-avulso', createData)
-  
+
+        await post('/criar-detalhe-balanco-avulso', createData)
         const textDados = JSON.stringify(createData)
         let textoFuncao = 'ADMINISTRATIVO/CADASTRO BALANÇO AVULSO';
-  
+        const ipUsuario = await getIPUsuario();
   
         const postData = {
           IDFUNCIONARIO: String(usuarioLogado.id),
@@ -388,7 +398,7 @@ export const ActionListaProduto = ({
 
       const textDados = JSON.stringify(postData)
       let textoFuncao = 'ADMINISTRATIVO/ERRO AO ALTERAR BALANÇO AVULSO';
-
+      const ipUsuario = await getIPUsuario();
 
       const postDataLog = {
         IDFUNCIONARIO: String(usuarioLogado.id),
@@ -414,7 +424,6 @@ export const ActionListaProduto = ({
     }
   }
 
- 
 
   const handlePesquisar = async () => {
     if (pesquisarProduto.length < 5) {
