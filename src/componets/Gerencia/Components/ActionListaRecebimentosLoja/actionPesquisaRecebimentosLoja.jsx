@@ -13,7 +13,6 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { MultSelectAction } from "../../../Select/MultSelectAction"
 import { useNavigate } from "react-router-dom"
 
-
 export const ActionPesquisaRecebimentosLoja = () => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
@@ -26,9 +25,9 @@ export const ActionPesquisaRecebimentosLoja = () => {
   const [tabelaRecebimentos, setTabelaRecebimentos] = useState(false)
   const [tabelaRecebimentosOperador, setTabelaRecebimentosOperador] = useState(false)
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(500); 
+  const [pageSize, setPageSize] = useState(500);
   const [usuarioLogado, setUsuarioLogado] = useState(null)
-  
+
   const navigate = useNavigate();
   useEffect(() => {
     const usuarioArmazenado = localStorage.getItem('usuario');
@@ -64,14 +63,13 @@ export const ActionPesquisaRecebimentosLoja = () => {
     { staleTime: 5 * 60 * 1000, }
   );
 
-
-  const { data: dadosFuncionarios = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
-    'funcionario-recebimento',
+  const { data: dadosFuncionarios = [],  refetch: refetchFuncionarios  } = useQuery(
+    ["funcionario-recebimento", usuarioLogado?.IDEMPRESA],
     async () => {
-      const response = await get(`/funcionario-recebimento?idEmpresa=${empresaSelecionada}`);
+      const response = await get(`/funcionario-recebimento?idEmpresa=${usuarioLogado.IDEMPRESA}`);
       return response.data;
     },
-    { enabled: false, staleTime: 5 * 60 * 1000, }
+    { enabled: !!usuarioLogado?.IDEMPRESA, staleTime: 5 * 60 * 1000 }
   );
 
   useEffect(() => {
@@ -81,17 +79,16 @@ export const ActionPesquisaRecebimentosLoja = () => {
   }, [empresaSelecionada, refetchFuncionarios]);
 
 
-
   const fetchListaRecebimentos = async () => {
     try {
-      
+
       const urlApi = `venda-total-forma-pagamento?idEmpresa=${usuarioLogado?.IDEMPRESA}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idFuncionario=${colaboradorSelecionado}&dsFormaPagamento=${pagamentoSelecionado}&dsParcela=${parcelaSelecionada}`;
       const response = await get(urlApi);
-      
+
       if (response.data.length && response.data.length === pageSize) {
         let allData = [...response.data];
         animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
+
         async function fetchNextPage(currentPage) {
           try {
             currentPage++;
@@ -107,14 +104,14 @@ export const ActionPesquisaRecebimentosLoja = () => {
             throw error;
           }
         }
-  
+
         await fetchNextPage(currentPage);
         return allData;
       } else {
-       
+
         return response.data;
       }
-  
+
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
@@ -122,25 +119,25 @@ export const ActionPesquisaRecebimentosLoja = () => {
       fecharAnimacaoCarregamento();
     }
   };
-   
+
   const { data: dadosRecebimentos = [], error: errorRecebimentos, isLoading: isLoadingRecebimentos, refetch: refetchListaRecebimentos } = useQuery(
     ['venda-total-forma-pagamento', empresaSelecionada, dataPesquisaInicio, dataPesquisaFim, colaboradorSelecionado, pagamentoSelecionado, parcelaSelecionada, currentPage, pageSize],
-    () => fetchListaRecebimentos(empresaSelecionada, dataPesquisaInicio, dataPesquisaFim, colaboradorSelecionado, pagamentoSelecionado, parcelaSelecionada,  currentPage, pageSize),
+    () => fetchListaRecebimentos(empresaSelecionada, dataPesquisaInicio, dataPesquisaFim, colaboradorSelecionado, pagamentoSelecionado, parcelaSelecionada, currentPage, pageSize),
     {
-      enabled: false, 
+      enabled: false,
     }
   );
 
   const fetchListaRecebimentosOperador = async () => {
     try {
-      
+
       const urlApi = `venda-total-recebido-periodo-adm?idEmpresa=${usuarioLogado?.IDEMPRESA}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idFuncionario=${colaboradorSelecionado}&dsFormaPagamento=${pagamentoSelecionado}&dsParcela=${parcelaSelecionada}&idGrupo=${marcaSelecionada}`;
       const response = await get(urlApi);
-      
+
       if (response.data.length && response.data.length === pageSize) {
         let allData = [...response.data];
         animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
+
         async function fetchNextPage(currentPage) {
           try {
             currentPage++;
@@ -156,14 +153,14 @@ export const ActionPesquisaRecebimentosLoja = () => {
             throw error;
           }
         }
-  
+
         await fetchNextPage(currentPage);
         return allData;
       } else {
-       
+
         return response.data;
       }
-  
+
     } catch (error) {
       console.error('Error fetching data:', error);
       throw error;
@@ -171,12 +168,12 @@ export const ActionPesquisaRecebimentosLoja = () => {
       fecharAnimacaoCarregamento();
     }
   };
-   
+
   const { data: dadosRecebimentosOperador = [], error: errorRecebimentosOperador, isLoading: isLoadingRecebimentosOpredador, refetch: refetchListaRecebimentosOperador } = useQuery(
     ['venda-total-recebido-periodo-adm', empresaSelecionada, dataPesquisaInicio, dataPesquisaFim, colaboradorSelecionado, pagamentoSelecionado, parcelaSelecionada, currentPage, pageSize],
     () => fetchListaRecebimentosOperador(empresaSelecionada, dataPesquisaInicio, dataPesquisaFim, colaboradorSelecionado, pagamentoSelecionado, parcelaSelecionada, currentPage, pageSize),
     {
-      enabled: false, 
+      enabled: false,
     }
   );
 
@@ -185,7 +182,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
     setPagamentoSelecionado(values);
   };
 
-  const handleSelectMarca = (e) => {  
+  const handleSelectMarca = (e) => {
     setMarcaSelecionada(e.value);
   };
 
@@ -252,16 +249,16 @@ export const ActionPesquisaRecebimentosLoja = () => {
         optionsMultSelectMarca={[
           { value: '', label: 'Selecionar Forma de Pagamento' },
           ...dadosFormaPagamento.map((item) => {
-          
-          return {
-            value: item.DSTIPOPAGAMENTO,
-            label: item.DSTIPOPAGAMENTO,
-          }
-        })
+
+            return {
+              value: item.DSTIPOPAGAMENTO,
+              label: item.DSTIPOPAGAMENTO,
+            }
+          })
         ]}
         valueMultSelectMarca={pagamentoSelecionado}
         onChangeMultSelectMarca={handleChangePagamento}
-      
+
         InputSelectFuncionarioComponent={InputSelectAction}
         labelSelectFuncionario={"Por Colaborador"}
         optionsFuncionarios={dadosFuncionarios.map((item) => ({
@@ -271,7 +268,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
         valueSelectFuncionario={colaboradorSelecionado}
         onChangeSelectFuncionario={handleSelectFuncionario}
 
-       
+
 
         MultSelectSubGrupoComponent={MultSelectAction}
         labelMultSelectSubGrupo={"Parcelas"}
@@ -281,7 +278,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
         }))}
         valueMultSelectSubGrupo={pagamentoSelecionado}
         onChangeMultSelectSubGrupo={handleSelectParcela}
-        
+
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Por Pagamentos"}

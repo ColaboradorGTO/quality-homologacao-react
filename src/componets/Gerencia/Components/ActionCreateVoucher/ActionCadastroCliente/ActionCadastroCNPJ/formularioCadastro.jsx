@@ -507,7 +507,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                 render={({ field }) => (
                                     <FormField
                                         name="nuIBGE"
-                                        label={"Nº IBGE*"}
+                                        label={"Nº IBGE"}
                                         type="text"
                                         errors={errors}
                                         clearErrors={clearErrors}

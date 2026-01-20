@@ -177,9 +177,9 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, empresa }) 
               titleButton={"Detalhar Venda"}
               onClickButton={() => handleClickVenda(row)}
               Icon={GrView}
-              iconSize={18}
-              width='35px'
-              height='35px'
+              iconSize={25}
+              width="35px"
+              height="35px"
               cor={"info"}
             />
           </div>
@@ -188,9 +188,9 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, empresa }) 
               titleButton={"Detalhar Produtos"}
               onClickButton={() => handleClickProduto(row)}
               Icon={FaProductHunt}
-              iconSize={18}
-              width='35px'
-              height='35px'
+              iconSize={25}
+              width="35px"
+              height="35px"
               cor={"warning"}
             />
           </div>
@@ -199,9 +199,9 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, empresa }) 
               titleButton={"Detalhar Recebimentos"}
               onClickButton={() => handleClickPagamento(row)}
               Icon={MdOutlineAttachMoney}
-              iconSize={18}
-              width='35px'
-              height='35px'
+              iconSize={25}
+              width="35px"
+              height="35px"
               cor={"success"}
             />
           </div>
