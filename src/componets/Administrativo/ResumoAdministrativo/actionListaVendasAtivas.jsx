@@ -8,7 +8,6 @@ import { FaProductHunt } from "react-icons/fa";
 import { GrView } from "react-icons/gr";
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
-import { toFloat } from "../../../utils/toFloat";
 import { get } from "../../../api/funcRequest";
 import { ActionDetalheVendaModal } from "../Components/ActionsModaisVendas/actionDetalheVendaModal";
 import { ActionDetalheVendaProdutosModal } from "../Components/ActionsModaisVendas/actionDetalheVendaProdutosModal";

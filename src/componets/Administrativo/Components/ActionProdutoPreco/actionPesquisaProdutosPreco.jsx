@@ -9,6 +9,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
+import Swal from "sweetalert2";
 
 export const ActionPesquisaProdutosPreco = () => {
   const [tabelaSapVisivel, setTabelaSapVisivel] = useState(false);
@@ -17,8 +18,7 @@ export const ActionPesquisaProdutosPreco = () => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
   const [codBarra, setCodBarra] = useState('')
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+
 
   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useQuery(
     'marcasLista',
@@ -137,21 +137,34 @@ export const ActionPesquisaProdutosPreco = () => {
   }
 
   const handleClickSap = () => {
-    setIsLoading(true);
-    setCurrentPage(+ 1);
-    refetchProdutoSap();
-    setTabelaSapVisivel(true);
-    setTabelaQualityVisivel(false);
+    if(empresaSelecionada === '') {
+      Swal.fire({
+        icon: 'info',
+        text: 'Selecione uma empresa para continuar!',
+        timer: 3000,
+      })
+      return;
+    } else {
+      refetchProdutoSap();
+      setTabelaSapVisivel(true);
+      setTabelaQualityVisivel(false);
+    }
 
   }
 
   const handleClickQuality = () => {
-    setIsLoading(true);
-    setCurrentPage(+ 1);
-    refetchProdutosQuality(empresaSelecionada)
-    setTabelaQualityVisivel(true);
-    setTabelaSapVisivel(false);
-
+        if(empresaSelecionada === '') {
+      Swal.fire({
+        icon: 'info',
+        text: 'Selecione uma empresa para continuar!',
+        timer: 3000,
+      })
+      return;
+    } else {
+      refetchProdutosQuality(empresaSelecionada)
+      setTabelaQualityVisivel(true);
+      setTabelaSapVisivel(false);
+    }
   }
 
   return (

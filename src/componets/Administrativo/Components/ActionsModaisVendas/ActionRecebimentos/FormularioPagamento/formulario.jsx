@@ -223,6 +223,9 @@ export const FormularioAlteracaoPagamento = ({
     setIncluirPos2(prev => !prev)
   }
 
+      //  if(stEditar == 'False'){
+      //       $('#idbuttonalterar').addClass('d-none');
+      //   }
   const alterarPagamentoVisivel = () => {
     const idsPermitidos = [ 2001, 2024, 5074, 5025, 30174, 30514];
    
