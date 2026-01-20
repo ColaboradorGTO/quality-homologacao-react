@@ -29,7 +29,6 @@ export const ActionPesquisaEstoqueLoja = () => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [codBarra, setCodBarra] = useState('');
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(1000)
   const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(true)
   const animatedComponents = makeAnimated();
 
@@ -43,9 +42,10 @@ export const ActionPesquisaEstoqueLoja = () => {
 
 
   const { data: dadosFornecedor = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch: refetchFornecedor } = useQuery(
-    'lista-fornecedor-produto',
+    ['lista-fornecedor-produto', marcaSelecionada],
     async () => {
       const response = await get(`/lista-fornecedor-produto?idMarca=${marcaSelecionada}`);
+      console.log('response fornecedor:', response.data);
       return response.data;
     },
     {enabled: false, staleTime: 5 * 60 * 1000, }
@@ -222,6 +222,7 @@ export const ActionPesquisaEstoqueLoja = () => {
   };
   const handleChangeMarca = (selectedOptions) => {
     const values = selectedOptions.map(option => option.value);
+    refetchFornecedor();
     setMarcaSelecionada(values);
   };
 
