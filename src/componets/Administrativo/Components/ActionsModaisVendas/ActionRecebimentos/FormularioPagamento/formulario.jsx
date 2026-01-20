@@ -118,7 +118,6 @@ export const FormularioAlteracaoPagamento = ({
     incluirPos2,
     setIncluirPos2,
     onSubmit,
-    // cancelarVendaPagamento
   } = usePagamento({dadosDetalheRecebimentos,  optionsModulos, usuarioLogado });
 
   const [alerta, setAlerta] = useState(false);
@@ -177,8 +176,6 @@ export const FormularioAlteracaoPagamento = ({
         numeroVoucher: nuVoucher,
         motivo: motivoAlteracao
       }
-
-      
   
       await schema.validate(dadosParaValidar, { abortEarly: false });
       console.log('Dados validados :', dadosParaValidar);
