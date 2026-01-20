@@ -10,7 +10,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { useFetchData } from "../../../../hooks/useFetchData";
-import Swal from "sweetalert2";
+
 
 export const ActionPesquisaAlterarVendaVendedor = ({ usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -96,11 +96,8 @@ export const ActionPesquisaAlterarVendaVendedor = ({ usuarioLogado, ID }) => {
   }
 
   const handleClick = () => {
-
-
     setTabelaVisivel(true)
     refetchVendasAtiva()
-    
   }
 
 

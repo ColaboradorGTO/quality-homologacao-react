@@ -116,7 +116,7 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
                 IP: ipUsuario
             }
 
-            const responseEditarCaixa = await post('/log-web', postDataEditarCaixa)
+            const response = await post('/log-web', postDataEditarCaixa)
 
             Swal.fire({
                 icon: 'error',
@@ -129,7 +129,7 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
                 },
             });
 
-            return responseEditarCaixa.data;
+            return response.data;
         }
     }
 
