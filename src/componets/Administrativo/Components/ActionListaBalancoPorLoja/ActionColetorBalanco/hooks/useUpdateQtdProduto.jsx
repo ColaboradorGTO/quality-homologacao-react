@@ -97,7 +97,7 @@ export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
 
         try {
             const response = await put('/detalhe-balanco/:id', putData)
-
+            const ipUsuario = await getIPUsuario();
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'ADMNISTRATIVO/ALTERAR QUANTIDADE DE PRODUTO NO BALANÇO';
 
@@ -109,7 +109,7 @@ export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postData)
+            await post('/log-web', postData)
 
             Swal.fire({
                 title: 'Atualizado com Sucesso!',
@@ -122,15 +122,16 @@ export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
                 }
             })
 
-            return responsePost.data;
+            return response.data;
         } catch (error) {
+            const ipUsuario = await getIPUsuario();
+            const textDados = JSON.stringify(putData)
             let textoFuncao = 'ADMNISTRATIVO/ERRO AO ALTERAR QUANTIDADE DE PRODUTO NO BALANÇO';
-
 
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
-                DADOS: 'ERRO AO ALTERAR QUANTIDADE DE PRODUTO NO BALANÇO',
+                DADOS: textDados,
                 IP: ipUsuario
             }
 
