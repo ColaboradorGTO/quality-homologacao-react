@@ -28,7 +28,6 @@ export const useEditarEmpresa = ({dadosEmpresasDetalhe, handleClose}) => {
     }
     return response.data;
     }
-console.log(telefone, "telefone no hook ")
     useEffect(() => {
         getIPUsuario()
     }, [usuarioLogado])
@@ -130,7 +129,7 @@ console.log(telefone, "telefone no hook ")
                     container: 'custom-swal',
                 }
             })
-            
+
             handleClose()
             return responsePost.data
         } catch (error) {
