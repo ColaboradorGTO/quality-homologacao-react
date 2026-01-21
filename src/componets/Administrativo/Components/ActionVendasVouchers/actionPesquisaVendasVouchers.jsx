@@ -60,7 +60,7 @@ export const ActionPesquisaVendasVouchers = () => {
     refetchMarcas()
   }, [marcaSelecionada, refetchEmpresas]);
 
-  
+
   const fetchListaVendasVendedor = async ( ) => {
     
     const urlBase = `/lista-venda-cliente?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpfNumeroVenda}&nff=${numeroNFCE}&serie=${numeroSerie}&idSubGrupoEmpresarial=${marcaSelecionada}&idEmpresa=${empresaSelecionada}`;    
@@ -144,7 +144,7 @@ export const ActionPesquisaVendasVouchers = () => {
         onChangeInputFieldDTFim={(e) => setDataPesquisaFim(e.target.value)}
 
         InputSelectMarcasComponent={InputSelectAction}
-        labelSelectMarcas={"Marca"}
+        labelSelectMarcas={"Grupos"}
         optionsMarcas={[
           { value: '0', label: 'Selecionar Marca' },
             ...optionsMarcas.map((marca) => {
@@ -157,7 +157,6 @@ export const ActionPesquisaVendasVouchers = () => {
         ]}
         valueSelectMarca={marcaSelecionada}
         onChangeSelectMarcas={handleSelectGrupo}
-
    
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Lojas"}
