@@ -121,7 +121,7 @@ export const FormularioDetalhar = ({ handleClose, dadosEmpresasDetalhe }) => {
                                     label={"Telefone"}
                                     type="text"
                                     readOnly={true}
-                                    value={dadosEmpresasDetalhe[0]?.NUTELGERENCIA}
+                                    value={dadosEmpresasDetalhe[0]?.NUTELCOMERCIAL}
                                 />
                             </div>
                         </div>

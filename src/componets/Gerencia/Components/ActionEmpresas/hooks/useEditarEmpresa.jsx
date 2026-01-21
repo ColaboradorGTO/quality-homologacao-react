@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
-export const useEditarEmpresa = ({dadosEmpresasDetalhe}) => {
+export const useEditarEmpresa = ({dadosEmpresasDetalhe, handleClose}) => {
     const [grupoEmpresa, setGrupoEmpresa] = useState('');
     const [situacao, setSituacao] = useState('');
     const [dataCriacao, setDataCriacao] = useState('');
@@ -28,7 +28,7 @@ export const useEditarEmpresa = ({dadosEmpresasDetalhe}) => {
     }
     return response.data;
     }
-
+console.log(telefone, "telefone no hook ")
     useEffect(() => {
         getIPUsuario()
     }, [usuarioLogado])
@@ -69,40 +69,40 @@ export const useEditarEmpresa = ({dadosEmpresasDetalhe}) => {
     const onSubmit = async (data) => {
 
         const putData = {
-            STGRUPOEMPRESARIAL: dadosEmpresasDetalhe[0]?.IDGRUPOEMPRESARIAL,
-            IDGRUPOEMPRESARIAL: dadosEmpresasDetalhe[0]?.IDGRUPOEMPRESARIAL,
-            IDSUBGRUPOEMPRESARIAL: dadosEmpresasDetalhe[0]?.IDSUBGRUPOEMPRESARIAL,
-            NORAZAOSOCIAL: dadosEmpresasDetalhe[0]?.NORAZAOSOCIAL,
-            NOFANTASIA: dadosEmpresasDetalhe[0]?.NOFANTASIA,
-            NUCNPJ: dadosEmpresasDetalhe[0]?.NUCNPJ,
-            NUINSCESTADUAL: dadosEmpresasDetalhe[0]?.NUINSCESTADUAL,
-            NUINSCMUNICIPAL: dadosEmpresasDetalhe[0]?.NUINSCMUNICIPAL,
-            CNAE: dadosEmpresasDetalhe[0]?.CNAE,
-            EENDERECO: dadosEmpresasDetalhe[0]?.EENDERECO,
-            ECOMPLEMENTO: dadosEmpresasDetalhe[0]?.ECOMPLEMENTO,
-            EBAIRRO: dadosEmpresasDetalhe[0]?.EBAIRRO,
-            ECIDADE: dadosEmpresasDetalhe[0]?.ECIDADE,
-            SGUF: dadosEmpresasDetalhe[0]?.SGUF,
-            NUUF: dadosEmpresasDetalhe[0]?.NUUF === 'DF' ? 53 : 52,
-            NUCEP: dadosEmpresasDetalhe[0]?.NUCEP,
-            NUIBGE: dadosEmpresasDetalhe[0]?.NUIBGE,
-            EEMAILPRINCIPAL: email,
-            EEMAILCOMERCIAL: dadosEmpresasDetalhe[0]?.EEMAILCOMERCIAL,
-            EEMAILFINANCEIRO: dadosEmpresasDetalhe[0]?.EEMAILFINANCEIRO,
-            EEMAILCONTABILIDADE: dadosEmpresasDetalhe[0]?.EEMAILCONTABILIDADE,
-            NUTELPUBLICO: dadosEmpresasDetalhe[0]?.NUTELPUBLICO,
-            NUTELCOMERCIAL: telefone,
-            NUTELFINANCEIRO: dadosEmpresasDetalhe[0]?.NUTELFINANCEIRO,
-            NUTELGERENCIA: dadosEmpresasDetalhe[0]?.NUTELGERENCIA,
-            EURL: dadosEmpresasDetalhe[0]?.EURL,
-            PATHIMG: dadosEmpresasDetalhe[0]?.PATHIMG,
-            NUCNAE: dadosEmpresasDetalhe[0]?.NUCNAE,
-            STECOMMERCE: dadosEmpresasDetalhe[0]?.STECOMMERCE,
-            DTULTATUALIZACAO: dadosEmpresasDetalhe[0]?.DTULTATUALIZACAO,
-            STATIVO: dadosEmpresasDetalhe[0]?.STATIVO,
-            ALIQPIS: dadosEmpresasDetalhe[0]?.ALIQPIS,
-            ALIQCOFINS: dadosEmpresasDetalhe[0]?.ALIQCOFINS,
-            IDEMPRESA: dadosEmpresasDetalhe[0]?.IDEMPRESA,
+            STGRUPOEMPRESARIAL: Number(dadosEmpresasDetalhe[0]?.IDGRUPOEMPRESARIAL),
+            IDGRUPOEMPRESARIAL: Number(dadosEmpresasDetalhe[0]?.IDGRUPOEMPRESARIAL),
+            IDSUBGRUPOEMPRESARIAL: Number(dadosEmpresasDetalhe[0]?.IDSUBGRUPOEMPRESARIAL),
+            NORAZAOSOCIAL: String(dadosEmpresasDetalhe[0]?.NORAZAOSOCIAL),
+            NOFANTASIA: String(dadosEmpresasDetalhe[0]?.NOFANTASIA),
+            NUCNPJ: String(dadosEmpresasDetalhe[0]?.NUCNPJ),
+            NUINSCESTADUAL: String(dadosEmpresasDetalhe[0]?.NUINSCESTADUAL),
+            NUINSCMUNICIPAL: String(dadosEmpresasDetalhe[0]?.NUINSCMUNICIPAL),
+            CNAE: String(dadosEmpresasDetalhe[0]?.CNAE),
+            EENDERECO: String(dadosEmpresasDetalhe[0]?.EENDERECO),
+            ECOMPLEMENTO: String(dadosEmpresasDetalhe[0]?.ECOMPLEMENTO),
+            EBAIRRO: String(dadosEmpresasDetalhe[0]?.EBAIRRO),
+            ECIDADE:String(dadosEmpresasDetalhe[0]?.ECIDADE),
+            SGUF: String(dadosEmpresasDetalhe[0]?.SGUF),
+            NUUF: Number(dadosEmpresasDetalhe[0]?.NUUF === 'DF' ? 53 : 52),
+            NUCEP: String(dadosEmpresasDetalhe[0]?.NUCEP),
+            NUIBGE: String(dadosEmpresasDetalhe[0]?.NUIBGE),
+            EEMAILPRINCIPAL: String(email),
+            EEMAILCOMERCIAL: String(dadosEmpresasDetalhe[0]?.EEMAILCOMERCIAL),
+            EEMAILFINANCEIRO: String(dadosEmpresasDetalhe[0]?.EEMAILFINANCEIRO),
+            EEMAILCONTABILIDADE: String(dadosEmpresasDetalhe[0]?.EEMAILCONTABILIDADE),
+            NUTELPUBLICO: String(dadosEmpresasDetalhe[0]?.NUTELPUBLICO),
+            NUTELCOMERCIAL: String(telefone),
+            NUTELFINANCEIRO: String(dadosEmpresasDetalhe[0]?.NUTELFINANCEIRO),
+            NUTELGERENCIA: String(dadosEmpresasDetalhe[0]?.NUTELGERENCIA),
+            EURL: String(dadosEmpresasDetalhe[0]?.EURL),
+            PATHIMG: String(dadosEmpresasDetalhe[0]?.PATHIMG),
+            NUCNAE: String(dadosEmpresasDetalhe[0]?.NUCNAE),
+            STECOMMERCE: String(dadosEmpresasDetalhe[0]?.STECOMMERCE),
+            DTULTATUALIZACAO: String(dadosEmpresasDetalhe[0]?.DTULTATUALIZACAO),
+            STATIVO: String(dadosEmpresasDetalhe[0]?.STATIVO),
+            ALIQPIS: Number(dadosEmpresasDetalhe[0]?.ALIQPIS),
+            ALIQCOFINS: Number(dadosEmpresasDetalhe[0]?.ALIQCOFINS),
+            IDEMPRESA: Number(dadosEmpresasDetalhe[0]?.IDEMPRESA),
         }
 
         try {
@@ -130,7 +130,8 @@ export const useEditarEmpresa = ({dadosEmpresasDetalhe}) => {
                     container: 'custom-swal',
                 }
             })
-
+            
+            handleClose()
             return responsePost.data
         } catch (error) {
             let textoFuncao = 'GERENCIA /ERRO NA EDIÇÃO DA EMPRESA';
