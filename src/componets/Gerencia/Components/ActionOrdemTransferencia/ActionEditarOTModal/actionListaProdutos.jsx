@@ -74,7 +74,6 @@ export const ActionListaProdutos = ({ dadosDetalheTransferencia, setDadosDetalhe
             QTDAJUSTE: parseInt(item.QTDAJUSTE),
             IDEMPRESADESTINO: item.IDEMPRESADESTINO,
             QTDCONFERENCIA: parseInt(item.QTDCONFERENCIA),
-            IDSTATUSOT: Number(item.IDSTATUSOT ?? 1),
             quantidade: Number(item.QTDEXPEDICAO),
             contador
         }

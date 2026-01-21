@@ -98,8 +98,7 @@ export const ActionListaBalanco = ({
             NUMITENS: item.NUMITENS,
             TOTALCUSTO: item.TOTALCUSTO,
             TOTALVENDA: item.TOTALVENDA,
-            STCONSOLIDADO: item.STCONSOLIDADO,
-            DSCOLETOR: item.DSCOLETOR,
+            STCONSOLIDADO: item.STCONSOLIDADO
         }
     })
 

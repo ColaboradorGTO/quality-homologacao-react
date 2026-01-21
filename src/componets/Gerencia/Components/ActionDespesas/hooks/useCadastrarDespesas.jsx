@@ -174,7 +174,6 @@ export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogad
 
   return {
     onSubmit,
-    dadosReceitaDespesa,
     errorEmpresas,
     isLoadingEmpresas,
     refetch,
