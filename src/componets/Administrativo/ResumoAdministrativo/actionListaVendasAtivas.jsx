@@ -3,7 +3,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { ButtonTable } from "../../ButtonsTabela/ButtonTable";
 import { formatMoeda } from "../../../utils/formatMoeda";
-import { MdOutlineAttachMoney } from "react-icons/md";
+import { MdClose, MdOutlineAttachMoney } from "react-icons/md";
 import { FaProductHunt } from "react-icons/fa";
 import { GrView } from "react-icons/gr";
 import { ColumnGroup } from "primereact/columngroup";
@@ -19,9 +19,15 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { ActionVendaXMLModal } from "./ActionVendasXML/actionVendaXMLModal";
 import { TbFileTypeXml } from "react-icons/tb";
+import { ActionCancelarVendaModal } from "./ActionCancelarVenda/actionCancelarVendaModal";
 
 
-export const ActionListaVendasAtivas = ({ dadosVendasAtivas, empresaSelecionada, usuarioLogado }) => {
+export const ActionListaVendasAtivas = ({ 
+  dadosVendasAtivas, 
+  empresaSelecionada, 
+  usuarioLogado, 
+  optionsModulos
+}) => {
   const [modalVendaVisivel, setModalVendaVisivel] = useState(false);
   const [modalProdutoVisivel, setModalProdutoVisivel] = useState(false);
   const [modalPagamentoVisivel, setModalPagamentoVisivel] = useState(false);
@@ -31,6 +37,7 @@ export const ActionListaVendasAtivas = ({ dadosVendasAtivas, empresaSelecionada,
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [dadosDetalheVendasXML, setDadosDetalheVendasXML] = useState([]);
   const [modalXmlVisivel, setModalXmlVisivel] = useState(false);
+  const [modalCancelarVenda, setModalCancelarVenda] = useState(false);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -258,6 +265,17 @@ export const ActionListaVendasAtivas = ({ dadosVendasAtivas, empresaSelecionada,
   
               />
             </div>
+            <div className="p-1">
+              <ButtonTable
+                titleButton={"Cancelar Venda"}
+                onClickButton={() => handleCancelarVenda(row)}
+                Icon={MdClose}
+                cor={"danger"}
+                iconSize={20}
+                width="30px"
+                height="30px"
+              />
+            </div>
           </div>
           )
         } else {
@@ -310,6 +328,17 @@ export const ActionListaVendasAtivas = ({ dadosVendasAtivas, empresaSelecionada,
                 width="30px"
                 height="30px"
   
+              />
+            </div>
+            <div className="p-1">
+              <ButtonTable
+                titleButton={"Cancelar Venda"}
+                onClickButton={() => handleCancelarVenda(row)}
+                Icon={MdClose}
+                cor={"danger"}
+                iconSize={20}
+                width="30px"
+                height="30px"
               />
             </div>
           </div>
@@ -390,7 +419,11 @@ export const ActionListaVendasAtivas = ({ dadosVendasAtivas, empresaSelecionada,
       console.error(error);
     }
   }
-
+  const handleCancelarVenda = (row) => {
+    if (row && row.IDVENDA) {
+      setModalCancelarVenda(true);
+    }
+  }
   const footerGroup = (
     <ColumnGroup>
       <Row>
@@ -485,6 +518,14 @@ export const ActionListaVendasAtivas = ({ dadosVendasAtivas, empresaSelecionada,
         show={modalXmlVisivel}
         handleClose={() => setModalXmlVisivel(false)}
         dadosDetalheVendasXML={dadosDetalheVendasXML}
+      />
+
+      <ActionCancelarVendaModal 
+        show={modalCancelarVenda}
+        handleClose={() => setModalCancelarVenda(false)}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
+        dadosAtivasVendas={dadosAtivasVendas}
       />
     </Fragment>
   )

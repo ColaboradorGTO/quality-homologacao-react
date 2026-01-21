@@ -3,13 +3,15 @@ import Select from 'react-select';
 import { FooterModal } from '../../../Modais/FooterModal/footerModal';
 import { ButtonTypeModal } from '../../../Buttons/ButtonTypeModal';
 import { useQuery } from 'react-query';
+import { get } from '../../../../api/funcRequest';
 
 
 export const FormularioCancelarVenda = ({ 
   handleClose,
   handleClick, 
   optionsModulos, 
-  usuarioLogado 
+  usuarioLogado,
+  dadosAtivasVendas 
 }) => {
   const [motivo, setMotivo] = useState('');
   const [imprimir, setImprimir] = useState(false);
@@ -20,23 +22,29 @@ export const FormularioCancelarVenda = ({
       const response = await get(`/lista-motivo-devolucao`);
       return response.data;
     },
-    { enabled: false, staleTime: 5 * 60 * 1000, }
+    { enabled: true, staleTime: 5 * 60 * 1000, }
   );
 
   return (
     <Fragment>
       <form>
-        <Select
-          options={dadosMotivoDevolucao?.data
-            ?.filter((item) => item.STATIVO === 'True')
-            .map((item) => ({
-              value: item.DSMOTIVO,
-              label: item.DSMOTIVO
-            })) || []
-          }
-          value={motivo}
-          onChange={(e) => setMotivo(e.value)}
-        />
+        <div className='form-group'>
+          <div className="col-sm-6 col-md-3 col-xl-6">
+
+            <label htmlFor='Cancelar'>Motivo do Cancelamento:</label>
+            <Select
+              options={dadosMotivoDevolucao
+                ?.filter((item) => item.STATIVO == 'True')
+                .map((item) => ({
+                  value: item.DSMOTIVO,
+                  label: item.DSMOTIVO
+                })) || []
+              }
+              value={motivo}
+              onChange={(e) => setMotivo(e.value)}
+            />
+          </div>
+        </div>
     
         <FooterModal     
           

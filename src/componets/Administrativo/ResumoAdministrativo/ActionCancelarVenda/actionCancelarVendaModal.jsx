@@ -4,7 +4,14 @@ import { HeaderModal } from "../../../Modais/HeaderModal/HeaderModal";
 import { FormularioCancelarVenda } from "./formulario";
 ;
 
-export const ActionCancelarVendaModal = ({ handleClose, show, handleClick, optionsModulos, usuarioLogado}) => {
+export const ActionCancelarVendaModal = ({ 
+  handleClose, 
+  show, 
+  handleClick, 
+  optionsModulos, 
+  usuarioLogado,
+  dadosAtivasVendas
+}) => {
 
   return (
     <Fragment>
@@ -34,6 +41,7 @@ export const ActionCancelarVendaModal = ({ handleClose, show, handleClick, optio
             handleClick={handleClick}
             optionsModulos={optionsModulos}
             usuarioLogado={usuarioLogado}
+            dadosAtivasVendas={dadosAtivasVendas}
           />
 
           </Modal.Body>
