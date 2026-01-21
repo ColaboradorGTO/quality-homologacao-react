@@ -68,7 +68,7 @@ export const useCancelarVenda = ({
 
         try {
 
-            const response = await put('/venda-vendedor/:id', putData)
+            const response = await put('/venda-cancelamento/:id', putData)
             const textDados = JSON.stringify(putData)
             let textFuncao = 'ADMINISTRATIVO/CANCELAMENTO DE VENDAS';
             const ipUsuario = await getIPUsuario();

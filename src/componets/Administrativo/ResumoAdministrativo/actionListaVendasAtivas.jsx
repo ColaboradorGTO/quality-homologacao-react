@@ -266,7 +266,7 @@ export const ActionListaVendasAtivas = ({
   
               />
             </div>
-            <div className="p-1">
+            {/* <div className="p-1">
               <ButtonTable
                 titleButton={"Cancelar Venda"}
                 onClickButton={() => handleCancelarVenda(row)}
@@ -276,7 +276,7 @@ export const ActionListaVendasAtivas = ({
                 width="30px"
                 height="30px"
               />
-            </div>
+            </div> */}
           </div>
           )
         } else {
@@ -465,7 +465,7 @@ export const ActionListaVendasAtivas = ({
             sortOrder={-1}
             paginator={true}
             rows={10}
-            rowsPerPageOptions={[5, 10, 20, 50]}
+            rowsPerPageOptions={[5, 10, 20, 50, 100, dadosAtivasVendas.length]}
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
