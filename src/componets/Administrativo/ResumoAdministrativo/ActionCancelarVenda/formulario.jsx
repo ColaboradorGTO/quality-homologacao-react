@@ -1,33 +1,61 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import Select from 'react-select';
 import { FooterModal } from '../../../Modais/FooterModal/footerModal';
 import { ButtonTypeModal } from '../../../Buttons/ButtonTypeModal';
-import { useQuery } from 'react-query';
-import { get } from '../../../../api/funcRequest';
-
+import { useCancelarVenda } from './hook/useCancelarVenda';
+import { useForm, Controller } from "react-hook-form";
 
 export const FormularioCancelarVenda = ({ 
   handleClose,
   handleClick, 
   optionsModulos, 
   usuarioLogado,
-  dadosAtivasVendas 
+  dadosCancelarVenda 
 }) => {
-  const [motivo, setMotivo] = useState('');
-  const [imprimir, setImprimir] = useState(false);
+  const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+    mode: "onChange"
+  });
 
-  const { data: dadosMotivoDevolucao = [], error: errorMotivoDevolucao, isLoading: isLoadingMotivoDevolucao, refetch: refetchMotivoDevolucao } = useQuery(
-    'lista-motivo-devolucao',
-    async () => {
-      const response = await get(`/lista-motivo-devolucao`);
-      return response.data;
-    },
-    { enabled: true, staleTime: 5 * 60 * 1000, }
-  );
+  const {
+    motivo,
+    setMotivo,
+    dadosMotivoDevolucao,
+    onSubmit
+  } = useCancelarVenda({ optionsModulos, usuarioLogado, handleClose, dadosCancelarVenda })
+  console.log('dadosCancelarVenda no formulario:', dadosCancelarVenda);
+  const handleValidatedSubmit = async () => {
+    try {
+      const dadosParaValidar = {
+        motivo: motivo
+      }
+  
+      // await schema.validate(dadosParaValidar, { abortEarly: false });
+
+      await onSubmit();
+      await handleClose();
+      
+    } catch (validationError) {
+      clearErrors();
+
+      if (validationError.inner && validationError.inner.length > 0) {
+        validationError.inner.forEach(error => {
+          if (error.path) {
+            setError(error.path, {
+              type: 'manual',
+              message: error.message
+            });
+          }
+        });
+      }
+   
+      const errorMessages = validationError.errors || [validationError.message];
+      
+    }
+  };
 
   return (
     <Fragment>
-      <form>
+      <form onSubmit={handleSubmit(handleValidatedSubmit)}>
         <div className='form-group'>
           <div className="col-sm-6 col-md-3 col-xl-6">
 
@@ -50,7 +78,7 @@ export const FormularioCancelarVenda = ({
           
           ButtonTypeFechar={ButtonTypeModal}
           textButtonFechar={"Finalizar"}
-          onClickButtonFechar
+          onClickButtonFechar={handleValidatedSubmit}
           corFechar="success"
         
 

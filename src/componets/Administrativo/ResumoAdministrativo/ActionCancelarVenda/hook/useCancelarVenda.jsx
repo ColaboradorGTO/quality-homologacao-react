@@ -9,7 +9,7 @@ export const useCancelarVenda = ({
     optionsModulos, 
     usuarioLogado, 
     handleClose,
-    dadosAtivasVendas
+    dadosCancelarVenda
 }) => {
     const [motivo, setMotivo] = useState('');
     const [ipUsuario, setIpUsuario] = useState('');
@@ -61,7 +61,7 @@ export const useCancelarVenda = ({
     
 
         const putData = {
-            IDVENDA: dadosAtivasVendas[0]?.IDVENDA,
+            IDVENDA: dadosCancelarVenda?.IDVENDA,
             IDUSUARIOCANCELAMENTO: usuarioLogado.id,
             TXTMOTIVOCANCELAMENTO: motivo,
         }
@@ -72,14 +72,14 @@ export const useCancelarVenda = ({
             const textDados = JSON.stringify(putData)
             let textFuncao = 'ADMINISTRATIVO/CANCELAMENTO DE VENDAS';
             const ipUsuario = await getIPUsuario();
-            const postDataEditarCaixa = {
+            const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
 
-            await post('/log-web', postDataEditarCaixa)
+            await post('/log-web', postData)
 
             Swal.fire({
                 icon: 'success',
@@ -98,14 +98,14 @@ export const useCancelarVenda = ({
             const textDados = JSON.stringify(putData)
             const ipUsuario = await getIPUsuario();
             let textFuncao = 'ADMINISTRATIVO/ERRO CANCELAR VENDA';
-            const postDataEditarCaixa = {
+            const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
 
-            const response = await post('/log-web', postDataEditarCaixa)
+            const response = await post('/log-web', postData)
 
             Swal.fire({
                 icon: 'error',

@@ -38,6 +38,7 @@ export const ActionListaVendasAtivas = ({
   const [dadosDetalheVendasXML, setDadosDetalheVendasXML] = useState([]);
   const [modalXmlVisivel, setModalXmlVisivel] = useState(false);
   const [modalCancelarVenda, setModalCancelarVenda] = useState(false);
+  const [dadosCancelarVenda, setDadosCancelarVenda] = useState([]);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -422,6 +423,7 @@ export const ActionListaVendasAtivas = ({
   const handleCancelarVenda = (row) => {
     if (row && row.IDVENDA) {
       setModalCancelarVenda(true);
+      setDadosCancelarVenda(row);
     }
   }
   const footerGroup = (
@@ -525,7 +527,7 @@ export const ActionListaVendasAtivas = ({
         handleClose={() => setModalCancelarVenda(false)}
         optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}
-        dadosAtivasVendas={dadosAtivasVendas}
+        dadosCancelarVenda={dadosCancelarVenda}
       />
     </Fragment>
   )

@@ -10,7 +10,7 @@ export const ActionCancelarVendaModal = ({
   handleClick, 
   optionsModulos, 
   usuarioLogado,
-  dadosAtivasVendas
+  dadosCancelarVenda
 }) => {
 
   return (
@@ -41,7 +41,7 @@ export const ActionCancelarVendaModal = ({
             handleClick={handleClick}
             optionsModulos={optionsModulos}
             usuarioLogado={usuarioLogado}
-            dadosAtivasVendas={dadosAtivasVendas}
+            dadosCancelarVenda={dadosCancelarVenda}
           />
 
           </Modal.Body>
