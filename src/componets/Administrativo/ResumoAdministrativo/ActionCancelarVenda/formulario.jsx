@@ -15,9 +15,9 @@ export const FormularioCancelarVenda = ({
   const [imprimir, setImprimir] = useState(false);
 
   const { data: dadosMotivoDevolucao = [], error: errorMotivoDevolucao, isLoading: isLoadingMotivoDevolucao, refetch: refetchMotivoDevolucao } = useQuery(
-    'motivo-devolucao',
+    'lista-motivo-devolucao',
     async () => {
-      const response = await get(`/motivo-devolucao`);
+      const response = await get(`/lista-motivo-devolucao`);
       return response.data;
     },
     { enabled: false, staleTime: 5 * 60 * 1000, }
@@ -26,7 +26,17 @@ export const FormularioCancelarVenda = ({
   return (
     <Fragment>
       <form>
-
+        <Select
+          options={dadosMotivoDevolucao?.data
+            ?.filter((item) => item.STATIVO === 'True')
+            .map((item) => ({
+              value: item.DSMOTIVO,
+              label: item.DSMOTIVO
+            })) || []
+          }
+          value={motivo}
+          onChange={(e) => setMotivo(e.value)}
+        />
     
         <FooterModal     
           

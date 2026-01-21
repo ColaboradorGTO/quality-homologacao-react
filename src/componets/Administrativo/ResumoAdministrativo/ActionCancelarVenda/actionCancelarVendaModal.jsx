@@ -1,6 +1,7 @@
 import { Fragment } from "react"
 import Modal from 'react-bootstrap/Modal';
 import { HeaderModal } from "../../../Modais/HeaderModal/HeaderModal";
+import { FormularioCancelarVenda } from "./formulario";
 ;
 
 export const ActionCancelarVendaModal = ({ handleClose, show, handleClick, optionsModulos, usuarioLogado}) => {
@@ -28,7 +29,12 @@ export const ActionCancelarVendaModal = ({ handleClose, show, handleClick, optio
 
           <Modal.Body>
 
- 
+          <FormularioCancelarVenda 
+            handleClose={handleClose}
+            handleClick={handleClick}
+            optionsModulos={optionsModulos}
+            usuarioLogado={usuarioLogado}
+          />
 
           </Modal.Body>
         </div>
