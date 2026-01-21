@@ -32,8 +32,7 @@ export const ActionPesquisaConsultaVouchers = ({usuarioLogado, ID}) => {
     'menus-usuario-excecao',
     async () => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-      console.log('optionsModulos', response.data);
-      console.log(usuarioLogado?.id, ID);
+
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
@@ -67,8 +66,7 @@ export const ActionPesquisaConsultaVouchers = ({usuarioLogado, ID}) => {
 
 
   
-  const fetchListaVouchers = async () => {
-                                            
+  const fetchListaVouchers = async () => {                                          
     const urlBase = `/voucher-completo?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idSubGrupoEmpresa=${marcaSelecionada}&idEmpresa=${empresaSelecionada}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
@@ -113,7 +111,7 @@ export const ActionPesquisaConsultaVouchers = ({usuarioLogado, ID}) => {
   };
 
 
-   const handleChangeEmpresa = (e) => {
+  const handleChangeEmpresa = (e) => {
     if( e.value === '') {
       setEmpresaSelecionada('');
     } else {
@@ -126,7 +124,6 @@ export const ActionPesquisaConsultaVouchers = ({usuarioLogado, ID}) => {
   const handleClick = () => {
     setTabelaVisivel(true)
     refetchDetalheVoucherDados()
-
   }
 
 
@@ -156,7 +153,6 @@ export const ActionPesquisaConsultaVouchers = ({usuarioLogado, ID}) => {
           { value: '0', label: 'Selecionar Marca' },
           ...optionsMarcas.map((marca) => {
             return {
-
               value: marca.IDGRUPOEMPRESARIAL,
               label: marca.DSGRUPOEMPRESARIAL,
             }
