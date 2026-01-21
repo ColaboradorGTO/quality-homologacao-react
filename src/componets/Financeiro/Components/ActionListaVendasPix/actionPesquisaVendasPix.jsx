@@ -32,9 +32,7 @@ export const ActionPesquisaVendasPix = () => {
   const [tabelaVendasPixConsolidadoEmpresa, setTabelaVendasPixConsolidadoEmpresa] = useState(false);
   const [tabelaFaturaPixConsolidadoLoja, setTabelaFaturaPixConsolidadoLoja] = useState(false);
   const [tabelaVendasFaturaPixVisivel, setTabelaVendasFaturaPixVisivel] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(1000)
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(true)
+
 
 
   useEffect(() => {
