@@ -28,8 +28,25 @@ export const ActionPesquisaVendasVendedor = () => {
     setDataPesquisaFim(dataFim)
 
   }, [])
-  const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useFetchData('marcasLista', '/marcasLista');
-  const { data: optionsEmpresas = [],} = useFetchEmpresas(marcaSelecionada);
+ 
+  const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
+    'marcasLista',
+    async () => {
+      const response = await get(`/marcasLista`);
+      return response.data;
+    },
+    { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000, }
+  );
+   
+  const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
+    ['listaEmpresaComercial', marcaSelecionada],
+    async () => {
+      const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
+      
+      return response.data;
+    },
+    {enabled: Boolean(marcaSelecionada), staleTime: 5 * 60 * 1000, cacheTime: 60 * 60 * 1000,}
+  );
 
   const fetchListaVendasVendedor = async ( ) => {
     const urlBase = `/venda-vendedor-adm?idGrupo=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&uf=${ufSelecionado}`;    
