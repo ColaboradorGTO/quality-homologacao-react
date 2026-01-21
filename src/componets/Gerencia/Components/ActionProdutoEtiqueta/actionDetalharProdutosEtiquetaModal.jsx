@@ -17,13 +17,14 @@ import * as XLSX from "xlsx";
 import { ActionImprimirEtiquetaModal } from "./actionImprimirEtiquetaModal";
 import Swal from "sweetalert2";
 import { MdOutlineLocalPrintshop } from "react-icons/md";
-export const ActionDetalharProdutosEtiquetaModal = ({ 
-  show, 
-  handleClose, 
+export const ActionDetalharProdutosEtiquetaModal = ({
+  show,
+  handleClose,
   produtosSelecionados,
   dadosAcumuladorEtiquetas,
-  setDadosAcumuladorEtiquetas 
-
+  setDadosAcumuladorEtiquetas,
+  setProdutosSelecionados,
+  setSelectedIds
 }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState("");
   const [imprimirProduto, setImprimirProduto] = useState(false)
@@ -40,7 +41,9 @@ export const ActionDetalharProdutosEtiquetaModal = ({
     documentTitle: "Lista de Etiquetas",
   });
 
-   const exportToPDF = () => {
+
+
+  const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
       head: [['Nº', 'Cod Barras', 'Descrição', 'Tamanho', 'QTD', 'Preço', 'Lista Preço', 'Estilo', 'Marca']],
@@ -67,7 +70,7 @@ export const ActionDetalharProdutosEtiquetaModal = ({
     const header = ['Nº', 'Cod Barras', 'Descrição', 'Tamanho', 'QTD', 'Preço', 'Lista Preço', 'Estilo', 'Marca'];
     worksheet['!cols'] = [
       { wpx: 70, caption: 'Nº' },
-      { wpx: 100, caption: 'Cod Barras'},
+      { wpx: 100, caption: 'Cod Barras' },
       { wpx: 100, caption: 'Descrição' },
       { wpx: 200, caption: 'Tamanho' },
       { wpx: 100, caption: 'QTD' },
@@ -85,7 +88,7 @@ export const ActionDetalharProdutosEtiquetaModal = ({
 
   const dados = Array.isArray(produtosSelecionados) ? produtosSelecionados.map((item, index) => {
     return {
-
+      idEtiqueta: `${item.IDPRODUTO}-${item.NUCODBARRAS}-${item.TAMANHO}-${index}`,
       contador: index + 1,
       NUCODBARRAS: item.NUCODBARRAS,
       DSNOME: item.DSNOME,
@@ -97,7 +100,7 @@ export const ActionDetalharProdutosEtiquetaModal = ({
       MARCA: item.MARCA,
       IDPRODUTO: item.IDPRODUTO,
     }
-  }): [];
+  }) : [];
 
 
   const colunasListaProdEtiquetas = [
@@ -140,19 +143,19 @@ export const ActionDetalharProdutosEtiquetaModal = ({
     {
       field: "DSLISTAPRECO",
       header: "Lista Preço",
-      body: (row) => <p style={{ width: '150px', fontWeight: 600, margin: '0px'  }}>{row.DSLISTAPRECO}</p>,
+      body: (row) => <p style={{ width: '150px', fontWeight: 600, margin: '0px' }}>{row.DSLISTAPRECO}</p>,
       sortable: true,
     },
     {
       field: "DSESTILO",
       header: "Estilo",
-      body: (row) => <p style={{ width: '200px',fontWeight: 600, margin: '0px'  }}>{row.DSESTILO}</p>,
+      body: (row) => <p style={{ width: '200px', fontWeight: 600, margin: '0px' }}>{row.DSESTILO}</p>,
       sortable: true,
     },
     {
       field: 'MARCA',
       header: 'Marca',
-      body: row => <span style={{ fontWeight: 600, margin: '0px'  }}>{row.MARCA}</span>,
+      body: row => <span style={{ fontWeight: 600, margin: '0px' }}>{row.MARCA}</span>,
       sortable: true
     },
     {
@@ -161,21 +164,24 @@ export const ActionDetalharProdutosEtiquetaModal = ({
       body: (row) => (
         <ButtonTable
           titleButton="Excluir"
-          onClickButton={() => handleExcluirEtiqueta(row.idEtiqueta)}
+          onClickButton={() => handleExcluirEtiqueta(row)}
           Icon={BsTrash3}
           iconSize={20}
+          width="35px"
+          height="35px"
           iconColor="#fff"
           cor="danger"
         />
       ),
       sortable: true,
     },
+
   ];
 
   const handleAcumuladorEtiquetas = async () => {
     if (parseFloat(quantidadeEtiquetas) > 0) {
       try {
-        const novasEtiquetas = produtosSelecionados.flatMap((produto) => 
+        const novasEtiquetas = produtosSelecionados.flatMap((produto) =>
           Array.from({ length: produto.quantidade }, () => ({
             quantidade: 1,
             NUCODBARRAS: produto.NUCODBARRAS,
@@ -200,8 +206,15 @@ export const ActionDetalharProdutosEtiquetaModal = ({
       }
     }
   };
-  
 
+  const handleExcluirEtiqueta = (row) => {
+    setProdutosSelecionados((prev) =>
+      prev.filter((item, index) => {
+        const id = `${item.IDPRODUTO}-${item.NUCODBARRAS}-${item.TAMANHO}-${index}`;
+        return id !== row.idEtiqueta;
+      })
+    );
+  }
   const handleFecharModal = () => {
     handleClose();
     setTabelaVisivel(true)
@@ -223,7 +236,7 @@ export const ActionDetalharProdutosEtiquetaModal = ({
           handleClose={handleFecharModal}
         />
         <Modal.Body>
-          {tabelaVisivel && 
+          {tabelaVisivel &&
             <Fragment>
 
               <div className="panel">
@@ -275,28 +288,28 @@ export const ActionDetalharProdutosEtiquetaModal = ({
                   </DataTable>
                 </div>
               </div>
-                <FooterModal
-                  ButtonTypeCadastrar={ButtonTypeModal}
-                  textButtonCadastrar={"Imprimir Etiqueta"}
-                  onClickButtonCadastrar={handleAcumuladorEtiquetas}
-                  corCadastrar={"primary"}
-                  iconCadastrar={MdOutlineLocalPrintshop}
-                  iconSizeCadastrar={20}
-    
-                  ButtonTypeFechar={ButtonTypeModal}
-                  textButtonFechar={"Fechar"}
-                  onClickButtonFechar={handleFecharModal}
-                  corFechar="secondary"
-                />
+              <FooterModal
+                ButtonTypeCadastrar={ButtonTypeModal}
+                textButtonCadastrar={"Imprimir Etiqueta"}
+                onClickButtonCadastrar={handleAcumuladorEtiquetas}
+                corCadastrar={"primary"}
+                iconCadastrar={MdOutlineLocalPrintshop}
+                iconSizeCadastrar={20}
+
+                ButtonTypeFechar={ButtonTypeModal}
+                textButtonFechar={"Fechar"}
+                onClickButtonFechar={handleFecharModal}
+                corFechar="secondary"
+              />
             </Fragment>
           }
 
 
-          {imprimirProduto && 
-                
-            <ActionImprimirEtiquetaModal 
+          {imprimirProduto &&
+
+            <ActionImprimirEtiquetaModal
               setTabelaVisivel={setTabelaVisivel}
-              dadosAcumuladorEtiquetas={dadosAcumuladorEtiquetas} 
+              dadosAcumuladorEtiquetas={dadosAcumuladorEtiquetas}
               produtosSelecionados={produtosSelecionados}
             />
           }

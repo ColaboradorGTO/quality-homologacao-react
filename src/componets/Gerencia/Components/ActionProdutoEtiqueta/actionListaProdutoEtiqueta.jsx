@@ -11,7 +11,6 @@ import * as XLSX from 'xlsx';
 import { isValidEAN13 } from "../../../../utils/isValidEAN13";
 
 
-
 export const ActionListaProdutoEtiqueta = ({
   dadosListaPrecosSap,
   btnVisivel,
