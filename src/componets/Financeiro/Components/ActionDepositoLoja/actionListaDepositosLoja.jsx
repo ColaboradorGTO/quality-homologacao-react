@@ -80,13 +80,13 @@ export const ActionListaDepositosLoja = ({ dadosListaDepositosLoja }) => {
 
 
   const calcularTotalDeposito = () => {
-
-  return dadosListaDepositosLoja
-    .filter(deposito => deposito.STCANCELADO === 'False')
-    .reduce((total, deposito) => 
-      total + parseFloat(deposito.VRDEPOSITO || 0), 0
-    );
-};
+    return dadosListaDepositosLoja
+      .filter(deposito => deposito.STCANCELADO === 'False')
+      .reduce((total, deposito) => 
+        total + parseFloat(deposito.VRDEPOSITO || 0), 0
+      );
+  };
+  
   const colunasDepositosLoja = [
     {
       field: 'DTMOVIMENTOCAIXA',
