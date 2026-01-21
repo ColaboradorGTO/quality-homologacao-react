@@ -1,9 +1,9 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { get, post } from "../../../../../../api/funcRequest";
+import { get, post } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
-import { getDataAtual } from "../../../../../../utils/dataAtual";
+import { getDataAtual } from "../../../../../utils/dataAtual";
 
 export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, usuarioLogado}) => {
   const [textoMotivo, setTextoMotivo] = useState('')
@@ -48,11 +48,12 @@ export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, u
     'todos-funcionario',
     async () => {
       const response = await get(`/todos-funcionario?idEmpresa=${usuarioLogado.IDEMPRESA}`);
-      console.log('response', response.data)
       return response.data;
     },
     {enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 10 * 60 * 1000 }
   );
+
+
 
   const onSubmit = async (data) => {
     if(optionsModulos[0]?.CRIAR == 'False') {
@@ -76,7 +77,6 @@ export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, u
       VRVALORDESCONTO: parseFloat(valorDesconto),
       STATIVO:  'True',
       IDUSR: parseInt(usuarioLogado?.id),
-
     }
 
     try {
@@ -91,7 +91,6 @@ export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, u
         DADOS: textDados,
         IP: ipUsuario
       }
-
       await post('/log-web', createData)
       
       Swal.fire({

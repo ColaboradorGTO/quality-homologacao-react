@@ -27,7 +27,10 @@ export const ActionEditarEmpresaModal = ({ show, handleClose, dadosEmpresasDetal
           handleClose={handleClose}
         />
         <Modal.Body>
-          <FormularioEditar handleClose={handleClose} dadosEmpresasDetalhe={dadosEmpresasDetalhe} />
+          <FormularioEditar
+           handleClose={handleClose}
+           dadosEmpresasDetalhe={dadosEmpresasDetalhe} 
+           />
 
         </Modal.Body>
 

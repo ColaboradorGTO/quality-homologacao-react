@@ -7,7 +7,7 @@ import { ButtonType } from "../../../Buttons/ButtonType";
 import { AiOutlineSearch } from "react-icons/ai";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { get } from "../../../../api/funcRequest";
-import { ActionCadastrarAdiantamentoSalarial } from "./ActionCadastrarAdiantamentoSalarial/actionCadastrarAdiantamentoSalarial";
+import { ActionCadastrarAdiantamentoSalarial } from "./actionCadastrarAdiantamentoSalario/actionCadastrarAdiantamentoSalarial";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
@@ -160,7 +160,9 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({ ID, optionsEmpresas, usu
 
 
       {tabelaVisivel &&
-        <ActionListaAdiantamentoSalarioLoja dadosAdiantamentoFuncionarios={dadosAdiantamentoFuncionarios} />
+        <ActionListaAdiantamentoSalarioLoja 
+        dadosAdiantamentoFuncionarios={dadosAdiantamentoFuncionarios}
+         />
       }
 
       <ActionCadastrarAdiantamentoSalarial 

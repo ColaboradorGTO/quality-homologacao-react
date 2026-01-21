@@ -4,7 +4,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { get } from "../../../../api/funcRequest";
 import { formatMoeda } from "../../../../utils/formatMoeda";
-import { dataFormatada } from "../../../../utils/dataFormatada";
+//import { dataFormatadas } from "../../../../utils/dataFormatadas";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { ActionImprimirAdiantamentoSalarial } from "./actionImprimirAdiantamentoSalarial";
 import { useReactToPrint } from "react-to-print";
@@ -93,7 +93,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({dadosAdiantamentoFuncionario
     {
       field: 'DTLANCAMENTO',
       header: 'Data Mov',
-      body: row => <th>{dataFormatada(row.DTLANCAMENTO)}</th>,
+      body: row => <th>{row.DTLANCAMENTO}</th>,
       sortable: true,
     },
     {

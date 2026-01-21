@@ -34,7 +34,7 @@ export const FormularioEditar = ({ handleClose, dadosEmpresasDetalhe }) => {
     telefone,
     setTelefone,
     onSubmit
-  } = useEditarEmpresa({dadosEmpresasDetalhe})
+  } = useEditarEmpresa({dadosEmpresasDetalhe, handleClose})
 
   return (
     <Fragment>
@@ -174,7 +174,6 @@ export const FormularioEditar = ({ handleClose, dadosEmpresasDetalhe }) => {
             </div>
           </div>
         </div>
-
         <FooterModal
           ButtonTypeCadastrar={ButtonTypeModal}
           onClickButtonCadastrar={onSubmit}

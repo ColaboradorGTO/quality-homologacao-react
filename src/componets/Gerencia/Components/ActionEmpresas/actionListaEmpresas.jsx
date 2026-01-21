@@ -262,6 +262,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, usuarioLogado, optionsModul
         show={modalEditarEmpresa}
         handleClose={() => setModalEditarEmpresa(false)}
         dadosEmpresasDetalhe={dadosEmpresasDetalhe}
+       
       /> 
     </Fragment>
   );

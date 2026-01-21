@@ -17,8 +17,6 @@ export const useEnviarMalote = ({ salvarDadosMalotes, dadosDetalhesMalote, handl
 
   const dataFormatadaISO = formatarDataParaISO(salvarDadosMalotes?.DTHORAFECHAMENTOFORMATADA);
 
-  console.log(salvarDadosMalotes, "dataFormatadaISO");
-
   useEffect(() => {
     getIPUsuario();
   }, [usuarioLogado]);
@@ -49,7 +47,7 @@ export const useEnviarMalote = ({ salvarDadosMalotes, dadosDetalhesMalote, handl
   const criarPostData = () => ({
 
     IDEMPRESA: usuarioLogado?.IDEMPRESA,
-    DATAMOVIMENTOCAIXA: dataFormatadaISO,
+    DATAMOVIMENTOCAIXA: String(dataFormatadaISO) || "",
     VRDINHEIRO: Number(salvarDadosMalotes?.VALORTOTALDINHEIRO || 0),
     VRCARTAO: Number(salvarDadosMalotes?.VALORTOTALCARTAO || 0),
     VRPOS: Number(salvarDadosMalotes?.VALORTOTALPOS || 0),

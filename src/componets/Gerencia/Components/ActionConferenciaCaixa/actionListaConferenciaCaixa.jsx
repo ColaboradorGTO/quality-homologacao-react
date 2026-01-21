@@ -231,9 +231,9 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
       header: 'Opções',
       width: '300px',
       body: (row) => {
-        if (row.STFECHADOMOVIMENTO == 'True' && row.STCONFERIDOMOVIMENTO == 0) {
+        if ( row.STFECHADOMOVIMENTO == 'True' && row.STCONFERIDOMOVIMENTO == 0 ) {
           if (row.vrFechamentoQuebraCaixa === row.VRQUEBRAEFETIVADO) {
-            return (
+             return (
               <div className="p-1 " style={{ display: 'flex', justifyContent: "space-between" }}  >
       
                 <div className="p-1">
@@ -247,6 +247,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
                     width="35px"
                     height="35px"
                   />
+                  
                 </div>
                 <div className="p-1">
                   <ButtonTable
@@ -281,6 +282,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
                     width="35px"
                     height="35px"
                   />
+                  
 
                   {(row.TOTALAJUSTEDINHEIRO > 0 || row.TOTALAJUSTEFATURA > 0) && (
                     <ButtonTable
@@ -296,7 +298,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
               </div>
             )
 
-          } else {
+          } else  {
             return (
               <div className="p-1 " style={{ display: 'flex' }}>
 
@@ -392,7 +394,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
 
     const putData = {
       IDSUPERVISOR: usuarioLogado?.id,
-      STCONFERIDO: row.STCONFERIDOMOVIMENTO,
+      STCONFERIDO: String(row.STCONFERIDOMOVIMENTO),
       ID: row.ID,
     };
 
@@ -411,9 +413,9 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
       preConfirm: async () => {
         try {
           await put('/atualizacao-status', putData);
-          Swal.fire('Sucesso!', 'Recompra atualizada com sucesso.', 'success');
+          Swal.fire('Sucesso!', 'Conferência atualizada com sucesso.', 'success');
         } catch (error) {
-          Swal.fire('Erro!', 'Erro ao atualizar recompra.', 'error');
+          Swal.fire('Erro!', 'Erro ao atualizar conferência.', 'error');
         }
       }
     });

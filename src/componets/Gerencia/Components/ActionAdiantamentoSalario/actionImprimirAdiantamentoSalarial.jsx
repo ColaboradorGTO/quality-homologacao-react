@@ -13,8 +13,6 @@ export const ActionImprimirAdiantamentoSalarial = ({ show, handleClose, dadosAdi
     content: () => dataTableRef.current,
     documentTitle: 'Adiantamento Salarial',
     
-
-    
   });
 
   return (
@@ -33,8 +31,6 @@ export const ActionImprimirAdiantamentoSalarial = ({ show, handleClose, dadosAdi
             title={"Impressão de Recibos"}
             subTitle={"Imprimir Adiantamento Salárial"}
             handleClose={handleClose}
-            
-
           />
 
           <Modal.Body>

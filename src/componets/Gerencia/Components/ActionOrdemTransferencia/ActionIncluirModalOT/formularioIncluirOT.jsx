@@ -143,7 +143,8 @@ export const FormularioIncuirOT = ({ handleClose, handleClick, usuarioLogado, op
               textButton={"Salvar"}
               cor={"info"}
               className={"mr-4"}
-              onClickButtonType={onSubmit}
+              //onClickButtonType={onSubmit}
+              tipoBtnCadastrar={"submit"}
 
             />
           </div>

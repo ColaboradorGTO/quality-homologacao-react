@@ -14,17 +14,34 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useReactToPrint } from "react-to-print";
-import { useEditarDespesa } from "../../../Financeiro/Components/ActionListaDespesasLoja/hooks/useEditarDespesa";
+import { useEditarDespesa } from "./hooks/useEditarDespesa";
 
-export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, usuarioLogado }) => {
+export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, usuarioLogado, refetchDadosLoja }) => {
   const [dadosDetalheDespesas, setDadosDetalheDespesas] = useState([]);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dataHoje, setDataHoje] = useState('');
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
-  const { onSubmit } = useEditarDespesa(usuarioLogado, optionsModulos);
+  const { onSubmit } = useEditarDespesa(usuarioLogado, optionsModulos, refetchDadosLoja);
 
+  const normalizeToYMD = (value) => {
+    if (!value) return '';
+
+    const str = String(value).trim();
+
+    if (/^\d{4}-\d{2}-\d{2}/.test(str)) {
+      return str.slice(0, 10);
+    }
+
+    const m = str.match(/^(\d{2})[-/](\d{2})[-/](\d{4})/);
+    if (m) {
+      const [, dd, mm, yyyy] = m;
+      return `${yyyy}-${mm}-${dd}`;
+    }
+
+    return '';
+  };
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -75,7 +92,7 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
 
 
   useEffect(() => {
-    const data = getDataAtual
+    const data = getDataAtual()
     setDataHoje(data);
   }, [])
 
@@ -92,13 +109,13 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
         DSHISTORIO: item.DSHISTORIO,
         STCANCELADO: item.STCANCELADO,
       };
-  });
+    });
 
   const dados = dadosDespesasLoja
     .filter(item => item.IDCATEGORIARECDESP == 248)
     .map((item, index) => {
       let contador = index + 1;
-      let data = dataHoje;
+      const dtdespesaDia = String(item?.DTDESPESA ?? '').slice(0, 10);
       return {
         IDCATEGORIARECDESP: item?.IDCATEGORIARECDESP,
         IDDESPESASLOJA: item?.IDDESPESASLOJA,
@@ -111,10 +128,12 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
         STCANCELADO: item?.STCANCELADO,
         NUNOTAFISCAL: item?.NUNOTAFISCAL,
         DSPAGOA: item?.DSPAGOA,
-        data: data,
+        DTDESPESA: item?.DTDESPESA,
+        DTDESPESA_DIA: dtdespesaDia,
         contador
       };
-  });
+    });
+
 
   const calcularValor = () => {
     let total = 0;
@@ -181,8 +200,8 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
       field: 'DTDESPESA',
       header: 'Opções',
       body: (row) => {
-        if (row?.DTDESPESA === dataHoje) {
 
+        if (normalizeToYMD(row?.DTDESPESA_DIA) === dataHoje) {
           if (row?.STCANCELADO == 'False' && row?.IDCATEGORIARECDESP == 248) {
             return (
               <div style={{ display: 'flex', justifyContent: 'space-around' }}  >
@@ -193,7 +212,7 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
                     onClickButton={() => onSubmit(row, true)}
                     cor={"danger"}
                     Icon={BsTrash3}
-                    iconSize={30}
+                    iconSize={25}
                     width="35px"
                     height="35px"
                   />
@@ -204,7 +223,7 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
                     onClickButton={() => handleClickEdit(row)}
                     cor={"primary"}
                     Icon={MdOutlineLocalPrintshop}
-                    iconSize={30}
+                    iconSize={25}
                     width="35px"
                     height="35px"
                   />
@@ -222,7 +241,7 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
                   onClickButton={() => onSubmit(row, false)}
                   cor={"success"}
                   Icon={CiPower}
-                  iconSize={30}
+                  iconSize={25}
                   width="35px"
                   height="35px"
                 />
@@ -238,7 +257,7 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
                   onClickButton={() => handleClickEdit(row)}
                   cor={"primary"}
                   Icon={MdOutlineLocalPrintshop}
-                  iconSize={30}
+                  iconSize={25}
                   width="35px"
                   height="35px"
                 />
@@ -276,7 +295,7 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
       <div className="panel">
         <panel className="panel-hdr">
           <h3 className="hdr-title">Lista
-          Vale Transporte da Loja dos Últimos 30 dias</h3>
+            Vale Transporte da Loja dos Últimos 30 dias</h3>
         </panel>
         <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
           <HeaderTable

@@ -89,7 +89,7 @@ export const useAjusteMovimentoCaixa = ({ handleClose, dadosDetalheFechamento, u
                     container: 'custom-swal',
                 }
             });
-
+            handleClose()
             return response.data;
         } catch (error) {
 

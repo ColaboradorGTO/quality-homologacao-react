@@ -9,7 +9,7 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 
 
-export const ActionPesquisaEmpresas = ({usuarioLogado, ID}) => {
+export const ActionPesquisaEmpresas = ({ usuarioLogado, ID }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,14 +27,14 @@ export const ActionPesquisaEmpresas = ({usuarioLogado, ID}) => {
 
   const fetchEmpresas = async () => {
     try {
-      
+
       const urlApi = `/empresas?idEmpresa=${empresaSelecionada}`;
       const response = await get(urlApi);
-      
+
       if (response.data.length && response.data.length === pageSize) {
         let allData = [...response.data];
         animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
+
         async function fetchNextPage(currentPage) {
           try {
             currentPage++;
@@ -50,14 +50,14 @@ export const ActionPesquisaEmpresas = ({usuarioLogado, ID}) => {
             throw error;
           }
         }
-  
+
         await fetchNextPage(currentPage);
         return allData;
       } else {
-       
+
         return response.data;
       }
-  
+
     } catch (error) {
       console.error('Erro ao buscar os dados da api:', error);
       throw error;
@@ -66,14 +66,14 @@ export const ActionPesquisaEmpresas = ({usuarioLogado, ID}) => {
     }
   };
 
-  const { data: dadosEmpresas = [], error: erroEmpresas , isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
+  const { data: dadosEmpresas = [], error: erroEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
     'empresas',
-    () => fetchEmpresas(empresaSelecionada,  currentPage, pageSize),
+    () => fetchEmpresas(empresaSelecionada, currentPage, pageSize),
     { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
-  const handleSelectEmpresa = (e) => {  
-    const empresa = dadosEmpresas.find((empresa) => empresa.IDEMPRESA === e.value) 
+  const handleSelectEmpresa = (e) => {
+    const empresa = dadosEmpresas.find((empresa) => empresa.IDEMPRESA === e.value)
     setEmpresaSelecionada(e.value)
     setEmpresaSelecionadaNome(empresa.NOFANTASIA)
   }
@@ -90,17 +90,15 @@ export const ActionPesquisaEmpresas = ({usuarioLogado, ID}) => {
         linkComponent={["Empresa"]}
         title="Empresas"
         subTitle={empresaSelecionadaNome}
-
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Empresa"}
-        optionsEmpresas={dadosEmpresas.map((empresa) => ({
-          value: empresa.IDEMPRESA,
-          label: empresa.NOFANTASIA,
-        }))}
-        
+         optionsEmpresas={dadosEmpresas.map((empresa) => ({
+           value: empresa.IDEMPRESA,
+           label: empresa.NOFANTASIA,
+         }))}
+
         valueSelectEmpresa={empresaSelecionada}
         onChangeSelectEmpresa={handleSelectEmpresa}
-
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
         onButtonClickSearch={handleClick}
@@ -108,8 +106,8 @@ export const ActionPesquisaEmpresas = ({usuarioLogado, ID}) => {
         IconSearch={AiOutlineSearch}
       />
 
-      <ActionListaEmpresas dadosEmpresas={dadosEmpresas} usuarioLogado={usuarioLogado} optionsModulos={optionsModulos}/>
-    
+      <ActionListaEmpresas dadosEmpresas={dadosEmpresas} usuarioLogado={usuarioLogado} optionsModulos={optionsModulos} />
+
     </Fragment>
   )
 }
