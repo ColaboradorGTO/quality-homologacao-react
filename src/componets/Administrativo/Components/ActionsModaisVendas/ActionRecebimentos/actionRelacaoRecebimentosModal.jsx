@@ -7,6 +7,7 @@ import { FormularioAlteracaoPagamento } from "./FormularioPagamento/formulario";
 
 export const ActionRelacaoRecebimentosModal = ({ 
   dadosDetalheRecebimentos, 
+  dadosAtivasVendas,
   show, 
   handleClose, 
   optionsModulos, 
@@ -41,6 +42,7 @@ export const ActionRelacaoRecebimentosModal = ({
            
             <FormularioAlteracaoPagamento 
               dadosDetalheRecebimentos={dadosDetalheRecebimentos} 
+              dadosAtivasVendas={dadosAtivasVendas}
               handleClose={handleClose}
               optionsModulos={optionsModulos}
               usuarioLogado={usuarioLogado}

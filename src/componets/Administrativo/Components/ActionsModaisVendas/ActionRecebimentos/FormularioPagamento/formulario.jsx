@@ -26,6 +26,7 @@ const formatarMoeda = (valor) => {
 
 export const FormularioAlteracaoPagamento = ({
   dadosDetalheRecebimentos, 
+  dadosAtivasVendas,
   handleClose,
   optionsModulos, 
   usuarioLogado 
@@ -226,6 +227,7 @@ export const FormularioAlteracaoPagamento = ({
       //  if(stEditar == 'False'){
       //       $('#idbuttonalterar').addClass('d-none');
       //   }
+   
   const alterarPagamentoVisivel = () => {
     const idsPermitidos = [ 2001, 2024, 5074, 5025, 30174, 30514];
    
@@ -243,11 +245,16 @@ export const FormularioAlteracaoPagamento = ({
     <Fragment>
 
       <div className="pt-5">
-        <ButtonType
-          cor={pagamentos ? 'success' : 'danger'}
-          textButton={'Alterar Pagamentos'}
-          onClickButtonType={alterarPagamentoVisivel}
-        />
+        {dadosAtivasVendas[0]?.STCONFERIDO == 1 ? (
+          <div></div>
+        ) : (
+          
+          <ButtonType
+            cor={pagamentos ? 'success' : 'danger'}
+            textButton={'Alterar Pagamentos'}
+            onClickButtonType={alterarPagamentoVisivel}
+          />
+        )}
         <hr />
         {alerta && (
 
