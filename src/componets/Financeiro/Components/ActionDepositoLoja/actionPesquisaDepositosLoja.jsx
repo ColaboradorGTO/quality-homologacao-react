@@ -95,8 +95,6 @@ export const ActionPesquisaDepositosLoja = () => {
   }
 
   const handleClick = () => {
-    setIsQueryData(true);
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaDepositosLoja();
     setTabelaVisivel(true)
     setIsLoadingPesquisa(true);
