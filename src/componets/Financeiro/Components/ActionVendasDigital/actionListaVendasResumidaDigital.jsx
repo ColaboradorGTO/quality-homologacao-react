@@ -109,7 +109,7 @@ export const ActionListaVendasResumidaDigital = ({ dadosVendasDetalhadas }) => {
       field: 'QTD',
       header: 'Quantidade',
       body: row => <th style={{ color: 'blue' }} > {row.QTD}</th>,
-      // footer: mascaraValor(calcularTotalQuantidade()),
+      footer: mascaraValor(calcularTotalQuantidade()),
       sortable: true,
     },
     {
