@@ -32,9 +32,7 @@ export const ActionPesquisaVendasPix = () => {
   const [tabelaVendasPixConsolidadoEmpresa, setTabelaVendasPixConsolidadoEmpresa] = useState(false);
   const [tabelaFaturaPixConsolidadoLoja, setTabelaFaturaPixConsolidadoLoja] = useState(false);
   const [tabelaVendasFaturaPixVisivel, setTabelaVendasFaturaPixVisivel] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(1000)
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(true)
+
 
 
   useEffect(() => {
@@ -209,7 +207,7 @@ export const ActionPesquisaVendasPix = () => {
   
   const fetchVendasFaturasPixConsolidadoPeriodo = async () => {
     const urlBase = `fatura-pix-periodo-consolidado?idMarca=${marcaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idLoja=${empresaSelecionada}&listaEmpresas=${empresaLivre}`;
-    let urlApi = urlApi.includes('?') ? urlBase : urlBase + '?';
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
@@ -305,35 +303,11 @@ export const ActionPesquisaVendasPix = () => {
       setTabelaFaturaPixConsolidadoVisivel(false)
       setTabelaFaturaPixConsolidadoLoja(false)
       
-      setIsLoadingPesquisa(true);
-      setCurrentPage(prevPage => prevPage + 1); 
       refetchVendasPix()
     }  else {
       Swal.fire('Erro', 'Por favor, selecione uma Marca e datas válidas.', 'error');
     }
   }
-
-  useEffect(() => {
-    if (isLoadingPesquisa && isLoadingVendasPix) {
-      Swal.fire({
-        title: 'Carregando vendas...',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-    } else if (isLoadingPesquisa && !isLoadingVendasPix) {
-      Swal.close();
-      setIsLoadingPesquisa(false);
-    }
-  }, [isLoadingVendasPix, isLoadingPesquisa]);
-
-  useEffect(() => {
-    if (errorVendasPix) {
-      Swal.fire('Erro', `Erro ao carregar vendas por PIX: ${errorVendasPix.message}`, 'error');
-      setIsLoadingPesquisa(false);
-    }
-  }, [errorVendasPix]);
 
 
   const handleClickVendasPixConsolidadoMarca = () => { 
@@ -344,36 +318,10 @@ export const ActionPesquisaVendasPix = () => {
     setTabelaVendasPixConsolidadoEmpresa(false)
     setTabelaFaturaPixConsolidadoLoja(false)
 
-    setIsLoadingPesquisa(true);
-    setCurrentPage(prevPage => prevPage + 1); 
     refetchVendasPixConsolidadoMarca()    
   }
 
-  useEffect(() => {
-    if (isLoadingPesquisa && isLoadingVendasPixConsolidadoMarca) {
-      Swal.fire({
-        title: 'Carregando vendas...',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-    } else if (isLoadingPesquisa && !isLoadingVendasPixConsolidadoMarca) {
-      Swal.close();
-      setIsLoadingPesquisa(false);
-    }
-  }, [isLoadingVendasPixConsolidadoMarca, isLoadingPesquisa]);
-
-  useEffect(() => {
-    if (errorVendasPixConsolidadoMarca) {
-      Swal.fire('Erro', `Erro ao carregar Vendas PIX Consolidada Marca: ${errorVendasPixConsolidadoMarca.message}`, 'error');
-      setIsLoadingPesquisa(false);
-    }
-  }, [errorVendasPixConsolidadoMarca]);
-
-
   const handleClickVendasPixConsolidadoEmpresa = () => {
-
     setTabelaVendasPixConsolidadoEmpresa(true)
     setTabelaVendasPixVisivel(false)
     setTabelaVendasFaturaPixVisivel(false)
@@ -381,33 +329,9 @@ export const ActionPesquisaVendasPix = () => {
     setTabelaFaturaPixConsolidadoVisivel(false)
     setTabelaFaturaPixConsolidadoLoja(false)
 
-    setIsLoadingPesquisa(true);
-    setCurrentPage(prevPage => prevPage + 1); 
     refetchVendasPixConsolidado()
-    
   }
 
-  useEffect(() => {
-    if (isLoadingPesquisa && isLoadingVendasPixConsolidado) {
-      Swal.fire({
-        title: 'Carregando Vendas PIX Consolidada Lojas',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-    } else if (isLoadingPesquisa && !isLoadingVendasPixConsolidado) {
-      Swal.close();
-      setIsLoadingPesquisa(false);
-    }
-  }, [isLoadingVendasPixConsolidado, isLoadingPesquisa]);
-
-  useEffect(() => {
-    if (errorVendasPixConsolidado) {
-      Swal.fire('Erro', `Erro ao Carregar Vendas PIX Consolidada Lojas: ${errorVendasPixConsolidado.message}`, 'error');
-      setIsLoadingPesquisa(false);
-    }
-  }, [errorVendasPixConsolidado]);
 
 
   const handleClickVendasFaturaPix = () => {
@@ -420,35 +344,14 @@ export const ActionPesquisaVendasPix = () => {
       setTabelaVendasPixConsolidadoEmpresa(false)
       setTabelaFaturaPixConsolidadoLoja(false)
     
-      setIsLoadingPesquisa(true);
-      setCurrentPage(prevPage => prevPage + 1);
+      
+      
       refetchVendasFaturaPix()  
     } else {
         Swal.fire('Erro', 'Por favor, selecione uma Marca e datas válidas.', 'error')
     }
   }
 
-  useEffect(() => {
-    if (isLoadingPesquisa && isLoadingVendasFaturaPix) {
-      Swal.fire({
-        title: 'Carregando Faturas PIX...',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-    } else if (isLoadingPesquisa && !isLoadingVendasFaturaPix) {
-      Swal.close();
-      setIsLoadingPesquisa(false);
-    }
-  }, [isLoadingVendasFaturaPix, isLoadingPesquisa]);
-
-  useEffect(() => {
-    if (errorVendasFaturaPix) {
-      Swal.fire('Erro', `Erro ao carregar Faturas PIX: ${errorVendasFaturaPix.message}`, 'error');
-      setIsLoadingPesquisa(false);
-    }
-  }, [errorVendasFaturaPix]);
 
   const handleClickVendasFaturaPixConsolidado = () => {
     if(marcaSelecionada) {
@@ -458,10 +361,7 @@ export const ActionPesquisaVendasPix = () => {
       setTabelaVendasPixConsolidadoEmpresa(false)
       setTabelaVendasFaturaPixVisivel(false)
       setTabelaFaturaPixConsolidadoLoja(false)
- 
-  
-      setIsLoadingPesquisa(true);
-      setCurrentPage(prevPage => prevPage + 1);
+      
       refetchVendasFaturasPixConsolidadoPeriodo()
 
     } else {
@@ -469,27 +369,7 @@ export const ActionPesquisaVendasPix = () => {
     }
     
   }
-  useEffect(() => {
-    if (isLoadingPesquisa && isLoadingFaturasPixConsolidadoPeriodo) {
-      Swal.fire({
-        title: 'Carregando Faturas PIX Consolidada Marca',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-    } else if (isLoadingPesquisa && !isLoadingFaturasPixConsolidadoPeriodo) {
-      Swal.close();
-      setIsLoadingPesquisa(false);
-    }
-  }, [isLoadingFaturasPixConsolidadoPeriodo, isLoadingPesquisa]);
 
-  useEffect(() => {
-    if (errorFaturasPixConsolidadoPeriodo) {
-      Swal.fire('Erro', `Erro ao carregar Faturas PIX Consolidada Marca: ${errorFaturasPixConsolidadoPeriodo.message}`, 'error');
-      setIsLoadingPesquisa(false);
-    }
-  }, [errorFaturasPixConsolidadoPeriodo]);
 
 
   const handleClickFaturaPixConsolidadoLoja = () => {
@@ -500,39 +380,13 @@ export const ActionPesquisaVendasPix = () => {
       setTabelaVendasPixConsolidadoVisivel(false)
       setTabelaVendasPixConsolidadoEmpresa(false)
       setTabelaVendasFaturaPixVisivel(false)
-  
-
-      setIsLoadingPesquisa(true);
-      setCurrentPage(prevPage => prevPage + 1);
+     
       refetchFaturasPixConsolidadoLoja()
       
     } else {
       Swal.fire('Erro', 'Por favor, selecione uma Marca e datas válidas.', 'error')
     }
-  }
-
-  useEffect(() => {
-    if (isLoadingPesquisa && isLoadingFaturasPixConsolidadoLoja) {
-      Swal.fire({
-        title: 'Carregando Faturas PIX Consolidada Lojas',
-        allowOutsideClick: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
-      });
-    } else if (isLoadingPesquisa && !isLoadingFaturasPixConsolidadoLoja) {
-      Swal.close();
-      setIsLoadingPesquisa(false);
-    }
-  }, [isLoadingFaturasPixConsolidadoLoja, isLoadingPesquisa]);
-
-  useEffect(() => {
-    if (errorFaturasPixConsolidadoLoja) {
-      Swal.fire('Erro', `Erro ao carregar Faturas PIX Consolidada Lojas: ${errorFaturasPixConsolidadoLoja.message}`, 'error');
-      setIsLoadingPesquisa(false);
-    }
-  }, [errorFaturasPixConsolidadoLoja]);
-  
+  }  
 
 
 

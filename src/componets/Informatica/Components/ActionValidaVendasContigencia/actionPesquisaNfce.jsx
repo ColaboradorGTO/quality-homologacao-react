@@ -10,10 +10,22 @@ import { ActionListaVendas } from "./actionListaVendas"
 import { FiSend } from "react-icons/fi"
 import { useAtualizarVendasContigencia } from "./hooks/useAtualizarVendasContigencia"
 import axios from "axios"
+import { useEffect } from "react"
+import { getDataAtual } from "../../../../utils/dataAtual"
 
 
 export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
   const [numeroVenda, setNumeroVenda] = useState('');
+  const [dataInicio, setDataInicio] = useState('');
+  const [dataFim, setDataFim] = useState('');
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(100);
+
+  useEffect(() => {
+    const dataAtual = getDataAtual();
+    setDataInicio(dataAtual);
+    setDataFim(dataAtual);
+  } , []);
 
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
@@ -26,7 +38,7 @@ export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
   );
 
   // const fetchListaVendas = async () => {
-  //   const urlBase = `/validarConsulta`;
+  //   const urlBase = axios.get(`https://gto.api.br/validarConsulta?dataInicio=${dataInicio}&dataFim=${dataFim}`);
   //   let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
   //   urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
   //   try {
@@ -40,6 +52,7 @@ export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
   //     const totalPages = Math.ceil(totalRows / pageSize);
 
   //     let allData = [...(primeiraResposta.data || [])];
+  //     console.log('allData:', primeiraResposta.data);
 
   //     if (totalPages > 1) {
   //       for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
@@ -48,7 +61,6 @@ export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
   //         allData.push(...(responsePage.data || []));
   //       }
   //     }
-  //     console.log('allData:', allData);
   //     return allData;
   //   } catch (error) {
   //     console.error('Erro ao buscar dados da api:', error);
@@ -65,23 +77,18 @@ export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
   // );
 
 
-   const { data: dadosVendas = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaVendas } = useQuery(
+  const { data: dadosVendas = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaVendas } = useQuery(
     'https://gto.api.br/validarConsulta',
     async () => {
-      const response = await axios.get(`https://gto.api.br/validarConsulta`, 
-        {
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-        },
-        withCredentials: false
-      }
+      const response = await axios.get(`https://gto.api.br/validarConsulta?dataInicio=${dataInicio}&dataFim=${dataFim}&page=${page}&pageSize=${pageSize}`, 
+    
       )
       console.log('Response da consulta:', response.data);
       return response.data.data;
     },
     { enabled: false }
   );
+
   const handleClick= () => {
     refetchListaVendas();
   };
@@ -108,6 +115,16 @@ export const ActionPesquisaNfce = ({usuarioLogado, ID}) => {
         linkComponent={["Lista de Vendas"]}
         title="Lista de Vendas por Loja"
         
+        InputFieldDTInicioComponent={InputField}
+        labelInputFieldDTInicio={"Data Início"}
+        valueInputFieldDTInicio={dataInicio}
+        onChangeInputFieldDTInicio={(e) => setDataInicio(e.target.value)}
+
+        InputFieldDTFimComponent={InputField}
+        labelInputFieldDTFim={"Data Fim"}
+        valueInputFieldDTFim={dataFim}
+        onChangeInputFieldDTFim={(e) => setDataFim(e.target.value)}
+
         InputFieldComponent={InputField}
         labelInputField={'Nº da Venda'}
         placeHolderInputFieldComponent={'Digite o Nº da Venda'}

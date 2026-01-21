@@ -950,6 +950,19 @@ export const ActionMain = ({
                       />
                     )} 
 
+                    {InputSelectMarcasComponent && (
+                      <InputSelectMarcasComponent
+                        label={labelSelectMarcas}
+                        nome="idloja"
+                        id={id}
+                        options={optionsMarcas}
+                        onChange={onChangeSelectMarcas}
+                        value={valueSelectMarca}
+                        defaultValue={[defaultValueSelectMarca]}
+                        isDisabled={isDisabledMarca}
+                        type="select"
+                      />
+                    )}
 
                     {InputSelectEmpresaComponent && (
                       <InputSelectEmpresaComponent
@@ -988,21 +1001,6 @@ export const ActionMain = ({
                         value={valueSelectSubGrupo}
                         onChange={onChangeSelectSubGrupo}
                          isDisabled={styleSubGrupo}
-                      />
-                    )}
-
-
-                    {InputSelectMarcasComponent && (
-                      <InputSelectMarcasComponent
-                        label={labelSelectMarcas}
-                        nome="idloja"
-                        id={id}
-                        options={optionsMarcas}
-                        onChange={onChangeSelectMarcas}
-                        value={valueSelectMarca}
-                        defaultValue={[defaultValueSelectMarca]}
-                        isDisabled={isDisabledMarca}
-                        type="select"
                       />
                     )}
 

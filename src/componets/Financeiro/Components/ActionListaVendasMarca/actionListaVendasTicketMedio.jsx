@@ -74,14 +74,11 @@ export const ActionListaVendasTicketMedio = ({dadosListaVendasMarca}) => {
     return total;
   }
 
-  const calcularTotalTicketMedio = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarca) {
-      total += toFloat(vendas.valorTiketMedio);
-    }
-    return total;
+  const calcularTotalTicketMedio = () => {
+    const totalVendas = calcularTotalVendasTiketMedio();
+    const totalClientes = calcularTotalClientesTiketMedio();
+    return totalVendas / totalClientes;
   }
-
   const calcularValorDisponivelBrutoVoucherTiketM = (item) => {
 
     return (

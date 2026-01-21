@@ -14,7 +14,6 @@ export const ActionListaDetalhe = ({ dadosDetalhePedido }) => {
     let contador = index + 1;
 
     return {
-      DSSUBGRUPOESTRUTURA: item.DSSUBGRUPOESTRUTURA,
       QTDTOTAL: item.detpedido?.QTDTOTAL,
       DSSIGLA: item.detpedido?.DSSIGLA,
       NUREF: item.detpedido?.NUREF,

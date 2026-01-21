@@ -1,9 +1,7 @@
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useState } from "react"
 import Modal from 'react-bootstrap/Modal';
-import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
-import Swal from "sweetalert2";
-import { get, put } from "../../../../../api/funcRequest";
 import 'jspdf-autotable';
+import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { ActionListaBalanco } from "./actionListaBalanco";
@@ -13,7 +11,6 @@ export const ActionColetorBalancoModal = ({
   show, 
   handleClose, 
   dadosColetorBalanco, 
-  dados,
   optionsModulos, 
   usuarioLogado,
   handleClickResumoBalanco 

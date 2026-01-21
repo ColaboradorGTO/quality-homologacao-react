@@ -1,78 +1,74 @@
-import { Fragment, useRef } from "react";
+import { Fragment } from "react";
 import Modal from 'react-bootstrap/Modal';
 import XMLViewer from 'react-xml-viewer';
 import Swal from 'sweetalert2';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import * as xml2js from 'xml2js';
 import { FooterModal } from "../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../Buttons/ButtonTypeModal";
 import { HeaderModal } from "../../../Modais/HeaderModal/HeaderModal";
 import { ScrollPanel } from 'primereact/scrollpanel';
-import { post } from "../../../../api/funcRequest";
 import axios from 'axios';
 export const ActionVendaXMLModal = ({ show, handleClose, dadosVendasXML }) => {
 
   const xmlData = dadosVendasXML[0]?.XML_FORMATADO;
 
-  const gerarDanfeViaApi = async () => {
-    try {
-      const idVenda = dadosVendasXML[0]?.IDVENDA;
-      const xmlData = dadosVendasXML[0]?.XML_FORMATADO;
+  // const gerarDanfeViaApi = async () => {
+  //   try {
+  //     const idVenda = dadosVendasXML[0]?.IDVENDA;
+  //     const xmlData = dadosVendasXML[0]?.XML_FORMATADO;
 
-      const response = await axios.post(
-        'https://api-quality.vercel.app/gerar-danfe',
-        { xml: xmlData, idVenda, consulta: '' },
-        {
-          responseType: 'arraybuffer',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/pdf'
-          },
-          timeout: 80000
-        }
-      );
-      console.log('Buffer length:', response.data); // Verifica o tamanho do buffer
-      if (!response.data || response.data.byteLength === 0) {
-        throw new Error('Resposta da API vazia');
-      }
+  //     const response = await axios.post(
+  //       'https://quality-api.vercel.app/gerar-danfe',
+  //       { xml: xmlData, idVenda, consulta: '' },
+  //       {
+  //         responseType: 'arraybuffer',
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           'Accept': 'application/pdf'
+  //         },
+  //         timeout: 80000
+  //       }
+  //     );
 
-      // Crie o Blob e baixe
-      const blob = new Blob([response.data], { type: 'application/pdf' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `DANFE_${idVenda}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+  //     if (!response.data || response.data.byteLength === 0) {
+  //       throw new Error('Resposta da API vazia');
+  //     }
 
-      Swal.fire({
-        title: 'Sucesso!',
-        text: 'DANFE gerado e baixado com sucesso.',
-        icon: 'success',
-        customClass: {
-          container: 'custom-swal',
-        },
-      });
-    } catch (error) {
-      console.error('Erro detalhado:', {
-        message: error.message,
-        response: error.response,
-        stack: error.stack
-      });
+  //     // Crie o Blob e baixe
+  //     const blob = new Blob([response.data], { type: 'application/pdf' });
+  //     const url = window.URL.createObjectURL(blob);
+  //     const link = document.createElement('a');
+  //     link.href = url;
+  //     link.setAttribute('download', `DANFE_${idVenda}.pdf`);
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     document.body.removeChild(link);
+  //     window.URL.revokeObjectURL(url);
 
-      Swal.fire({
-        title: 'Falha na geração',
-        text: error.message || 'Erro ao gerar DANFE',
-        icon: 'error',
-        customClass: {
-          container: 'custom-swal',
-        },
-      });
-    }
-  };
+  //     Swal.fire({
+  //       title: 'Sucesso!',
+  //       text: 'DANFE gerado e baixado com sucesso.',
+  //       icon: 'success',
+  //       customClass: {
+  //         container: 'custom-swal',
+  //       },
+  //     });
+  //   } catch (error) {
+  //     console.error('Erro detalhado:', {
+  //       message: error.message,
+  //       response: error.response,
+  //       stack: error.stack
+  //     });
+
+  //     Swal.fire({
+  //       title: 'Falha na geração',
+  //       text: error.message || 'Erro ao gerar DANFE',
+  //       icon: 'error',
+  //       customClass: {
+  //         container: 'custom-swal',
+  //       },
+  //     });
+  //   }
+  // };
 
   const handleCopyXML = () => {
     if (xmlData) {
@@ -163,19 +159,19 @@ export const ActionVendaXMLModal = ({ show, handleClose, dadosVendasXML }) => {
             corCadastrar={"primary"}
 
             ButtonTypeConfirmar={ButtonTypeModal}
-            textButtonConfirmar={"Gerar DANFE"}
-            onClickButtonConfirmar={gerarDanfeViaApi}
-            corConfirmar={"warning"}
+            textButtonConfirmar={"Download XML"}
+            onClickButtonConfirmar={handleDownloadXML}
+            corConfirmar={"success"}
           />
 
           {/* Botão adicional para download XML */}
-          <div style={{ padding: '15px', textAlign: 'center', borderTop: '1px solid #dee2e6' }}>
+          {/* <div style={{ padding: '15px', textAlign: 'center', borderTop: '1px solid #dee2e6' }}>
             <ButtonTypeModal
               textButton={"Download XML"}
               onClickButtonType={handleDownloadXML}
               cor={"success"}
             />
-          </div>
+          </div> */}
 
         </div>
       </Modal>

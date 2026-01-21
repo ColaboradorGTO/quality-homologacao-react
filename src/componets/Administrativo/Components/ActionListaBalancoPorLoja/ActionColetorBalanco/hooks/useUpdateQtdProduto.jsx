@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useEffect } from "react";
 import Swal from "sweetalert2"
 import axios from "axios";
 import { post, put } from "../../../../../../api/funcRequest";
@@ -8,20 +7,30 @@ import { post, put } from "../../../../../../api/funcRequest";
 export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+
+        try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
+
+        if (!usuarioIP) {
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
     const onSubmit = async (IDDETALHEBALANCO, TOTALCONTAGEMGERAL) => {
-        console.log(IDDETALHEBALANCO, TOTALCONTAGEMGERAL, 'chegou')
+        
         const putData = {
             IDDETALHEBALANCO: IDDETALHEBALANCO,
             TOTALCONTAGEMGERAL: TOTALCONTAGEMGERAL,
@@ -29,7 +38,7 @@ export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
 
         try {
             const response = await put('/detalhe-balanco/:id', putData)
-
+            const ipUsuario = await getIPUsuario();
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'ADMNISTRATIVO/ALTERAR QUANTIDADE DE PRODUTO NO BALANÇO';
 
@@ -41,7 +50,7 @@ export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postData)
+            await post('/log-web', postData)
 
             Swal.fire({
                 title: 'Atualizado com Sucesso!',
@@ -54,15 +63,15 @@ export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
                 }
             })
 
-            return responsePost.data;
+            return response.data;
         } catch (error) {
             let textoFuncao = 'ADMNISTRATIVO/ERRO AO ALTERAR QUANTIDADE DE PRODUTO NO BALANÇO';
-
-
+            const ipUsuario = await getIPUsuario();
+            const textDados = JSON.stringify(putData)
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
-                DADOS: 'ERRO AO ALTERAR QUANTIDADE DE PRODUTO NO BALANÇO',
+                DADOS: textDados,
                 IP: ipUsuario
             }
 
@@ -88,7 +97,7 @@ export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
 
         try {
             const response = await put('/detalhe-balanco/:id', putData)
-
+            const ipUsuario = await getIPUsuario();
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'ADMNISTRATIVO/ALTERAR QUANTIDADE DE PRODUTO NO BALANÇO';
 
@@ -100,7 +109,7 @@ export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postData)
+            await post('/log-web', postData)
 
             Swal.fire({
                 title: 'Atualizado com Sucesso!',
@@ -113,15 +122,16 @@ export const useUpdateQTDProduto = ({ optionsModulos, usuarioLogado }) => {
                 }
             })
 
-            return responsePost.data;
+            return response.data;
         } catch (error) {
+            const ipUsuario = await getIPUsuario();
+            const textDados = JSON.stringify(putData)
             let textoFuncao = 'ADMNISTRATIVO/ERRO AO ALTERAR QUANTIDADE DE PRODUTO NO BALANÇO';
-
 
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
-                DADOS: 'ERRO AO ALTERAR QUANTIDADE DE PRODUTO NO BALANÇO',
+                DADOS: textDados,
                 IP: ipUsuario
             }
 

@@ -15,8 +15,6 @@ import { AiOutlineSearch, AiOutlineUser } from "react-icons/ai";
 import { toFloat } from "../../../utils/toFloat";
 import { BsGem } from "react-icons/bs";
 import { FaCashRegister, FaRegLightbulb } from "react-icons/fa";
-import { ActionListaExtratoLoja } from "./Components/ActionExtrato/actionListaExtratoLoja";
-// import { ActionListaConvenioDescontoFuncionario } from "../Components/ActionListaVendasConvenio/actionListaConvenioDescontoFuncionario";
 import { ButtonType } from "../../Buttons/ButtonType";
 import { ActionListaVendasDescontoFuncionario } from "./actionListaVendasDescontoFuncionario";
 import { ActionListaVendasConvenioDesconto } from "./actionListaVendasConvenioDesconto";
@@ -26,7 +24,6 @@ import { ActionListaFaturasLancada } from "./actionListaFaturasLancadas";
 import { ActionListaFechamentoDosCaixas } from "./actionListaFechamentoDosCaixas";
 import { useFetchData } from "../../../hooks/useFetchData";
 import { useQuery } from "react-query";
-import { ActionListaExtratoContaCorrenteLoja } from "../Components/ActionExtratoDeContaCorrente/actionListaExtratoContaCorrenteLoja";
 import Swal from "sweetalert2";
 import { ActionTabelaMainExtrato } from "./Components/ActionExtrato/actionTabelaMainExtrato";
 
@@ -357,6 +354,7 @@ export const ResumoDashBoardAdministrativo = ({ usuarioLogado, ID }) => {
             empresaSelecionada={empresaSelecionada}
             dadosVendasAtivas={dadosVendasAtivas}
             usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
           />
 
           <ActionListaVendasCanceladas

@@ -21,8 +21,7 @@ export const ActionPesquisaVendasDigital = () => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(500)
-  const [isQueryData, setIsQueryData] = useState(false)
+
   
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -86,18 +85,13 @@ export const ActionPesquisaVendasDigital = () => {
   const handleClickResumido = () => {
     setTabelaResumidoVisivel(true)
     setTabelaDetalhadoVisivel(false)    
-      setCurrentPage(prevPage => prevPage + 1); 
-    // setIsQueryData(true)
     refetchVendaDetalhada()
   }
 
   const handleClickDetalhado = () => {
     setTabelaDetalhadoVisivel(true)
     setTabelaResumidoVisivel(false)
-    setCurrentPage(prevPage => prevPage + 1); 
-    // setIsQueryData(true)
     refetchVendaDetalhada()
-    
   }
 
 

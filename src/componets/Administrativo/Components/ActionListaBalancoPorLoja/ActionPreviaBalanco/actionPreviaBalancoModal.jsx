@@ -23,7 +23,6 @@ export const ActionPreviaBalancoModal = ({
   const [tablePrevia, setTablePrevia] = useState(true);
   const [tableConsolidacao, setTableConsolidacao] = useState(false);
   
-
   const {
     dadosBalancoConsolidado,
     handleConsolidar

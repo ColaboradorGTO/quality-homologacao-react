@@ -79,7 +79,6 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
     XLSX.writeFile(workbook, 'balanco_loja.xlsx');
   };
 
-
   const dadosExcel = dadosBalanco.map((item) => {
     const diferenca = item.QTDTOTALCONTAGEM - item.QTDTOTALANTERIOR;
     const status = item.STCONCLUIDO == 'False' ? 'Concluído' : 'Em Aberto';
@@ -241,14 +240,19 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
   const handleEditPreviaBalanco = async (IDRESUMOBALANCO, IDEMPRESA) => {
     try {
       const response = await get(`/novo-previa-balanco?idResumo=${IDRESUMOBALANCO}&idEmpresa=${IDEMPRESA}&diferenca=1&processa=1`)
-      if (response && response.data.length > 0) {
+      if (response.data && response.data.length > 0) {
         setDadosPreviaBalancoModal(response.data)
+        setModalPreviaBalanco(true)
         return response.data;
       } else {
+  
         Swal.fire({
           icon: 'warning',
           title: 'Atenção',
           text: 'Nenhum dado encontrado para o balanço selecionado.',
+          customClass: {
+            container: 'custom-swal',
+          },
           timer: 3000
         })
         return;
@@ -262,7 +266,6 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
     if (optionsModulos[0]?.ALTERAR == 'True') {
 
       if (row.IDRESUMOBALANCO && row.IDEMPRESA) {
-        setModalPreviaBalanco(true)
         handleEditPreviaBalanco(row.IDRESUMOBALANCO, row.IDEMPRESA)
       }
     } else {
@@ -270,8 +273,12 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
         icon: 'error',
         title: 'Acesso Negado',
         text: 'Você não tem permissão para acessar essa funcionalidade.',
+        customClass: {
+          container: 'custom-swal',
+        },
         timer: 3000
       });
+      return;
     }
   }
 
@@ -299,7 +306,6 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
     if (optionsModulos[0]?.ALTERAR == 'True') {
 
       if (row.IDRESUMOBALANCO && row.IDEMPRESA) {
-        setModalPreviaBalanco(true)
         handleEditPreviaBalanco(row.IDRESUMOBALANCO, row.IDEMPRESA)
       }
     } else {
@@ -307,6 +313,9 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
         icon: 'error',
         title: 'Acesso Negado',
         text: 'Você não tem permissão para acessar essa funcionalidade.',
+        customClass: {
+          container: 'custom-swal',
+        },
         timer: 3000
       });
     }
@@ -315,14 +324,18 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
   const handleEditResumoBalanco = async (IDRESUMOBALANCO, IDEMPRESA) => {
     try {
       const response = await get(`/coletor-balanco?idEmpresa=${IDEMPRESA}&idResumo=${IDRESUMOBALANCO}&diferenca=1&processa=0`)
-      if (response && response.data.length > 0) {
+      if (response.data && response.data.length > 0) {
         setDadosColetorBalanco(response.data)
+        setModalResumoBalanco(true)
         return response.data;
       } else {
         Swal.fire({
           icon: 'warning',
           title: 'Atenção',
           text: 'Nenhum dado encontrado para o balanço selecionado.',
+          customClass: {
+            container: 'custom-swal',
+          },
           timer: 3000
         })
         return;
@@ -337,7 +350,6 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
   const handleClickResumoBalanco = async (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row.IDRESUMOBALANCO && row.IDEMPRESA) {
-        setModalResumoBalanco(true)
         handleEditResumoBalanco(row.IDRESUMOBALANCO, row.IDEMPRESA)
       }
     } else {
@@ -353,15 +365,27 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
 
   const handleEditContaBalanco = async (IDRESUMOBALANCO) => {
     try {
+      Swal.fire({
+        title: 'Carregando...',
+        html: 'Carregando dados da prestação de contas do balanço.',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
       const response = await get(`/prestacao-contas-balanco?idResumoBalanco=${IDRESUMOBALANCO}`)
-      if (response && response.data.length > 0) {
+      if (response.data && response.data.length > 0) {
+        Swal.close();
         setDadosListaContasBalanco(response.data)
+
+        setModalImprimirVisivel(true)
         return response.data;
       } else {
         Swal.fire({
           icon: 'warning',
           title: 'Atenção',
           text: 'Nenhum dado encontrado para o balanço selecionado.',
+          customClass: {
+            container: 'custom-swal',
+          },
           timer: 3000
         })
         return;
@@ -374,7 +398,6 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
   const handleClickContaBalanco = (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDRESUMOBALANCO) {
-        setModalImprimirVisivel(true)
         handleEditContaBalanco(row.IDRESUMOBALANCO)
       }
     } else {
@@ -382,6 +405,9 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
         icon: 'error',
         title: 'Acesso Negado',
         html: `${usuarioLogado?.NOFUNCIONARIO} <br/>  Você não tem permissão para acessar essa funcionalidade.`,
+        customClass: {
+          container: 'custom-swal',
+        },
         timer: 5000
       });
       return;
@@ -447,6 +473,7 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
           </DataTable>
         </div>
       </div>
+
       <ActionColetorBalancoModal
         show={modalResumoBalanco}
         handleClose={() => setModalResumoBalanco(false)}

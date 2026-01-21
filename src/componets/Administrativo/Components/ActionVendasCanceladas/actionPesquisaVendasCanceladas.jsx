@@ -25,13 +25,7 @@ export const ActionPesquisaVendasCanceladas = ({usuarioLogado, ID}) => {
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isqueryCancelPDVTela, setIsQueryCancelPDVTela] = useState(false)
-  const [isqueryCanceladaEmitidaPDV, setIsQueryCanceladaEmitidaPDV] = useState(false)
-  const [isqueryVendaCancelada, setIsQueryVendaCancelada] = useState(false)
-  const [isqueryVendaCancelada30Minutos, setIsQueryVendaCancelada30Minutos] = useState(false)
-  const [isqueryVendaCanceladaWeb, setIsQueryVendaCanceladaWeb] = useState(false)
+
 
   useEffect(() => {
     const dataInicial =  getDataAtual()
@@ -61,21 +55,15 @@ export const ActionPesquisaVendasCanceladas = ({usuarioLogado, ID}) => {
   );
   
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
-    'listaEmpresaComercial',
+    ['listaEmpresaComercial', marcaSelecionada],
     async () => {
       const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
       
       return response.data;
     },
-    {enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 60 * 60 * 1000,}
+    {enabled: Boolean(marcaSelecionada), staleTime: 5 * 60 * 1000, cacheTime: 60 * 60 * 1000,}
   );
-
-  useEffect(() => {
-    if (marcaSelecionada) {
-      refetchEmpresas();
-    }
-    refetchMarcas()
-  }, [marcaSelecionada, refetchEmpresas]);
+ 
 
   const fetchVendasCanceladas = async () => {
     const urlBase = `/venda-ativa?idGrupo=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&statusCancelado=True`;

@@ -40,7 +40,6 @@ export const ActionListaConsultaVouchers = ({dadosVoucher, usuarioLogado, option
     openSwalImprimir
   } = useAuthFuncionarioPrint({usuarioLogado});
 
-
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };

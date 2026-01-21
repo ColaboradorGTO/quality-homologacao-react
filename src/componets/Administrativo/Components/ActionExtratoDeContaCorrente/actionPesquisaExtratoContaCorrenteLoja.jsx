@@ -111,7 +111,7 @@ export const ActionPesquisaExtratoContaCorenteLoja = () => {
 
           }))
         ]}
-        valueSelectEmpresa={empresaSelecionada}
+        valueSelectEmpresa={console.log(empresaSelecionada)}
         onChangeSelectEmpresa={handleSelectEmpresa}
 
         ButtonSearchComponent={ButtonType}

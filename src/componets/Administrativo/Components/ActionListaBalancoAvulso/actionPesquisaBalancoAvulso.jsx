@@ -202,16 +202,13 @@ export const ActionPesquisaBalancoAvulso = ({usuarioLogado, ID}) => {
         IconCadastro={AiOutlineSave}
       />
  
-
-        <ActionListaBalancoAvulso 
-          dadosBalancoAvulso={dadosBalancoAvulso} 
-          usuarioLogado={usuarioLogado}
-          optionsModulos={optionsModulos}  
-          refetch={refetch}
-        />
+      <ActionListaBalancoAvulso 
+        dadosBalancoAvulso={dadosBalancoAvulso} 
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}  
+        refetch={refetch}
+      />
        
-       
-
       <ActionModalProduto
         dadosColetorBalanco={dadosColetorBalanco} 
         empresaSelecionada={empresaSelecionada} 
@@ -223,7 +220,6 @@ export const ActionPesquisaBalancoAvulso = ({usuarioLogado, ID}) => {
         refetch={refetch}
       />
        
-  
       <ActionColetorBalancoModal 
         show={modalVisivel}
         handleClose={handleCloseModal}
@@ -234,7 +230,6 @@ export const ActionPesquisaBalancoAvulso = ({usuarioLogado, ID}) => {
         optionsModulos={optionsModulos}
       />
     
-
     </Fragment>
   )
 }

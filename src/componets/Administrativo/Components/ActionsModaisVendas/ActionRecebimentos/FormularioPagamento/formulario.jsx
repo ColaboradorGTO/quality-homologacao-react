@@ -19,15 +19,14 @@ const formatarMoeda = (valor) => {
   const centavos = apenasNumeros.slice(-2);
   const inteiros = apenasNumeros.slice(0, -2);
   
-  // Adiciona separadores de milhar (pontos)
   const integrosFormatado = inteiros.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
   
-  // Retorna no formato brasileiro: 3.333.333.333.333,33
   return integrosFormatado + '.' + centavos;
 };
 
 export const FormularioAlteracaoPagamento = ({
   dadosDetalheRecebimentos, 
+  dadosAtivasVendas,
   handleClose,
   optionsModulos, 
   usuarioLogado 
@@ -119,7 +118,7 @@ export const FormularioAlteracaoPagamento = ({
     setIncluirCartao3,
     incluirPos2,
     setIncluirPos2,
-    cancelarVendaPagamento
+    onSubmit,
   } = usePagamento({dadosDetalheRecebimentos,  optionsModulos, usuarioLogado });
 
   const [alerta, setAlerta] = useState(false);
@@ -147,11 +146,43 @@ export const FormularioAlteracaoPagamento = ({
     try {
       const dadosParaValidar = {
         vrDinheiro: valorDinheiro,
+        vrPix: valorPix,
+        chavePix: nuChavePix,
+        numeroOperacao: nuOperacao,
+        nAutorizacao: nuAutorizacao,
+        valorCartao: vrCartao,
+        nParcelas: qtdParcelas,
+        dataParcelaN1: dataParcela1,
+        numeroOperacao2: nuOperacao2,
+        numeroAutorizacao2: nuAutorizacao2,
+        valorCartao2: vrCartao2,
+        nParcelas2: qtdParcelas2,
+        dataParcelaN2: dataParcela2,
+        numeroOperacao3: nuOperacao3,
+        numeroAutorizacao3: nuAutorizacao3,
+        valorCartao3: vrCartao3,
+        nParcelas3: qtdParcelas3,
+        dataParcelaN3: dataParcela3,
+        numeroOperacaoPOS: nuOperacaoPOS,
+        numeroAutorizacaoPOS: nuAutorizacaoPOS,
+        valorPos: vrPos,
+        nqtdParcelasPos1: qtdParcelasPOS,
+        dataParcelaPos1: dataParcelaPOS,
+        numeroOperacaoPOS2: nuOperacaoPOS2,
+        numeroAutorizacaoPOS2: nuAutorizacaoPOS2,
+        valorPos2: vrPos2,
+        nqtdParcelasPos2: qtdParcelasPOS2,
+        datadaParcelaPos2: dataParcelaPOS2,
+        valorVoucher: vrVoucher,
+        numeroVoucher: nuVoucher,
+        motivo: motivoAlteracao
       }
-
+  
       await schema.validate(dadosParaValidar, { abortEarly: false });
 
-      onSubmit();
+      await onSubmit();
+      await handleClose();
+     
 
     } catch (validationError) {
       clearErrors();
@@ -167,7 +198,7 @@ export const FormularioAlteracaoPagamento = ({
           }
         });
       }
-
+      console.log('Erro de validação:', validationError);
       const errorMessages = validationError.errors || [validationError.message];
       console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
     }
@@ -175,7 +206,7 @@ export const FormularioAlteracaoPagamento = ({
 
   const enviar = async () => {
     // e.preventDefault(); 
-    const result = await cancelarVendaPagamento();
+    const result = await onSubmit();
     // handleClose();
     // console.log('resultado alteração pagamento:', result);
     return result;
@@ -184,6 +215,7 @@ export const FormularioAlteracaoPagamento = ({
   const handleClickCartão2 = () => {
     setIncluirCartao2(prev => !prev)
   }
+
   const handleClickCartão3 = () => {
     setIncluirCartao3(prev => !prev)
   }
@@ -192,6 +224,10 @@ export const FormularioAlteracaoPagamento = ({
     setIncluirPos2(prev => !prev)
   }
 
+      //  if(stEditar == 'False'){
+      //       $('#idbuttonalterar').addClass('d-none');
+      //   }
+   
   const alterarPagamentoVisivel = () => {
     const idsPermitidos = [ 2001, 2024, 5074, 5025, 30174, 30514];
    
@@ -209,11 +245,16 @@ export const FormularioAlteracaoPagamento = ({
     <Fragment>
 
       <div className="pt-5">
-        <ButtonType
-          cor={pagamentos ? 'success' : 'danger'}
-          textButton={'Alterar Pagamentos'}
-          onClickButtonType={alterarPagamentoVisivel}
-        />
+        {dadosAtivasVendas[0]?.STCONFERIDO == 1 ? (
+          <div></div>
+        ) : (
+          
+          <ButtonType
+            cor={pagamentos ? 'success' : 'danger'}
+            textButton={'Alterar Pagamentos'}
+            onClickButtonType={alterarPagamentoVisivel}
+          />
+        )}
         <hr />
         {alerta && (
 
@@ -223,7 +264,7 @@ export const FormularioAlteracaoPagamento = ({
 
       {pagamentos && (
         <>
-          <form onSubmit={handleSubmit(enviar)}>
+          <form onSubmit={handleSubmit(handleValidatedSubmit)}>
             <div class="form-group">
               <div class="row">
                 <div class="col-sm-6 col-md-3 col-xl-4">
@@ -866,12 +907,12 @@ export const FormularioAlteracaoPagamento = ({
                     </div>
                     <div class="col-sm-6 col-md-6 col-xl-3">
                       <Controller
-                        name="dataParcelaPos2"
+                        name="datadaParcelaPos2"
                         control={control}
                         render={({ field }) => (
                           <FormField
                             label={"Data 1ª Parcela 2"}
-                            name="dataParcelaPos2"
+                            name="datadaParcelaPos2"
                             type="date"
                             value={dataParcelaPOS2}
                             onChange={(e) => setDataParcelaPOS2(e.target.value)}
@@ -957,7 +998,7 @@ export const FormularioAlteracaoPagamento = ({
               corFechar={"secondary"}
 
               ButtonTypeCadastrar={ButtonTypeModal}
-              onClickButtonCadastrar={handleSubmit}
+              onClickButtonCadastrar={handleValidatedSubmit}
               textButtonCadastrar={"Finalizar Alteração de Pagamentos"}
               corCadastrar={"success"}
             />

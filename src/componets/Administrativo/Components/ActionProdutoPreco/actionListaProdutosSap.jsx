@@ -125,11 +125,7 @@ export const ActionListaProdutosPrecos = ({ dadosProdutosSap }) => {
       body: row => <th>{row.DATA_ULTIMA_ALTERACAO_PDV}</th>,
       sortable: true,
     },
-
-
   ]
-
-
 
   return (
     <Fragment>

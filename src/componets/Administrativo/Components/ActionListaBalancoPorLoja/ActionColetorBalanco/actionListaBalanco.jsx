@@ -11,8 +11,7 @@ import * as XLSX from 'xlsx';
 import 'jspdf-autotable';
 import HeaderTable from "../../../../Tables/headerTable";
 import { useQuery } from "react-query";
-import { get, put } from "../../../../../api/funcRequest";
-import Swal from "sweetalert2";
+import { get } from "../../../../../api/funcRequest";
 import { Row } from "primereact/row";
 import { ColumnGroup } from "primereact/columngroup";
 import { ActionListaDetalhe } from "./actionListaDetalhe";
@@ -99,8 +98,7 @@ export const ActionListaBalanco = ({
             NUMITENS: item.NUMITENS,
             TOTALCUSTO: item.TOTALCUSTO,
             TOTALVENDA: item.TOTALVENDA,
-            STCONSOLIDADO: item.STCONSOLIDADO,
-            DSCOLETOR: item.DSCOLETOR,
+            STCONSOLIDADO: item.STCONSOLIDADO
         }
     })
 

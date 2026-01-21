@@ -12,10 +12,9 @@ import { getDataAtual } from "../../../../utils/dataAtual";
 import { toFloat } from "../../../../utils/toFloat";
 import { ActionListaVendasLojasResumo } from "./actionListaVendasLojasResumo";
 import { ActionListaTransacoesLojas } from "./actionListaTransacoesLojas";
-import { useFetchData } from "../../../../hooks/useFetchData";
 import { useQuery } from "react-query";
 import { get } from "../../../../api/funcRequest";
-import { setYear } from "date-fns";
+
 
 export const ResumoDashBoardFinaneiro = () => {
   const [dataPesquisa, setDataPesquisa] = useState('');

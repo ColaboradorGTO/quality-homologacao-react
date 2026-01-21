@@ -19,7 +19,6 @@ export const ActionPesquisaBalancoPorLoja = ({usuarioLogado, ID}) => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(1000)
   const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(true)
 
   useEffect(() => {
@@ -155,14 +154,13 @@ export const ActionPesquisaBalancoPorLoja = ({usuarioLogado, ID}) => {
         IconSearch={AiOutlineSearch}
 
       />
-      {tabelaVisivel &&
-       
+
+      {tabelaVisivel &&    
         <ActionListaBalancoPorLoja 
           dadosBalanco={dadosBalanco} 
           optionsModulos={optionsModulos}
           usuarioLogado={usuarioLogado}  
         />
-       
       }
 
     </Fragment>

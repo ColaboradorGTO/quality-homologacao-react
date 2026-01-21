@@ -575,7 +575,6 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
                 DSNOMERAZAOSOCIAL: `${nomeClienteRazao.toUpperCase()} - ${sobrenome.toUpperCase()}`,
                 DSAPELIDONOMEFANTASIA: sobrenome.toUpperCase(),
                 TPCLIENTE: tipo.toUpperCase(),
-                NUCPFCNPJ: cnpj.replace(/\D/g, ""),
                 NURGINSCESTADUAL: IEFinal,
                 NUINSCMUNICIPAL: IM,
                 NUCEP: cep.replace(/\D/g, "") || '',

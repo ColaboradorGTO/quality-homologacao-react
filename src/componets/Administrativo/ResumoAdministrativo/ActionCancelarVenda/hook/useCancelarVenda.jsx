@@ -1,14 +1,27 @@
 import Swal from "sweetalert2";
-import { post, put } from "../../../../../api/funcRequest";
+import { get, post, put } from "../../../../../api/funcRequest";
 import { useState } from "react";
 import axios from "axios";
+import { useQuery } from "react-query";
 
 
-export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleClose}) => {
-    const [selectAll, setSelectAll] = useState(false);
-    const [selectedIds, setSelectedIds] = useState([]);
-    const [vendedorSelecionado, setVendedorSelecionado] = useState('')
+export const useCancelarVenda = ({ 
+    optionsModulos, 
+    usuarioLogado, 
+    handleClose,
+    dadosCancelarVenda
+}) => {
+    const [motivo, setMotivo] = useState('');
     const [ipUsuario, setIpUsuario] = useState('');
+
+    const { data: dadosMotivoDevolucao = [], error: errorMotivoDevolucao, isLoading: isLoadingMotivoDevolucao, refetch: refetchMotivoDevolucao } = useQuery(
+    'lista-motivo-devolucao',
+    async () => {
+        const response = await get(`/lista-motivo-devolucao`);
+        return response.data;
+    },
+    { enabled: true, staleTime: 5 * 60 * 1000, }
+    );
 
     const getIPUsuario = async () => {
         let usuarioIP = null;
@@ -32,7 +45,7 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
         return usuarioIP;
     };
 
-    const alterarVendaVendedor = async () => {
+    const onSubmit = async () => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
             icon: 'warning',
@@ -45,57 +58,33 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
             });
             return;
         }
-        
-        if (selectedIds.length === 0) {
-            Swal.fire({
-            icon: 'warning',
-            title: 'Selecione uma Venda!',
-            text: 'Favor selecionar ao menos uma venda!',
-            confirmButtonText: 'OK',
-            customClass: {
-                container: 'custom-swal',
-            },
-            });
-            return;
-        }
-        
-        if (vendedorSelecionado === '') {
-            Swal.fire({
-            icon: 'warning',
-            title: 'Selecione um Vendedor!',
-            text: 'Selecione um vendedor para alterar a venda',
-            confirmButtonText: 'OK',
-            customClass: {
-                container: 'custom-swal',
-            },
-            });
-            return;
-        }
+    
 
         const putData = {
-            IDVENDADETALHE: selectedIds,
-            IDVENDEDOR: vendedorSelecionado,
+            IDVENDA: dadosCancelarVenda?.IDVENDA,
+            IDUSUARIOCANCELAMENTO: usuarioLogado.id,
+            TXTMOTIVOCANCELAMENTO: motivo,
         }
 
         try {
 
-            const response = await put('/venda-vendedor/:id', putData)
+            const response = await put('/venda-cancelamento/:id', putData)
             const textDados = JSON.stringify(putData)
-            let textFuncao = 'ADMINISTRATIVO / VENDAS / ALTERAR VENDA VENDEDOR';
+            let textFuncao = 'ADMINISTRATIVO/CANCELAMENTO DE VENDAS';
             const ipUsuario = await getIPUsuario();
-            const postDataEditarCaixa = {
+            const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
 
-            await post('/log-web', postDataEditarCaixa)
+            await post('/log-web', postData)
 
             Swal.fire({
                 icon: 'success',
-                title: 'Venda Alterada com Sucesso!',
-                text: 'Venda alterada com sucesso!',
+                title: 'Venda Cancelada com Sucesso!',
+                text: 'Venda cancelada com sucesso!',
                 timer: 3000,
                 showConfirmButton: false,
                 customClass: {
@@ -108,20 +97,20 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
         } catch (error) {
             const textDados = JSON.stringify(putData)
             const ipUsuario = await getIPUsuario();
-            let textFuncao = 'ADMINISTRATIVO / VENDAS / ERRO ALTERAR VENDA VENDEDOR';
-            const postDataEditarCaixa = {
+            let textFuncao = 'ADMINISTRATIVO/ERRO CANCELAR VENDA';
+            const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
 
-            const response = await post('/log-web', postDataEditarCaixa)
+            const response = await post('/log-web', postData)
 
             Swal.fire({
                 icon: 'error',
-                title: 'Erro ao alterar a venda!',
-                text: 'Erro ao alterar a venda!',
+                title: 'Erro ao cancelar a venda!',
+                text: 'Erro ao cancelar a venda!',
                 timer: 3000,
                 showConfirmButton: false,
                 customClass: {
@@ -134,12 +123,9 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
     }
 
     return {
-        alterarVendaVendedor,
-        selectAll,
-        setSelectAll,
-        selectedIds,
-        setSelectedIds, 
-        vendedorSelecionado,
-        setVendedorSelecionado,
+        motivo,
+        setMotivo,
+        dadosMotivoDevolucao,
+        onSubmit,
     }
 }
