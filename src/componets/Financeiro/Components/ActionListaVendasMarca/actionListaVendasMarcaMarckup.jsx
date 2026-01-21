@@ -247,109 +247,85 @@ export const ActionListaVendasMarcaMarckup = ({dadosListaVendasMarcaMarckup}) =>
     }
   })
 
-  const calcularTotalVendaBrutaMarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.valorVendaBrutaMarckup);
-    }
-    return total;
-  }
+  const calcularTotalVendaBrutaMarckup = () => {
+    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+      total + parseFloat(vendas.valorVendaBrutaMarckup), 0
+    );
+  };
 
-  const calcularTotalValorDescontoMarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.valorDesconto);
-    }
-    return total;
-  }
+  const calcularTotalValorDescontoMarckup = () => {
+    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+      total + parseFloat(vendas.valorDesconto), 0
+    );
+  };
+  
+  const calcularTotalPercentualDescontoMarckup = () => {
+    const totalDesconto = calcularTotalValorDescontoMarckup();
+    const totalPago = calcularTotalValorPagoMarckup();
+    return ((totalDesconto * 100) / (totalPago + totalDesconto));
+  };
 
-  const calcularTotalPercentualDescontoMarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.valorTotalPercentualDesconto);
-    }
-    return total;
-  }
+  const calcularTotalValorPagoMarckup = () => {
+    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+      total + parseFloat(vendas.valorPago), 0
+    );
+  };
 
-  const calcularTotalValorPagoMarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.valorPago);
-    }
-    return total;
-  }
+  const calcularTotalValorVoucherMarckup = () => {
+    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+      total + parseFloat(vendas.voucher), 0
+    );
+  };
 
-  const calcularTotalValorVoucherMarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.voucher);
-    }
-    return total;
-  }
+  const calcularTotalPercentualVoucherMarckup = () => {
+    const totalVoucher = calcularTotalValorVoucherMarckup();
+    const totalPago = calcularTotalValorPagoMarckup();
+    return ((totalVoucher * 100) / totalPago);
+  };
 
-  const calcularTotalPercentualVoucherMarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.percentualVoucher);
-    }
-    return total;
-  }
+  const calcularTotalValorVendaLiquidaMarckup = () => {
+    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+      total + parseFloat(vendas.valorTotalVendaLiquida), 0
+    );
+  };
 
-  const calcularTotalValorVendaLiquidaMarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.valorTotalVendaLiquida);
-    }
-    return total;
-  }
+  const calcularTotalValorCustomarckup = () => {
+    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+      total + parseFloat(vendas.TOTALCUSTO), 0
+    );
+  };
+ 
+  const calcularTotalCustoPercentual = () => {
+    const totalCusto = calcularTotalValorCustomarckup();
+    const totalPago = calcularTotalValorPagoMarckup();
+    return ((totalCusto * 100) / totalPago);
+  };
 
-  const calcularTotalValorCustomarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.TOTALCUSTO);
-    }
-    return total;
-  }
+  
+  const calcularTotalMarckupPercentual = () => {
+    const totalPago = calcularTotalValorPagoMarckup();
+    const totalCusto = calcularTotalValorCustomarckup();
+    return ((totalPago / totalCusto) - 1) * 100;
+  };
 
-  const calcularTotalCustoPercentual = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.custoPercentual);
-    }
-    return total;
-  }
+  const calcularTotalIndicadorVenda = () => {
+    const totalPago = calcularTotalValorPagoMarckup();
+    const totalCusto = calcularTotalValorCustomarckup();
+    return (totalPago / totalCusto);
+  };
 
-  const calcularTotalMarckupPercentual = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.marckup);
-    }
-    return total;
-  }
+  const calcularTotalValorMargemBrutaMarckup = () => {
+    const totalPago = calcularTotalValorPagoMarckup();
+    const totalCusto = calcularTotalValorCustomarckup();
+    return (totalPago - totalCusto);
+  };
 
-  const calcularTotalIndicadorVenda = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.indicadorVenda);
-    }
-    return total;
-  }
+  const calcularTotalPercentualMargemBrutaMarckup = () => {
+    const totalCusto = calcularTotalValorCustomarckup();
+    const totalPago = calcularTotalValorPagoMarckup();
+    return 100 - ((totalCusto * 100) / totalPago);
+  };
 
-  const calcularTotalValorMargemBrutaMarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.margem);
-    }
-    return total;
-  }
-
-  const calcularTotalPercentualMargemBrutaMarckup = (item) => {
-    let total = 0;
-    for (let vendas of dadosVendasMarcaMarckup) {
-      total += parseFloat(vendas.margemPercentual);
-    }
-    return total;
-  }
 
   const colunasVendasMarcaMarckup = [
     {
