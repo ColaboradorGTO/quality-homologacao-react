@@ -18,9 +18,7 @@ export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('')
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -95,8 +93,7 @@ export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
 
   const handleClick = () => {
     setTabelaVisivel(true)
-    setIsLoadingPesquisa(true);
-    setCurrentPage(prevPage => prevPage + 1);
+
     refetchListaDespesasLoja()
   }
 

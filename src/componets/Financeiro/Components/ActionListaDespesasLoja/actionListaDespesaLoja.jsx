@@ -332,6 +332,8 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
         show={modalDespesasVisivel}
         handleClose={() => setModalDespesasVisivel(false)}
         dadosDespesasLojaDetalhe={dadosDespesasLojaDetalhe}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
       />
     </Fragment>
   )

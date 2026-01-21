@@ -6,7 +6,7 @@ import Select from "react-select"
 import { useAjusteDespesa } from "../hooks/useAjusteDespesa"
 import { useForm } from "react-hook-form"
 
-export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose}) => {
+export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuarioLogado, optionsModulos}) => {
     const { register, handleSubmit, errors } = useForm();
     const {
         despesaSelecionada,
@@ -15,8 +15,6 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose}) => {
         vrDespesa,
         tpNota,
         nuNotaFiscal,
-        usuarioLogado,
-        ipUsuario,
         isSubmitting,
         horarioAtual,
         onSubmit,
@@ -29,7 +27,7 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose}) => {
         setTpNota,
         Options,
         dadosReceitaDespesa
-    } = useAjusteDespesa({dadosDespesasLojaDetalhe});
+    } = useAjusteDespesa({dadosDespesasLojaDetalhe, usuarioLogado, optionsModulos});
 
     return (
         <Fragment>

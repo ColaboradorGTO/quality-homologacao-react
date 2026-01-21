@@ -5,7 +5,7 @@ import { FormularioEditar } from "./formularioEditar";
 
 
 
-export const ActionAjusteDespesasModal = ({ show, handleClose, dadosDespesasLojaDetalhe }) => {
+export const ActionAjusteDespesasModal = ({ show, handleClose, dadosDespesasLojaDetalhe, usuarioLogado, optionsModulos }) => {
  
   return (
 
@@ -29,7 +29,12 @@ export const ActionAjusteDespesasModal = ({ show, handleClose, dadosDespesasLoja
             handleClose={handleClose}
           />
 
-          <FormularioEditar dadosDespesasLojaDetalhe={dadosDespesasLojaDetalhe} handleClose={handleClose}/>
+          <FormularioEditar 
+            dadosDespesasLojaDetalhe={dadosDespesasLojaDetalhe} 
+            handleClose={handleClose}
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+          />
         </Modal.Body>
       </Modal>
     </Fragment>

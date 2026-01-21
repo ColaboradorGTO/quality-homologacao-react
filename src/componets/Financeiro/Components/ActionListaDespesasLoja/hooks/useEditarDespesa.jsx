@@ -1,21 +1,32 @@
 import axios from "axios";
 import { put, post } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 export const useEditarDespesa = (usuarioLogado,  optionsModulos, handleClick) => {
   const [ipUsuario, setIpUsuario] = useState('');
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
+  
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
+
+    if (!usuarioIP) {
+        try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+        } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
 
  
@@ -46,7 +57,7 @@ export const useEditarDespesa = (usuarioLogado,  optionsModulos, handleClick) =>
       
       const textDados = JSON.stringify(postData);
       const textoFuncao = 'FINANCEIRO/ATUALIZAÇÃO DE ESTATUS DA DESPESA';
-      
+      const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
@@ -68,7 +79,7 @@ export const useEditarDespesa = (usuarioLogado,  optionsModulos, handleClick) =>
     } catch (error) {
       const textDados = JSON.stringify(postData);
       const textoFuncao = 'FINANCEIRO/ERRO AO ATUALIZAR ESTATUS DA DESPESA';
-
+      const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,

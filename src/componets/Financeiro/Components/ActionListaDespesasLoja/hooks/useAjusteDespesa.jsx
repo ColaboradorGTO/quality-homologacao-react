@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "react-query";
-
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { get, post, put } from "../../../../../api/funcRequest";
 
-export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe }) => {
+export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado,  optionsModulos, }) => {
   const [horarioAtual, setHorarioAtual] = useState('');
   const [despesaSelecionada, setDespesaSelecionada] = useState(null);
   const [dsHistorio, setDsHistorio] = useState('');
@@ -14,36 +12,29 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe }) => {
   const [vrDespesa, setVrDespesa] = useState('');
   const [tpNota, setTpNota] = useState('');
   const [nuNotaFiscal, setNuNotaFiscal] = useState('');
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [ipUsuario, setIpUsuario] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
+  
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
+
+    if (!usuarioIP) {
+        try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+        } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
 
   const { data: dadosReceitaDespesa = [], error: errorDespesasLoja, isLoading: isLoadingDespesasLoja } = useQuery(
@@ -131,7 +122,7 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe }) => {
 
       const textDados = JSON.stringify(postData)
       let textoFuncao = 'FINANCEIRO/ATUALIZAÇÃO DE DESPESA';
-
+      const ipUsuario = await getIPUsuario();
 
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
