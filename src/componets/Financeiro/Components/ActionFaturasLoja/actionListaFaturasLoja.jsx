@@ -250,19 +250,19 @@ export const ActionListaFaturasLoja = ({
     {
       field: 'NOFANTASIA',
       header: 'Empresa',
-      body: row => <th style={{}}>  {row.NOFANTASIA} </th>,
+      body: row => <p style={{width: '180px', margin: 0, padding: 0, fontWeight: 600}}>  {row.NOFANTASIA} </p>,
       sortable: true,
     },
     {
       field: 'DTPROCESSAMENTO',
       header: 'Data Recebimento',
-      body: row => <th style={{}}>  {row.DTPROCESSAMENTO}  </th>,
+      body: row => <p style={{width: '150px', margin: 0, padding: 0, fontWeight: 600}}>  {row.DTPROCESSAMENTO}  </p>,
       sortable: true,
     },
     {
       field: 'IDMOVIMENTOCAIXAWEB',
       header: 'Nº Movimento Caixa',
-      body: row => <th style={{}}>  {row.IDMOVIMENTOCAIXAWEB}</th>,
+      body: row => <p style={{width: '150px', margin: 0, padding: 0, fontWeight: 600}}>  {row.IDMOVIMENTOCAIXAWEB}</p>,
       sortable: true,
     },
     {
@@ -288,7 +288,7 @@ export const ActionListaFaturasLoja = ({
     {
       field: 'NOFUNCIONARIO',
       header: 'Recebedor',
-      body: row => <th style={{}}> {row.NOFUNCIONARIO} </th>,
+      body: row => <p style={{width: '150px', margin: 0, padding: 0, fontWeight: 600}}>  {row.NOFUNCIONARIO} </p>,
       sortable: true,
     },
     {
@@ -296,14 +296,14 @@ export const ActionListaFaturasLoja = ({
       header: 'Situação',
       body: row => {
         if (row.STCANCELADO == 'False') {
-          return <th style={{ color: 'blue' }}>ATIVO / {row.STCONFERIDOFATURA == 'True' ? 'CONFERIDO' : <th style={{ color: 'red' }}>NÃO CONFERIDO</th>} {row.IDCONSOLIDACAOFATURA ? ' / CONSOLIDADO' : ''}</th>
+          return <p style={{ color: 'blue', width: '150px', margin: 0, padding: 0, fontWeight: 600 }}>ATIVO / {row.STCONFERIDOFATURA == 'True' ? 'CONFERIDO' : <p style={{ color: 'red',width: '150px', margin: 0, padding: 0, fontWeight: 600 }}>NÃO CONFERIDO</p>} {row.IDCONSOLIDACAOFATURA ? ' / CONSOLIDADO' : ''}</p>
 
         } else {
           return (
 
-            <th style={{ color: 'red' }}>
+            <p style={{ color: 'red', width: '150px', margin: 0, padding: 0, fontWeight: 600 }}>
               NÃO CONFERIDO  {row.IDCONSOLIDACAOFATURA ? ' / CONSOLIDADO ' : ''}
-            </th>
+            </p>
           )
         }
       },
@@ -348,13 +348,13 @@ export const ActionListaFaturasLoja = ({
             <div className="p-1">
               <ButtonTable
                 titleButton="Editar Fatura"
-                textButton={"Editar"}
+                // textButton={"Editar"}
                 cor="warning"
                 Icon={CiEdit}
                 onClickButton={() => handleClickEditar(row)}
                 iconSize={20}
-                width="50px"
-                height="50px"
+                width="30px"
+                height="30px"
               />
             </div>
 
@@ -362,13 +362,13 @@ export const ActionListaFaturasLoja = ({
             <div className="p-1">
               <ButtonTable
                 titleButton="Conferir Fatura"
-                textButton={"Conferir"}
+                // textButton={"Conferir"}
                 cor="success"
                 Icon={IoMdCheckmark}
                 onClickButton={() => conferir(row)}
                 iconSize={20}
-                width="50px"
-                height="50px"
+                width="30px"
+                height="30px"
               />
             </div>
           </div>
