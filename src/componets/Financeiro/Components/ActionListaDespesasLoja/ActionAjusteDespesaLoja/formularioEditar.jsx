@@ -46,8 +46,6 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
     
           await onSubmit();
           await handleClose();
-         
-    
         } catch (validationError) {
           clearErrors();
     
@@ -71,7 +69,7 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
     return (
         <Fragment>
 
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <form onSubmit={handleSubmit(handleValidatedSubmit)}>
 
                 <div class="form-group">
                     <div class="row">
@@ -243,7 +241,7 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                     corFechar={"secondary"}
 
                     ButtonTypeCadastrar={ButtonTypeModal}
-                    onClickButtonCadastrar={() => { }}
+                    onClickButtonCadastrar={handleValidatedSubmit}
                     textButtonCadastrar={"Editar Despesa"}
                     corCadastrar={"success"}
                     disabled={isSubmitting}
