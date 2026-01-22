@@ -90,6 +90,7 @@ export const ActionPesquisaValeTransporte = ({ usuarioLogado, ID }) => {
         handleClose={() => setModalVisivel(false)}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+        refetchDadosLoja={refetchDadosLoja}
       />
 
     </Fragment >

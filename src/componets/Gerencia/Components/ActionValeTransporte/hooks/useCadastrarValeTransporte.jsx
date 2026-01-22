@@ -4,8 +4,9 @@ import axios from "axios";
 import { useQuery } from "react-query";
 import { getDataAtual, getHoraAtual } from "../../../../../utils/dataAtual";
 import { useEffect, useState } from "react";
+import { set } from "date-fns";
 
-export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, optionsModulos }) => {
+export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, optionsModulos, refetchDadosLoja }) => {
   const [dsHistorio, setDSHistorio] = useState('');
   const [dsPagoA, setDsPagoA] = useState('');
   const [vrDespesa, setVrDespesa] = useState('');
@@ -21,7 +22,7 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
     setDtDespesa(dataAtual)
     setHorarioAtual(hora)
   }, [])
-  
+
   const { data: dadosFuncionarios = [], error: errorGrupo, isLoading: isLoadingGrupo } = useQuery(
     'todos-funcionario',
     async () => {
@@ -54,8 +55,9 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
     return usuarioIP;
   };
 
+
   const onSubmit = async (data) => {
-    if(optionsModulos[0]?.CRIAR == 'False') {
+    if (optionsModulos[0]?.CRIAR == 'False') {
       Swal.fire({
         position: 'center',
         icon: 'error',
@@ -75,16 +77,14 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
       DTDESPESA: dtDespesa + ' ' + horarioAtual,
       IDCATEGORIARECEITADESPESA: 248,
       DSHISTORIO: dsHistorio,
-      DSPAGOA: '',
+      DSPAGOA: "",
       IDFUNCIONARIO: parseInt(usuarioSelecionado?.value),
       TPNOTA: '',
       NUNOTAFISCAL: '',
       VRDESPESA: parseFloat(vrDespesa),
       STATIVO: 'True',
       STCANCELADO: 'False'
-
     }
-
     try {
 
       const response = await post('/cadastrar-despesa-loja', postData)
@@ -112,6 +112,7 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
       })
 
       handleClose()
+      refetchDadosLoja()
       return response.data;
     } catch (error) {
       const textDados = JSON.stringify(postData)
