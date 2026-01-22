@@ -70,41 +70,13 @@ export const useEditarFatura = ({ dadosDetalheFaturaCaixa, optionsModulos, handl
             return;
         }
 
-        if (codAutorizacao == '') {
-            Swal.fire({
-                position: 'top-end',
-                icon: 'error',
-                title: 'O campo Código Autorização é obrigatório.',
-                showConfirmButton: false,
-                timer: 3000,
-                customClass: {
-                    container: 'custom-swal',
-                },
-            });
-            return;
-        }
-
-        if (valorFatura == '') {
-            Swal.fire({
-                position: 'top-end',
-                icon: 'error',
-                title: 'O campo Valor da Fatura é obrigatório.',
-                showConfirmButton: false,
-                timer: 3000,
-                customClass: {
-                    container: 'custom-swal',
-                },
-            });
-            return;
-        }
-
         const putData = {
             IDDETALHEFATURA: parseInt(dadosDetalheFaturaCaixa[0].IDDETALHEFATURA),
             NUCODAUTORIZACAO: codAutorizacao,
             VRRECEBIDO: parseFloat(valorFatura),
             NUAUTORIZACAO: codPix,
-            STPIX: stPixSelecionado,
-            STCANCELADO: statusSelecionado,
+            STPIX: stPixSelecionado?.value,
+            STCANCELADO: statusSelecionado?.value,
         }
 
         try {
@@ -182,14 +154,14 @@ export const useEditarFatura = ({ dadosDetalheFaturaCaixa, optionsModulos, handl
         stPixSelecionado,
         OptionsStatus,
         OptionsPIX,
-        onSubmit,
         setCodAutorizacao,
         setCodPix,
         setStatusSelecionado,
         setStPixSelecionado,
         setValorFatura,
         setEmpresaSelecionada,
-        setCaixa
+        setCaixa,
+        onSubmit
 
     }
 }
