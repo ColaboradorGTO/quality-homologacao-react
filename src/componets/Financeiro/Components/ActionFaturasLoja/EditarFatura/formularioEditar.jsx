@@ -6,6 +6,7 @@ import { useEditarFatura } from "../hooks/useEditarFatura"
 import FormField from "../../../../Formularios/FormField"
 import { schema } from "./useSchemaFatura"
 import { AlertError } from "../../../../Inputs/alertError"
+import { formatarMoeda } from "../../../../../utils/formatMoeda"
 
 export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, optionsModulos, usuarioLogado }) => {
   const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
@@ -65,7 +66,7 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
   }
   
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(handleValidatedSubmit)}>
 
       <div class="form-group">
         <div class="row">
@@ -200,7 +201,7 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
                   name="vrFatura"
                   type="text"
                   value={valorFatura}
-                  onChange={(e) => setValorFatura(e.target.value)}
+                  onChange={(e) => setValorFatura(formatarMoeda(e.target.value))}
                   errors={errors}
                   clearErrors={clearErrors}
                     
@@ -218,7 +219,7 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
         corFechar={"secondary"}
 
         ButtonTypeCadastrar={ButtonTypeModal}
-        onClickButtonCadastrar={onSubmit}
+        onClickButtonCadastrar={handleValidatedSubmit}
         textButtonCadastrar={"Confimar Alteração"}
         corCadastrar={"success"}
       />
