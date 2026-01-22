@@ -40,8 +40,6 @@ export const ActionListaFaturasLoja = ({
     conferir
   } = useConferirFatura({ optionsModulos, usuarioLogado, handleClick, selectedItems });
   
-
-  
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
@@ -365,7 +363,11 @@ export const ActionListaFaturasLoja = ({
                 // textButton={"Conferir"}
                 cor="success"
                 Icon={IoMdCheckmark}
-                onClickButton={() => conferir(row)}
+                // onClickButton={() => conferir(row)}
+                onClickButton={() => {
+                  setSelectedItems([row]);
+                  conferir(row);
+                }}
                 iconSize={20}
                 width="30px"
                 height="30px"

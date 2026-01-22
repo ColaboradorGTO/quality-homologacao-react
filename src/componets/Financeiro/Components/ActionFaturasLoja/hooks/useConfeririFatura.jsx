@@ -23,7 +23,7 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
             return null;
         }
     };
-
+    console.log('selectedItems no useConferirFatura:', selectedItems);
     const conferir = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
