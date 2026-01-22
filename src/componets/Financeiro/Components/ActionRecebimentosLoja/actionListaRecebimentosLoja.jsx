@@ -13,6 +13,7 @@ import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 import { mascaraValor } from "../../../../utils/mascaraValor";
 import { ActionVendaRecebimentoModal } from "../ActionModaisVendas/actionVendaRecebimentoModal";
+import Swal from "sweetalert2";
 
 export const ActionListaRecebimentosLoja = ({
   dadosRecebimentosEletronico, 
@@ -83,22 +84,40 @@ export const ActionListaRecebimentosLoja = ({
     );
   };
 
+  // const calcularTotalValorRecebido = () => {
+  //   return dadosListaRecebimentosLoja.reduce((total, item) => total + calcularTotalValorRecebidoLoja(item), 0);
+  // };
+
+  // const calcularTotalQuantidadePagamentos = () => {
+  //   return dadosRecebimentosEletronico.reduce((total, item) => total + parseFloat(item.QTDPGTOS), 0);
+  // };
+
   const calcularTotalValorRecebido = () => {
-    return dadosListaRecebimentosLoja.reduce((total, item) => total + calcularTotalValorRecebidoLoja(item), 0);
-  };
+  return dadosRecebimentosEletronico.reduce((total, item) => 
+    total + parseFloat(item.VALORRECEBIDO), 0
+  );
+};
 
-  const calcularTotalQuantidadePagamentos = () => {
-    return dadosRecebimentosEletronico.reduce((total, item) => total + parseFloat(item.QTDPGTOS), 0);
-  };
+// 2️⃣ FUNÇÃO DE ACUMULAÇÃO (equivalente a qtdPagTotal)
+const calcularTotalQuantidadePagamentos = () => {
+  return dadosRecebimentosEletronico.reduce((total, item) => 
+    total + parseFloat(item.QTDPGTOS), 0
+  );
+};
 
+  
+    
   const dadosExcel = Array.isArray(dadosRecebimentosEletronico) ? dadosRecebimentosEletronico.map((item) => {
-    const percentualVrRecebido = ((parseFloat(item.VALORRECEBIDO) * 100) / calcularTotalValorRecebido()).toFixed(2);
-
+    // const percentualVrRecebido = ((parseFloat(item.VALORRECEBIDO) * 100) / calcularTotalValorRecebido()).toFixed(2);
+      const percentualVrRecebido = (
+    (parseFloat(item.VALORRECEBIDO) * 100) / calcularTotalValorRecebido()
+  ).toFixed(2);
     return {
       NOTEF: item.NOTEF,
       DSTIPOPAGAMENTO: `${item.DSTIPOPAGAMENTO} x ${item.NPARCELAS}`,
       VALORRECEBIDO: item.VALORRECEBIDO,
       QTDPGTOS: item.QTDPGTOS,
+      IDVENDA: item.IDVENDA,
       percentualVrRecebido,
     };
   }): []
@@ -152,12 +171,18 @@ export const ActionListaRecebimentosLoja = ({
       sortable: true,
     },
     {
-      field: '',
+      field: 'NOAUTORIZADOR',
+      header: 'Autorizador',
+      body: row => <th>{row.NOAUTORIZADOR}</th>,
+      sortable: true,
+    },
+    {
+      field: 'IDVENDA',
       header: 'Detalhar',
       body: row => {
         return (
           <ButtonTable
-            onClickButton={() => handleClickEditar(row)}
+            onClickButton={() => handleEditar(row.NOAUTORIZADOR, row.NPARCELAS, row.NOTEF)}
             titleButton={'Detalhar'}
             Icon={GrView}
             cor="success"
@@ -173,23 +198,30 @@ export const ActionListaRecebimentosLoja = ({
 
   const handleEditar = async (NOAUTORIZADOR, NPARCELAS, NOTEF) => {
     try {
-      const response = await get(`/venda-detalhe-recebimento-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&nomeTef=${NOTEF}&nomeAutorizador=${NOAUTORIZADOR}&numeroParcelas=${NPARCELAS}`);
-
-      if (response.data && response.data.length ) {
+      const apiUrl = `/venda-detalhe-recebimento-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&nomeTef=${NOTEF}&nomeAutorizador=${encodeURIComponent(NOAUTORIZADOR)}&numeroParcelas=${NPARCELAS}`;
+    
+      const response = await get(apiUrl);
+      if (response.data && response.data.length > 0 ) {
         setModalDetalheRecebimento(true);
         setDadosDetalheRecebimentosEletronico(response.data);
+      } else {
+        Swal.fire({
+          title: 'Atenção',
+          text: 'Nenhum detalhe encontrado para este recebimento.',
+          icon: 'warning',
+          timer: 3000,
+          customClass: {
+            container: 'custom-swal',
+          }
+        });
+        return;
       }
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar detalhes da despesa: ', error);
     }
   };
-
-  const handleClickEditar = (row) => {
-    if (row && row.NOAUTORIZADOR && row.NPARCELAS && row.NOTEF) {
-      handleEditar(row.NOAUTORIZADOR, row.NPARCELAS, row.NOTEF);
-    }
-  };
+  
 
   return (
     <Fragment>

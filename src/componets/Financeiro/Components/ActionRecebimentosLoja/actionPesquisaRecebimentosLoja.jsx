@@ -12,6 +12,7 @@ import { ActionListaDetalhamentoCopia } from "./actionListaDetalhamentoCopia"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { ButtonType } from "../../../Buttons/ButtonType"
 import { useFetchData } from "../../../../hooks/useFetchData"
+import { ActionListaDetalhamento } from "./actionListaDetalhamento2"
 
 
 export const ActionPesquisaRecebimentosLoja = () => {
@@ -20,9 +21,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
-  const [currentPage, setCurrentPage] = useState(1)
-  const [pageSize, setPageSize] = useState(1000)
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(true)
+
 
 
   useEffect(() => {
@@ -137,8 +136,6 @@ export const ActionPesquisaRecebimentosLoja = () => {
   }
   const handleClick = () => {
     setTabelaVisivel(true)
-    setIsLoadingPesquisa(true);
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaRecebimentosLoja()
     refetchRecebimentosEletronicos()
   }
@@ -185,7 +182,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
 
       />
 
-      <ActionListaDetalhamentoCopia dadosListaRecebimentosLoja={dadosListaRecebimentosLoja} />
+      <ActionListaDetalhamento dadosListaRecebimentosLoja={dadosListaRecebimentosLoja} />
       <div className="card " >
 
         <ActionListaRecebimentosLoja

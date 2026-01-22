@@ -123,7 +123,10 @@ export const ActionVendaRecebimentoModal = ({ show, handleClose, dadosDetalheRec
             <div class="col-xl-12">
               <div id="panel-1" class="panel">
                 <div class="panel-hdr">
-                  <h2 id="">Relação das Vendas do Recebimento Tipo {dadosListaRecebimentosEletronico[0]?.DSTIPOPAGAMENTO}</h2>
+                  <h2 id="">
+                    {`Relação das Vendas do Recebimento Tipo ${dadosListaRecebimentosEletronico[0]?.NOAUTORIZADOR}-${dadosListaRecebimentosEletronico[0]?.DSTIPOPAGAMENTO}-${dadosListaRecebimentosEletronico[0]?.NPARCELAS} x`}
+
+                  </h2>
                  
                 </div>
                 <div class="panel-container show">
@@ -136,7 +139,7 @@ export const ActionVendaRecebimentoModal = ({ show, handleClose, dadosDetalheRec
                       sortOrder={-1}
                       size="small"
                       paginator={true}
-                      rows={50}
+                      rows={10}
                       rowsPerPageOptions={[10, 20, 50, 100, dadosListaRecebimentosEletronico.length]}
 
                       showGridlines
