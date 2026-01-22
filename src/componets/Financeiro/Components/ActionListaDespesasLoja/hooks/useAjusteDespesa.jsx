@@ -152,15 +152,7 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, hand
     } 
   }
 
-  const handleChangeDespesa = (selectedOption) => {
-    setDespesaSelecionada(selectedOption);
-  };
-
-  const handleChangeTpNota = (selectedOption) => {
-    setTpNota(selectedOption);
-  };
   const Options = [
-
     { id: 0, value: "NFCe", label: "NFCe" },
     { id: 1, value: "NFe", label: "NFe" },
   ]
@@ -176,15 +168,13 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, hand
     ipUsuario,
     isSubmitting,
     horarioAtual,
-    onSubmit,
-    handleChangeDespesa,
-    handleChangeTpNota,
     setVrDespesa,
     setDespesaSelecionada,
     setDsHistorio,
     setDsPagoA,
     setTpNota,
     Options,
-    dadosReceitaDespesa
+    dadosReceitaDespesa,
+    onSubmit,
   }
 }
