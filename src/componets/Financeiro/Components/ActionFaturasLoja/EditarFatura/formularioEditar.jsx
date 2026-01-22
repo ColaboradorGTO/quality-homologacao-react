@@ -5,6 +5,7 @@ import Select from 'react-select'
 import { useEditarFatura } from "../hooks/useEditarFatura"
 import FormField from "../../../../Formularios/FormField"
 import { schema } from "./useSchemaFatura"
+import { AlertError } from "../../../../Inputs/alertError"
 
 export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, optionsModulos, usuarioLogado }) => {
   const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
@@ -34,7 +35,9 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
   const handleValidatedSubmit = async () => {
     try {
       const dadosParaValidar = {
-        // historico: dsHistorio,
+        codigoAutorizacao: codAutorizacao,
+        codigoPIX: codPix,
+        vrFatura: valorFatura,
        
       }
   
@@ -67,9 +70,7 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
 
       <div class="form-group">
         <div class="row">
-
           <div class="col-sm-6 col-xl-6">
-
             <Controller
               name="empresa"
               control={control}
@@ -108,12 +109,11 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
           </div>
         </div>
       </div>
+
       <div class="form-group">
         <div class="row">
 
-
           <div class="col-sm-6 col-xl-3">
-
             <Controller
               name="codigoAutorizacao"
               control={control}
@@ -151,7 +151,6 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
             />
           </div>
 
-
           <div class="col-sm-6 col-xl-2">
             <label htmlFor="">PIX</label>
             <Select
@@ -162,6 +161,13 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
               onChange={(e) => setStPixSelecionado(e.value)}
             />
 
+            {errors.stPixSelecionado && (
+              <AlertError
+                error={errors.stPixSelecionado}
+                onClose={clearErrors}
+                fieldName="stPixSelecionado"
+              />
+            )}
           </div>
           <div class="col-sm-6 col-xl-3">
             <label htmlFor="">Status</label>
@@ -172,14 +178,19 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
               options={OptionsStatus}
               onChange={(e) => setStatusSelecionado(e.value)}
             />
-
+             {errors.statusSelecionado && (
+              <AlertError
+                error={errors.statusSelecionado}
+                onClose={clearErrors}
+                fieldName="statusSelecionado"
+              />
+            )}
           </div>
         </div>
       </div>
 
       <div class="form-group">
         <div className="row">
-
           <div class="col-sm-6">
             <Controller
               name="vrFatura"
