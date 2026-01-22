@@ -37,8 +37,7 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
       const dadosParaValidar = {
         codigoAutorizacao: codAutorizacao,
         codigoPIX: codPix,
-        vrFatura: valorFatura,
-       
+        vrFatura: valorFatura
       }
   
       await schema.validate(dadosParaValidar, { abortEarly: false });
