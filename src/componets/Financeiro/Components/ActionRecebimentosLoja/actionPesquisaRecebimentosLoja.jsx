@@ -83,46 +83,53 @@ export const ActionPesquisaRecebimentosLoja = () => {
   );
 
 
-  const fetchListaRecebimentosEletronicos = async () => {
-    const urlBase = `/venda-recebido-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
-    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
-    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
-    try {
-      animacaoCarregamento('Carregando dados...', true);
+  // const fetchListaRecebimentosEletronicos = async () => {
+  //   const urlBase = `/venda-recebido-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+  //   let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+  //   urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+  //   try {
+  //     animacaoCarregamento('Carregando dados...', true);
         
-      const primeiraPagina = 1;
-      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
-      const page = primeiraResposta.page || primeiraPagina;
-      const pageSize = primeiraResposta.pageSize || 1000;
-      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
-      const totalPages = Math.ceil(totalRows / pageSize);
+  //     const primeiraPagina = 1;
+  //     const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+  //     const page = primeiraResposta.page || primeiraPagina;
+  //     const pageSize = primeiraResposta.pageSize || 1000;
+  //     const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+  //     const totalPages = Math.ceil(totalRows / pageSize);
 
-      let allData = [...(primeiraResposta.data || [])];
+  //     let allData = [...(primeiraResposta.data || [])];
 
-      if (totalPages > 1) {
-        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-          const responsePage = await get(`${urlApi}&page=${currentPage}`);
-          allData.push(...(responsePage.data || []));
-        }
-      }
+  //     if (totalPages > 1) {
+  //       for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+  //         animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+  //         const responsePage = await get(`${urlApi}&page=${currentPage}`);
+  //         allData.push(...(responsePage.data || []));
+  //       }
+  //     }
 
-      return allData;
-    } catch (error) {
-      console.error('Erro ao buscar dados:', error);
-      throw error;
-    } finally {
-      fecharAnimacaoCarregamento();
-    }
-  }
+  //     return allData;
+  //   } catch (error) {
+  //     console.error('Erro ao buscar dados:', error);
+  //     throw error;
+  //   } finally {
+  //     fecharAnimacaoCarregamento();
+  //   }
+  // }
+
+  // const { data: dadosRecebimentosEletronico = [], error: errorListaRecebimentosEletronicos, isLoading: isLoadingListaRecebimentosEletronicos, refetch: refetchRecebimentosEletronicos } = useQuery(
+  //   ['venda-recebido-eletronico'],
+  //   () => fetchListaRecebimentosEletronicos(),
+  //   { enabled: false, staleTime: 5 * 60 * 1000 }
+  // );
 
   const { data: dadosRecebimentosEletronico = [], error: errorListaRecebimentosEletronicos, isLoading: isLoadingListaRecebimentosEletronicos, refetch: refetchRecebimentosEletronicos } = useQuery(
     ['venda-recebido-eletronico'],
-    () => fetchListaRecebimentosEletronicos(),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    async () => {
+      const response = await get(`/venda-recebido-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&page=1&pageSize=500`);
+      return response.data;
+    },
+    { enabled: false, staleTime: 60 * 60 * 1000,}
   );
-
-
 
 
   const handleChangeEmpresa = (e) => {
