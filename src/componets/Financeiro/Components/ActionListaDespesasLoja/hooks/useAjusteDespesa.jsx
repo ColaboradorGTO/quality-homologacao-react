@@ -86,9 +86,9 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, hand
     }
 
     const postData = {
-      IDDESPESASLOJA: dadosDespesasLojaDetalhe[0]?.IDDESPESASLOJA,
-      IDCATEGORIARECEITADESPESA: despesaSelecionada?.value,
-      VRDESPESA: vrDespesa,
+      IDDESPESASLOJA: parseInt(dadosDespesasLojaDetalhe[0]?.IDDESPESASLOJA),
+      IDCATEGORIARECEITADESPESA: parseInt(despesaSelecionada?.value),
+      VRDESPESA: parseFloat(vrDespesa),
       DSPAGOA: dsPagoA,
       DSHISTORIO: dsHistorio,
       TPNOTA: tpNota?.value,

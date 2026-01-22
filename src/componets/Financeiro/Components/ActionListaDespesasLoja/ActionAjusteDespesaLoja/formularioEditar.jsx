@@ -8,6 +8,7 @@ import { useForm, Controller } from "react-hook-form"
 import FormField from "../../../../Formularios/FormField"
 import { schema } from "./useSchemaDespesa"
 import { AlertError } from "../../../../Inputs/alertError"
+import { formatarMoeda } from "../../../../../utils/formatMoeda"
 
 export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuarioLogado, optionsModulos}) => {
     const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
@@ -231,7 +232,7 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                                         name="valorDespesa"
                                         type="text"
                                         value={vrDespesa}
-                                        onChange={(e) => setVrDespesa(e.target.value)}
+                                        onChange={(e) => setVrDespesa(formatarMoeda(e.target.value))}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
