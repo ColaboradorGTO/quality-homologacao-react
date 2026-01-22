@@ -1,12 +1,16 @@
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
-import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import Select from 'react-select'
 import { useEditarFatura } from "../hooks/useEditarFatura"
+import FormField from "../../../../Formularios/FormField"
+import { schema } from "./useSchemaFatura"
 
 export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, optionsModulos, usuarioLogado }) => {
-  const { register, handleSubmit, errors } = useForm();
+  const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+    mode: "onChange"
+  });
+
   const {
     valorFatura,
     caixa,
@@ -27,6 +31,37 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
     setCaixa
   } = useEditarFatura({ dadosDetalheFaturaCaixa, optionsModulos, handleClose, usuarioLogado });
 
+  const handleValidatedSubmit = async () => {
+    try {
+      const dadosParaValidar = {
+        // historico: dsHistorio,
+       
+      }
+  
+      await schema.validate(dadosParaValidar, { abortEarly: false });
+
+      await onSubmit();
+      await handleClose();
+    } catch (validationError) {
+      clearErrors();
+
+
+      if (validationError.inner && validationError.inner.length > 0) {
+        validationError.inner.forEach(error => {
+          if (error.path) {
+            setError(error.path, {
+              type: 'manual',
+              message: error.message
+            });
+          }
+        });
+      }
+    
+      const errorMessages = validationError.errors || [validationError.message];
+      console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+    }
+  }
+  
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
 
@@ -34,22 +69,42 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
         <div class="row">
 
           <div class="col-sm-6 col-xl-6">
-            <InputFieldModal
-              className="form-control input"
-              readOnly={true}
-              label="Empresa"
-              value={empresaSelecionada}
-            />
 
+            <Controller
+              name="empresa"
+              control={control}
+              render={({ field }) => (
+                <FormField
+                  label={"Empresa"}
+                  name="empresa"
+                  type="text"
+                  value={empresaSelecionada}
+                  onChange={(e) => setEmpresaSelecionada(e.target.value)}
+                  errors={errors}
+                  clearErrors={clearErrors}
+                  readOnly={true}  
+                />
+              )}
+            />
           </div>
           <div class="col-sm-6 col-xl-6">
-            <InputFieldModal
-              className="form-control input"
-              readOnly={true}
-              label="Caixa - Código Autorização da Fatura"
-              value={caixa}
-            />
 
+            <Controller
+              name="caixaAutorizacao"
+              control={control}
+              render={({ field }) => (
+                <FormField
+                  label={"Caixa - Código Autorização da Fatura"}
+                  name="caixaAutorizacao"
+                  type="text"
+                  value={caixa}
+                  onChange={(e) => setCaixa(e.target.value)}
+                  errors={errors}
+                  clearErrors={clearErrors}
+                  readOnly={true}  
+                />
+              )}
+            />
           </div>
         </div>
       </div>
@@ -59,23 +114,40 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
 
           <div class="col-sm-6 col-xl-3">
 
-            <InputFieldModal
-              type="text"
-              className="form-control input"
-
-              label="Código Autorização"
-              value={codAutorizacao}
-              onChangeModal={(e) => setCodAutorizacao(e.target.value)}
+            <Controller
+              name="codigoAutorizacao"
+              control={control}
+              render={({ field }) => (
+                <FormField
+                  label={"Código Autorização"}
+                  name="codigoAutorizacao"
+                  type="text"
+                  value={codAutorizacao}
+                  onChange={(e) => setCodAutorizacao(e.target.value)}
+                  errors={errors}
+                  clearErrors={clearErrors}
+                    
+                />
+              )}
             />
           </div>
           <div class="col-sm-6 col-xl-4">
-            <InputFieldModal
-              type="text"
-              className="form-control input"
 
-              label="Código PIX"
-              value={codPix}
-              onChangeModal={(e) => setCodPix(e.target.value)}
+            <Controller
+              name="codigoPIX"
+              control={control}
+              render={({ field }) => (
+                <FormField
+                  label={"Código PIX"}
+                  name="codigoPIX"
+                  type="text"
+                  value={codPix}
+                  onChange={(e) => setCodPix(e.target.value)}
+                  errors={errors}
+                  clearErrors={clearErrors}
+                    
+                />
+              )}
             />
           </div>
 
@@ -87,7 +159,7 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
               classNamePrefix="select"
               value={stPixSelecionado}
               options={OptionsPIX}
-              setStPixSelecionado={(e) => setStPixSelecionado(e.value)}
+              onChange={(e) => setStPixSelecionado(e.value)}
             />
 
           </div>
@@ -109,14 +181,21 @@ export const FormularioEditarFatura = ({ dadosDetalheFaturaCaixa, handleClose, o
         <div className="row">
 
           <div class="col-sm-6">
-            <InputFieldModal
-              id="VrValorDespesa"
-              type="text"
-              className="form-control input"
-              value={valorFatura}
-              onChangeModal={(e) => setValorFatura(e.target.value)}
-              label="Valor da Fatura"
-              placeholder="R$ 0,00"
+            <Controller
+              name="vrFatura"
+              control={control}
+              render={({ field }) => (
+                <FormField
+                  label={"Valor da Fatura"}
+                  name="vrFatura"
+                  type="text"
+                  value={valorFatura}
+                  onChange={(e) => setValorFatura(e.target.value)}
+                  errors={errors}
+                  clearErrors={clearErrors}
+                    
+                />
+              )}
             />
           </div>
         </div>

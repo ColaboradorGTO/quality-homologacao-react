@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { post, put } from "../../../../../api/funcRequest";
 import axios from 'axios'
-import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 
 export const useEditarFatura = ({ dadosDetalheFaturaCaixa, optionsModulos, handleClose, usuarioLogado }) => {
@@ -120,7 +119,7 @@ export const useEditarFatura = ({ dadosDetalheFaturaCaixa, optionsModulos, handl
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postData)
+            await post('/log-web', postData)
             Swal.fire({
                 position: 'center',
                 icon: 'success',
@@ -133,7 +132,7 @@ export const useEditarFatura = ({ dadosDetalheFaturaCaixa, optionsModulos, handl
             })
 
             handleClose();
-            return responsePost.data;
+            return response.data;
         } catch (error) {
             
             const textDados = JSON.stringify(putData)

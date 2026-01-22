@@ -64,7 +64,7 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
           const errorMessages = validationError.errors || [validationError.message];
           console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
-      }
+    }
 
     return (
         <Fragment>
