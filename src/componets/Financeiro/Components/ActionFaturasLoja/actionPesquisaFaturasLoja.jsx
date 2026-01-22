@@ -24,7 +24,6 @@ export const ActionPesquisaFaturasLoja = ({ usuarioLogado, ID }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [codigoFatura, setCodigoFatura] = useState('')
-  const [currentPage, setCurrentPage] = useState(1)
   const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(true)
   const [selectedItems, setSelectedItems] = useState([]);
 
@@ -149,21 +148,9 @@ export const ActionPesquisaFaturasLoja = ({ usuarioLogado, ID }) => {
   const handleClick = () => {
     setTabelaVisivel(true)
     setIsLoadingPesquisa(true);
-    setCurrentPage(prevPage => prevPage + 1);
     refetchFatura()
-    // if(empresaSelecionada || codigoFatura) {
-
-
-    // } else {
-    //   Swal.fire({
-    //     icon: 'error',
-    //     title: 'Oops...',
-    //     text: 'Selecione uma empresa!',
-    //   });
-    // }
   }
   const handleClickConciliar = () => {
-    setCurrentPage(+1);
     refetchVendaMarcaPeriodo()
     setActionArquivo(true)
     setActionMain(false)
