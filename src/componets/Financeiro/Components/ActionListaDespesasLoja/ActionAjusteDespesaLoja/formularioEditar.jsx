@@ -35,10 +35,8 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
     const handleValidatedSubmit = async () => {
         try {
           const dadosParaValidar = {
-            despesa: despesaSelecionada,
             historico: dsHistorio,
             pagoA: dsPagoA,
-            notaTipo: tpNota,
             valorDespesa: vrDespesa,
 
           }
@@ -61,7 +59,7 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
               }
             });
           }
-          console.log('Erro de validação:', validationError);
+       
           const errorMessages = validationError.errors || [validationError.message];
           console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }

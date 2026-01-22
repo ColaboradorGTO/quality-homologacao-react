@@ -20,10 +20,8 @@ import * as yup from "yup";
  * const dados = await schema.validate({ vrDinheiro: '100,50', vrPix: '50,00', chavePix: 'chave@pix' })
  */
 export const schema = yup.object({
-    despesa: yup.string().required('Despesa é obrigatória'),
     historico: yup.string().required('Histórico é obrigatório'),
     pagoA: yup.string().required('Pago A é obrigatório'),
-    notaTipo: yup.string().required('Tipo de Nota é obrigatório'),
     valorDespesa: yup.string()
     .transform((value) => {
         if(typeof value === 'string') {
@@ -32,4 +30,5 @@ export const schema = yup.object({
         return value;
     })
     .typeError('Valor em Dinheiro inválido')
+    .required('Valor da Despesa é obrigatório'),
 });
