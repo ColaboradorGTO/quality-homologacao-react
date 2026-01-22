@@ -4,10 +4,14 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import Select from "react-select"
 import { useAjusteDespesa } from "../hooks/useAjusteDespesa"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
+import FormField from "../../../../Formularios/FormField"
+import { schema } from "./useSchemaDespesa"
 
 export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuarioLogado, optionsModulos}) => {
-    const { register, handleSubmit, errors } = useForm();
+    const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+        mode: "onChange"
+    });
     const {
         despesaSelecionada,
         dsHistorio,
@@ -18,8 +22,6 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
         isSubmitting,
         horarioAtual,
         onSubmit,
-        handleChangeDespesa,
-        handleChangeTpNota,
         setVrDespesa,
         setDespesaSelecionada,
         setDsHistorio,
@@ -27,7 +29,44 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
         setTpNota,
         Options,
         dadosReceitaDespesa
-    } = useAjusteDespesa({dadosDespesasLojaDetalhe, usuarioLogado, optionsModulos});
+    } = useAjusteDespesa({dadosDespesasLojaDetalhe, usuarioLogado, handleClose, optionsModulos});
+
+    const handleValidatedSubmit = async () => {
+        try {
+          const dadosParaValidar = {
+            despesa: despesaSelecionada,
+            historico: dsHistorio,
+            pagoA: dsPagoA,
+            notaTipo: tpNota,
+            valorDespesa: vrDespesa,
+
+          }
+      
+          await schema.validate(dadosParaValidar, { abortEarly: false });
+    
+          await onSubmit();
+          await handleClose();
+         
+    
+        } catch (validationError) {
+          clearErrors();
+    
+    
+          if (validationError.inner && validationError.inner.length > 0) {
+            validationError.inner.forEach(error => {
+              if (error.path) {
+                setError(error.path, {
+                  type: 'manual',
+                  message: error.message
+                });
+              }
+            });
+          }
+          console.log('Erro de validação:', validationError);
+          const errorMessages = validationError.errors || [validationError.message];
+          console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+        }
+      }
 
     return (
         <Fragment>
@@ -50,34 +89,55 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                 </div>
                 <div class="form-group">
                     <div class="row">
-
-
                         <div class="col-sm-6 col-xl-3">
-
-                            <InputFieldModal
-                                type="datetime"
-                                className="form-control input"
-                                readOnly={true}
-                                label="Data Despesa"
-                                value={usuarioLogado?.DATA_HORA_SESSAO}
+                            <Controller
+                                name="date"
+                                control={control}
+                                render={({ field }) => (
+                                <FormField
+                                    label={"Data Despesa"}
+                                    name="date"
+                                    type="datetime"
+                                    value={usuarioLogado?.DATA_HORA_SESSAO}
+                                    // onChange={(e) => setValorDinheiro(formatarMoeda(e.target.value))}
+                                    errors={errors}
+                                    clearErrors={clearErrors}
+                                    readOnly={true}
+                                />
+                                )}
                             />
                         </div>
 
                         <div class="col-sm-6 col-xl-3">
-                            <InputFieldModal
-                                type="datetime"
-                                className="form-control input"
-                                readOnly={true}
-                                label="Hora Despesa"
-                                value={horarioAtual}
+                 
+                            <Controller
+                                name="time"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Hora Despesa"}
+                                        name="time"
+                                        type="datetime"
+                                        value={horarioAtual }
+                                        // onChange={(e) => setValorDinheiro(formatarMoeda(e.target.value))}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                        readOnly={true}
+                                    />
+                                )}
                             />
                         </div>
+                    </div>
+                </div>
 
+                <div className="form-grou">
+                    <div className="row">
                         <div class="col-sm-6 col-xl-6">
                             <label htmlFor="">Despesa</label>
 
                             <Select
                                 label={"Despesa"}
+                                name={"despesa"}
                                 options={dadosReceitaDespesa.map((item) => {
                                     return {
                                         value: item.IDCATEGORIARECDESP,
@@ -93,39 +153,50 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                                         .find(option => option.value === despesaSelecionada?.value)
                                 }
                                 onChange={option => setDespesaSelecionada(option)}
-
                             />
+                           
                         </div>
-
                     </div>
                 </div>
 
-                <div class="form-group">
+                <div class="form-group mt-3">
                     <div class="row">
 
                         <div class="col-sm-6 col-xl-6">
-                            <InputFieldModal
-                                type="text"
-                                className="form-control input"
-                                readOnly={false}
-                                value={dsHistorio}
-                                onChangeModal={(e) => setDsHistorio(e.target.value)}
-                                label="Histórico"
+                            <Controller
+                                name="historico"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Histórico"}
+                                        name="historico"
+                                        type="text"
+                                        value={dsHistorio}
+                                        onChange={(e) => setDsHistorio(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                        
+                                    />
+                                )}
                             />
-
                         </div>
 
                         <div class="col-sm-6 col-xl-6">
-                            <InputFieldModal
-                                id="TXTMotivo"
-                                type="text"
-                                className="form-control input"
-                                readOnly={false}
-                                value={dsPagoA}
-                                onChangeModal={(e) => setDsPagoA(e.target.value)}
-                                label="Pago á"
+                            <Controller
+                                name="pagoA"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Pago á"}
+                                        name="pagoA"
+                                        type="text"
+                                        value={dsPagoA}
+                                        onChange={(e) => setDsPagoA(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
                             />
-
                         </div>
                     </div>
                 </div>
@@ -136,24 +207,30 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                             <Select
                                 className="basic-single"
                                 classNamePrefix="select"
-                                options={Options.map((item) => {
-                                    return { value: item.value, label: item.label }
-                                })}
-                                value={Options.find(option => option.value === tpNota?.value)}
-                                onChange={(e) => setTpNota(e.value)}
-                                name="color"
+                                options={Options}
+                                value={tpNota}
+                                onChange={(e) => setTpNota(e)}
+                                name="notaTipo"
                             />
-
                         </div>
-                        <InputFieldModal
-                            id="vrValorDesconto"
-                            type="text"
-                            className="form-control input"
-                            value={vrDespesa}
-                            onChangeModal={(e) => setVrDespesa(e.target.value)}
-                            label="Valor Despesa"
-                            placeholder="R$ 0,00"
-                        />
+                        <div class="col-sm-6 col-xl-4">
+                            <Controller
+                                name="despesa"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Valor Despesa"}
+                                        name="despesa"
+                                        type="text"
+                                        value={vrDespesa}
+                                        onChange={(e) => setVrDespesa(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            />
+                        </div>
+                   
                     </div>
                 </div>
 

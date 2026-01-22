@@ -3,8 +3,10 @@ import { useQuery } from "react-query";
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import { get, post, put } from "../../../../../api/funcRequest";
+import { getDataAtual } from "../../../../../utils/dataAtual";
 
-export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado,  optionsModulos, }) => {
+export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, handleClose, optionsModulos, }) => {
+  const [dataDespesa, setDataDespesa] = useState('');
   const [horarioAtual, setHorarioAtual] = useState('');
   const [despesaSelecionada, setDespesaSelecionada] = useState(null);
   const [dsHistorio, setDsHistorio] = useState('');
@@ -52,6 +54,8 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado,  opt
     const currentDate = new Date();
     const formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     setHorarioAtual(formattedTime);
+    const dataAtual = getDataAtual();
+    setDataDespesa(dataAtual);
   }, []);
 
   useEffect(() => {
@@ -59,18 +63,20 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado,  opt
       setDespesaSelecionada({ value: dadosDespesasLojaDetalhe[0]?.IDCATEGORIARECEITADESPESA, label: `${dadosDespesasLojaDetalhe[0]?.DSCATEGORIARECDESP} `});
       setDsHistorio(dadosDespesasLojaDetalhe[0]?.DSHISTORICO);
       setDsPagoA(dadosDespesasLojaDetalhe[0]?.DSPAGOA);
-      setTpNota({ value: dadosDespesasLojaDetalhe[0]?.TPNOTA, label: dadosDespesasLojaDetalhe[0]?.TPNOTA == 'NFCe' ? 'NFCe' : 'NFe' });
+    
+      const tpNotaMapeado = dadosDespesasLojaDetalhe[0]?.TPNOTA == '2' ? 'NFCe' : 'NFe';
+      setTpNota({ value: tpNotaMapeado, label: tpNotaMapeado });
       setNuNotaFiscal(dadosDespesasLojaDetalhe[0]?.NUNOTAFISCAL);
       setVrDespesa(dadosDespesasLojaDetalhe[0]?.VRDESPESA);
     }
   }, [dadosDespesasLojaDetalhe]);
 
-  const onSubmit = async (data) => {
-    if (dsHistorio === '') {
+  const onSubmit = async () => {
+    if(optionsModulos[0]?.ALTERAR == 'False') {
       Swal.fire({
-        title: 'Erro',
-        text: 'Informe o Motivo para o Ajuste da Despesa.',
-        icon: 'error',
+        title: 'Atenção',
+        text: 'Você não tem permissão para Editar Despesas.',
+        icon: 'warning',
         timer: 3000,
         customClass: {
           container: 'custom-swal',
@@ -78,37 +84,36 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado,  opt
       });
       return;
     }
-    if (dsPagoA === '') {
-      Swal.fire({
-        title: 'Erro',
-        text: 'Informe Para quem foi pago a Despesa.',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      });
-      return;
-    }
-
-    setIsSubmitting(true);
 
     const postData = {
-
+      IDDESPESASLOJA: dadosDespesasLojaDetalhe[0]?.IDDESPESASLOJA,
       IDCATEGORIARECEITADESPESA: despesaSelecionada?.value,
       VRDESPESA: vrDespesa,
       DSPAGOA: dsPagoA,
       DSHISTORIO: dsHistorio,
       TPNOTA: tpNota?.value,
       NUNOTAFISCAL: nuNotaFiscal,
-      IDUSRCACELAMENTO: usuarioLogado.id,
-      DSMOTIVOCANCELAMENTO: ' Despesa Editada',
-      IDDESPESASLOJA: dadosDespesasLojaDetalhe[0]?.IDDESPESASLOJA,
-
+      IDUSRCACELAMENTO: parseInt(usuarioLogado.id),
+      DSMOTIVOCANCELAMENTO: 'Despesa Editada',
+      DTDESPESA: dataDespesa + ' ' + horarioAtual,
     }
 
     try {
+      
       const response = await put('/editar-despesa/:id', postData)
+      const textDados = JSON.stringify(postData)
+      let textoFuncao = 'FINANCEIRO/EDIÇÃO DE DESPESA';
+      const ipUsuario = await getIPUsuario();
+      
+      const createData = {
+        IDFUNCIONARIO: String(usuarioLogado.id),
+        PATHFUNCAO: textoFuncao,
+        DADOS: textDados,
+        IP: ipUsuario
+      }
+      
+      await post('/log-web', createData)
+      
       Swal.fire({
         title: 'Sucesso',
         text: 'Despesa alterada com Sucesso',
@@ -119,23 +124,21 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado,  opt
         }
       })
 
-
+      handleClose();
+      return response.data;
+    } catch (error) {
       const textDados = JSON.stringify(postData)
-      let textoFuncao = 'FINANCEIRO/ATUALIZAÇÃO DE DESPESA';
+      let textoFuncao = 'FINANCEIRO/EDIÇÃO DE DESPESA';
       const ipUsuario = await getIPUsuario();
-
+      
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
       }
-
-      const responsePost = await post('/log-web', createData)
-
-      handleClose();
-      return responsePost.data;
-    } catch (error) {
+      
+      const response = await post('/log-web', createData)
       Swal.fire({
         title: 'Erro',
         text: 'Erro ao Tentar Editar Despesa',
@@ -145,10 +148,8 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado,  opt
           container: 'custom-swal',
         }
       })
-
-    } finally {
-      setIsSubmitting(false);
-    }
+      return response.data;
+    } 
   }
 
   const handleChangeDespesa = (selectedOption) => {
