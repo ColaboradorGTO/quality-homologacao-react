@@ -242,9 +242,21 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
     try {
       const response = await get(`/despesa-Loja-todos?idDespesas=${IDDESPESASLOJA}`);
 
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosDespesasLojaDetalhe(response.data)
-        setModalDespesasVisivel(true);
+        setModalDespesasVisivel(true); 
+      } else {
+        Swal.fire({
+          position: 'center',
+          icon: 'error',
+          title: 'Erro!',
+          text: 'Detalhes da despesa não encontrados.',
+          showConfirmButton: false,
+          timer: 1500,
+          customClass: {
+            container: 'custom-swal',
+          }
+        })
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes da despesa: ', error);
