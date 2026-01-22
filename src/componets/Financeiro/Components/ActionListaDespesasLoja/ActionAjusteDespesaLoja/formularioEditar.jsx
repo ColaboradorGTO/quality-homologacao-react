@@ -7,6 +7,7 @@ import { useAjusteDespesa } from "../hooks/useAjusteDespesa"
 import { useForm, Controller } from "react-hook-form"
 import FormField from "../../../../Formularios/FormField"
 import { schema } from "./useSchemaDespesa"
+import { AlertError } from "../../../../Inputs/alertError"
 
 export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuarioLogado, optionsModulos}) => {
     const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
@@ -97,7 +98,6 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                                     name="date"
                                     type="datetime"
                                     value={usuarioLogado?.DATA_HORA_SESSAO}
-                                    // onChange={(e) => setValorDinheiro(formatarMoeda(e.target.value))}
                                     errors={errors}
                                     clearErrors={clearErrors}
                                     readOnly={true}
@@ -116,8 +116,7 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                                         label={"Hora Despesa"}
                                         name="time"
                                         type="datetime"
-                                        value={horarioAtual }
-                                        // onChange={(e) => setValorDinheiro(formatarMoeda(e.target.value))}
+                                        value={horarioAtual}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         readOnly={true}
@@ -152,7 +151,13 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                                 }
                                 onChange={option => setDespesaSelecionada(option)}
                             />
-                           
+                           {errors.despesaSelecionada && (
+                                <AlertError
+                                    error={errors.despesaSelecionada}
+                                    onClose={clearErrors}
+                                    fieldName="despesaSelecionada"
+                                />
+                            )}
                         </div>
                     </div>
                 </div>
@@ -210,15 +215,22 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                                 onChange={(e) => setTpNota(e)}
                                 name="notaTipo"
                             />
+                            {errors.tpNota && (
+                                <AlertError
+                                    error={errors.tpNota}
+                                    onClose={clearErrors}
+                                    fieldName="tpNota"
+                                />
+                            )}
                         </div>
                         <div class="col-sm-6 col-xl-4">
                             <Controller
-                                name="despesa"
+                                name="valorDespesa"
                                 control={control}
                                 render={({ field }) => (
                                     <FormField
                                         label={"Valor Despesa"}
-                                        name="despesa"
+                                        name="valorDespesa"
                                         type="text"
                                         value={vrDespesa}
                                         onChange={(e) => setVrDespesa(e.target.value)}
@@ -233,8 +245,6 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                 </div>
 
                 <FooterModal
-
-
                     ButtonTypeFechar={ButtonTypeModal}
                     onClickButtonFechar={handleClose}
                     textButtonFechar={"Fechar"}
@@ -247,7 +257,6 @@ export const FormularioEditar = ({dadosDespesasLojaDetalhe, handleClose, usuario
                     disabled={isSubmitting}
                 />
             </form>
-
 
         </Fragment>
     )
