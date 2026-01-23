@@ -197,21 +197,19 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
       setTabelaVisivelPositiva(true);
       setTabelaVisivelNegativa(false);
       setTabelaVisivel(false);
-      setCurrentPage(prevPage => prevPage + 1);
+      
       await refetchQuebraPositiva();
     } else if (quebraSelecionada === "Negativa") {
       setTabelaVisivelNegativa(true);
       setTabelaVisivelPositiva(false);
       setTabelaVisivel(false);
       
-      setCurrentPage(prevPage => prevPage + 1);
       await refetchQuebraNegativa();
     } else {
       setTabelaVisivel(true);
       setTabelaVisivelNegativa(false);
       setTabelaVisivelPositiva(false);
       
-      setCurrentPage(prevPage => prevPage + 1);
       await refetchQuebra();
     }
   };
@@ -375,6 +373,8 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
           dadosQuebraDeCaixa={dadosQuebraDeCaixa} 
           optionsModulos={optionsModulos}
           usuarioLogado={usuarioLogado}   
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
         />
       )}
 
@@ -386,6 +386,8 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
             dadosQuebraDeCaixaNegativa={dadosQuebraDeCaixaNegativa} 
             optionsModulos={optionsModulos}
             usuarioLogado={usuarioLogado}   
+            selectedItems={selectedItems}
+            setSelectedItems={setSelectedItems}
           />
         )}
       </div>
@@ -396,7 +398,8 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
             dadosQuebraDeCaixaPositiva={dadosQuebraDeCaixaPositiva} 
             optionsModulos={optionsModulos}
             usuarioLogado={usuarioLogado}              
-
+            selectedItems={selectedItems}
+            setSelectedItems={setSelectedItems}
           />
         )}
       </div>

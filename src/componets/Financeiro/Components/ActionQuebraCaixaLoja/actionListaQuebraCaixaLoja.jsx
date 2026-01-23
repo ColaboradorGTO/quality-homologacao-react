@@ -2,6 +2,7 @@ import { Fragment, useRef, useState } from "react"
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { Checkbox } from "primereact/checkbox";
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { MdOutlineLocalPrintshop } from "react-icons/md";
 import { FaCheck, FaRegTrashAlt } from "react-icons/fa";
@@ -14,9 +15,17 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 import Swal from "sweetalert2";
+import { ColumnGroup } from "primereact/columngroup";
+import { Row } from "primereact/row";
 
 
-export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, optionsModulos }) => {
+export const ActionListaQuebraCaixaLoja = ({ 
+  dadosQuebraDeCaixa, 
+  usuarioLogado, 
+  optionsModulos,
+  selectedItems,
+  setSelectedItems 
+}) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dadosQuebraCaixasModal, setDadosQuebraCaixasModal] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -25,7 +34,7 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
   const {
     handleCancelar
   } = useAtivarCancelar({ usuarioLogado, optionsModulos });
- 
+
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
@@ -70,8 +79,8 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
       { wpx: 150, caption: 'Vr. Quebra Lançado' },
       { wpx: 200, caption: 'Historíco' },
       { wpx: 50, caption: 'Situação' }
-      
-    ]; 
+
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista Quebra de Caixas');
@@ -88,20 +97,67 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
       IDMOVIMENTOCAIXA: item.IDMOVIMENTOCAIXA,
       IDFUNCIONARIO: item.IDFUNCIONARIO,
       NOMEOPERADOR: item.NOMEOPERADOR,
-      CPFOPERADOR:  item.CPFOPERADOR,
+      CPFOPERADOR: item.CPFOPERADOR,
       VRQUEBRASISTEMA: item.VRQUEBRASISTEMA,
       VRQUEBRAEFETIVADO: item.VRQUEBRAEFETIVADO,
       TXTHISTORICO: item.TXTHISTORICO,
-      STATIVO: item.STATIVO
-
+      STATIVO: item.STATIVO,
+      STCONFERIDO: item.STCONFERIDO
     }
   });
 
+  const calcularTotalVrQuebraSistema = () => {
+    return dados.reduce((total, item) => 
+      total + parseFloat(item.VRQUEBRASISTEMA), 0
+    );
+  };
+
+  const calcularTotalVrQuebraEfetivado = () => {
+    return dados.reduce((total, item) => 
+      total + parseFloat(item.VRQUEBRAEFETIVADO), 0
+    );
+  };
+
   const colunasQuebraDeCaixa = [
     {
-      field: 'contador',
-      header: 'Nº',
-      body: row => <th style={{ color: 'blue' }}>{row.contador}</th>,
+      field: 'Selecione',
+      selectionMode: 'multiple',
+      body: (rowData) => {
+        // ========== VARIÁVEIS DE CONTROLE ==========
+        const stAtivo = rowData.STATIVO === 'True';
+        const stConferido = rowData.STCONFERIDOFATURA === 'True';
+
+        // ========== Só mostra checkbox se ATIVA e NÃO CONFERIDA ==========
+        if (!stAtivo || stConferido) {
+          return <td></td>;
+        }
+
+        return (
+          <td>
+            <div className="custom-control custom-checkbox">
+              <Checkbox
+                inputId={`chk-${rowData.IDDETALHEFATURA}`}
+                checked={selectedItems.some(
+                  item => item.IDDETALHEFATURA === rowData.IDDETALHEFATURA
+                )}
+                onChange={(e) => {
+                  let _selectedItems = [...selectedItems];
+
+                  if (e.checked) {
+                    _selectedItems.push(rowData);
+                  } else {
+                    _selectedItems = _selectedItems.filter(
+                      item => item.IDDETALHEFATURA !== rowData.IDDETALHEFATURA
+                    );
+                  }
+
+                  setSelectedItems(_selectedItems);
+                }}
+              />
+            </div>
+          </td>
+        );
+      },
       sortable: true,
     },
     {
@@ -125,7 +181,7 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
     {
       field: 'IDMOVIMENTOCAIXA',
       header: 'Nº Movimento',
-      body: row => <p style={{ color: 'blue',width: '150px', margin: '0px', fontWeight: 600  }}>{row.IDMOVIMENTOCAIXA}</p>,
+      body: row => <p style={{ color: 'blue', width: '150px', margin: '0px', fontWeight: 600 }}>{row.IDMOVIMENTOCAIXA}</p>,
       sortable: true,
 
     },
@@ -139,7 +195,7 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
     {
       field: 'NOMEOPERADOR',
       header: 'Colaborador',
-      body: row => <p style={{ color: 'blue', width: '200px', margin: '0px', fontWeight: 600  }}>{row.NOMEOPERADOR}</p>,
+      body: row => <p style={{ color: 'blue', width: '200px', margin: '0px', fontWeight: 600 }}>{row.NOMEOPERADOR}</p>,
       sortable: true,
 
     },
@@ -178,13 +234,38 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
     {
       field: 'TXTHISTORICO',
       header: 'Histórico',
-      body: row => <th style={{ color: 'blue' }}>{row.TXTHISTORICO}</th>,
+      body: row => <th style={{ color: 'blue', textTransform: 'uppercase' }}>{row.TXTHISTORICO}</th>,
       sortable: true,
     },
     {
       field: 'STATIVO',
       header: 'Situação',
-      body: (row) => <th style={{ color: row.STATIVO ? 'blue' : 'red' }}>{row.STATIVO ? "Ativo" : "Inativo"}</th>,
+      body: (row) => {
+        // ========== LÓGICA IDÊNTICA AO JQUERY ==========
+        const situacaoQuebraLoja = row.STATIVO == 'True';
+        const situacaoConferido = row.STCONFERIDO == 'True';
+        let tagQuebraAtivo = null;
+
+        if (situacaoQuebraLoja) {
+          let txt = 'ATIVO / ';
+
+          if (situacaoConferido) {
+            txt += 'CONFERIDO';
+          } else {
+            txt = (
+              <>
+                ATIVO / <span style={{ color: 'red' }}>NÃO CONFERIDO</span>
+              </>
+            );
+          }
+
+          tagQuebraAtivo = <span style={{ color: 'blue' }}>{txt}</span>;
+        } else {
+          tagQuebraAtivo = <span style={{ color: 'red' }}>CANCELADO</span>;
+        }
+
+        return <th>{tagQuebraAtivo}</th>;
+      },
       sortable: true,
     },
 
@@ -192,25 +273,16 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
       field: 'IDQUEBRACAIXA',
       header: 'Opções',
       body: (row) => {
-        if (row.STATIVO == 'True') {
-          return (
+        // ========== LÓGICA IDÊNTICA AO JQUERY ==========
+        const situacaoQuebraLoja = row.STATIVO == 'True';
+        const situacaoConferido = row.STCONFERIDO == 'True';
+        let containerButtons = null;
 
-            <div className="d-flex "
-              style={{ justifyContent: "space-between" }}
-            >
+        if (situacaoQuebraLoja) {
+          if (situacaoConferido) {
+            // CONFERIDO: mostrar apenas Imprimir
+            containerButtons = (
               <div className="mr-2">
-                <ButtonTable
-                  titleButton={"Cancelar Quebra"}
-                  cor={"danger"}
-                  Icon={FaRegTrashAlt}
-                  iconSize={20}
-                  width="30px"
-                  height="30px"
-                  onClickButton={() => handleClickCancelar(row, false)}
-                />
-
-              </div>
-              <div>
                 <ButtonTable
                   titleButton={"Imprimir Quebra"}
                   cor={"primary"}
@@ -220,14 +292,51 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
                   height="30px"
                   onClickButton={() => handleClickImprimir(row)}
                 />
-
               </div>
-
-            </div>
-          )
+            );
+          } else {
+            // NÃO CONFERIDO: mostrar Cancelar + Imprimir + Conferir
+            containerButtons = (
+              <div className="d-flex" style={{ justifyContent: "space-between" }}>
+                <div className="mr-2">
+                  <ButtonTable
+                    titleButton={"Cancelar Quebra"}
+                    cor={"danger"}
+                    Icon={FaRegTrashAlt}
+                    iconSize={20}
+                    width="30px"
+                    height="30px"
+                    onClickButton={() => handleClickCancelar(row, false)}
+                  />
+                </div>
+                <div className="mr-2">
+                  <ButtonTable
+                    titleButton={"Imprimir Quebra"}
+                    cor={"primary"}
+                    Icon={MdOutlineLocalPrintshop}
+                    iconSize={20}
+                    width="30px"
+                    height="30px"
+                    onClickButton={() => handleClickImprimir(row)}
+                  />
+                </div>
+                <div>
+                  <ButtonTable
+                    titleButton={"Conferir Quebra"}
+                    cor={"success"}
+                    Icon={FaCheck}
+                    iconSize={20}
+                    width="30px"
+                    height="30px"
+                    onClickButton={() => handleClickConferir(row)}
+                  />
+                </div>
+              </div>
+            );
+          }
         } else {
-          return (
-
+          // CANCELADO: mostrar apenas Ativar
+          containerButtons = (
             <div>
               <ButtonTable
                 titleButton={"Ativar Quebra"}
@@ -238,12 +347,12 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
                 width="30px"
                 height="30px"
               />
-
             </div>
-          )
+          );
         }
-      }
 
+        return <td>{containerButtons}</td>;
+      },
     },
   ]
 
@@ -266,10 +375,10 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
   };
 
   const handleClickCancelar = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDQUEBRACAIXA) {
         handleCancelar(row.IDQUEBRACAIXA, row.STATIVO);
-        
+
       }
     } else {
       Swal.fire({
@@ -285,65 +394,104 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, usuarioLogado, 
       })
     }
   };
-  
+
+  const handleClickConferir = (row) => {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
+      if (row && row.IDQUEBRACAIXA) {
+        // TODO: implementar lógica de conferir quebra de caixa
+        console.log('Conferir Quebra de Caixa:', row.IDQUEBRACAIXA);
+      }
+    } else {
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        title: 'Acesso Negado!',
+        text: 'Você não tem permissão para conferir esta quebra.',
+        showConfirmButton: false,
+        timer: 1500,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+    }
+  };
+
+  const footerGroup = (
+    <ColumnGroup>
+      <Row>
+        <Column footer="" colSpan={4} />
+        <Column footer="Totais" colSpan={4} />
+        <Column 
+          footer={formatMoeda(calcularTotalVrQuebraSistema())} 
+          style={{ color: calcularTotalVrQuebraSistema() >= 0 ? 'blue' : 'red' }}
+        /> 
+        <Column 
+          footer={formatMoeda(calcularTotalVrQuebraEfetivado())}
+          style={{ color: calcularTotalVrQuebraEfetivado() >= 0 ? 'blue' : 'red' }}
+        /> 
+        <Column footer="" colSpan={3} />
+      </Row>
+    </ColumnGroup>
+  );
   return (
 
     <Fragment>
-  
-        <div className="panel">
-          <div className="panel-hdr">
-            <h4>Lista de Quebras de Caixa</h4>
-          </div>
-          <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-            <HeaderTable
-              globalFilterValue={globalFilterValue}
-              onGlobalFilterChange={onGlobalFilterChange}
-              handlePrint={handlePrint}
-              exportToExcel={exportToExcel}
-              exportToPDF={exportToPDF}
-            />
-          </div>
-          <div className="card" ref={dataTableRef}>
-      
-            <DataTable
-              title="Quebra de Caixa das Lojas"
-            
-              value={dados}
-              globalFilter={globalFilterValue}
-              size="small"
-              selectionMode="single"
-              selection={rowSelection}
-              onSelectionChange={(e) => setRowSelection(e.value)}
-              sortOrder={-1}
-              paginator={true}
-              rows={10}
-              rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
-              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-              currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
-              filterDisplay="menu"
-              showGridlines
-              stripedRows
-              emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado negativa</div>}
-            >
-              {colunasQuebraDeCaixa.map(coluna => (
-                <Column
-                  key={coluna.field}
-                  field={coluna.field}
-                  header={coluna.header}
 
-                  body={coluna.body}
-                  footer={coluna.footer}
-                  sortable={coluna.sortable}
-                  headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-                  footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                  bodyStyle={{ fontSize: '0.8rem' }}
-
-                />
-              ))}
-            </DataTable>
-          </div>
+      <div className="panel">
+        <div className="panel-hdr">
+          <h4>Lista de Quebras de Caixa</h4>
         </div>
-      
+        <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+          <HeaderTable
+            globalFilterValue={globalFilterValue}
+            onGlobalFilterChange={onGlobalFilterChange}
+            handlePrint={handlePrint}
+            exportToExcel={exportToExcel}
+            exportToPDF={exportToPDF}
+          />
+        </div>
+        <div className="card" ref={dataTableRef}>
+
+          <DataTable
+            title="Quebra de Caixa das Lojas"
+
+            value={dados}
+            globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            sortOrder={-1}
+            footerColumnGroup={footerGroup}
+            paginator={true}
+            rows={10}
+            rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
+            showGridlines
+            stripedRows
+            emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado negativa</div>}
+          >
+            {colunasQuebraDeCaixa.map(coluna => (
+              <Column
+                key={coluna.field}
+                field={coluna.field}
+                header={coluna.header}
+
+                body={coluna.body}
+                footer={coluna.footer}
+                sortable={coluna.sortable}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '0.8rem' }}
+
+              />
+            ))}
+          </DataTable>
+        </div>
+      </div>
+
 
       <ModalImprimirQuebra
         show={modalVisivel}
