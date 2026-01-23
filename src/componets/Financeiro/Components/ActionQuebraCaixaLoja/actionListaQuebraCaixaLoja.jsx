@@ -17,6 +17,7 @@ import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 import Swal from "sweetalert2";
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
+import { useEffect } from "react";
 
 
 export const ActionListaQuebraCaixaLoja = ({ 
@@ -30,6 +31,10 @@ export const ActionListaQuebraCaixaLoja = ({
   const [dadosQuebraCaixasModal, setDadosQuebraCaixasModal] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
+  const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [btnVisivel, setBtnVisivel] = useState(false);
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(10);
   const dataTableRef = useRef();
   const {
     handleCancelar
@@ -118,6 +123,73 @@ export const ActionListaQuebraCaixaLoja = ({
     );
   };
 
+  useEffect(() => {
+    const itensSelecionaveis = dados.filter(item =>
+      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+    );
+
+    const dadosPaginaAtual = dados.slice(first, first + rows);
+    const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
+      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+    );
+
+    if (selectedItems.length === 0) {
+      setSelectAllChecked(false);
+    } else if (
+      selectedItems.length === itensSelecionaveis.length ||
+      (selectedItems.length === itensSelecionaveisPaginaAtual.length &&
+        itensSelecionaveisPaginaAtual.length > 0 &&
+        itensSelecionaveisPaginaAtual.every(item =>
+          selectedItems.some(selected => selected.IDQUEBRACAIXA === item.IDQUEBRACAIXA)
+        ))
+    ) {
+      setSelectAllChecked(true);
+    } else {
+      setSelectAllChecked(false);
+    }
+    
+  }, [selectedItems, dados, first, rows]);
+
+  const onSelectAllChange = (e) => {
+    if (e.checked) {
+     
+      Swal.fire({
+        icon: 'question',
+        title: 'Selecione o modo de seleção',
+        text: 'Deseja selecionar todos da tabela ou somente o que está em tela?',
+        showConfirmButton: true,
+        showCancelButton: true,
+        showCloseButton: true,
+        confirmButtonText: 'Todos os registros',
+        cancelButtonText: 'Apenas o que está tela',
+        cancelButtonColor: '#2196F3',
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const itensSelecionaveis = dados.filter(item =>
+            item.STATIVO  === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+          );
+          setBtnVisivel(true);
+          setSelectedItems([...itensSelecionaveis]);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          const dadosPaginaAtual = dados.slice(first, first + rows);
+
+          const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
+            item.STATIVO  === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+          );
+          setBtnVisivel(true);
+          setSelectedItems([...itensSelecionaveisPaginaAtual]);
+        } else {
+          setBtnVisivel(false);
+          setSelectedItems([]);
+        }
+      });
+    } else {
+      setBtnVisivel(false);
+      setSelectedItems([]);
+    }
+  };
+
   const colunasQuebraDeCaixa = [
     {
       field: 'Selecione',
@@ -125,7 +197,7 @@ export const ActionListaQuebraCaixaLoja = ({
       body: (rowData) => {
         // ========== VARIÁVEIS DE CONTROLE ==========
         const stAtivo = rowData.STATIVO === 'True';
-        const stConferido = rowData.STCONFERIDOFATURA === 'True';
+        const stConferido = rowData.STCONFERIDO === 'True';
 
         // ========== Só mostra checkbox se ATIVA e NÃO CONFERIDA ==========
         if (!stAtivo || stConferido) {
@@ -136,9 +208,9 @@ export const ActionListaQuebraCaixaLoja = ({
           <td>
             <div className="custom-control custom-checkbox">
               <Checkbox
-                inputId={`chk-${rowData.IDDETALHEFATURA}`}
+                inputId={`chk-${rowData.IDQUEBRACAIXA}`}
                 checked={selectedItems.some(
-                  item => item.IDDETALHEFATURA === rowData.IDDETALHEFATURA
+                  item => item.IDQUEBRACAIXA === rowData.IDQUEBRACAIXA
                 )}
                 onChange={(e) => {
                   let _selectedItems = [...selectedItems];
@@ -147,7 +219,7 @@ export const ActionListaQuebraCaixaLoja = ({
                     _selectedItems.push(rowData);
                   } else {
                     _selectedItems = _selectedItems.filter(
-                      item => item.IDDETALHEFATURA !== rowData.IDDETALHEFATURA
+                      item => item.IDQUEBRACAIXA !== rowData.IDQUEBRACAIXA
                     );
                   }
 
@@ -362,6 +434,19 @@ export const ActionListaQuebraCaixaLoja = ({
       if (response.data && response.data.length > 0) {
         setDadosQuebraCaixasModal(response.data);
         setModalVisivel(true);
+      } else {
+        Swal.fire({
+          position: 'center',
+          icon: 'error',
+          title: 'Erro ao buscar dados!',
+          text: 'Nenhum dado encontrado para esta quebra de caixa.',
+          showConfirmButton: false,
+          timer: 1500,
+          customClass: {
+            container: 'custom-swal',
+          }
+        })
+        return;
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes da venda: ', error);
@@ -420,19 +505,21 @@ export const ActionListaQuebraCaixaLoja = ({
     <ColumnGroup>
       <Row>
         <Column footer="" colSpan={4} />
-        <Column footer="Totais" colSpan={4} />
+        <Column footer="Totais" colSpan={4} style={{fontSize: '1rem', fontWeight: 'bold' }}/>
         <Column 
           footer={formatMoeda(calcularTotalVrQuebraSistema())} 
-          style={{ color: calcularTotalVrQuebraSistema() >= 0 ? 'blue' : 'red' }}
+          style={{ color: calcularTotalVrQuebraSistema() >= 0 ? 'blue' : 'red', fontSize: '0.8rem' }}
         /> 
         <Column 
           footer={formatMoeda(calcularTotalVrQuebraEfetivado())}
-          style={{ color: calcularTotalVrQuebraEfetivado() >= 0 ? 'blue' : 'red' }}
+          style={{ color: calcularTotalVrQuebraEfetivado() >= 0 ? 'blue' : 'red', fontSize: '0.8rem' }}
         /> 
         <Column footer="" colSpan={3} />
       </Row>
     </ColumnGroup>
   );
+
+
   return (
 
     <Fragment>
@@ -450,6 +537,21 @@ export const ActionListaQuebraCaixaLoja = ({
             exportToPDF={exportToPDF}
           />
         </div>
+        
+        <div style={{ width: "100%", display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+
+          <div className="custom-control custom-checkbox">
+            <Checkbox
+              checked={selectAllChecked}
+              onChange={onSelectAllChange}
+            />
+            <span>
+              {selectAllChecked ? "Desmarcar Todos" : "Marcar Todos"}
+            </span>
+          </div>
+
+        </div>
+
         <div className="card" ref={dataTableRef}>
 
           <DataTable
