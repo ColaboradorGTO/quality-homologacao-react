@@ -10,7 +10,8 @@ export const ActionCancelarFaturaModal = ({
   dadosCancelarFatura, 
   usuarioLogado, 
   optionsModulos,
-  handleClick 
+  handleClick,
+  refetchListaFaturas
 }) => {
 
   return (
@@ -38,6 +39,7 @@ export const ActionCancelarFaturaModal = ({
             optionsModulos={optionsModulos}
             handleClick={handleClick}
             handleClose={handleClose}
+            refetchListaFaturas={refetchListaFaturas}
           />
         </Modal.Body>
 

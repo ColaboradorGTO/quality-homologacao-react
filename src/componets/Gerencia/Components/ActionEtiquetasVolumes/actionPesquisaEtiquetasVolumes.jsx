@@ -9,7 +9,6 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { ActionImprimirEtiquetaModal } from "./actionImprimirEtiquetaModal"
 import { useEffect } from "react"
 
-
 export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
   const [tipoSelecionado, setTipoSelecionado] = useState('DEVOLUÇÃO');
   const [numeroOR, setNumeroOR] = useState(0);
@@ -21,6 +20,7 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
   const [quantidade, setQuantidade] = useState(0);
   const [modalImprimir, setModalImprimir] = useState(false);
   const [dadosAcumuladorEtiquetas, setDadosAcumuladorEtiquetas] = useState([]);
+  const [teste, setTeste] = useState(0);
 
   const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch } = useQuery(
     'empresas',
@@ -42,12 +42,11 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
       empresaOrigem: usuarioLogado?.NOFANTASIA,
       empresaDestinoSelecionada: empresaDestinoSelecionada,
       solicitanteSelecionado,
-      quantidade: quantidade || 1
+      quantidade: quantidade
     }];
     setDadosAcumuladorEtiquetas(dados);
     setModalImprimir(true);
   }
-
 
   const options = [
     { value: 'DEVOLUÇÃO', label: 'DEVOLUÇÃO' },
@@ -60,7 +59,7 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
     { value: 'Compras', label: 'Compras' },
     { value: 'Diretoria', label: 'Diretoria' },
   ]
-  
+
   useEffect(() => {
     if (tipoSelecionado === 'DEVOLUÇÃO') {
       setSolicitanteSelecionado('');
@@ -88,7 +87,7 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
         valueSelectEmpresa={tipoSelecionado}
         defaultValueSelectEmpresa={{ value: 'DEVOLUÇÃO', label: 'DEVOLUÇÃO' }}
         onChangeSelectEmpresa={(e) => setTipoSelecionado(e.value)}
-        
+
         InputSelectGrupoComponent={InputSelectAction}
         labelSelectGrupo={"Solicitante"}
         optionsGrupos={[
@@ -98,9 +97,9 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
             label: item.label,
           }))
         ]}
-        valueSelectGrupo={tipoSelecionado}
+        valueSelectGrupo={solicitanteSelecionado}
         onChangeSelectGrupo={(e) => setSolicitanteSelecionado(e.value)}
-        isDisabledGrupo={tipoSelecionado == 'DEVOLUÇÃO' }
+        isDisabledGrupo={tipoSelecionado == 'DEVOLUÇÃO'}
         stylesGrupo={tipoSelecionado == 'REMANEJAMENTO'}
 
         InputSelectSubGrupoComponent={InputSelectAction}
@@ -119,7 +118,7 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
 
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Empresa Origem"}
-        defaultValueSelectMarca={{ value: usuarioLogado?.NOFANTASIA , label: usuarioLogado?.NOFANTASIA }}
+        defaultValueSelectMarca={{ value: usuarioLogado?.NOFANTASIA, label: usuarioLogado?.NOFANTASIA }}
         isDisabledMarca={true}
 
         InputFieldORComponent={InputField}
@@ -132,8 +131,6 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
         valueInputFieldOT={numeroOT}
         onChangeInputFieldOT={(e) => setNumeroOT(e.target.value)}
 
-
-
         InputFieldNumeroNFComponent={InputField}
         labelInputFieldNumeroNF={"Descrição"}
         valueInputFieldNumeroNF={descricao.toUpperCase()}
@@ -145,11 +142,11 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
         valueInputFieldDescricao={categoria.toUpperCase()}
         onChangeInputFieldDescricao={(e) => setCategoria(e.target.value)}
         placeHolderInputFieldDescricao={"Categoria"}
-        
+
         InputFieldQuantidadeComponent={InputField}
-        labelInputFieldQuantidade={"Volumes"}
-        valueInputFieldQuantidade={quantidade}
-        onChangeInputFieldQuantidade={(e) => setQuantidade(e.target.value)}
+        labelInputFieldQuantidade={"volumes "}
+        valueInputQuantidade={quantidade}
+        onChangeInputQuantidade={(e) => setQuantidade(e.target.value)}
         placeHolderInputFieldQuantidade={"volumes"}
         readOnlyQuantidade={false}
 
@@ -161,14 +158,14 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
 
       />
 
-      <ActionImprimirEtiquetaModal 
-        show={modalImprimir} 
-        handleClose={() => setModalImprimir(false)} 
+      <ActionImprimirEtiquetaModal
+        show={modalImprimir}
+        handleClose={() => setModalImprimir(false)}
         dadosAcumuladorEtiquetas={dadosAcumuladorEtiquetas}
         tipoSelecionado={tipoSelecionado}
         usuarioLogado={usuarioLogado}
       />
-        
+
     </Fragment>
   )
 }

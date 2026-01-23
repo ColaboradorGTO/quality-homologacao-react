@@ -17,7 +17,7 @@ import { useReactToPrint } from "react-to-print";
 import Swal from "sweetalert2";
 
 
-export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModulos, handleClick }) => {
+export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModulos, handleClick, refetchListaFaturas }) => {
   const [dadosDetalheFatura, setDadosDetalheFatura] = useState([]);
   const [modalDetalheFatura, setModalDetalheFatura] = useState(false);
   const [modalCancelarFatura, setModalCancelarFatura] = useState(false);
@@ -271,7 +271,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
       body: (row) => {
         if (row.STRECOMPRA == 'False' || row.STRECOMPRA == null) {
           return (
-            <div className="p-1 "
+            <div className="p-1"
               style={{ justifyContent: "space-between" }}
             >
               <div className="p-1">
@@ -482,6 +482,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
         handleClick={handleClick}
+        refetchListaFaturas={refetchListaFaturas}
       />
 
       <ActionCancelarFaturaModal
@@ -491,6 +492,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
         handleClick={handleClick}
+        refetchListaFaturas={refetchListaFaturas}
       />
     </Fragment>
   )

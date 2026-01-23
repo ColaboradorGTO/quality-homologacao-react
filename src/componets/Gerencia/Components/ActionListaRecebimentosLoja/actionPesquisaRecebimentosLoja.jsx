@@ -249,7 +249,6 @@ export const ActionPesquisaRecebimentosLoja = () => {
         optionsMultSelectMarca={[
           { value: '', label: 'Selecionar Forma de Pagamento' },
           ...dadosFormaPagamento.map((item) => {
-
             return {
               value: item.DSTIPOPAGAMENTO,
               label: item.DSTIPOPAGAMENTO,
@@ -267,8 +266,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
         }))}
         valueSelectFuncionario={colaboradorSelecionado}
         onChangeSelectFuncionario={handleSelectFuncionario}
-
-
+        
 
         MultSelectSubGrupoComponent={MultSelectAction}
         labelMultSelectSubGrupo={"Parcelas"}
@@ -293,7 +291,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
         IconCadastro={AiOutlineSearch}
 
       />
-
+  {console.log(dadosFormaPagamento, "dadosFormaPagamento")}
       {tabelaRecebimentos && (
         <ActionListaRecebimentos dadosRecebimentos={dadosRecebimentos} />
       )}
