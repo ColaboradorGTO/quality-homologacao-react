@@ -13,6 +13,8 @@ import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData";
 import { IoMdCheckmark } from "react-icons/io";
+import Swal from "sweetalert2";
+import { useConferirTodasQuebras } from "./hooks/useConfeririTodasQuebras";
 
 export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -51,6 +53,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
+   
   const fetchQuebra = async () => {  
     const urlBase = `/quebra-caixa-loja?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&uf=${ufSelecionado}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
@@ -247,6 +250,10 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
     },
   ]
 
+  const {
+    conferirTodas
+  } = useConferirTodasQuebras({ optionsModulos, usuarioLogado, selectedItems, handleClick }); 
+
   const conferirTodasSelecionadas = () => {
   
     if (selectedItems.length === 0) {
@@ -275,7 +282,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
       });
       return;
     } else {
-      // conferirTodas();
+      conferirTodas();
     }
 
   }
