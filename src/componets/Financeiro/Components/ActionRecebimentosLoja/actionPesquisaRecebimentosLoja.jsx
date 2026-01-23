@@ -187,6 +187,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
         corSearch={"primary"}
         IconSearch={AiOutlineSearch}
 
+        
       />
 
       <ActionListaDetalhamento dadosListaRecebimentosLoja={dadosListaRecebimentosLoja} />

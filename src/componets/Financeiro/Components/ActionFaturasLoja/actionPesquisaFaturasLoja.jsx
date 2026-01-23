@@ -254,8 +254,6 @@ export const ActionPesquisaFaturasLoja = ({ usuarioLogado, ID }) => {
       )}
 
       {tabelaVisivel && (
-
-
         <ActionListaFaturasLoja
           dadosDetalheFatura={dadosDetalheFatura}
           optionsModulos={optionsModulos}

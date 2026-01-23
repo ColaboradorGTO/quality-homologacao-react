@@ -12,6 +12,7 @@ import { ActionListaQuebraCaixaLojaPositiva } from "./actionListaQuebraCaixaLoja
 import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData";
+import { IoMdCheckmark } from "react-icons/io";
 
 export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -28,7 +29,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
   const [ufSelecionado, setUfSelecionado] = useState('');
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(1000)
-
+  const [selectedItems, setSelectedItems] = useState([]);
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -248,6 +249,39 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
     },
   ]
 
+  const conferirTodasSelecionadas = () => {
+  
+    if (selectedItems.length === 0) {
+      Swal.fire({
+        position: 'center',
+        icon: 'warning',
+        title: 'Nenhuma fatura selecionada, selecione e tente novamente!',
+        text: 'Nenhuma fatura selecionada, selecione e tente novamente!',
+        showConfirmButton: true,
+        timer: 6000,
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else if (optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> você não tem permissão para conferir a fatura.`,
+        showConfirmButton: true,
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else {
+      // conferirTodas();
+    }
+
+  }
+  
   return (
 
     <Fragment>
@@ -327,6 +361,12 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
         corSearch={"primary"}
         IconSearch={AiOutlineSearch}
 
+        ButtonTypeCancelar={ButtonType}
+        linkCancelar={"Conferir Todos"}
+        onButtonClickCancelar={conferirTodasSelecionadas}
+        corCancelar={"warning"}
+        IconCancelar={IoMdCheckmark}
+        styleCancelar
       />
 
        
