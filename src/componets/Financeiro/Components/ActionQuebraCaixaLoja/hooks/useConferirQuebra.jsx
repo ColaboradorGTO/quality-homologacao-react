@@ -3,16 +3,10 @@ import { post, put } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useConferirTodasFaturas = ({
-    optionsModulos, 
-    usuarioLogado, 
-    handleClick,
-    selectedItems,
-}) => {
+export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems, handleClick}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-
-      const getIPUsuario = async () => {
+    const getIPUsuario = async () => {
         let usuarioIP = null;
 
         try {
@@ -34,13 +28,12 @@ export const useConferirTodasFaturas = ({
         return usuarioIP;
     };
 
-
-    const conferirTodas = async (data) => {
+    const conferir = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
                 icon: 'error',
-                title: 'Você não tem permissão para confirmar as Quebras de Caixa.',
+                title: 'Você não tem permissão para alterar a Quebra de Caixa.',
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
@@ -51,7 +44,7 @@ export const useConferirTodasFaturas = ({
         }
 
         Swal.fire({
-            title: 'Deseja Confirmar Todas as Quebras de Caixa Selecionadas?',
+            title: 'Deseja confirmar a conferência da Quebra de Caixa?',
             text: 'Você não poderá reverter esta ação!',
             icon: 'warning',
             showCancelButton: true,
@@ -66,13 +59,13 @@ export const useConferirTodasFaturas = ({
 
             if (result.isConfirmed) {
             
-                const idsFaturas = selectedItems.map(item => item.IDQUEBRACAIXA).join(',');
-                const putData = {   
-                    IDQUEBRACAIXA: idsFaturas.replace(/(^,|,$)/g, ''),
+                const putData = {
+                    IDQUEBRACAIXA: parseInt(selectedItems[0]?.IDQUEBRACAIXA),
                     STCONFERIDO: 'True',
                     IDFUNCIONARIO: parseInt(usuarioLogado.id),
                 }
         
+            
                 try {
         
                     const response = await put('/conferencia-fatura/:id', putData)
@@ -80,7 +73,7 @@ export const useConferirTodasFaturas = ({
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
+                        PATHFUNCAO: `FINANCEIRO/CONFERIR QUEBRA DE CAIXA SELECIONADA`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -98,13 +91,13 @@ export const useConferirTodasFaturas = ({
                     })
         
                     handleClick();
-                    return response.data;   
+                    return response.data;
                 } catch (error) {
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/ERRO AO CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
+                        PATHFUNCAO: `FINANCEIRO/ERRO AO CONFERIR QUEBRA DE CAIXA SELECIONADA`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -122,7 +115,7 @@ export const useConferirTodasFaturas = ({
                             container: 'custom-swal', 
                         },
                     });
-                    console.error('Erro Conferir Todas Quebras de Caixa:', error);
+                    console.error('Erro Conferir Quebra de Caixa:', error);
                     return responsePost.data;
                 }
             } else {
@@ -134,6 +127,6 @@ export const useConferirTodasFaturas = ({
 
     
     return {
-        conferirTodas,
+        conferir,
     }
 }

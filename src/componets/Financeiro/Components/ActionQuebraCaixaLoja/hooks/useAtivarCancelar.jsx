@@ -1,5 +1,5 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { post, put } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 

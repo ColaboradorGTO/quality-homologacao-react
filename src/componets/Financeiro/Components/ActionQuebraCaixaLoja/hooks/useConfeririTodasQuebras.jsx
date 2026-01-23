@@ -3,10 +3,16 @@ import { post, put } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems, handleClick}) => {
+export const useConferirTodasQuebras = ({
+    optionsModulos, 
+    usuarioLogado, 
+    handleClick,
+    selectedItems,
+}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-      const getIPUsuario = async () => {
+
+    const getIPUsuario = async () => {
         let usuarioIP = null;
 
         try {
@@ -28,12 +34,13 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
         return usuarioIP;
     };
 
-    const conferir = async (data) => {
+
+    const conferirTodas = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
                 icon: 'error',
-                title: 'Você não tem permissão para alterar a Quebra de Caixa.',
+                title: 'Você não tem permissão para confirmar as Quebras de Caixa.',
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
@@ -44,7 +51,7 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
         }
 
         Swal.fire({
-            title: 'Deseja confirmar a conferência da Quebra de Caixa?',
+            title: 'Deseja Confirmar Todas as Quebras de Caixa Selecionadas?',
             text: 'Você não poderá reverter esta ação!',
             icon: 'warning',
             showCancelButton: true,
@@ -59,13 +66,13 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
 
             if (result.isConfirmed) {
             
-                const putData = {
-                    IDQUEBRACAIXA: parseInt(selectedItems[0]?.IDQUEBRACAIXA),
+                const idsFaturas = selectedItems.map(item => item.IDQUEBRACAIXA).join(',');
+                const putData = {   
+                    IDQUEBRACAIXA: idsFaturas.replace(/(^,|,$)/g, ''),
                     STCONFERIDO: 'True',
                     IDFUNCIONARIO: parseInt(usuarioLogado.id),
                 }
         
-            
                 try {
         
                     const response = await put('/conferencia-fatura/:id', putData)
@@ -73,7 +80,7 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/CONFERIR QUEBRA DE CAIXA SELECIONADA`,
+                        PATHFUNCAO: `FINANCEIRO/CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -91,13 +98,13 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
                     })
         
                     handleClick();
-                    return response.data;
+                    return response.data;   
                 } catch (error) {
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/ERRO AO CONFERIR QUEBRA DE CAIXA SELECIONADA`,
+                        PATHFUNCAO: `FINANCEIRO/ERRO AO CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -115,7 +122,7 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
                             container: 'custom-swal', 
                         },
                     });
-                    console.error('Erro Conferir Quebra de Caixa:', error);
+                    console.error('Erro Conferir Todas Quebras de Caixa:', error);
                     return responsePost.data;
                 }
             } else {
@@ -127,6 +134,6 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
 
     
     return {
-        conferir,
+        conferirTodas,
     }
 }

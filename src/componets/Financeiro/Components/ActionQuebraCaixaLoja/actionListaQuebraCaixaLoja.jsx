@@ -18,6 +18,8 @@ import * as XLSX from 'xlsx';
 import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 import Swal from "sweetalert2";
 
+import { useConferirQuebra } from "./hooks/useConferirQuebra";
+
 
 export const ActionListaQuebraCaixaLoja = ({ 
   dadosQuebraDeCaixa, 
@@ -38,6 +40,10 @@ export const ActionListaQuebraCaixaLoja = ({
   const {
     handleCancelar
   } = useAtivarCancelar({ usuarioLogado, optionsModulos });
+
+  const {
+    conferir
+  } = useConferirQuebra({ optionsModulos, usuarioLogado, selectedItems, handleClick }); 
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
