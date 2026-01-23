@@ -25,7 +25,8 @@ export const ActionListaQuebraCaixaLoja = ({
   usuarioLogado, 
   optionsModulos,
   selectedItems,
-  setSelectedItems 
+  setSelectedItems,
+  handleClick 
 }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dadosQuebraCaixasModal, setDadosQuebraCaixasModal] = useState([])
@@ -36,6 +37,7 @@ export const ActionListaQuebraCaixaLoja = ({
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
   const dataTableRef = useRef();
+
   const {
     handleCancelar
   } = useAtivarCancelar({ usuarioLogado, optionsModulos });
@@ -203,7 +205,7 @@ export const ActionListaQuebraCaixaLoja = ({
         const stConferido = rowData.STCONFERIDO === 'True';
 
         if (!stAtivo || stConferido) {
-          return <td></td>;
+          return null;
         }
 
         return (
@@ -235,12 +237,6 @@ export const ActionListaQuebraCaixaLoja = ({
       sortable: true,
     },
     {
-      field: 'IDQUEBRACAIXA',
-      header: 'ID',
-      body: row => <th style={{ color: 'blue' }}>{row.IDQUEBRACAIXA}</th>,
-      sortable: true,
-    },
-    {
       field: 'NOFANTASIA',
       header: 'Empresa',
       body: row => <p style={{ color: 'blue', width: '200px', margin: '0px', fontWeight: 600 }}>{row.NOFANTASIA}</p>,
@@ -268,6 +264,7 @@ export const ActionListaQuebraCaixaLoja = ({
       field: 'NOMEOPERADOR',
       header: 'Colaborador',
       body: row => <p style={{ color: 'blue', width: '200px', margin: '0px', fontWeight: 600 }}>{row.NOMEOPERADOR}</p>,
+      footer: 'Totais',
       sortable: true,
     },
     {
@@ -286,6 +283,7 @@ export const ActionListaQuebraCaixaLoja = ({
           return <th style={{ color: 'red' }}> - {formatMoeda(row.VRQUEBRASISTEMA)}</th>
         }
       },
+      footer: formatMoeda(calcularTotalVrQuebraSistema()),
       sortable: true,
     },
     {
@@ -298,6 +296,7 @@ export const ActionListaQuebraCaixaLoja = ({
           return <th style={{ color: 'red' }}> - {formatMoeda(row.VRQUEBRAEFETIVADO)}</th>
         }
       },
+      footer: formatMoeda(calcularTotalVrQuebraEfetivado()),
       sortable: true,
     },
     {
@@ -337,7 +336,6 @@ export const ActionListaQuebraCaixaLoja = ({
       },
       sortable: true,
     },
-
     {
       field: 'IDQUEBRACAIXA',
       header: 'Opções',
@@ -449,7 +447,7 @@ export const ActionListaQuebraCaixaLoja = ({
         return;
       }
     } catch (error) {
-      console.error('Erro ao buscar detalhes da venda: ', error);
+      console.error('Erro ao buscar detalhes da quebra de caixa: ', error);
     }
   };
 
@@ -470,7 +468,7 @@ export const ActionListaQuebraCaixaLoja = ({
         position: 'center',
         icon: 'error',
         title: 'Acesso Negado!',
-        text: 'Você não tem permissão para editar esta despesa.',
+        text: 'Você não tem permissão para editar esta quebra de caixa.',
         showConfirmButton: false,
         timer: 1500,
         customClass: {
@@ -485,16 +483,18 @@ export const ActionListaQuebraCaixaLoja = ({
   const footerGroup = (
     <ColumnGroup>
       <Row>
-        <Column footer="" colSpan={4} />
+        <Column footer="" colSpan={3} />
         <Column footer="Totais" colSpan={4} style={{fontSize: '1rem', fontWeight: 'bold' }}/>
         <Column 
           footer={formatMoeda(calcularTotalVrQuebraSistema())} 
           style={{ color: calcularTotalVrQuebraSistema() >= 0 ? 'blue' : 'red', fontSize: '0.8rem' }}
+          colSpan={1}
         /> 
         <Column 
           footer={formatMoeda(calcularTotalVrQuebraEfetivado())}
           style={{ color: calcularTotalVrQuebraEfetivado() >= 0 ? 'blue' : 'red', fontSize: '0.8rem' }}
-        /> 
+          colSpan={1}
+       /> 
         <Column footer="" colSpan={3} />
       </Row>
     </ColumnGroup>

@@ -399,6 +399,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
           usuarioLogado={usuarioLogado}   
           selectedItems={selectedItems}
           setSelectedItems={setSelectedItems}
+          handleClick={handleClick}
         />
       )}
 
@@ -412,6 +413,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
             usuarioLogado={usuarioLogado}   
             selectedItems={selectedItems}
             setSelectedItems={setSelectedItems}
+            handleClick={handleClick}
           />
         )}
       </div>
@@ -424,6 +426,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
             usuarioLogado={usuarioLogado}              
             selectedItems={selectedItems}
             setSelectedItems={setSelectedItems}
+            handleClick={handleClick}
           />
         )}
       </div>
