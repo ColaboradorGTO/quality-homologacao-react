@@ -65,27 +65,29 @@ export const useConferirTodasQuebras = ({
         }).then(async (result) => {
 
             if (result.isConfirmed) {
-            
-                const idsFaturas = selectedItems.map(item => item.IDQUEBRACAIXA).join(',');
-                const putData = {   
-                    IDQUEBRACAIXA: idsFaturas.replace(/(^,|,$)/g, ''),
-                    STCONFERIDO: 'True',
-                    IDFUNCIONARIO: parseInt(usuarioLogado.id),
-                }
-        
                 try {
-        
-                    const response = await put('/conferencia-fatura/:id', putData)
-                    const textDados = JSON.stringify(putData)
-                    const ipUsuario = await getIPUsuario();
-                    const postData = {
-                        IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
-                        DADOS: textDados,
-                        IP: ipUsuario
+                    for(let i = 0; i < selectedItems.length; i++) {
+                        const rowData = selectedItems[i];
+                        const putData = {   
+                            IDQUEBRACAIXA: Number(rowData.IDQUEBRACAIXA),
+                            STCONFERIDO: 'True',
+                            IDFUNCIONARIO: Number(usuarioLogado.id),
+                        }
+
+                        const response = await put('/conferencia-fatura/:id', putData)
+                        const textDados = JSON.stringify(putData)
+                        const ipUsuario = await getIPUsuario();
+                        const postData = {
+                            IDFUNCIONARIO: String(usuarioLogado.id),
+                            PATHFUNCAO: `FINANCEIRO/CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
+                            DADOS: textDados,
+                            IP: ipUsuario
+                        }
+                        
+                        await post('/log-web', postData)
                     }
-                    
-                    await post('/log-web', postData)
+        
+        
                     Swal.fire({
                         position: 'center',
                         icon: 'success',
@@ -98,7 +100,7 @@ export const useConferirTodasQuebras = ({
                     })
         
                     handleClick();
-                    return response.data;   
+           
                 } catch (error) {
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
