@@ -65,7 +65,6 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
                     IDFUNCIONARIO: parseInt(usuarioLogado.id),
                 }
         
-            
                 try {
         
                     const response = await put('/conferencia-fatura/:id', putData)
