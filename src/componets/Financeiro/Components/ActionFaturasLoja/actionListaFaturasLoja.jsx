@@ -342,11 +342,9 @@ export const ActionListaFaturasLoja = ({
         return (
 
           <div className="p-1 " style={{ justifyContent: "space-between", display: "flex", width: "100%" }}>
-            {/* Botão Editar (Amarelo) */}
             <div className="p-1">
               <ButtonTable
                 titleButton="Editar Fatura"
-                // textButton={"Editar"}
                 cor="warning"
                 Icon={CiEdit}
                 onClickButton={() => handleClickEditar(row)}
@@ -356,14 +354,12 @@ export const ActionListaFaturasLoja = ({
               />
             </div>
 
-            {/* Botão Conferir (Verde) */}
+           
             <div className="p-1">
               <ButtonTable
                 titleButton="Conferir Fatura"
-                // textButton={"Conferir"}
                 cor="success"
                 Icon={IoMdCheckmark}
-                // onClickButton={() => conferir(row)}
                 onClickButton={() => {
                   setSelectedItems([row]);
                   conferir(row);

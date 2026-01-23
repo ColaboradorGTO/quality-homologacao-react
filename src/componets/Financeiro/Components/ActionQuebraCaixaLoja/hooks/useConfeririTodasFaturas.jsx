@@ -3,33 +3,44 @@ import { post, put } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems, handleClick}) => {
+export const useConferirTodasFaturas = ({
+    optionsModulos, 
+    usuarioLogado, 
+    handleClick,
+    selectedItems,
+}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-    const getIPUsuario = async () => {
+
+      const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
 
-            if (!usuarioIP) {
+        if (!usuarioIP) {
+        try {
             const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
             usuarioIP = ipifyData?.ip;
-            }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
         } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
+            console.error("Erro ao buscar IP via ipify.org:", error);
         }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
-    const conferir = async (data) => {
+
+    const conferirTodas = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
                 icon: 'error',
-                title: 'Você não tem permissão para alterar a fatura.',
+                title: 'Você não tem permissão para confirmar as Quebras de Caixa.',
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
@@ -40,7 +51,7 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
         }
 
         Swal.fire({
-            title: 'Deseja confirmar a conferência desta fatura?',
+            title: 'Deseja Confirmar Todas as Quebras de Caixa Selecionadas?',
             text: 'Você não poderá reverter esta ação!',
             icon: 'warning',
             showCancelButton: true,
@@ -55,13 +66,13 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
 
             if (result.isConfirmed) {
             
-                const putData = {
-                    IDS_FATURAS: String(selectedItems[0].IDDETALHEFATURA),
+                const idsFaturas = selectedItems.map(item => item.IDQUEBRACAIXA).join(',');
+                const putData = {   
+                    IDQUEBRACAIXA: idsFaturas.replace(/(^,|,$)/g, ''),
                     STCONFERIDO: 'True',
                     IDFUNCIONARIO: parseInt(usuarioLogado.id),
                 }
         
-            
                 try {
         
                     const response = await put('/conferencia-fatura/:id', putData)
@@ -69,7 +80,7 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/CONFERIR FATURA SELECIONADA`,
+                        PATHFUNCAO: `FINANCEIRO/CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -87,13 +98,13 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
                     })
         
                     handleClick();
-                    return response.data;
+                    return response.data;   
                 } catch (error) {
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/ERRO AO CONFERIR FATURA SELECIONADA`,
+                        PATHFUNCAO: `FINANCEIRO/ERRO AO CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -111,7 +122,7 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
                             container: 'custom-swal', 
                         },
                     });
-                    console.error('Erro Conferir Fatura:', error);
+                    console.error('Erro Conferir Todas Quebras de Caixa:', error);
                     return responsePost.data;
                 }
             } else {
@@ -123,6 +134,6 @@ export const useConferirFatura = ({optionsModulos, usuarioLogado, selectedItems,
 
     
     return {
-        conferir,
+        conferirTodas,
     }
 }

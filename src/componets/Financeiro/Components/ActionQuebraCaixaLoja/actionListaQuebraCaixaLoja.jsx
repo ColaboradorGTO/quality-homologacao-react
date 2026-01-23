@@ -1,8 +1,10 @@
-import { Fragment, useRef, useState } from "react"
-import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
+import { Fragment, useRef, useState, useEffect } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { ColumnGroup } from "primereact/columngroup";
+import { Row } from "primereact/row";
 import { Checkbox } from "primereact/checkbox";
+import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { MdOutlineLocalPrintshop } from "react-icons/md";
 import { FaCheck, FaRegTrashAlt } from "react-icons/fa";
@@ -15,9 +17,6 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 import Swal from "sweetalert2";
-import { ColumnGroup } from "primereact/columngroup";
-import { Row } from "primereact/row";
-import { useEffect } from "react";
 
 
 export const ActionListaQuebraCaixaLoja = ({ 
@@ -195,11 +194,9 @@ export const ActionListaQuebraCaixaLoja = ({
       field: 'Selecione',
       selectionMode: 'multiple',
       body: (rowData) => {
-        // ========== VARIÁVEIS DE CONTROLE ==========
         const stAtivo = rowData.STATIVO === 'True';
         const stConferido = rowData.STCONFERIDO === 'True';
 
-        // ========== Só mostra checkbox se ATIVA e NÃO CONFERIDA ==========
         if (!stAtivo || stConferido) {
           return <td></td>;
         }
