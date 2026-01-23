@@ -544,8 +544,8 @@ export const ActionListaQuebraCaixaLoja = ({
             selectionMode="single"
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
-            sortOrder={-1}
             footerColumnGroup={footerGroup}
+            sortOrder={-1}
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}

@@ -2,6 +2,9 @@ import { Fragment, useRef, useState } from "react"
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
+import { ColumnGroup } from "primereact/columngroup";
+import { Row } from "primereact/row";
+import { Checkbox } from "primereact/checkbox";
 import { MdOutlineLocalPrintshop } from "react-icons/md";
 import { AiOutlineDelete } from "react-icons/ai";
 import { dataFormatada } from "../../../../utils/dataFormatada";
@@ -15,16 +18,36 @@ import Swal from "sweetalert2";
 import { get } from "../../../../api/funcRequest";
 import { ModalImprimirQuebra } from "../ModalImprimirQuebra";
 import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
+import { useConferirQuebra } from "./hooks/useConferirQuebra";
+import { useEffect } from "react";
+import { FaCheck } from "react-icons/fa6";
+import { FaRegTrashAlt } from "react-icons/fa";
 
-
-export const ActionListaQuebraCaixaLojaPositiva = ({ dadosQuebraDeCaixaPositiva, usuarioLogado, optionsModulos }) => {
+export const ActionListaQuebraCaixaLojaPositiva = ({ 
+  dadosQuebraDeCaixaPositiva, 
+  usuarioLogado, 
+  optionsModulos,
+  selectedItems,
+  setSelectedItems,
+  handleClick 
+}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dadosQuebraCaixasModal, setDadosQuebraCaixasModal] = useState([]);
+  const [rowSelection, setRowSelection] = useState(null);
+  const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [btnVisivel, setBtnVisivel] = useState(false);
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(10);
   const dataTableRef = useRef();
+  
   const {
     handleCancelar
   } = useAtivarCancelar({ usuarioLogado, optionsModulos });
+
+  const {
+    conferir
+  } = useConferirQuebra({ optionsModulos, usuarioLogado, selectedItems, handleClick }); 
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -86,16 +109,134 @@ export const ActionListaQuebraCaixaLojaPositiva = ({ dadosQuebraDeCaixaPositiva,
       VRQUEBRASISTEMA: item.VRQUEBRASISTEMA,
       VRQUEBRAEFETIVADO: item.VRQUEBRAEFETIVADO,
       TXTHISTORICO: item.TXTHISTORICO,
-      STATIVO: item.STATIVO
-
+      STATIVO: item.STATIVO,
+      STCONFERIDO: item.STCONFERIDO
     }
   });
 
+  const calcularTotalVrQuebraSistema = () => {
+    return dadosPositiva.reduce((total, item) => 
+      total + parseFloat(item.VRQUEBRASISTEMA), 0
+    );
+  };
+
+  const calcularTotalVrQuebraEfetivado = () => {
+    return dadosPositiva.reduce((total, item) => 
+      total + parseFloat(item.VRQUEBRAEFETIVADO), 0
+    );
+  };
+
+  useEffect(() => {
+    const itensSelecionaveis = dadosPositiva.filter(item =>
+      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+    );
+
+    const dadosPaginaAtual = dadosPositiva.slice(first, first + rows);
+    const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
+      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+    );
+
+    if (selectedItems.length === 0) {
+      setSelectAllChecked(false);
+    } else if (
+      selectedItems.length === itensSelecionaveis.length ||
+      (selectedItems.length === itensSelecionaveisPaginaAtual.length &&
+        itensSelecionaveisPaginaAtual.length > 0 &&
+        itensSelecionaveisPaginaAtual.every(item =>
+          selectedItems.some(selected => selected.IDQUEBRACAIXA === item.IDQUEBRACAIXA)
+        ))
+    ) {
+      setSelectAllChecked(true);
+    } else {
+      setSelectAllChecked(false);
+    }
+    
+  }, [selectedItems, dadosPositiva, first, rows]);
+
+  const onSelectAllChange = (e) => {
+    if (e.checked) {
+      
+      Swal.fire({
+        icon: 'question',
+        title: 'Selecione o modo de seleção',
+        text: 'Deseja selecionar todos da tabela ou somente o que está em tela?',
+        showConfirmButton: true,
+        showCancelButton: true,
+        showCloseButton: true,
+        confirmButtonText: 'Todos os registros',
+        cancelButtonText: 'Apenas o que está tela',
+        cancelButtonColor: '#2196F3',
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const itensSelecionaveis = dadosPositiva.filter(item =>
+            item.STATIVO  === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+          );
+          setBtnVisivel(true);
+          setSelectedItems([...itensSelecionaveis]);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          const dadosPaginaAtual = dadosPositiva.slice(first, first + rows);
+
+          const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
+            item.STATIVO  === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+          );
+          setBtnVisivel(true);
+          setSelectedItems([...itensSelecionaveisPaginaAtual]);
+        } else {
+          setBtnVisivel(false);
+          setSelectedItems([]);
+        }
+      });
+    } else {
+      setBtnVisivel(false);
+      setSelectedItems([]);
+    }
+  };
+
   const colunasQuebraDeCaixaPositiva = [
+     {
+      field: 'Selecione',
+      selectionMode: 'multiple',
+      body: (rowData) => {
+        const stAtivo = rowData.STATIVO === 'True';
+        const stConferido = rowData.STCONFERIDO === 'True';
+
+        if (!stAtivo || stConferido) {
+          return null;
+        }
+
+        return (
+          <td>
+            <div className="custom-control custom-checkbox">
+              <Checkbox
+                inputId={`chk-${rowData.IDQUEBRACAIXA}`}
+                checked={selectedItems.some(
+                  item => item.IDQUEBRACAIXA === rowData.IDQUEBRACAIXA
+                )}
+                onChange={(e) => {
+                  let _selectedItems = [...selectedItems];
+
+                  if (e.checked) {
+                    _selectedItems.push(rowData);
+                  } else {
+                    _selectedItems = _selectedItems.filter(
+                      item => item.IDQUEBRACAIXA !== rowData.IDQUEBRACAIXA
+                    );
+                  }
+
+                  setSelectedItems(_selectedItems);
+                }}
+              />
+            </div>
+          </td>
+        );
+      },
+      sortable: true,
+    },
     {
-      field: 'IDQUEBRACAIXA',
-      header: 'ID',
-      body: row => <p style={{ color: 'blue' }}> {row.IDQUEBRACAIXA} </p>,
+      field: 'NOFANTASIA',
+      header: 'Empresa',
+      body: row => <p style={{ color: 'blue', width: '200px', margin: '0px', fontWeight: 600 }}>{row.NOFANTASIA}</p>,
       sortable: true,
     },
     {
@@ -119,13 +260,25 @@ export const ActionListaQuebraCaixaLojaPositiva = ({ dadosQuebraDeCaixaPositiva,
     {
       field: 'VRQUEBRASISTEMA',
       header: 'Vr Quebra Sistema',
-      body: row => <p style={{ color: 'blue' }}> {formatMoeda(row.VRQUEBRASISTEMA)}</p>,
+      body: row => {
+        if (row.VRQUEBRASISTEMA > 0) {
+          return <th style={{ color: 'blue' }}> + {formatMoeda(row.VRQUEBRASISTEMA)}</th>
+        } else {
+          return <th style={{ color: 'red' }}> - {formatMoeda(row.VRQUEBRASISTEMA)}</th>
+        }
+      },
       sortable: true,
     },
     {
       field: 'VRQUEBRAEFETIVADO',
       header: 'Vr Quebra Lançado',
-      body: row => <p style={{ color: 'blue' }}> {formatMoeda(row.VRQUEBRAEFETIVADO)}</p>,
+      body: row => {
+        if (row.VRQUEBRAEFETIVADO > 0) {
+          return <th style={{ color: 'blue' }}> + {formatMoeda(row.VRQUEBRAEFETIVADO)}</th>
+        } else {
+          return <th style={{ color: 'red' }}> - {formatMoeda(row.VRQUEBRAEFETIVADO)}</th>
+        }
+      },
       sortable: true,
     },
     {
@@ -138,65 +291,151 @@ export const ActionListaQuebraCaixaLojaPositiva = ({ dadosQuebraDeCaixaPositiva,
       field: 'STATIVO',
       header: 'Situação',
       body: (row) => {
-        return (
-          <div style={{ color: row.STATIVO == "True" ? 'blue' : 'red' }}>
-            <p style={{ color: 'blue' }}> {row.STATIVO == 'True' ? "Ativo" : "Inativo"}</p>
-          </div>
-        )
+     
+        const situacaoQuebraLoja = row.STATIVO == 'True';
+        const situacaoConferido = row.STCONFERIDO == 'True';
+        let tagQuebraAtivo = null;
+
+        if (situacaoQuebraLoja) {
+          let txt = 'ATIVO / ';
+
+          if (situacaoConferido) {
+            txt += 'CONFERIDO';
+          } else {
+            txt = (
+              <>
+                ATIVO / <span style={{ color: 'red' }}>NÃO CONFERIDO</span>
+              </>
+            );
+          }
+
+          tagQuebraAtivo = <span style={{ color: 'blue' }}>{txt}</span>;
+        } else {
+          tagQuebraAtivo = <span style={{ color: 'red' }}>CANCELADO</span>;
+        }
+
+        return <th>{tagQuebraAtivo}</th>;
       },
       sortable: true,
     },
-
     {
+      field: 'IDQUEBRACAIXA',
       header: 'Opções',
-      button: true,
-      body: (row) => (
-        <div className="d-flex "
-          style={{ justifyContent: "space-between" }}
-        >
-          <div>
-            <ButtonTable
-              titleButton="Imprimir"
-              cor="primary"
-              onClickButton={() => handleClickEdit(row)}
-              Icon={MdOutlineLocalPrintshop}
-              iconSize={20}
-              width="30px"
-              height="30px"
-            />
-          </div>
-          <div className="ml-2">
-            <ButtonTable
-              titleButton="Cancelar"
-              cor="danger"
-              onClickButton={() => handleClickCancelar(row, false)}
-              Icon={AiOutlineDelete}
-              iconSize={20}
-              width="30px"
-              height="30px"
-            />
-          </div>
+      body: (row) => {
 
-        </div>
-      )
+        const situacaoQuebraLoja = row.STATIVO == 'True';
+        const situacaoConferido = row.STCONFERIDO == 'True';
+        let containerButtons = null;
+
+        if (situacaoQuebraLoja) {
+          if (situacaoConferido) {
+            // CONFERIDO: mostrar apenas Imprimir
+            containerButtons = (
+              <div className="mr-2">
+                <ButtonTable
+                  titleButton={"Imprimir Quebra"}
+                  cor={"primary"}
+                  Icon={MdOutlineLocalPrintshop}
+                  iconSize={20}
+                  width="30px"
+                  height="30px"
+                  onClickButton={() => handleClickImprimir(row)}
+                />
+              </div>
+            );
+          } else {
+          
+            containerButtons = (
+              <div className="d-flex" style={{ justifyContent: "space-between" }}>
+                <div className="mr-2">
+                  <ButtonTable
+                    titleButton={"Cancelar Quebra"}
+                    cor={"danger"}
+                    Icon={FaRegTrashAlt}
+                    iconSize={20}
+                    width="30px"
+                    height="30px"
+                    onClickButton={() => handleClickCancelar(row, false)}
+                  />
+                </div>
+                <div className="mr-2">
+                  <ButtonTable
+                    titleButton={"Imprimir Quebra"}
+                    cor={"primary"}
+                    Icon={MdOutlineLocalPrintshop}
+                    iconSize={20}
+                    width="30px"
+                    height="30px"
+                    onClickButton={() => handleClickImprimir(row)}
+                  />
+                </div>
+                <div>
+                  <ButtonTable
+                    titleButton={"Conferir Quebra"}
+                    cor={"success"}
+                    Icon={FaCheck}
+                    iconSize={20}
+                    width="30px"
+                    height="30px"
+                    onClickButton={() => {
+                      setSelectedItems([row]);
+                      conferir(row);
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          }
+        } else {
+        
+          containerButtons = (
+            <div>
+              <ButtonTable
+                titleButton={"Ativar Quebra"}
+                cor={"success"}
+                Icon={FaCheck}
+                onClickButton={() => handleCancelar(row, true)}
+                iconSize={20}
+                width="30px"
+                height="30px"
+              />
+            </div>
+          );
+        }
+
+        return <td>{containerButtons}</td>;
+      },
     },
   ]
 
-  const handleEdit = async (IDQUEBRACAIXA) => {
+  const handleImprimir = async (IDQUEBRACAIXA) => {
     try {
       const response = await get(`/quebra-caixa?idQuebraCaixa=${IDQUEBRACAIXA}`);
       if (response.data && response.data.length > 0) {
         setDadosQuebraCaixasModal(response.data);
         setModalVisivel(true);
+      } else {
+        Swal.fire({
+          position: 'center',
+          icon: 'error',
+          title: 'Erro ao buscar dados!',
+          text: 'Nenhum dado encontrado para esta quebra de caixa.',
+          showConfirmButton: false,
+          timer: 1500,
+          customClass: {
+            container: 'custom-swal',
+          }
+        })
+        return;
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes da venda: ', error);
     }
   };
 
-  const handleClickEdit = (row) => {
+  const handleClickImprimir = (row) => {
     if (row && row.IDQUEBRACAIXA) {
-      handleEdit(row.IDQUEBRACAIXA);
+      handleImprimir(row.IDQUEBRACAIXA);
     }
   };
 
@@ -210,7 +449,7 @@ export const ActionListaQuebraCaixaLojaPositiva = ({ dadosQuebraDeCaixaPositiva,
         position: 'center',
         icon: 'error',
         title: 'Acesso Negado!',
-        text: 'Você não tem permissão para editar esta despesa.',
+        text: 'Você não tem permissão para editar esta quebra de caixa.',
         showConfirmButton: false,
         timer: 1500,
         customClass: {
@@ -220,6 +459,25 @@ export const ActionListaQuebraCaixaLojaPositiva = ({ dadosQuebraDeCaixaPositiva,
     }
   };
 
+  const footerGroup = (
+    <ColumnGroup>
+      <Row>
+        <Column footer="" colSpan={3} />
+        <Column footer="Totais" colSpan={4} style={{fontSize: '1rem', fontWeight: 'bold' }}/>
+        <Column 
+          footer={formatMoeda(calcularTotalVrQuebraSistema())} 
+          style={{ color: calcularTotalVrQuebraSistema() >= 0 ? 'blue' : 'red', fontSize: '0.8rem' }}
+          colSpan={1}
+        /> 
+        <Column 
+          footer={formatMoeda(calcularTotalVrQuebraEfetivado())}
+          style={{ color: calcularTotalVrQuebraEfetivado() >= 0 ? 'blue' : 'red', fontSize: '0.8rem' }}
+          colSpan={1}
+       /> 
+        <Column footer="" colSpan={3} />
+      </Row>
+    </ColumnGroup>
+  );
   return (
 
     <Fragment>
@@ -238,10 +496,14 @@ export const ActionListaQuebraCaixaLojaPositiva = ({ dadosQuebraDeCaixaPositiva,
         </div>
         <div className="card" ref={dataTableRef}>
           <DataTable
-            title="Quebra Negativas de Caixa das Lojas"
+            title="Quebras Positivas de Caixa das Lojas"
             value={dadosPositiva}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            footerColumnGroup={footerGroup}
             sortOrder={-1}
             paginator={true}
             rows={10}
