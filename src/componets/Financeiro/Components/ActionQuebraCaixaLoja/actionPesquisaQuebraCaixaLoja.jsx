@@ -11,7 +11,6 @@ import { ActionListaQuebraCaixaLojaNegativa } from "./actionListaQuebraCaixaLoja
 import { ActionListaQuebraCaixaLojaPositiva } from "./actionListaQuebraCaixaLojaPositiva";
 import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
-import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData";
 import { IoMdCheckmark } from "react-icons/io";
 import Swal from "sweetalert2";
 import { useConferirTodasQuebras } from "./hooks/useConfeririTodasQuebras";
@@ -41,8 +40,27 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
 
   }, []);
 
-  const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useFetchData('marcasLista', '/marcasLista');
-  const { data: optionsEmpresas = [],} = useFetchEmpresas(marcaSelecionada);
+  const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useQuery(
+    'marcasLista',
+    async () => {
+      const response = await get(`/marcasLista`);
+      return response.data;
+    },
+    { staleTime: 5 * 60 * 1000 }
+  );
+
+  const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
+    ['listaEmpresaComercial', marcaSelecionada],
+    async () => {
+      if (marcaSelecionada) {
+        const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
+        return response.data;
+      } else {
+        return [];
+      }
+    },
+    { enabled: Boolean(marcaSelecionada), staleTime: 5 * 60 * 1000 }
+  );
 
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
@@ -284,7 +302,6 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
     } else {
       conferirTodas();
     }
-
   }
   
   return (
@@ -413,4 +430,3 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado, ID}) => {
     </Fragment>
   )
 }
-

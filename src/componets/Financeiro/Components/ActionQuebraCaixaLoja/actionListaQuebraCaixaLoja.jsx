@@ -17,7 +17,6 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 import Swal from "sweetalert2";
-
 import { useConferirQuebra } from "./hooks/useConferirQuebra";
 
 
@@ -258,28 +257,24 @@ export const ActionListaQuebraCaixaLoja = ({
       header: 'Nº Movimento',
       body: row => <p style={{ color: 'blue', width: '150px', margin: '0px', fontWeight: 600 }}>{row.IDMOVIMENTOCAIXA}</p>,
       sortable: true,
-
     },
     {
       field: 'IDFUNCIONARIO',
       header: 'Nº Matrícula',
       body: row => <th style={{ color: 'blue' }}>{row.IDFUNCIONARIO}</th>,
       sortable: true,
-
     },
     {
       field: 'NOMEOPERADOR',
       header: 'Colaborador',
       body: row => <p style={{ color: 'blue', width: '200px', margin: '0px', fontWeight: 600 }}>{row.NOMEOPERADOR}</p>,
       sortable: true,
-
     },
     {
       field: 'CPFOPERADOR',
       header: 'CPF',
       body: row => <th style={{ color: 'blue' }}>{row.CPFOPERADOR}</th>,
       sortable: true,
-
     },
     {
       field: 'VRQUEBRASISTEMA',
@@ -290,7 +285,6 @@ export const ActionListaQuebraCaixaLoja = ({
         } else {
           return <th style={{ color: 'red' }}> - {formatMoeda(row.VRQUEBRASISTEMA)}</th>
         }
-
       },
       sortable: true,
     },
@@ -316,7 +310,7 @@ export const ActionListaQuebraCaixaLoja = ({
       field: 'STATIVO',
       header: 'Situação',
       body: (row) => {
-        // ========== LÓGICA IDÊNTICA AO JQUERY ==========
+     
         const situacaoQuebraLoja = row.STATIVO == 'True';
         const situacaoConferido = row.STCONFERIDO == 'True';
         let tagQuebraAtivo = null;
@@ -348,7 +342,7 @@ export const ActionListaQuebraCaixaLoja = ({
       field: 'IDQUEBRACAIXA',
       header: 'Opções',
       body: (row) => {
-        // ========== LÓGICA IDÊNTICA AO JQUERY ==========
+
         const situacaoQuebraLoja = row.STATIVO == 'True';
         const situacaoConferido = row.STCONFERIDO == 'True';
         let containerButtons = null;
@@ -370,7 +364,7 @@ export const ActionListaQuebraCaixaLoja = ({
               </div>
             );
           } else {
-            // NÃO CONFERIDO: mostrar Cancelar + Imprimir + Conferir
+         
             containerButtons = (
               <div className="d-flex" style={{ justifyContent: "space-between" }}>
                 <div className="mr-2">
@@ -403,14 +397,17 @@ export const ActionListaQuebraCaixaLoja = ({
                     iconSize={20}
                     width="30px"
                     height="30px"
-                    onClickButton={() => handleClickConferir(row)}
+                    onClickButton={() => {
+                      setSelectedItems([row]);
+                      conferir(row);
+                    }}
                   />
                 </div>
               </div>
             );
           }
         } else {
-          // CANCELADO: mostrar apenas Ativar
+       
           containerButtons = (
             <div>
               <ButtonTable
@@ -483,26 +480,7 @@ export const ActionListaQuebraCaixaLoja = ({
     }
   };
 
-  const handleClickConferir = (row) => {
-    if (optionsModulos[0]?.ALTERAR == 'True') {
-      if (row && row.IDQUEBRACAIXA) {
-        // TODO: implementar lógica de conferir quebra de caixa
-        console.log('Conferir Quebra de Caixa:', row.IDQUEBRACAIXA);
-      }
-    } else {
-      Swal.fire({
-        position: 'center',
-        icon: 'error',
-        title: 'Acesso Negado!',
-        text: 'Você não tem permissão para conferir esta quebra.',
-        showConfirmButton: false,
-        timer: 1500,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-    }
-  };
+
 
   const footerGroup = (
     <ColumnGroup>

@@ -74,7 +74,7 @@ export const useConferirTodasQuebras = ({
                             IDFUNCIONARIO: Number(usuarioLogado.id),
                         }
 
-                        const response = await put('/conferencia-fatura/:id', putData)
+                        const response = await put('/quebra-caixa-conferencia/:id', putData)
                         const textDados = JSON.stringify(putData)
                         const ipUsuario = await getIPUsuario();
                         const postData = {
