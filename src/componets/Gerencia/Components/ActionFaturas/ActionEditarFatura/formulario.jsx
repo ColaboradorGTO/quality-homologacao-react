@@ -7,7 +7,7 @@ import { useEditarFatura } from "../hooks/useEditarFatura";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schema/useEditarSchema";
 
-export const Formulario = ({ handleClose, dadosDetalheFatura, usuarioLogado, optionsModulos, handleClick }) => {
+export const Formulario = ({ handleClose, dadosDetalheFatura, usuarioLogado, optionsModulos, handleClick, refetchListaFaturas }) => {
     const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
         mode: "onChange"
     });
@@ -23,7 +23,7 @@ export const Formulario = ({ handleClose, dadosDetalheFatura, usuarioLogado, opt
         numeroMovimento,
         setNumeroMovimento,
         onSubmit
-    } = useEditarFatura({ dadosDetalheFatura, usuarioLogado, optionsModulos, handleClose, handleClick });
+    } = useEditarFatura({ dadosDetalheFatura, usuarioLogado, optionsModulos, handleClose, handleClick, refetchListaFaturas });
 
     const handleValidatedSubmit = async () => {
         try {

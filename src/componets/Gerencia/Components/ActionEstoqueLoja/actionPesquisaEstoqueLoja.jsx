@@ -26,10 +26,8 @@ export const ActionPesquisaEstoqueLoja = ({usuarioLogado, ID, optionsEmpresas}) 
   const [marcaSelecionada, setMarcaSelecionada] = useState([]);
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState([]);
   const [codBarra, setCodBarra] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
 
-  const navigate = useNavigate();
   const animatedComponents = makeAnimated();
 
   useEffect(() => {
@@ -38,7 +36,7 @@ export const ActionPesquisaEstoqueLoja = ({usuarioLogado, ID, optionsEmpresas}) 
     setDataPesquisaInicio(dataInicial);
     setDataPesquisaFim(dataFinal);
     
-  }, [navigate]);
+  }, []);
 
 
   const { data: dadosFornecedor = [], error: errorFornecedor, isLoading: isLoadingFornecedor } = useQuery(
@@ -195,7 +193,6 @@ export const ActionPesquisaEstoqueLoja = ({usuarioLogado, ID, optionsEmpresas}) 
     
 
     if(usuarioLogado && usuarioLogado.IDEMPRESA && usuarioLogado.IDGRUPOEMPRESARIAL && usuarioLogado.IDSUBGRUPOEMPRESARIAL) {
-      setCurrentPage(+1);
       refetchListaEstoque (usuarioLogado && usuarioLogado.IDEMPRESA && usuarioLogado.IDGRUPOEMPRESARIAL && usuarioLogado.IDSUBGRUPOEMPRESARIAL)
       setTabelaVisivelEstoqueAtual(true)
       setTabelaVisivelEstoqueRotatividade(false)
@@ -207,7 +204,6 @@ export const ActionPesquisaEstoqueLoja = ({usuarioLogado, ID, optionsEmpresas}) 
     
 
     if(usuarioLogado && usuarioLogado.IDEMPRESA && usuarioLogado.IDGRUPOEMPRESARIAL && usuarioLogado.IDSUBGRUPOEMPRESARIAL) {
-      setCurrentPage(+1);
       refetchListaEstoqueRotatividade(usuarioLogado && usuarioLogado.IDEMPRESA && usuarioLogado.IDGRUPOEMPRESARIAL && usuarioLogado.IDSUBGRUPOEMPRESARIAL)
       setTabelaVisivelEstoqueRotatividade(true)
       setTabelaVisivelEstoqueAtual(false)

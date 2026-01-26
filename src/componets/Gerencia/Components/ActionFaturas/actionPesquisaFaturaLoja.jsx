@@ -129,6 +129,7 @@ export const ActionPesquisaFaturaLoja = ({usuarioLogado, ID, optionsEmpresas}) =
           usuarioLogado={usuarioLogado}
           optionsModulos={optionsModulos}  
           handleClick={handleClick}
+          refetchListaFaturas={refetchListaFaturas}
         />
       )}
 

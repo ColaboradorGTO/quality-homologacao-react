@@ -4,7 +4,7 @@ import { useState } from "react";
 import axios from "axios";
 
 
-export const useCancelarFatura = ({dadosCancelarFatura, usuarioLogado, optionsModulos}) => {
+export const useCancelarFatura = ({dadosCancelarFatura, usuarioLogado, optionsModulos, refetchListaFaturas, handleClose}) => {
     const [motivo, setMotivo] = useState('');
     const [ipUsuario, setIpUsuario] = useState('');
     
@@ -76,7 +76,8 @@ export const useCancelarFatura = ({dadosCancelarFatura, usuarioLogado, optionsMo
                     container: 'custom-swal',
                 }
             })
-            
+            handleClose()
+            refetchListaFaturas()
             return response.data;
         } catch (error) {
             const textDados = JSON.stringify(putData)

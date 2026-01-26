@@ -22,24 +22,24 @@ const chunkArray = (array, size) => {
 export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumuladorEtiquetas }) => {
   const dataTableRef = useRef();
 
- 
-  const handlePrintZPL = async () => {
-  try {
-    let etiquetasZPL = '';
 
-    for (let itemIndex = 0; itemIndex < dadosAcumuladorEtiquetas.length; itemIndex++) {
-      let { 
-        tipoSelecionado: titulo, 
-        empresaOrigem, 
-        empresaDestinoSelecionada: empresaDestino, 
-        numeroOR, 
-        numeroOT, 
-        descricao, 
-        categoria, 
-        solicitanteSelecionado, 
-        quantidade
-      } = dadosAcumuladorEtiquetas[itemIndex]
-      etiquetasZPL += `
+  const handlePrintZPL = async () => {
+    try {
+      let etiquetasZPL = '';
+
+      for (let itemIndex = 0; itemIndex < dadosAcumuladorEtiquetas.length; itemIndex++) {
+        let {
+          tipoSelecionado: titulo,
+          empresaOrigem,
+          empresaDestinoSelecionada: empresaDestino,
+          numeroOR,
+          numeroOT,
+          descricao,
+          categoria,
+          solicitanteSelecionado,
+          quantidade
+        } = dadosAcumuladorEtiquetas[itemIndex]
+        etiquetasZPL += `
                 ^XA~TA000~JSN^LT0^MNW^MTT^PON^PMN^LH0,0^JMA^PR2,2~SD15^JUS^LRN^CI0^XZ
                 ^XA
                 ^MMT
@@ -77,23 +77,22 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
 
                 ^XZ
             `;
+      }
+
+
+      await enviarZPLParaImpressora(etiquetasZPL);
+
+
+    } catch (error) {
+
+      console.error(error);
     }
-
-
-    await enviarZPLParaImpressora(etiquetasZPL);
-
-
-  } catch (error) {
-
-    console.error(error);
   }
-}
-// console.log(dadosAcumuladorEtiquetas);
 
-  // Definir etiquetas antes de usar na função
-  const etiquetas = dadosAcumuladorEtiquetas.map((item, index) => {
-    let contador = index + 1;
-    return {
+  const etiquetas = dadosAcumuladorEtiquetas.flatMap((item) => {
+    const quantidade = Number(item.quantidade) || 1;
+
+    return Array.from({ length: quantidade }, (_, i) => ({
       titulo: item.tipoSelecionado,
       descricao: item.descricao,
       categoria: item.categoria,
@@ -102,13 +101,13 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
       empresaDestino: item.empresaDestinoSelecionada,
       empresaOrigem: item.empresaOrigem,
       solicitante: item.solicitanteSelecionado,
-      quantidade: item.quantidade || 1
-    }
+      quantidade,
+      copiaAtual: i + 1
+    }))
   });
 
   const etiquetasPorPagina = chunkArray(etiquetas, 3);
   const totalPaginas = etiquetasPorPagina.length;
-
 
   return (
     <Fragment>
@@ -139,7 +138,7 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
 
           <div ref={dataTableRef}>
             {etiquetasPorPagina.map((pagina, pageIndex) => (
-              <div key={pageIndex} className="etiqueta-page" style={{}}>
+              <div key={pageIndex} className="etiqueta-page" style={{ display: 'flex', flexDirection: 'column', flexWrap: 'wrap', gap: '30px', marginTop: '30px' }}>
                 {pagina.map((etiqueta, etiquetaIndex) => (
                   <div className="etiqueta-page-remanejamento" key={etiquetaIndex}>
                     <div className="card border-dark w-100 p-0">
@@ -153,22 +152,22 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
                         <div className="d-flex justify-content-between mb-2 fw-900">
                           <div className="title-desc-etiqueta">
                             <span><u>OR:</u></span>
-                            <span style={{textTransform: "uppercase"}}><u> {etiqueta?.numeroOR} </u></span>
+                            <span style={{ textTransform: "uppercase" }}><u> {etiqueta?.numeroOR} </u></span>
                           </div>
                           <div className="title-desc-etiqueta">
                             <span><u>OT:</u></span>
-                            <span style={{textTransform: "uppercase"}}><u> {etiqueta?.numeroOT} </u></span>
+                            <span style={{ textTransform: "uppercase" }}><u> {etiqueta?.numeroOT} </u></span>
                           </div>
                         </div>
 
                         <div className="title-desc-etiqueta mb-2 fw-900">
                           <span><u>DESCRIÇÃO:</u></span>
-                          <span style={{textTransform: "uppercase"}}> {etiqueta?.descricao}</span>
+                          <span style={{ textTransform: "uppercase" }}> {etiqueta?.descricao}</span>
                         </div>
 
                         <div className="title-desc-etiqueta mb-2 fw-900">
                           <span><u>CATEGORIA:</u></span>
-                          <span style={{textTransform: "uppercase"}}> {etiqueta?.categoria}</span>
+                          <span style={{ textTransform: "uppercase" }}> {etiqueta?.categoria}</span>
                         </div>
 
                         <div
@@ -176,24 +175,24 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
                           style={{ display: etiqueta?.solicitante === '' ? 'none' : undefined }}
                         >
                           <span><u>SOLICITANTE:</u></span>
-                          <span style={{textTransform: "uppercase"}}> {etiqueta?.solicitante} </span>
+                          <span style={{ textTransform: "uppercase" }}> {etiqueta?.solicitante} </span>
                         </div>
 
                         <div className="title-desc-etiqueta mb-2 fw-900">
                           <span><u>REMETENTE:</u></span>
-                          <span style={{textTransform: "uppercase"}}> {etiqueta?.empresaOrigem}</span>
+                          <span style={{ textTransform: "uppercase" }}> {etiqueta?.empresaOrigem}</span>
                         </div>
 
                         <div className="d-flex justify-content-start mb-1 fw-900">
                           <div className="title-desc-etiqueta">
                             <span><u>DESTINATÁRIO:</u></span>
-                            <span style={{textTransform: "uppercase"}}><u> {etiqueta?.empresaDestino}</u></span>
+                            <span style={{ textTransform: "uppercase" }}><u> {etiqueta?.empresaDestino}</u></span>
                           </div>
                         </div>
                         <div className="d-flex justify-content-end align-items-end mb-1 fw-900">
                           <div className="title-desc-etiqueta">
                             <span><u>QTD: </u></span>
-                            <span><u> {` ${etiquetaIndex + 1}/${etiqueta?.quantidade}`}</u></span>
+                            <span><u> {` ${etiqueta?.copiaAtual}/${etiqueta?.quantidade}`}</u></span>
                           </div>
                         </div>
                       </div>
