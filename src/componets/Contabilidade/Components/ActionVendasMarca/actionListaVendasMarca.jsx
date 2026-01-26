@@ -11,6 +11,7 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -25,7 +26,7 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['#', 'Empresa', 'Data Emissão', 'QTD Total Produto', 'Venda Bruta', 'Desconto', 'Venda Bruta - Desconto' ]],
+      head: [['#', 'Empresa', 'Data Emissão', 'QTD Total Produto', 'Venda Bruta', 'Desconto', 'Venda Bruta - Desconto']],
       body: dados.map(item => [
         item.contador,
         item.NOFANTASIA,
@@ -44,7 +45,7 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
-    const header = ['#', 'Empresa', 'Data Emissão', 'QTD Total Produto', 'Venda Bruta', 'Desconto', 'Venda Bruta - Desconto' ];
+    const header = ['#', 'Empresa', 'Data Emissão', 'QTD Total Produto', 'Venda Bruta', 'Desconto', 'Venda Bruta - Desconto'];
     worksheet['!cols'] = [
       { wpx: 100, caption: '#' },
       { wpx: 200, caption: 'Empresa' },
@@ -156,6 +157,9 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
             sortOrder={-1}
             paginator={true}
             rows={10}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
