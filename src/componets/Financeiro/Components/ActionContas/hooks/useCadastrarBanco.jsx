@@ -69,8 +69,15 @@ export const useCadastrarConta = ({
             cancelButtonText: 'Não',
             customClass: {
                 container: 'custom-swal',
+                actions: 'swal-button-spacing'
             },
-            width: '500px'
+            width: '500px',
+            buttonsStyling: false,
+            didOpen: () => {
+                const style = document.createElement('style');
+                style.innerHTML = '.swal-button-spacing button { margin: 0 5px; }';
+                document.head.appendChild(style);
+            }
         });
 
         if (!confirmResult.isConfirmed) {

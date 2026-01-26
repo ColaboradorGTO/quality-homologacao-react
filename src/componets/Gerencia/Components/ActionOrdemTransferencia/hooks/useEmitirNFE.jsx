@@ -63,11 +63,7 @@ export const useEmitirNFE = ({ usuarioLogado, optionsModulos, handleClick }) => 
                     NUTOTALVOLUMES: 0,
                     TPVOLUME: "",
                 };
-                /*  const putData = {
-                     IDSTATUSOT: parseInt(3),
-                     IDRESUMOOT: parseInt(row.IDRESUMOOT),
-                     IDEMPRESAORIGEM: parseInt(row.IDEMPRESAORIGEM),
-                 }; */
+
                 try {
                     const response = await put('/resumo-ordem-transferencia/:id', putData);
 

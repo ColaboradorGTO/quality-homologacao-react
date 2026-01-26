@@ -28,6 +28,8 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
         return usuarioIP;
     };
 
+    console.log(selectedItems, 'selectedItems no useConferirQuebra');
+
     const conferir = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
@@ -52,9 +54,15 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
             cancelButtonText: 'Não',
             customClass: {
                 confirmButton: 'btn btn-success',
-                cancelButton: 'btn btn-danger'
+                cancelButton: 'btn btn-danger',
+                actions: 'swal-button-spacing'
             },
-            buttonsStyling: false
+            buttonsStyling: false,
+            didOpen: () => {
+                const style = document.createElement('style');
+                style.innerHTML = '.swal-button-spacing button { margin: 0 5px; }';
+                document.head.appendChild(style);
+            }
         }).then(async (result) => {
 
             if (result.isConfirmed) {
@@ -89,7 +97,7 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
                         },
                     })
         
-                    handleClick();
+                    await handleClick();
                     return response.data;
                 } catch (error) {
                     const textDados = JSON.stringify(putData)

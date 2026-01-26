@@ -40,7 +40,7 @@ export const ActionListaQuebraCaixaLoja = ({
 
   const {
     handleCancelar
-  } = useAtivarCancelar({ usuarioLogado, optionsModulos });
+  } = useAtivarCancelar({ usuarioLogado, optionsModulos, handleClick });
 
   const {
     conferir
@@ -397,6 +397,8 @@ export const ActionListaQuebraCaixaLoja = ({
                     height="30px"
                     onClickButton={() => {
                       setSelectedItems([row]);
+                      console.log('Row selecionada para conferir:', row);
+                      console.log('SelectedItems antes de conferir:', selectedItems);
                       conferir(row);
                     }}
                   />

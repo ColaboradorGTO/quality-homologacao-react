@@ -3,7 +3,7 @@ import { useState } from "react";
 import { post, put } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 
-export const useAtivarCancelar = ({ usuarioLogado, optionsModulos }) => {
+export const useAtivarCancelar = ({ usuarioLogado, optionsModulos, handleClick }) => {
   const [ipUsuario, setIpUsuario] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -71,7 +71,7 @@ export const useAtivarCancelar = ({ usuarioLogado, optionsModulos }) => {
       }
 
       await post('/log-web', postData)
-
+      await handleClick();
       return response.data;
 
     } catch (error) {

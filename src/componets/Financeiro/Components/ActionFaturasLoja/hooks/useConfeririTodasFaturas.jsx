@@ -59,9 +59,15 @@ export const useConferirTodasFaturas = ({
             cancelButtonText: 'Não',
             customClass: {
                 confirmButton: 'btn btn-success',
-                cancelButton: 'btn btn-danger'
+                cancelButton: 'btn btn-danger',
+                actions: 'swal-button-spacing'
             },
-            buttonsStyling: false
+            buttonsStyling: false,
+            didOpen: () => {
+                const style = document.createElement('style');
+                style.innerHTML = '.swal-button-spacing button { margin: 0 5px; }';
+                document.head.appendChild(style);
+            }
         }).then(async (result) => {
 
             if (result.isConfirmed) {
