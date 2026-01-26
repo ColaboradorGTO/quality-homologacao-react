@@ -69,6 +69,18 @@ export const useIntegrarTodosAdiantamento = ({
         }).then(async (result) => {
 
             if (result.isConfirmed) {
+                Swal.fire({
+                position: 'center',
+                icon: 'info',
+                title: 'Integrando Adiantamentos',
+                html: 'Aguarde... <br><small><strong id="progressoIntegracao">0</strong> de <strong id="totalIntegracao">' + selectedItems.length + '</strong></small>',
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                customClass: {
+                    container: 'custom-swal',
+                }
+            });
                 try {
                     for (let i = 0; i < selectedItems.length; i++) {
                         const rowData = selectedItems[i];
@@ -76,6 +88,9 @@ export const useIntegrarTodosAdiantamento = ({
                             IDADIANTAMENTOSALARIO: parseInt(rowData.IDADIANTAMENTOSALARIO),
                             IDFUNCIONARIO: Number(usuarioLogado.id),
                         };
+                        
+                        document.getElementById('progressoIntegracao').innerText = i + 1;
+
 
                         const response = await post('/adiantamentos-salariais-integracao', putData)
                         const textDados = JSON.stringify(putData)
@@ -89,7 +104,6 @@ export const useIntegrarTodosAdiantamento = ({
 
                         await post('/log-web', postData)
                     }
-
                     Swal.fire({
                         position: 'center',
                         icon: 'success',
@@ -102,7 +116,8 @@ export const useIntegrarTodosAdiantamento = ({
                     })
 
                     handleClick();
-                    return;
+                    // return response.data;
+
                 } catch (error) {
                     
                     const ipUsuario = await getIPUsuario();
