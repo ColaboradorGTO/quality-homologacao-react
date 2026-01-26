@@ -1,10 +1,9 @@
 import { Fragment, useRef, useState } from "react"
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable"
 import { formatMoeda } from "../../../../utils/formatMoeda"
-import { dataFormatada } from "../../../../utils/dataFormatada"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { FaCheck } from "react-icons/fa"
+import { FaCheck, FaCloudUploadAlt } from "react-icons/fa"
 import HeaderTable from "../../../Tables/headerTable"
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
@@ -15,12 +14,27 @@ import { BsTrash3 } from "react-icons/bs"
 import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
 import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
+import { useEffect } from "react";
+import { Checkbox } from "primereact/checkbox";
+import { FaEye } from "react-icons/fa6";
+import { mascaraCPF } from "../../../../utils/formatCPF";
 
 
-
-export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionarios, optionsModulos, usuarioLogado, handleClick }) => {
+export const ActionListaAdiantamentoSalarioLoja = ({
+  dadosAdiantamentoFuncionarios,
+  optionsModulos,
+  usuarioLogado,
+  handleClick,
+  selectedItems,
+  setSelectedItems
+}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
+  const [selectAllChecked, setSelectAllChecked] = useState(false);
+  const [btnVisivel, setBtnVisivel] = useState(false);
+  const [first, setFirst] = useState(0);
+  const [rows, setRows] = useState(10);
+
   const dataTableRef = useRef();
   const {
     handleAtivar,
@@ -32,7 +46,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
   };
 
   const handlePrint = useReactToPrint({
-    content: () => dataTableRef.current ,
+    content: () => dataTableRef.current,
     documentTitle: 'Adiantamento Salarial das Lojas',
 
   });
@@ -41,7 +55,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
     const doc = new jsPDF();
     doc.autoTable({
       head: [['Nº', 'Empresa', 'Data Mov', 'Funcionário', 'CPF', 'Valor', 'Situação']],
-      body: dadosAdiantamentos.map(item => [
+      body: dados.map(item => [
         item.contador,
         item.NOFANTASIA,
         item.DTLANCAMENTO,
@@ -68,7 +82,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
       { wpx: 100, caption: 'CPF' },
       { wpx: 100, caption: 'Valor' },
       { wpx: 100, caption: 'Situação' },
-    ]; 
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Adiantamento Salarial das Lojas');
     XLSX.writeFile(workbook, 'adiantamento_salarial.xlsx');
@@ -77,7 +91,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
 
   const dadosExcel = Array.isArray(dadosAdiantamentoFuncionarios) ? dadosAdiantamentoFuncionarios.map((item, index) => {
     let contador = index + 1;
-  
+
     return {
       contador,
       NOFANTASIA: item.NOFANTASIA,
@@ -90,36 +104,140 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
     }
   }) : [];
 
-  const dadosAdiantamentos = dadosAdiantamentoFuncionarios.map((item, index) => {
+  const arraySituacao = [
+    {color: 'info', txt: 'Pronto para Integrar SAP'},
+    {color: 'primary', txt: 'Em Fila'},
+    {color: 'success', txt: 'Integrado'},
+    {color: 'danger', txt: 'Erro ao Tentar Integrar'},
+    {color: 'danger', txt: 'Cancelado'}
+  ]
+
+  const arrayMsgStatusIntegracao = [
+    'Adiantamento Pronto Para Integrar',
+    'Integração Em Andamento, Aguarde...',
+    'Adiantamento Integrado Com Sucesso!',
+    'Erro ao Tentar Integrar',
+    'Cancelado'
+  ];
+
+  const dados = dadosAdiantamentoFuncionarios.map((item, index) => {
     let contador = index + 1;
+    const idMovAdiantamento = item?.IDADIANTAMENTOSALARIO;
+    const stAdiantamento = item?.STATIVO === 'True';
+    const stMigrado = Number(item?.DOCENTRY_SAP_CONTAS_A_PAGAR || 0) > 0;
+    const logErrorIntegracao = item?.ERROR_LOG_SAP || '';
+    const stAguardandoEmFila = item?.STATUS_BLOQUEIO_ATUALIZACAO === 'True';
+    const indexSituacao = !stAdiantamento ? 4 : logErrorIntegracao.length ? 3 : stMigrado ? 2 : stAguardandoEmFila ? 1 : 0;
+    const colorSitucao = arraySituacao[indexSituacao].color;
+    const msgTitleIntegracao = (logErrorIntegracao.length) ? 'MOTIVO:' : arraySituacao[indexSituacao].txt
+    const msgTextIntegracao = logErrorIntegracao || arrayMsgStatusIntegracao[indexSituacao];
+    const txtSituacao = arraySituacao[indexSituacao].txt;
+
+    const tagStAdiantamento = `<span class="text-${colorSitucao} fw-900">${txtSituacao}</span>`;
     return {
       contador,
+      indexSituacao,
       NOFANTASIA: item.NOFANTASIA,
       DTLANCAMENTO: item.DTLANCAMENTO,
       NOFUNCIONARIO: item.NOFUNCIONARIO,
       NUCPF: item.NUCPF,
       VRVALORDESCONTO: item.VRVALORDESCONTO,
       STATIVO: item.STATIVO,
+      stAdiantamento,
+      stMigrado,
+      logErrorIntegracao,
+      stAguardandoEmFila,
       IDADIANTAMENTOSALARIO: item.IDADIANTAMENTOSALARIO,
+      tagStAdiantamento,
+      colorSitucao,
+      msgTitleIntegracao,
+      msgTextIntegracao,
+      txtSituacao,
     }
   });
 
 
   const calcularTotal = (field, condition = null) => {
-    return dadosAdiantamentos.reduce((total, item) => {
+    return dados.reduce((total, item) => {
       if (condition && !condition(item)) {
         return total;
       }
       return total + parseFloat(item[field]);
     }, 0);
   };
-  
+
   const calcularTotalValorDesconto = () => {
     const total = calcularTotal('VRVALORDESCONTO', item => item.STATIVO === 'True');
     return total;
   };
 
-  
+  useEffect(() => {
+    const itensSelecionaveis = dados.filter(item =>
+      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDADIANTAMENTOSALARIO
+    );
+
+    const dadosPaginaAtual = dados.slice(first, first + rows);
+    const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
+      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDADIANTAMENTOSALARIO
+    );
+
+    if (selectedItems.length === 0) {
+      setSelectAllChecked(false);
+    } else if (
+      selectedItems.length === itensSelecionaveis.length ||
+      (selectedItems.length === itensSelecionaveisPaginaAtual.length &&
+        itensSelecionaveisPaginaAtual.length > 0 &&
+        itensSelecionaveisPaginaAtual.every(item =>
+          selectedItems.some(selected => selected.IDADIANTAMENTOSALARIO === item.IDADIANTAMENTOSALARIO)
+        ))
+    ) {
+      setSelectAllChecked(true);
+    } else {
+      setSelectAllChecked(false);
+    }
+
+  }, [selectedItems, dados, first, rows]);
+
+  const onSelectAllChange = (e) => {
+    if (e.checked) {
+
+      Swal.fire({
+        icon: 'question',
+        title: 'Selecione o modo de seleção',
+        text: 'Deseja selecionar todos da tabela ou somente o que está em tela?',
+        showConfirmButton: true,
+        showCancelButton: true,
+        showCloseButton: true,
+        confirmButtonText: 'Todos os registros',
+        cancelButtonText: 'Apenas o que está tela',
+        cancelButtonColor: '#2196F3',
+        allowOutsideClick: false,
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const itensSelecionaveis = dados.filter(item =>
+            item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDADIANTAMENTOSALARIO
+          );
+          setBtnVisivel(true);
+          setSelectedItems([...itensSelecionaveis]);
+        } else if (result.dismiss === Swal.DismissReason.cancel) {
+          const dadosPaginaAtual = dados.slice(first, first + rows);
+
+          const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
+            item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDADIANTAMENTOSALARIO
+          );
+          setBtnVisivel(true);
+          setSelectedItems([...itensSelecionaveisPaginaAtual]);
+        } else {
+          setBtnVisivel(false);
+          setSelectedItems([]);
+        }
+      });
+    } else {
+      setBtnVisivel(false);
+      setSelectedItems([]);
+    }
+  };
+
   const colunasAdiantamentos = [
     {
       field: 'contador',
@@ -127,6 +245,42 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
       body: row => <th style={{ color: 'blue' }}>{row.contador}</th>,
       sortable: true,
       width: "10%"
+    },
+    {
+      field: 'Selecione',
+      selectionMode: 'multiple',
+      body: (rowData) => {
+        if (!rowData.stAdiantamento || rowData.stAguardandoEmFila || rowData.stMigrado) {
+          return null;
+        }
+
+        return (
+          <td>
+            <div className="custom-control custom-checkbox">
+              <Checkbox
+                inputId={`chk-${rowData.IDADIANTAMENTOSALARIO}`}
+                checked={selectedItems.some(
+                  item => item.IDADIANTAMENTOSALARIO === rowData.IDADIANTAMENTOSALARIO
+                )}
+                onChange={(e) => {
+                  let _selectedItems = [...selectedItems];
+
+                  if (e.checked) {
+                    _selectedItems.push(rowData);
+                  } else {
+                    _selectedItems = _selectedItems.filter(
+                      item => item.IDADIANTAMENTOSALARIO !== rowData.IDADIANTAMENTOSALARIO
+                    );
+                  }
+
+                  setSelectedItems(_selectedItems);
+                }}
+              />
+            </div>
+          </td>
+        );
+      },
+      sortable: true,
     },
     {
       field: 'NOFANTASIA',
@@ -143,50 +297,49 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
     },
     {
       field: 'NOFUNCIONARIO',
-      header: 'Funcionário',
+      header: 'Colaborador',
       body: row => <th style={{ color: 'blue' }}>{row.NOFUNCIONARIO}</th>,
       sortable: true,
     },
     {
       field: 'NUCPF',
       header: 'CPF',
-      body: row => <th style={{ color: 'blue' }}>{row.NUCPF}</th>,
+      body: row => <th style={{ color: 'blue' }}>{mascaraCPF(row.NUCPF)}</th>,
       footer: 'Total Lançamentos',
       sortable: true,
     },
     {
       field: 'VRVALORDESCONTO',
-      header: 'Valor',
+      header: 'Vr Lançado',
       body: row => <th style={{ color: 'blue' }}>{formatMoeda(row.VRVALORDESCONTO)}</th>,
-      footer: () => <th> {formatMoeda(calcularTotalValorDesconto())} </th> , 
+      footer: () => <th> {formatMoeda(calcularTotalValorDesconto())} </th>,
       sortable: true,
     },
     {
       field: 'STATIVO',
       header: 'Situação',
       body: row => (
-        <div style={{ color: row.STATIVO === 'True' ? 'blue' : 'red' }}>
-          {row.STATIVO === 'True' ? 'Ativo' : 'Cancelado'}
-        </div>
+        <th style={{ color: row.colorSituacao }}>
+          {row.txtSituacao}
+        </th>
       ),
     },
     {
       field: 'STATIVO',
       header: 'Opções',
       button: true,
-
       body: (row) => {
-        if (row.STATIVO == 'True') {
+        if (!row.stAdiantamento) {
           return (
             <div className="p-1 "
-              style={{ justifyContent: "space-between" }}
+              style={{ justifyContent: "space-between", display: 'flex' }}
             >
               <div className="p-1">
                 <ButtonTable
-                  titleButton={"Cancelar Adiantamento"}
-                  cor={"danger"}
-                  Icon={BsTrash3}
-                  iconSize={25}
+                  titleButton={"Ativar Adiantamento"}
+                  cor={"success"}
+                  Icon={FaCheck}
+                  iconSize={20}
                   width="35px"
                   height="35px"
                   onClickButton={() => handleClickCancelar(row)}
@@ -195,33 +348,63 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
             </div>
 
           )
-        } else {
-          return (
+        }
 
-            <div className="p-1 "
-              style={{ justifyContent: "space-between" }}
-            >
+        return (
+
+          <div className="p-1 "
+            style={{ justifyContent: "space-between", display: 'flex' }}
+          >
+            {!row.stAguardandoEmFila && (
+
               <div className="p-1">
                 <ButtonTable
-                  titleButton={"Ativar Adiantamento"}
-                  cor={"success"}
-                  Icon={FaCheck}
-                  iconSize={25}
+                  titleButton={"Integrar Adiantamento"}
+                  cor={"info"}
+                  Icon={FaCloudUploadAlt}
+                  iconSize={20}
                   width="35px"
                   height="35px"
                   onClickButton={() => handleClickAtivar(row)}
                 />
               </div>
-            </div>
-          )
+            )}
+            <div className="p-1">
 
-        }
+              <ButtonTable
+                titleButton="Visualizar Status"
+                cor="primary"
+                Icon={FaEye}
+                iconSize={20}
+                width="35px"
+                height="35px"
+                onClickButton={() => msgInfo(row.logErrorIntegracao || arraySituacao[row.indexSituacao].txt)}
+              />
+            </div>
+
+            {!row.stAguardandoEmFila && (
+
+              <div className="p-1">
+                <ButtonTable
+                  titleButton={"Cancelar Adiantamento"}
+                  cor={"danger"}
+                  Icon={BsTrash3}
+                  iconSize={20}
+                  width="35px"
+                  height="35px"
+                  onClickButton={() => handleClickAtivar(row)}
+                />
+              </div>
+            )}
+          </div>
+        )
+
       },
     },
   ]
-  
+
   const handleClickAtivar = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDADIANTAMENTOSALARIO) {
         handleAtivar(row.IDADIANTAMENTOSALARIO);
       }
@@ -241,7 +424,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
   };
 
   const handleClickCancelar = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDADIANTAMENTOSALARIO) {
         handleCancelar(row.IDADIANTAMENTOSALARIO);
       }
@@ -260,18 +443,18 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
     }
   };
 
-  
+
   const footerGroup = (
     <ColumnGroup>
 
-      <Row> 
+      <Row>
         <Column footer="Total Lançamentos" colSpan={5} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', textAlign: 'center' }} />
-        <Column footer={formatMoeda(calcularTotalValorDesconto())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} /> 
-        <Column footer={""} colSpan={2}  footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}/>
+        <Column footer={formatMoeda(calcularTotalValorDesconto())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
+        <Column footer={""} colSpan={2} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
       </Row>
     </ColumnGroup>
   )
-   
+
 
   return (
 
@@ -284,16 +467,31 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
           <HeaderTable
             globalFilterValue={globalFilterValue}
             onGlobalFilterChange={onGlobalFilterChange}
-            handlePrint={() =>handlePrint(dadosAdiantamentos.length)}
+            handlePrint={() => handlePrint(dados.length)}
             exportToExcel={exportToExcel}
             exportToPDF={exportToPDF}
           />
         </div>
+
+        <div style={{ width: "100%", display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+
+          <div className="custom-control custom-checkbox">
+            <Checkbox
+              checked={selectAllChecked}
+              onChange={onSelectAllChange}
+            />
+            <span>
+              {selectAllChecked ? "Desmarcar Todos" : "Marcar Todos"}
+            </span>
+          </div>
+
+        </div>
+
         <div className="card" ref={dataTableRef}>
 
           <DataTable
             title="Vendas por Loja"
-            value={dadosAdiantamentos}
+            value={dados}
             globalFilter={globalFilterValue}
             size="small"
             footerColumnGroup={footerGroup}
@@ -303,7 +501,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({ dadosAdiantamentoFuncionari
             selectionMode="single"
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
-            rowsPerPageOptions={[10, 20, 50, 100, dadosAdiantamentos.length]}
+            rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"

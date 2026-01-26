@@ -10,6 +10,8 @@ import { ActionListaAdiantamentoSalarioLoja } from "./actionListaAdiantamentoSal
 import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData"
+import { IoMdCheckmark } from "react-icons/io"
+import Swal from "sweetalert2"
 
 export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -19,9 +21,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [marcaSelecionada, setMarcaSelecionada] = useState('');
   const [ufSelecionado, setUfSelecionado] = useState('0')
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [isQueryData, setIsQueryData] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -93,14 +93,9 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
   }
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
-    setIsQueryData(true);
     refetch()
     setTabelaVisivel(true)
-    setIsLoadingPesquisa(true);
   }
-
-
 
   const optionsUF = [
     {
@@ -116,6 +111,38 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
       label: 'GO'
     },
   ]
+
+  const conferirTodasSelecionadas = () => {
+    
+    if (selectedItems.length === 0) {
+      Swal.fire({
+        position: 'center',
+        icon: 'warning',
+        title: 'Nenhuma fatura selecionada, selecione e tente novamente!',
+        text: 'Nenhuma fatura selecionada, selecione e tente novamente!',
+        showConfirmButton: true,
+        timer: 6000,
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else if (optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        position: 'center',
+        icon: 'error',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> você não tem permissão para conferir a fatura.`,
+        showConfirmButton: true,
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        },
+      });
+      return;
+    } else {
+      // conferirTodas();
+    }
+  }
 
   return (
 
@@ -170,12 +197,18 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
         valueSelectUF={ufSelecionado}
         onChangeSelectUF={(e) => setUfSelecionado(e.value)}
 
-
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
         onButtonClickSearch={handleClick}
         corSearch={"primary"}
         IconSearch={AiOutlineSearch}
+
+        ButtonTypeCancelar={ButtonType}
+        linkCancelar={"Conferir Todos"}
+        // onButtonClickCancelar={conferirTodasSelecionadas}
+        corCancelar={"warning"}
+        IconCancelar={IoMdCheckmark}
+        styleCancelar
       />
 
       {tabelaVisivel && (
@@ -183,6 +216,8 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
           dadosAdiantamentoFuncionarios={dadosAdiantamentoFuncionarios} 
           optionsModulos={optionsModulos}
           usuarioLogado={usuarioLogado}
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
           handleClick={handleClick}
         />
       )}
