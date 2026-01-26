@@ -64,7 +64,7 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
                     
                     await post('/log-web', postData)
                     
-                    console.log(postData, 'postData');
+                    
                     Swal.fire({
                         title: status ? 'Ativado' : 'Cancelado',
                         text: `Adiantamento ${status ? 'ativado' : 'cancelado'} com Sucesso`,
