@@ -18,7 +18,7 @@ export const ActionPesquisaProductoPreco = () => {
   const fetchListaProdutos = async () => {
     try {
 
-      const urlApi = `/buscar-produtos?descProduto=${produto}`;
+      const urlApi = `/buscar-produtos?descProd=${produto}`;
       const response = await get(urlApi);
       
       if (response.data.length && response.data.length === pageSize) {
