@@ -174,12 +174,12 @@ export const ActionListaAdiantamentoSalarioLoja = ({
 
   useEffect(() => {
     const itensSelecionaveis = dados.filter(item =>
-      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDADIANTAMENTOSALARIO
+      !item.stAdiantamento || item.stAguardandoEmFila || item.stMigrado && item.IDADIANTAMENTOSALARIO
     );
 
     const dadosPaginaAtual = dados.slice(first, first + rows);
     const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
-      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDADIANTAMENTOSALARIO
+      !item.stAdiantamento || item.stAguardandoEmFila || item.stMigrado && item.IDADIANTAMENTOSALARIO
     );
 
     if (selectedItems.length === 0) {
@@ -216,7 +216,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
       }).then((result) => {
         if (result.isConfirmed) {
           const itensSelecionaveis = dados.filter(item =>
-            item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDADIANTAMENTOSALARIO
+            !item.stAdiantamento || item.stAguardandoEmFila || item.stMigrado && item.IDADIANTAMENTOSALARIO
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveis]);
@@ -224,7 +224,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
           const dadosPaginaAtual = dados.slice(first, first + rows);
 
           const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
-            item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDADIANTAMENTOSALARIO
+            !item.stAdiantamento || item.stAguardandoEmFila || item.stMigrado && item.IDADIANTAMENTOSALARIO
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveisPaginaAtual]);
