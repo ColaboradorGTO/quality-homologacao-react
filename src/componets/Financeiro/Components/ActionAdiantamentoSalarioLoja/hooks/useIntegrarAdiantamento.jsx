@@ -58,18 +58,15 @@ export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleCl
                 document.head.appendChild(style);
             }
         }).then(async (result) => {
-
             if (result.isConfirmed) {
-
                 const putData = {
                     IDADIANTAMENTOSALARIO: parseInt(rowData.IDADIANTAMENTOSALARIO),
                     IDFUNCIONARIO: Number(usuarioLogado.id),
                 }
 
-
                 try {
         
-                    const response = await post('/criar-consolidacao-faturas', putData)
+                    const response = await post('/adiantamentos-salariais-integracao', putData)
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
@@ -104,8 +101,6 @@ export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleCl
                     }
 
                     const responsePost = await post('/log-web', postData)
-
-
                     Swal.fire({
                         position: 'center',
                         icon: 'error',

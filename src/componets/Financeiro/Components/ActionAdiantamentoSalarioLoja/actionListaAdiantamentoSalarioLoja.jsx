@@ -18,6 +18,7 @@ import { useEffect } from "react";
 import { Checkbox } from "primereact/checkbox";
 import { FaEye } from "react-icons/fa6";
 import { mascaraCPF } from "../../../../utils/formatCPF";
+import { useIntegrarAdiantamento } from "./hooks/useIntegrarAdiantamento";
 
 
 export const ActionListaAdiantamentoSalarioLoja = ({
@@ -40,6 +41,10 @@ export const ActionListaAdiantamentoSalarioLoja = ({
     handleAtivar,
     handleCancelar,
   } = useAtivarCancelar({ usuarioLogado, optionsModulos, handleClick });
+
+  const {
+    confirmar
+  } = useIntegrarAdiantamento({optionsModulos, usuarioLogado, handleClick}) 
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -348,15 +353,11 @@ export const ActionListaAdiantamentoSalarioLoja = ({
                 />
               </div>
             </div>
-
           )
         }
 
         return (
-
-          <div className="p-1 "
-            style={{ justifyContent: "space-between", display: 'flex' }}
-          >
+          <div className="p-1 " style={{ justifyContent: "space-between", display: 'flex' }}>
             {!row.stAguardandoEmFila && (
 
               <div className="p-1">
@@ -400,7 +401,6 @@ export const ActionListaAdiantamentoSalarioLoja = ({
             )}
           </div>
         )
-
       },
     },
   ]

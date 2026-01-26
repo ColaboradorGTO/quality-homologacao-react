@@ -7,25 +7,21 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
-        let usuarioIP = null;
-
-        try {
+       try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            usuarioIP = ipWhoisData?.ip;
-        } catch (error) {
-            console.error("Erro ao buscar IP via ipwho.is:", error);
-        }
+            let usuarioIP = ipWhoisData?.ip;
 
-        if (!usuarioIP) {
-            try {
+            if (!usuarioIP) {
                 const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
                 usuarioIP = ipifyData?.ip;
-            } catch (error) {
-                console.error("Erro ao buscar IP via ipify.org:", error);
             }
+
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
         }
-        setIpUsuario(usuarioIP);
-        return usuarioIP;
     };
 
     const handleAtivar = async (IDADIANTAMENTOSALARIO, STATIVO) => {
@@ -43,7 +39,12 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
                 cancelButton: 'btn btn-danger',
                 loader: 'custom-loader'
             },
-            buttonsStyling: false
+            buttonsStyling: false,
+            didOpen: () => {
+                const style = document.createElement('style');
+                style.innerHTML = '.swal-button-spacing button { margin: 0 5px; }';
+                document.head.appendChild(style);
+            }
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
