@@ -44,7 +44,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
 
   const {
     confirmar
-  } = useIntegrarAdiantamento({optionsModulos, usuarioLogado, handleClick}) 
+  } = useIntegrarAdiantamento({optionsModulos, usuarioLogado, handleClick, setSelectedItems}) 
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);

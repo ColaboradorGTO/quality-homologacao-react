@@ -3,7 +3,7 @@ import { post } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleClick}) => {
+export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleClick, setSelectedItems}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
@@ -59,6 +59,19 @@ export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleCl
             }
         }).then(async (result) => {
             if (result.isConfirmed) {
+                Swal.fire({
+                    position: 'center',
+                    icon: 'info',
+                    title: 'Integrando Adiantamentos',
+                    html: 'Aguarde... <br><small><strong id="progressoIntegracao">0</strong> de <strong id="totalIntegracao">' + rowData.length + '</strong></small>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    customClass: {
+                        container: 'custom-swal',
+                    }
+                });
+
                 const putData = {
                     IDADIANTAMENTOSALARIO: parseInt(rowData.IDADIANTAMENTOSALARIO),
                     IDFUNCIONARIO: Number(usuarioLogado.id),
@@ -89,6 +102,7 @@ export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleCl
                     })
         
                     handleClick();
+                    setSelectedItems([]);
                     return response.data;
                 } catch (error) {
                     const textDados = JSON.stringify(putData)

@@ -10,7 +10,7 @@ export const useIntegrarTodosAdiantamento = ({
     selectedItems,
 }) => {
     const [ipUsuario, setIpUsuario] = useState('');
-    console.log('selectedItems', selectedItems);
+ 
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
@@ -70,17 +70,17 @@ export const useIntegrarTodosAdiantamento = ({
 
             if (result.isConfirmed) {
                 Swal.fire({
-                position: 'center',
-                icon: 'info',
-                title: 'Integrando Adiantamentos',
-                html: 'Aguarde... <br><small><strong id="progressoIntegracao">0</strong> de <strong id="totalIntegracao">' + selectedItems.length + '</strong></small>',
-                showConfirmButton: false,
-                allowOutsideClick: false,
-                allowEscapeKey: false,
-                customClass: {
-                    container: 'custom-swal',
-                }
-            });
+                    position: 'center',
+                    icon: 'info',
+                    title: 'Integrando Adiantamentos',
+                    html: 'Aguarde... <br><small><strong id="progressoIntegracao">0</strong> de <strong id="totalIntegracao">' + selectedItems.length + '</strong></small>',
+                    showConfirmButton: false,
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    customClass: {
+                        container: 'custom-swal',
+                    }
+                });
                 try {
                     for (let i = 0; i < selectedItems.length; i++) {
                         const rowData = selectedItems[i];
@@ -116,7 +116,7 @@ export const useIntegrarTodosAdiantamento = ({
                     })
 
                     handleClick();
-                    // return response.data;
+                    
 
                 } catch (error) {
                     
