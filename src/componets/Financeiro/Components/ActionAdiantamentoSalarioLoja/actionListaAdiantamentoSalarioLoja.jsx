@@ -105,11 +105,11 @@ export const ActionListaAdiantamentoSalarioLoja = ({
   }) : [];
 
   const arraySituacao = [
-    {color: 'info', txt: 'Pronto para Integrar SAP'},
-    {color: 'primary', txt: 'Em Fila'},
+    {color: '#2196F3', txt: 'Pronto para Integrar SAP'},
+    {color: '#886ab5', txt: 'Em Fila'},
     {color: 'success', txt: 'Integrado'},
-    {color: 'danger', txt: 'Erro ao Tentar Integrar'},
-    {color: 'danger', txt: 'Cancelado'}
+    {color: '#fd3995', txt: 'Erro ao Tentar Integrar'},
+    {color: '#fd3995', txt: 'Cancelado'}
   ]
 
   const arrayMsgStatusIntegracao = [
@@ -129,6 +129,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
     const stAguardandoEmFila = item?.STATUS_BLOQUEIO_ATUALIZACAO === 'True';
     const indexSituacao = !stAdiantamento ? 4 : logErrorIntegracao.length ? 3 : stMigrado ? 2 : stAguardandoEmFila ? 1 : 0;
     const colorSitucao = arraySituacao[indexSituacao].color;
+    
     const msgTitleIntegracao = (logErrorIntegracao.length) ? 'MOTIVO:' : arraySituacao[indexSituacao].txt
     const msgTextIntegracao = logErrorIntegracao || arrayMsgStatusIntegracao[indexSituacao];
     const txtSituacao = arraySituacao[indexSituacao].txt;
@@ -152,7 +153,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
       colorSitucao,
       msgTitleIntegracao,
       msgTextIntegracao,
-      txtSituacao,
+      txtSituacao
     }
   });
 
@@ -319,7 +320,8 @@ export const ActionListaAdiantamentoSalarioLoja = ({
       field: 'STATIVO',
       header: 'Situação',
       body: row => (
-        <th style={{ color: row.colorSituacao }}>
+        <th style={{ color: row.colorSitucao, fontWeight: 'bold' }}>
+      
           {row.txtSituacao}
         </th>
       ),
@@ -448,7 +450,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
     <ColumnGroup>
 
       <Row>
-        <Column footer="Total Lançamentos" colSpan={5} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', textAlign: 'center' }} />
+        <Column footer="Total Lançamentos" colSpan={6} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', textAlign: 'center' }} />
         <Column footer={formatMoeda(calcularTotalValorDesconto())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
         <Column footer={""} colSpan={2} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
       </Row>
@@ -517,9 +519,9 @@ export const ActionListaAdiantamentoSalarioLoja = ({
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
-                bodyStyle={{ fontSize: '1rem' }}
+                bodyStyle={{ fontSize: '0.8rem' }}
 
               />
             ))}
