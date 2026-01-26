@@ -12,6 +12,7 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData"
 import { IoMdCheckmark } from "react-icons/io"
 import Swal from "sweetalert2"
+import { useIntegrarTodosAdiantamento } from "./hooks/useIntegrarTodosAdiantamento"
 
 export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -112,14 +113,22 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
     },
   ]
 
-  const conferirTodasSelecionadas = () => {
+  const {
+    integrarTodos
+  } = useIntegrarTodosAdiantamento({
+    optionsModulos,
+    usuarioLogado,
+    handleClick,
+    selectedItems,
+  })
+  const integrarTodasSelecionadas = () => {
     
     if (selectedItems.length === 0) {
       Swal.fire({
         position: 'center',
         icon: 'warning',
-        title: 'Nenhuma fatura selecionada, selecione e tente novamente!',
-        text: 'Nenhuma fatura selecionada, selecione e tente novamente!',
+        title: 'Nenhum Adiantamento selecionado, selecione e tente novamente!',
+        text: 'Nenhum adiantamento selecionado, selecione e tente novamente!',
         showConfirmButton: true,
         timer: 6000,
         customClass: {
@@ -131,7 +140,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
       Swal.fire({
         position: 'center',
         icon: 'error',
-        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> você não tem permissão para conferir a fatura.`,
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> você não tem permissão para integrar o adiantamento.`,
         showConfirmButton: true,
         timer: 3000,
         customClass: {
@@ -140,7 +149,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
       });
       return;
     } else {
-      // conferirTodas();
+      integrarTodos();
     }
   }
 
@@ -204,8 +213,8 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
         IconSearch={AiOutlineSearch}
 
         ButtonTypeCancelar={ButtonType}
-        linkCancelar={"Conferir Todos"}
-        // onButtonClickCancelar={conferirTodasSelecionadas}
+        linkCancelar={"Integrar Todos"}
+        onButtonClickCancelar={integrarTodasSelecionadas}
         corCancelar={"warning"}
         IconCancelar={IoMdCheckmark}
         styleCancelar

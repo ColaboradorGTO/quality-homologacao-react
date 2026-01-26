@@ -244,6 +244,20 @@ export const ActionListaAdiantamentoSalarioLoja = ({
     }
   };
 
+  const msgInfo = (msg) => {
+    Swal.fire({
+      position: 'center',
+      icon: 'info',
+      title: 'Status da Integração',
+      html: msg,
+      showConfirmButton: true,
+      customClass: {
+        container: 'custom-swal',
+      },
+    });
+    return;
+  };
+  
   const colunasAdiantamentos = [
     {
       field: 'contador',

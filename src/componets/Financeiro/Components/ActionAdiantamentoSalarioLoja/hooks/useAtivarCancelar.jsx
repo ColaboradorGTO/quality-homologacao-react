@@ -7,21 +7,25 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
-       try {
-            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
+        let usuarioIP = null;
 
-            if (!usuarioIP) {
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
+
+        if (!usuarioIP) {
+            try {
                 const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
                 usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
             }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
-        } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
         }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
     const handleAtivar = async (IDADIANTAMENTOSALARIO, STATIVO) => {
@@ -49,7 +53,7 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
             if (result.isConfirmed) {
                 try {
                     const putData = {
-                        IDADIANTAMENTOSALARIO: IDADIANTAMENTOSALARIO,
+                        IDADIANTAMENTOSALARIO: parseInt(IDADIANTAMENTOSALARIO),
                         STATIVO: 'True' 
                     }
                     const response = await put('/atualizacao-adiantamento-status', putData)
@@ -75,7 +79,7 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
                     return response.data;
                 } catch (error) {
                     const putData = {
-                        IDADIANTAMENTOSALARIO: IDADIANTAMENTOSALARIO,
+                        IDADIANTAMENTOSALARIO: parseInt(IDADIANTAMENTOSALARIO),
                         STATIVO: 'True' 
                     }
                     const textDados = JSON.stringify(putData)
@@ -121,7 +125,7 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
             if (result.isConfirmed) {
                 try {
                     const putData = {
-                        IDADIANTAMENTOSALARIO: IDADIANTAMENTOSALARIO,
+                        IDADIANTAMENTOSALARIO: parseInt(IDADIANTAMENTOSALARIO),
                         STATIVO: 'False' 
                     }
                     const response = await put('/atualizacao-adiantamento-status', putData)
