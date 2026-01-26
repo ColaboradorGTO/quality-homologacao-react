@@ -102,7 +102,7 @@ export const ActionDetalharProdutosEtiquetaModal = ({
     }
   }) : [];
 
-
+  console.log(produtosSelecionados, "produtosSelecionados")
   const colunasListaProdEtiquetas = [
     {
       field: "contador",
@@ -162,19 +162,22 @@ export const ActionDetalharProdutosEtiquetaModal = ({
       field: "rowIndex",
       header: "Excluir",
       body: (row) => (
-        <ButtonTable
-          titleButton="Excluir"
-          onClickButton={() => handleExcluirEtiqueta(row)}
-          Icon={BsTrash3}
-          iconSize={20}
-          width="35px"
-          height="35px"
-          iconColor="#fff"
-          cor="danger"
-        />
+        produtosSelecionados?.length > 1 ? (
+          <ButtonTable
+            titleButton="Excluir"
+            onClickButton={() => handleExcluirEtiqueta(row)}
+            Icon={BsTrash3}
+            iconSize={20}
+            width="35px"
+            height="35px"
+            iconColor="#fff"
+            cor="danger"
+          />
+        ) : null
       ),
       sortable: true,
-    },
+    }
+
 
   ];
 

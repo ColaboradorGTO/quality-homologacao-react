@@ -410,6 +410,7 @@ export const ActionListaFaturaLoja = ({ dadosFaturas, usuarioLogado, optionsModu
         try {
           
           await put('/atualizar-recompra', putData);
+          refetchListaFaturas()
           Swal.fire('Sucesso!', 'Recompra atualizada com sucesso.', 'success');
         } catch (error) {
           Swal.fire('Erro!', 'Erro ao atualizar recompra.', 'error');
