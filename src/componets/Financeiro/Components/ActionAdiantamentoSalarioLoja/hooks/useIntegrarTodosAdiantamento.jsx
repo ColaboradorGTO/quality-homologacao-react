@@ -10,7 +10,7 @@ export const useIntegrarTodosAdiantamento = ({
     selectedItems,
 }) => {
     const [ipUsuario, setIpUsuario] = useState('');
-
+    console.log('selectedItems', selectedItems);
     const getIPUsuario = async () => {
         let usuarioIP = null;
 

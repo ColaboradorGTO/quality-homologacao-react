@@ -179,12 +179,12 @@ export const ActionListaAdiantamentoSalarioLoja = ({
 
   useEffect(() => {
     const itensSelecionaveis = dados.filter(item =>
-      !item.stAdiantamento || item.stAguardandoEmFila || item.stMigrado && item.IDADIANTAMENTOSALARIO
+      item.stAdiantamento && !item.stAguardandoEmFila && !item.stMigrado && item.IDADIANTAMENTOSALARIO
     );
 
     const dadosPaginaAtual = dados.slice(first, first + rows);
     const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
-      !item.stAdiantamento || item.stAguardandoEmFila || item.stMigrado && item.IDADIANTAMENTOSALARIO
+      item.stAdiantamento && !item.stAguardandoEmFila && !item.stMigrado && item.IDADIANTAMENTOSALARIO
     );
 
     if (selectedItems.length === 0) {
@@ -221,7 +221,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
       }).then((result) => {
         if (result.isConfirmed) {
           const itensSelecionaveis = dados.filter(item =>
-            !item.stAdiantamento || item.stAguardandoEmFila || item.stMigrado && item.IDADIANTAMENTOSALARIO
+            item.stAdiantamento && !item.stAguardandoEmFila && !item.stMigrado && item.IDADIANTAMENTOSALARIO
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveis]);
@@ -229,7 +229,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
           const dadosPaginaAtual = dados.slice(first, first + rows);
 
           const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
-            !item.stAdiantamento || item.stAguardandoEmFila || item.stMigrado && item.IDADIANTAMENTOSALARIO
+            item.stAdiantamento && !item.stAguardandoEmFila && !item.stMigrado && item.IDADIANTAMENTOSALARIO
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveisPaginaAtual]);
@@ -244,19 +244,6 @@ export const ActionListaAdiantamentoSalarioLoja = ({
     }
   };
 
-  const msgInfo = (msg) => {
-    Swal.fire({
-      position: 'center',
-      icon: 'info',
-      title: 'Status da Integração',
-      html: msg,
-      showConfirmButton: true,
-      customClass: {
-        container: 'custom-swal',
-      },
-    });
-    return;
-  };
   
   const colunasAdiantamentos = [
     {
@@ -363,7 +350,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
                   iconSize={20}
                   width="35px"
                   height="35px"
-                  onClickButton={() => handleClickCancelar(row)}
+                  onClickButton={() => handleClickAtivar(row)}
                 />
               </div>
             </div>
@@ -382,7 +369,10 @@ export const ActionListaAdiantamentoSalarioLoja = ({
                   iconSize={20}
                   width="35px"
                   height="35px"
-                  onClickButton={() => handleClickAtivar(row)}
+                  onClickButton={() => {
+                    setSelectedItems([row]);
+                    confirmar(row);
+                  }}
                 />
               </div>
             )}
@@ -395,7 +385,19 @@ export const ActionListaAdiantamentoSalarioLoja = ({
                 iconSize={20}
                 width="35px"
                 height="35px"
-                onClickButton={() => msgInfo(row.logErrorIntegracao || arraySituacao[row.indexSituacao].txt)}
+                onClickButton={() => {
+                  Swal.fire({
+                    position: 'center',
+                    icon: row.indexSituacao === 2 ? 'success' : row.indexSituacao === 0 ? 'info' : 'error',
+                    title: row.msgTitleIntegracao,
+                    html: row.msgTextIntegracao,
+                    showConfirmButton: true,
+                    customClass: {
+                      container: 'custom-swal',
+                    },
+                  });
+                  return;
+                }}
               />
             </div>
 
@@ -409,7 +411,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
                   iconSize={20}
                   width="35px"
                   height="35px"
-                  onClickButton={() => handleClickAtivar(row)}
+                  onClickButton={() => handleClickCancelar(row)}
                 />
               </div>
             )}

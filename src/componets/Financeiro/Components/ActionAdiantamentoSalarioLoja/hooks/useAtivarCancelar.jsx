@@ -41,7 +41,7 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
             customClass: {
                 confirmButton: 'btn btn-primary',
                 cancelButton: 'btn btn-danger',
-                loader: 'custom-loader'
+                actions: 'swal-button-spacing'
             },
             buttonsStyling: false,
             didOpen: () => {
@@ -118,9 +118,14 @@ export const useAtivarCancelar = ({ usuarioLogado, handleClick, status }) => {
             customClass: {
                 confirmButton: 'btn btn-primary',
                 cancelButton: 'btn btn-danger',
-                loader: 'custom-loader'
+                actions: 'swal-button-spacing'
             },
-            buttonsStyling: false
+            buttonsStyling: false,
+            didOpen: () => {
+                const style = document.createElement('style');
+                style.innerHTML = '.swal-button-spacing button { margin: 0 5px; }';
+                document.head.appendChild(style);
+            }
         }).then(async (result) => {
             if (result.isConfirmed) {
                 try {
