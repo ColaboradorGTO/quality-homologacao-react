@@ -68,7 +68,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
     }
     return response.data;
   };
- 
+
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
     'listaEmpresasIformatica',
@@ -76,7 +76,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
       const response = await get(`/listaEmpresasIformatica`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000}
+    { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
   const { data: optionsCPF = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
@@ -85,7 +85,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
       const response = await get(`/funcionarios-loja?cpf=${cpfFuncionario}`);
       return response.data;
     },
-    { enabled: cpfFuncionario.length === 11, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000}
+    { enabled: cpfFuncionario.length === 11, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
 
@@ -118,7 +118,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
     const cpfSemMascara = removerMascaraCPF(cpfFuncionario);
 
     const funcao = usuarioLogado?.DSFUNCAO;
-    if(funcao !== 'TI') {
+    if (funcao !== 'TI') {
       Swal.fire({
         title: 'Acesso Negado',
         text: 'Usuário não tem permissão para desconto maior ou igual há 20%',
@@ -177,7 +177,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
 
     try {
       const response = await post('/criar-funcionarios-loja', putData)
-      
+
       setEmpresaSelecionada('');
       setNomeFuncionario('');
       setCPFFuncionario('');
@@ -568,7 +568,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
       value: "Vendedora"
     }
   ]
-  
+
   const localizacao = [
     {
       label: "Loja",
@@ -579,7 +579,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
       value: "False"
     }
   ]
-  
+
   const situacao = [
     {
       label: "Ativo",
@@ -590,7 +590,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
       value: "False"
     }
   ]
-  
+
   const tipo = [
     {
       id: 1,
@@ -641,7 +641,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
           <div className="row">
             <div className="col-sm-6 col-md-6 col-xl-6">
               <label className="form-label" htmlFor="empresaFuncionario">Empresa</label>
-          
+
               <Select
                 className="basic-single"
                 classNamePrefix={"select"}
@@ -672,7 +672,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
           </div>
           <div className="row mt-4">
             <div className="col-sm-6 col-md-6 col-xl-6">
-            <label className="form-label">Tipo</label>
+              <label className="form-label">Tipo</label>
               <Select
                 className="basic-single"
                 classNamePrefix={"select"}
@@ -817,7 +817,7 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, }) => {
                   value: item.value,
                   label: item.label
                 }))}
-                defaultValue={[0]?.STATIVO == 'True' ? 'Ativo' : 'Inativo' }
+                defaultValue={[0]?.STATIVO == 'True' ? 'Ativo' : 'Inativo'}
                 onChange={(e) => setSituacaoSelecionada(e.value)}
               />
             </div>

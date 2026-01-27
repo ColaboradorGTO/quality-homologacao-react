@@ -15,18 +15,20 @@ export const useAtivarFuncionario = ({ handleClose, optionsModulos, usuarioLogad
     setDataAdmissao(dataAtual)
   }, [])
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
 
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    try {
+      const response = await axios.get('https://api.ipify.org?format=json9');
+      if (response.data && response.data.ip) {
+        return response.data.ip;
+      }
+      throw new Error("Resposta inválida do ipfy.org");
+    } catch (error) {
+      const responseIP2 = await axios.get('https://api.ipwho.org/me');
+      return responseIP2.data?.data?.ip;
+      
     }
-    return response.data;
   };
-
 
   const handleAtivarFuncionario = async (row, status) => {
     console.log(row, 'row');
@@ -71,12 +73,13 @@ export const useAtivarFuncionario = ({ handleClose, optionsModulos, usuarioLogad
         } else {
           textoFuncao = 'INFORMATICA/DESLIGAMENTO DE FUNCIONARIO';
         }
-    
+         const ipUsuario = await getIPUsuario();
+
         const createData = {
           IDFUNCIONARIO: String(usuarioLogado.id),
           PATHFUNCAO: textoFuncao,
           DADOS: textDados,
-          IP: ipUsuario
+          IP: ipUsuario || ""
         }
     
         const responsePost = await post('/log-web', createData)
@@ -92,12 +95,13 @@ export const useAtivarFuncionario = ({ handleClose, optionsModulos, usuarioLogad
             ID: Number(row.ID)
           }
           const response = await put('/inativar-funcionario', putData)
-          
+           const ipUsuario = await getIPUsuario();
+
            const createData = {
             IDFUNCIONARIO: String(usuarioLogado.id),
             PATHFUNCAO: textoFuncao,
             DADOS: textDados,
-            IP: ipUsuario
+            IP: ipUsuario || ""
           }
     
         const responsePost = await post('/log-web', createData)

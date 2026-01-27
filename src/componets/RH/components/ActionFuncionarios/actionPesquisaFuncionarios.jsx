@@ -32,7 +32,6 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
-
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
     'listaEmpresasIformatica',
     async () => {

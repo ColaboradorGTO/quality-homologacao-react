@@ -47,6 +47,11 @@ export const schema = yup.object().shape({
     .typeError('Salário deve ser um número')
     .required('Salário Obrigatório'),
 
+  descontoConvFuncionario: yup
+    .number()
+    .typeError('Desconto deve ser um número')
+    .nullable(),
+
   valorDescontoFuncionario: yup
     .number()
     .typeError('Valor de desconto deve ser um número')
@@ -61,10 +66,5 @@ export const schema = yup.object().shape({
       value: yup.string().required('Situação Obrigatória'),
       label: yup.string(),
     }),
-
-    cpf: yup
-    .string()
-    .required('CPF Obrigatório')
-    .matches(/^\d{11}$/, 'CPF deve conter exatamente 11 números'),
 
 });
