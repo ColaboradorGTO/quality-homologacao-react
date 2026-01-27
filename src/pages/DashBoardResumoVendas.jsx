@@ -1,5 +1,5 @@
 import React, { Fragment, Suspense, lazy } from "react"
-const ActionResumoVendas = lazy(() => import("../componets/ResumoVendasGerencial/Components/ResumoGeral/actionResumoVendas").then(module => ({ default: module.ActionResumoVendas })));
+// const ActionResumoVendas = lazy(() => import("../componets/ResumoVendasGerencial/Components/ResumoGeral/actionResumoVendas").then(module => ({ default: module.ActionResumoVendas })));
 
 export const DashBoardResumoVendas = ({ }) => {
 
@@ -15,7 +15,7 @@ export const DashBoardResumoVendas = ({ }) => {
                     <div className="panel-container show">
                       <div className="panel-content">
                         <Suspense fallback={<div>Loading...</div>}>
-                          <ActionResumoVendas />
+                          {/* <ActionResumoVendas /> */}
                         </Suspense>
                       </div>
                     </div>

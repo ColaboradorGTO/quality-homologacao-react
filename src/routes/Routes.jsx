@@ -66,7 +66,12 @@ export const RoutesMain = () => {
     
         {/* <Route path="/DashBoardPromocao" element={usuarioLogado ? <DashBoardPromocao componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/>}  /> */}
 
-        <Route path="/DashBoardResumoVendas" element={<DashBoardResumoVendas componentToShow={componentToShow} handleShowComponent={handleShowComponent}  />  } />
+        <Route 
+          path="/" 
+          element={<DashBoardResumoVendas componentToShow={componentToShow}
+            handleShowComponent={handleShowComponent}  />  
+          } 
+        />
 
         <Route path="/DashBoardExpedicao" element={usuarioLogado ? <DashBoardExpedicao componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
         <Route path="/DashBoardConferenciaCega" element={usuarioLogado ? <DashBoardConferenciaCega componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/>} />
