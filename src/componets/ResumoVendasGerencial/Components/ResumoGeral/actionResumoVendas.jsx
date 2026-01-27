@@ -48,9 +48,7 @@ export const ActionResumoVendas = () => {
     setDataPesquisaAnoAnterior(anoAnteriorPesquisa);
     setDataPrimeiroDia(primeiroDiaMes);
 
-    console.log(dataPrimeiroDia, 'dataPrimeiroDia')
-    console.log(dataPesquisaFim, 'dataPesquisaFim')
-    console.log(hora, 'hora') 
+
   }, []);
 
 
