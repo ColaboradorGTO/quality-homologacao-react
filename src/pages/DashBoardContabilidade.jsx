@@ -13,6 +13,7 @@ const ActionPesquisaVendasMarca = lazy(() => import("../componets/Contabilidade/
 const ActionPesquisaVendasContingencia = lazy(() => import("../componets/Contabilidade/Components/ActionVendas/actionPesquisaVendasContingencia").then(module => ({ default: module.ActionPesquisaVendasContingencia })));
 const ActionPesquisaVendasXML = lazy(() => import("../componets/Contabilidade/Components/ActionVendasXML/actionPesquisaVendasXML").then(module => ({ default: module.ActionPesquisaVendasXML })));
 const ActionPesquisaProductoPreco = lazy(() => import("../componets/Contabilidade/Components/ActionProdutoPreco/actionPesquisaProdutosPreco").then(module => ({ default: module.ActionPesquisaProductoPreco })));
+const ActionPesquisaAlvaraEmpresa = lazy(() => import("../componets/Contabilidade/Components/ActionAlvaraEmpresas/actionPesquisaAlvaraEmpresa").then(module => ({ default: module.ActionPesquisaAlvaraEmpresa })));
 
 export const DashBoardContabilidade = () => {
   const [resumoVisivel, setResumoVisivel] = useState(true);
@@ -20,7 +21,7 @@ export const DashBoardContabilidade = () => {
   const [componentToShow, setComponentToShow] = useState("");
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
-  
+
   const navigate = useNavigate();
 
   function handleShowComponent(componentName) {
@@ -50,15 +51,15 @@ export const DashBoardContabilidade = () => {
     'menus-usuario',
     async () => {
       const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
-      
+
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
   );
 
   const permissaoUsuario = selectedModule.menuPai.menuFilho;
-  const {   
-    ID, 
+  const {
+    ID,
   } = permissaoUsuario.map(item => ({
     ID: item.ID,
   })).reduce((acc, curr) => {
@@ -76,13 +77,16 @@ export const DashBoardContabilidade = () => {
       component = <ActionPesquisaVendasMarca />;
       break;
     case "/contabilidade/ActionPesquisaVendasContingencia":
-      component = <ActionPesquisaVendasContingencia usuarioLogado={usuarioLogado} ID={ID}/>;
+      component = <ActionPesquisaVendasContingencia usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/contabilidade/ActionPesquisaVendasXML":
       component = <ActionPesquisaVendasXML />;
       break;
     case "/contabilidade/ActionPesquisaProductoPreco":
       component = <ActionPesquisaProductoPreco />;
+      break;
+    case "/contabilidade/ActionPesquisaAlvaraEmpresa":
+      component = <ActionPesquisaAlvaraEmpresa />;
       break;
     default:
       break;
@@ -101,7 +105,7 @@ export const DashBoardContabilidade = () => {
                 handleShowComponent={handleShowComponent}
               />
               <div className="page-content-wrapper">
-                <HeaderMain optionsModulos={optionsModulos}/>
+                <HeaderMain optionsModulos={optionsModulos} />
 
                 <main id="js-page-content" role="main" className="page-content">
                   <div className="row">

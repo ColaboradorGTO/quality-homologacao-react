@@ -48,12 +48,14 @@ export const ActionMain = ({
   valueSelectCampanha,
   valueSelectTipoPedido,
   valueSelectPendencia,
+  valueSelectStatusFiliais,
+  valueSelectAlvaras,
 
   valueSelectLoja,
   defaultValueSelectEmpresa,
   defaultValueSelectSubGrupo,
 
-  
+
   defaultOptionsEmpresasAsync,
   defaultOptionsMarcaAsync,
   defaultOptionsFornecedoresAsync,
@@ -66,7 +68,7 @@ export const ActionMain = ({
   valueSelectFornecedoresAsync,
   valueSelectFabricantesAsync,
   valueSelectCompradoresAsync,
-  
+
   valueMultSelectGrupo,
   valueMultSelectSubGrupo,
   valueMultSelectMarca,
@@ -79,7 +81,7 @@ export const ActionMain = ({
   defaultValueSelectFornecedor,
   defaultValueSelectGrupo,
   defaultValueSelectMarca,
-  
+
   isMultiSelectGrupo,
   isMultiSelectMarca,
 
@@ -99,7 +101,7 @@ export const ActionMain = ({
 
   valueInputFieldDescricao,
   valueInputQuantidade,
-  valueInputField,  
+  valueInputField,
   valueInputFieldCodBarra,
   valueInputFieldNumeroVoucher,
   valueInputFieldNumeroNF,
@@ -114,17 +116,17 @@ export const ActionMain = ({
   valueInputFieldBairro,
   valueInputFieldCidade,
   valueInputFieldSerie,
-  valueInputFieldSearch, 
+  valueInputFieldSearch,
   valueInputFieldOR,
   valueInputFieldOT,
 
   valueTextAreaFieldComponent,
-  
+
   nomeSelectGrupo,
-  
+
   onChangeTextAreaFieldComponent,
-  
- 
+
+
   onChangeInputFieldLojaOrigem,
   onChangeInputFieldNumeroNF,
   onChangeInputFieldDescricao,
@@ -173,7 +175,10 @@ export const ActionMain = ({
   onChangeSelectTipoPedido,
   onChangeSelectGrade,
   onChangeSelectPendencia,
-  
+  onChangeStatusFiliais,
+  onChangeAlvaras,
+
+
   onChangeSelectEmpresaAsync,
   onChangeSelectMarcaAsync,
   onChangeSelectFornecedoresAsync,
@@ -221,7 +226,9 @@ export const ActionMain = ({
   optionsSelectRotina,
   optionsFieldLojaOrigemComponent,
   optionsPendencia,
-  
+  optionStatusFiliais,
+  optionAlvaras,
+
   optionsEmpresasAsync,
   optionsMarcaAsync,
   optionsFornecedoresAsync,
@@ -251,7 +258,7 @@ export const ActionMain = ({
 
   animatedComponentsGrupo,
   animatedComponentsSubGrupo,
-  animatedComponentsMarca, 
+  animatedComponentsMarca,
   animatedComponentsFornecedor,
   animatedComponentsEmpresa,
   animatedComponentsFuncionario,
@@ -264,7 +271,7 @@ export const ActionMain = ({
   InputFieldBairroComponent,
   InputFieldCidadeComponent,
   InputFieldCepComponent,
-  InputFieldTelefoneComponent ,
+  InputFieldTelefoneComponent,
   InputFieldNumeroNFComponent,
   InputFieldDTInicioComponent,
   InputFieldDTInicioAComponent,
@@ -347,10 +354,11 @@ export const ActionMain = ({
   InputSelectTransportadora,
   InputSelectRotina,
   InputSelectPendenciaComponent,
+  InputSelectStatusFiliaisComponent,
+  InputSelectAlvarasComponent,
 
- 
 
-  
+
   // Selects Async
   InputSelectEmpresaComponentAync,
   InputSelectMarcaComponentAync,
@@ -482,7 +490,9 @@ export const ActionMain = ({
   labelSelectTipoPedido,
   labelSelectTransportadora,
   labelSelectRotina,
-  
+  LabelSelectStatusFiliais,
+  LabelSelectAlvaras,
+
   labelSelectEmpresaAsync,
   labelSelectMarcaAsync,
   labelSelectFornecedoresAsync,
@@ -529,7 +539,7 @@ export const ActionMain = ({
   // labelSelectNFE,
   // labelSelectSituacao,
 
-  styleSituacao, 
+  styleSituacao,
   styleInputQuantidade,
   styleSubGrupo,
   id,
@@ -540,7 +550,7 @@ export const ActionMain = ({
   isDisabledMarca,
 
   btnVisivelEstrutura,
-  
+
   styleCancelar,
   styleVendasEstrutura,
   stylePendencia,
@@ -616,7 +626,7 @@ export const ActionMain = ({
   }
   return (
     <Fragment>
-      <form action="#" onSubmit={handleSubmit} style={{zIndex: 9999}} >
+      <form action="#" onSubmit={handleSubmit} style={{ zIndex: 9999 }} >
         <HeadTitleComponent
           tittuloComponent={title}
           nomeLoja={subTitle}
@@ -636,26 +646,26 @@ export const ActionMain = ({
               <div className="panel-container show ">
 
 
-                <div className="panel-tag" style={{paddingBottom: '5rem'}}>
+                <div className="panel-tag" style={{ paddingBottom: '5rem' }}>
                   <div className="row">
                     {MenuTreeSelectComponent && (
 
                       <MenuTreeSelectComponent
-                      valueMenuSelect={valueTreeSelect}
-                      onChangeMenuSelect={onChangeTreeSelect}
-                      optionsMenuSelect={optionsTreeSelect}
-                      placeholderMenuSelect={placeholderTreeSelect}
-                      onNodeMenuSelect={onNodeTreeSelect} 
-                      onNodeMenuUnselect={onNodeTreeUnselect} 
+                        valueMenuSelect={valueTreeSelect}
+                        onChangeMenuSelect={onChangeTreeSelect}
+                        optionsMenuSelect={optionsTreeSelect}
+                        placeholderMenuSelect={placeholderTreeSelect}
+                        onNodeMenuSelect={onNodeTreeSelect}
+                        onNodeMenuUnselect={onNodeTreeUnselect}
                       />
                     )}
                   </div>
 
                   <div className="row">
-                    
+
                   </div>
                   <div className="row">
-                  {InputSelectPendenciaComponent && (
+                    {InputSelectPendenciaComponent && (
                       <InputSelectPendenciaComponent
                         label={labelSelectPendencia}
                         id={id}
@@ -698,7 +708,7 @@ export const ActionMain = ({
                         onChange={onChangeInputFieldDTFimA}
                       />
                     )}
-                    
+
                     {InputFieldDTInicioBComponent && (
                       <InputFieldDTInicioBComponent
                         label={labelInputDTInicioB}
@@ -745,7 +755,7 @@ export const ActionMain = ({
                       />
                     )}
                   </div>
-                 
+
                   <div className="row">
 
                     {/* Inputs Datas */}
@@ -771,13 +781,13 @@ export const ActionMain = ({
                     )} */}
                     {InputFieldDTFimComponent && (
                       <InputFieldDTFimComponent
-                      label={labelInputFieldDTFim}
-                      type="date"
-                      id={id}
-                      name="dtconsultafim"
-                      value={valueInputFieldDTFim}
-                      onChange={onChangeInputFieldDTFim}
-                        
+                        label={labelInputFieldDTFim}
+                        type="date"
+                        id={id}
+                        name="dtconsultafim"
+                        value={valueInputFieldDTFim}
+                        onChange={onChangeInputFieldDTFim}
+
                       />
 
                     )}
@@ -893,7 +903,7 @@ export const ActionMain = ({
                     {/* Selects */}
 
 
-                    {InputSelectEmpresaComponentAync && (                
+                    {InputSelectEmpresaComponentAync && (
                       <AsyncSelectAction
                         label={labelSelectEmpresaAsync}
                         valueSelectAsync={valueSelectEmpresaAsync}
@@ -902,10 +912,10 @@ export const ActionMain = ({
                         onChangeSelectAsync={onChangeSelectEmpresaAsync}
                         loadOptions={loadOptionsEmpresasAsync}
                         defaultOptionsAsync={defaultOptionsEmpresasAsync}
-                    
+
                       />
                     )}
-                    {InputSelectMarcaComponentAync && (                
+                    {InputSelectMarcaComponentAync && (
                       <InputSelectMarcaComponentAync
                         label={labelSelectMarcaAsync}
                         value={valueSelectMarcaAsync}
@@ -913,10 +923,10 @@ export const ActionMain = ({
                         onChange={onChangeSelectMarcaAsync}
                         loadOptions={loadOptionsMarcaAsync}
                         defaultOptions={defaultOptionsMarcaAsync}
-                        
+
                       />
-                    )} 
-                    {InputSelectFonecedoresComponentAync && (                
+                    )}
+                    {InputSelectFonecedoresComponentAync && (
                       <InputSelectFonecedoresComponentAync
                         label={labelSelectFornecedoresAsync}
                         valueSelectAsync={valueSelectFornecedoresAsync}
@@ -924,10 +934,10 @@ export const ActionMain = ({
                         onChangeSelectAsync={onChangeSelectFornecedoresAsync}
                         loadOptions={loadOptionsFornecedoresAsync}
                         defaultOptionsAsync={defaultOptionsFornecedoresAsync}
-                        
+
                       />
                     )}
-                    {InputSelectFabricantesComponentAync && (                
+                    {InputSelectFabricantesComponentAync && (
                       <InputSelectFabricantesComponentAync
                         label={labelSelectFabricantesAsync}
                         valueSelectAsync={valueSelectFabricantesAsync}
@@ -935,10 +945,10 @@ export const ActionMain = ({
                         onChangeSelectAsync={onChangeSelectFabricantesAsync}
                         loadOptions={loadOptionsFabricantesAsync}
                         defaultOptionsAsync={defaultOptionsFabricantesAsync}
-                        
+
                       />
                     )}
-                    {InputSelectCompradoresComponentAync && (                
+                    {InputSelectCompradoresComponentAync && (
                       <InputSelectCompradoresComponentAync
                         label={labelSelectCompradoresAsync}
                         valueSelectAsync={valueSelectCompradoresAsync}
@@ -946,9 +956,9 @@ export const ActionMain = ({
                         onChangeSelectAsync={onChangeSelectCompradoresAsync}
                         loadOptions
                         defaultOptionsAsync={defaultOptionsCompradoresAsync}
-                        
+
                       />
-                    )} 
+                    )}
 
                     {InputSelectMarcasComponent && (
                       <InputSelectMarcasComponent
@@ -974,8 +984,8 @@ export const ActionMain = ({
                         defaultValue={[defaultValueSelectEmpresa]}
                         onChange={onChangeSelectEmpresa}
                         filtroOptions={optionsEmpresas}
-                        // isVisible={styleEmpresa}
-                       
+                      // isVisible={styleEmpresa}
+
                       />
                     )}
 
@@ -991,7 +1001,7 @@ export const ActionMain = ({
                         onChange={onChangeSelectGrupo}
                       />
                     )}
-                    
+
                     {InputSelectSubGrupoComponent && (
                       <InputSelectSubGrupoComponent
                         label={labelSelectSubGrupo}
@@ -1000,7 +1010,7 @@ export const ActionMain = ({
                         defaultValue={[defaultValueSelectSubGrupo]}
                         value={valueSelectSubGrupo}
                         onChange={onChangeSelectSubGrupo}
-                         isDisabled={styleSubGrupo}
+                        isDisabled={styleSubGrupo}
                       />
                     )}
 
@@ -1012,7 +1022,7 @@ export const ActionMain = ({
                         options={optionsFuncionarios}
                         value={valueSelectFuncionario}
                         onChange={onChangeSelectFuncionario}
-                               
+
                       />
                     )}
 
@@ -1036,7 +1046,6 @@ export const ActionMain = ({
                         onChange={onChangeSelectComissoes}
                       />
                     )}
-
                     {InputSelectQuebraComponent && (
                       <InputSelectQuebraComponent
                         label={labelSelectQuebra}
@@ -1046,6 +1055,30 @@ export const ActionMain = ({
                         value={valueSelectQuebra}
                         onChange={onChangeSelectQuebra}
                       />
+                    )}
+
+                    {InputSelectStatusFiliaisComponent && (
+                      <InputSelectStatusFiliaisComponent
+                        label={LabelSelectStatusFiliais}
+                        nome="Status Filiais"
+                        id={id}
+                        options={optionStatusFiliais}
+                        onChange={onChangeStatusFiliais}
+                        value={valueSelectStatusFiliais}
+                      />
+
+                    )}
+
+                    {InputSelectAlvarasComponent && (
+                      <InputSelectAlvarasComponent
+                        label={LabelSelectAlvaras}
+                        nome="Alvarás"
+                        id={id}
+                        options={optionAlvaras}
+                        onChange={onChangeAlvaras}
+                        value={valueSelectAlvaras}
+                      />
+
                     )}
 
                     {InputSelectFornecedorComponent && (
@@ -1160,6 +1193,7 @@ export const ActionMain = ({
                         options={optionsSelectRotina}
                       />
                     )}
+
 
 
                     {/* Multi Select */}
@@ -1307,7 +1341,7 @@ export const ActionMain = ({
                       />
                     )}
 
-       
+
                     {InputFieldDescricaoComponent && (
                       <InputFieldDescricaoComponent
                         label={labelInputFieldDescricao}
@@ -1342,7 +1376,7 @@ export const ActionMain = ({
                         readOnly={readOnlyVendaCPFCNPJ}
                       />
                     )}
-                     {InputFieldTelefoneComponent && (
+                    {InputFieldTelefoneComponent && (
                       <InputFieldTelefoneComponent
                         label={labelInputFieldTelefone}
                         id={id}
@@ -1513,11 +1547,11 @@ export const ActionMain = ({
 
                     {/* Buttons */}
                   </div>
-                 
+
                   {/* Selects */}
                   <div className="row">
 
-                   
+
                     {InputFieldTotalAntesDescontoComponent && (
                       <InputFieldTotalAntesDescontoComponent
                         label={labelInputFieldTotalAntesDesconto}
@@ -1645,7 +1679,7 @@ export const ActionMain = ({
                         name=""
                         value={valueInputFieldBairro}
                         onChange={onChangeInputFieldBairro}
-                        
+
                       />
                     )}
 
@@ -1668,12 +1702,12 @@ export const ActionMain = ({
                         onChange={onChangeInputFieldCep}
                       />
                     )}
-                    
+
 
 
 
                   </div>
-                 
+
                   {/* textArea */}
                   <div className="row">
                     {TextAreaFieldComponent && (
@@ -1687,7 +1721,7 @@ export const ActionMain = ({
                     )}
 
                   </div>
-               
+
                   {/* CheckBox */}
                   <div className="row">
                     {CheckBoxComponent && (
@@ -1695,9 +1729,9 @@ export const ActionMain = ({
                         id={idCheckBox}
                         label={labelCheckBox}
                         cheked={isChekedBox}
-                      
+
                         onChange={onChangeCheckBox}
-                       
+
                       />
                     )}
 
@@ -1753,7 +1787,7 @@ export const ActionMain = ({
                     )}
 
                   </div>
-                
+
                   {/* Buttons */}
                   <div className="row">
 
@@ -1771,7 +1805,7 @@ export const ActionMain = ({
                       />
                     )}
 
-                
+
                     {ButtonTypeCadastro && (
                       <ButtonType
                         textButton={linkNome}
@@ -1856,7 +1890,7 @@ export const ActionMain = ({
                       <ButtonType
                         // nome="Vendas por Período"
                         textButton={linkNomeVendasPorPeriodo}
-                        onClickButtonType={onButtonClickVendaPeriodo }
+                        onClickButtonType={onButtonClickVendaPeriodo}
                         cor="danger"
                         tipo="button"
                         Icon={AiOutlineSearch}
