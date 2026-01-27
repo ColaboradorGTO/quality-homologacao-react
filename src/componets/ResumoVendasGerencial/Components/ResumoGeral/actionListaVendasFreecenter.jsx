@@ -7,7 +7,7 @@ import { toFloat } from "../../../../utils/toFloat";
 
 export const ActionListaVendasFreecenter = ({ dadosTotalFreecenter}) => {
 
-   const dados = Array.isArray(dadosTotalFreecenter) ? dadosTotalFreecenter.map((item, index) => {
+   const dados =  dadosTotalFreecenter.map((item, index) => {
       
   
       return {
@@ -16,11 +16,11 @@ export const ActionListaVendasFreecenter = ({ dadosTotalFreecenter}) => {
         NOFANTASIA: item.NOFANTASIA
         
       }
-    }): [];
+    });
     
   
   
-    const colunasVendasPagamento = [
+    const colunasFreecenter = [
       {
         field: 'NOFANTASIA',
         header: 'Loja',
@@ -58,7 +58,7 @@ export const ActionListaVendasFreecenter = ({ dadosTotalFreecenter}) => {
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
           >
-            {colunasVendasPagamento.map(coluna => (
+            {colunasFreecenter.map(coluna => (
               <Column
                 key={coluna.field}
                 field={coluna.field}

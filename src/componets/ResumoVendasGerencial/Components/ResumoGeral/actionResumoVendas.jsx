@@ -17,6 +17,8 @@ import { dataFormatada } from "../../../../utils/dataFormatada"
 
 export const ActionResumoVendas = () => {
   const [dataPesquisa, setDataPesquisa] = useState('')
+  const [dataPesquisaMagazine, setDataPesquisaMagazine] = useState('')
+  const [dataPesquisaFreecenter, setDataPesquisaFreecenter] = useState('')
   const [dataAno, setDataAno] = useState('')
   const [dataAnoAnterior, setDataAnoAnterior] = useState('')
   const [dataPesquisaAnoAnterior, setDataPesquisaAnoAnterior] = useState('')
@@ -37,14 +39,19 @@ export const ActionResumoVendas = () => {
     setDataAtualDoAnoPassado(dataAtualAnoAnterior)
     setHora(horaAtual);
     setDataPesquisa(dataAtual);
+    setDataPesquisaMagazine(dataAtual);
+    setDataPesquisaFreecenter(dataAtual);
     setDataPesquisaInicio(dataAtual);
     setDataPesquisaFim(dataAtual);
     setDataAnoAnterior(anoAnterior);
     setDataAno(mesAtual);
     setDataPesquisaAnoAnterior(anoAnteriorPesquisa);
     setDataPrimeiroDia(primeiroDiaMes);
-  }, []);
 
+    console.log(dataPrimeiroDia, 'dataPrimeiroDia')
+    console.log(dataPesquisaFim, 'dataPesquisaFim')
+    console.log(hora, 'hora') 
+  }, []);
 
 
   const { data: dadosTotalMes = [],
@@ -53,10 +60,11 @@ export const ActionResumoVendas = () => {
     'vendas-total-mes',
     async () => {
       const response = await get(`/vendas-total-mes?dataPesquisaInicio=${dataPrimeiroDia}&dataPesquisaFim=${dataPesquisaFim}&horaFinal=${hora}`);
+     
       return response.data;
     },
     {
-      enabled: Boolean(dataPrimeiroDia && dataPesquisaFim && hora), staleTime: 5 * 60 * 1000, refetchInterval: 10000
+      enabled: Boolean(dataPrimeiroDia && dataPesquisaFim && hora), staleTime: 0, refetchInterval: 10000
     }
   );
 
@@ -75,7 +83,7 @@ export const ActionResumoVendas = () => {
       return response.data;
     },
     {
-      enabled: Boolean(dataPesquisaAnoAnterior && dataAtualDoAnoPassado && hora), staleTime: 5 * 60 * 1000, refetchInterval: 10000
+      enabled: Boolean(dataPesquisaAnoAnterior && dataAtualDoAnoPassado && hora), staleTime: 0, refetchInterval: 10000
     }
   );
 
@@ -94,7 +102,7 @@ export const ActionResumoVendas = () => {
         return response.data;
       },
       {
-        enabled: Boolean(dataPesquisa && hora), staleTime: 5 * 60 * 1000, refetchInterval: 5000
+        enabled: Boolean(dataPesquisa && hora), staleTime: 0, refetchInterval: 10000
       }
     );
 
@@ -122,7 +130,7 @@ export const ActionResumoVendas = () => {
         return response.data;
       },
       {
-        enabled: Boolean(dataAtualDoAnoPassado && hora), staleTime: 5 * 60 * 1000, refetchInterval: 5000
+        enabled: Boolean(dataAtualDoAnoPassado && hora), staleTime: 0, refetchInterval: 10000
       }
     );
 
@@ -146,36 +154,39 @@ export const ActionResumoVendas = () => {
       isLoading: isLoadingTotalTesoura,   refetch: refetchTesoura } = useQuery(
       'venda-total',
       async () => {
-        const response = await get(`/vendas-total-to?dataPesquisa=${dataPesquisa}&idGrupo=2`);   
+        const response = await get(`/vendas-total-to?dataPesquisa=${dataPesquisa}&idGrupo=1`);   
+        
         return response.data;
       },
       {
-        enabled: Boolean(dataPesquisa), staleTime: 5 * 60 * 1000, refetchInterval: 15000
+        enabled: true, staleTime: 0, refetchInterval: 10000, refetchIntervalInBackground: true
       }
   );
 
   const { data: dadosTotalFreecenter = [], 
       error: errorTotalFreecenter, 
       isLoading: isLoadingTotalFreecenter,  refetch: refetchFreecenter } = useQuery(
-      'venda-total',
+      'vendas-total-freecenter',
       async () => {
-        const response = await get(`/vendas-total-to?dataPesquisa=${dataPesquisa}&idGrupo=2`);   
+        const response = await get(`/vendas-total-freecenter?dataPesquisaFreecenter=${dataPesquisaFreecenter}`);   
+       
         return response.data;
       },
       {
-        enabled: Boolean(dataPesquisa), staleTime: 5 * 60 * 1000, refetchInterval: 15000
+        enabled: true, staleTime: 0, refetchInterval: 10000, refetchIntervalInBackground: true
       }
   );
 
   const { data: dadosTotalMagazine = [],    error: errorTotalMagazine, 
       isLoading: isLoadingTotalMagazine,  refetch: refetchMagazine } = useQuery(
-      'venda-total',
+      'vendas-total-magazine',
       async () => {
-        const response = await get(`/vendas-total-to?dataPesquisa=${dataPesquisa}&idGrupo=3`);   
+        const response = await get(`/vendas-total-magazine?dataPesquisaMagazine=${dataPesquisaMagazine}`);  
+  
         return response.data;
       },
       {
-        enabled: true, staleTime: 5 * 60 * 1000, refetchInterval: 15000
+        enabled: true, staleTime: 0, refetchInterval: 10000, refetchIntervalInBackground: true
       }
   );
 
@@ -196,7 +207,19 @@ export const ActionResumoVendas = () => {
     return dias[new Date().getDay()];
   }
 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetchFreecenter();  // 🎯 Força o refetch manualmente a cada 15s
+      refetchMagazine();
+      refetchTesoura();
+      refetchTotalMes();
+      refetchTotalAnoMesAnterior();
+      refetchTotalLojaHora();
+      refetchTotalLojaHoraAnoAnterior();
+    }, 10000);
 
+    return () => clearInterval(interval); // Limpa ao desmontar
+  }, [refetchFreecenter, refetchMagazine, refetchTesoura, refetchTotalMes, refetchTotalAnoMesAnterior, refetchTotalLojaHora, refetchTotalLojaHoraAnoAnterior]);
   return (
     <Fragment>
       <header>

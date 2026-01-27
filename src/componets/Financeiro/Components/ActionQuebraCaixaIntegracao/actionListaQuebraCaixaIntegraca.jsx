@@ -18,6 +18,7 @@ import * as XLSX from 'xlsx';
 import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 import Swal from "sweetalert2";
 import { useConferirQuebra } from "./hooks/useConferirQuebra";
+import { toFloat } from "../../../../utils/toFloat";
 
 
 export const ActionListaQuebraCaixaIntegracao = ({ 
@@ -104,14 +105,14 @@ export const ActionListaQuebraCaixaIntegracao = ({
       contador,
       IDQUEBRACAIXA: item.IDQUEBRACAIXA,
       NOFANTASIA: item.NOFANTASIA,
-      DTLANCAMENTO: item.DTLANCAMENTO,
       IDMOVIMENTOCAIXA: item.IDMOVIMENTOCAIXA,
-      IDFUNCIONARIO: item.IDFUNCIONARIO,
+      DTLANCAMENTO: item.DTLANCAMENTO,
+      VRQUEBRASISTEMA: toFloat(item.VRQUEBRASISTEMA),
+      VRQUEBRAEFETIVADO: toFloat(item.VRQUEBRAEFETIVADO),
+      TXTHISTORICO: item.TXTHISTORICO,
       NOMEOPERADOR: item.NOMEOPERADOR,
       CPFOPERADOR: item.CPFOPERADOR,
-      VRQUEBRASISTEMA: item.VRQUEBRASISTEMA,
-      VRQUEBRAEFETIVADO: item.VRQUEBRAEFETIVADO,
-      TXTHISTORICO: item.TXTHISTORICO,
+      IDFUNCIONARIO: item.IDFUNCIONARIO,
       STATIVO: item.STATIVO,
       STCONFERIDO: item.STCONFERIDO
     }
@@ -397,8 +398,6 @@ export const ActionListaQuebraCaixaIntegracao = ({
                     height="30px"
                     onClickButton={() => {
                       setSelectedItems([row]);
-                      console.log('Row selecionada para conferir:', row);
-                      console.log('SelectedItems antes de conferir:', selectedItems);
                       conferir(row);
                     }}
                   />

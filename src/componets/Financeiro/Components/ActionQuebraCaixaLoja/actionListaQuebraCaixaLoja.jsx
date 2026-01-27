@@ -98,8 +98,25 @@ export const ActionListaQuebraCaixaLoja = ({
     XLSX.writeFile(workbook, 'quebra_caixa_loja.xlsx');
   };
 
+  const arraySituacao = [
+    {color: '#2196F3', txt: 'Pronto para Integrar SAP'},
+    {color: '#886ab5', txt: 'Em Fila'},
+    {color: 'success', txt: 'Integrado'},
+    {color: '#fd3995', txt: 'Erro ao Tentar Integrar'}
+  ]
+
+  const arrayMsgStatusIntegracao = [
+    'Quebra de Caixa pronta para integrar no SAP',
+    'Quebra de Caixa em processo de integração no SAP, aguarde...',
+    'Quebra de Caixa integrada no SAP'
+  ];
   const dados = dadosQuebraDeCaixa.map((item, index) => {
     let contador = index + 1;
+    const vrQuebraLancadoLoja = toFloat(item.VRQUEBRAEFETIVADO);
+    const stEmAndamento = item?.STATUS_BLOQUEIO_ATUALIZACAO === 'True';
+    const docEntry = vrQuebraLancadoLoja < 0 ? item.DOCENTRY_SAP_CONTAS_A_PAGAR : item.DOCENTRY_SAP_CONTAS_A_RECEBER;
+    
+
     return {
       contador,
       IDQUEBRACAIXA: item.IDQUEBRACAIXA,
@@ -397,8 +414,6 @@ export const ActionListaQuebraCaixaLoja = ({
                     height="30px"
                     onClickButton={() => {
                       setSelectedItems([row]);
-                      console.log('Row selecionada para conferir:', row);
-                      console.log('SelectedItems antes de conferir:', selectedItems);
                       conferir(row);
                     }}
                   />
