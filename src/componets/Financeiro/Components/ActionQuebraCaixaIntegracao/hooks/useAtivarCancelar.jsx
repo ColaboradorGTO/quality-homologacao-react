@@ -18,90 +18,129 @@ export const useAtivarCancelar = ({ usuarioLogado, optionsModulos, handleClick }
     }
 
     if (!usuarioIP) {
-    try {
+      try {
         const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
         usuarioIP = ipifyData?.ip;
-    } catch (error) {
+      } catch (error) {
         console.error("Erro ao buscar IP via ipify.org:", error);
-    }
+      }
     }
     setIpUsuario(usuarioIP);
     return usuarioIP;
   };
 
-  const handleCancelar = async (IDQUEBRACAIXA, status) => {
+  const handleCancelar = async (rowData) => {
     if (optionsModulos[0]?.ALTERAR == 'False') {
       Swal.fire({
-        title: 'Atenção',
-        text: `Você não tem permissão para alterar o status da Quebra de Caixa`,
-        icon: 'warning',
+        position: 'center',
+        icon: 'error',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para alterar a fatura.`,
+        showConfirmButton: true,
         timer: 3000,
         customClass: {
           container: 'custom-swal',
-        }
-      })
+        },
+      });
       return;
     }
 
-    setIsSubmitting(true);
-    const putData = {
-      IDQUEBRACAIXA: IDQUEBRACAIXA,
-      STATIVO: status ? 'True' : 'False'
-    }
-    try {
-      const response = await put('/atualizar-status-quebra', putData)
-      Swal.fire({
-        title: 'Sucesso',
-        text: `Quebra de Caixa ${status ? 'Ativada' : 'Cancelada'} com Sucesso`,
-        icon: 'success',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-
-      const textDados = JSON.stringify(putData)
-      let textoFuncao = status ? 'FINANCEIRO/ATIVADO QUEBRA DE CAIXA' : 'FINANCEIRO/CANCELAMENTO DE QUEBRA DE CAIXA';
-      const ipUsuario = await getIPUsuario();
-      const postData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
-        PATHFUNCAO: textoFuncao,
-        DADOS: textDados,
-        IP: ipUsuario
+    Swal.fire({
+      title: 'Deseja Cancelar a Conferência da Quebra de Caixa?',
+      text: 'Você não poderá reverter esta ação!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Sim',
+      cancelButtonText: 'Não',
+      customClass: {
+        confirmButton: 'btn btn-success',
+        cancelButton: 'btn btn-danger',
+        actions: 'swal-button-spacing'
+      },
+      buttonsStyling: false,
+      didOpen: () => {
+        const style = document.createElement('style');
+        style.innerHTML = '.swal-button-spacing button { margin: 0 5px; }';
+        document.head.appendChild(style);
       }
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        Swal.fire({
+          position: 'center',
+          icon: 'info',
+          title: 'Integrando Adiantamentos',
+          html: 'Aguarde... <br><small><strong id="progressoIntegracao">0</strong> de <strong id="totalIntegracao">' + rowData.length + '</strong></small>',
+          showConfirmButton: false,
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+          customClass: {
+            container: 'custom-swal',
+          }
+        });
 
-      await post('/log-web', postData)
-      await handleClick();
-      return response.data;
-
-    } catch (error) {
-      const textDados = JSON.stringify(putData)
-      let textoFuncao = status ? 'FINANCEIRO/ERRO ALTERAR QUEBRA DE CAIXA' : 'FINANCEIRO/CANCELAMENTO DE QUEBRA DE CAIXA';
-      const ipUsuario = await getIPUsuario();
-      const postData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
-        PATHFUNCAO: textoFuncao,
-        DADOS: textDados,
-        IP: ipUsuario
-      }
-
-      const responsePost = await post('/log-web', postData)
-
-      Swal.fire({
-        title: 'Erro',
-        text: `Erro ao Tentar ${status ? 'Ativar' : 'Cancelar'} a Quebra de Caixa`,
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
+        const putData = {
+          IDQUEBRACAIXA: parseInt(rowData.IDQUEBRACAIXA),
+          STCONFERIDO: 'False',
+          IDFUNCIONARIO: Number(usuarioLogado.id),
         }
-      })
-      responsePost.data;
-    } finally {
-      setIsSubmitting(false);
-    }
+
+        try {
+
+          const response = await post('/adiantamentos-salariais-integracao', putData)
+          const textDados = JSON.stringify(putData)
+          const ipUsuario = await getIPUsuario();
+          const postData = {
+            IDFUNCIONARIO: String(usuarioLogado.id),
+            PATHFUNCAO: `FINANCEIRO/CANCELAR CONFIRMAÇÃO QUEBRA DE CAIXA`,
+            DADOS: textDados,
+            IP: ipUsuario
+          }
+
+          await post('/log-web', postData)
+          Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: 'Quebras de Caixa Atualizadas com sucesso!',
+            showConfirmButton: false,
+            timer: 3000,
+            customClass: {
+              container: 'custom-swal',
+            },
+          })
+
+          handleClick();
+          setSelectedItems([]);
+          return response.data;
+        } catch (error) {
+          const textDados = JSON.stringify(putData)
+          const ipUsuario = await getIPUsuario();
+          const postData = {
+            IDFUNCIONARIO: String(usuarioLogado.id),
+            PATHFUNCAO: `FINANCEIRO/ERRO AO CANCELAR CONFIRMAÇÃO QUEBRA DE CAIXA`,
+            DADOS: textDados,
+            IP: ipUsuario
+          }
+
+          const responsePost = await post('/log-web', postData)
+          Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: 'Ocorreu um erro ao cancelar a confirmação da quebra de caixa. Por favor, tente novamente.',
+            showConfirmButton: false,
+            timer: 3000,
+            customClass: {
+              container: 'custom-swal',
+            },
+          });
+          console.error('Erro ao cancelar a confirmação da quebra de caixa:', error);
+          return responsePost.data;
+        }
+      } else {
+        return;
+      }
+    });
 
   }
+
 
   return {
     handleCancelar

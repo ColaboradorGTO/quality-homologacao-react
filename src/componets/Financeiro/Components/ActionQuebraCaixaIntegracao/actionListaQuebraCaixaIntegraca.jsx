@@ -7,7 +7,7 @@ import { Checkbox } from "primereact/checkbox";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { MdOutlineLocalPrintshop } from "react-icons/md";
-import { FaCheck, FaRegTrashAlt } from "react-icons/fa";
+import { FaCheck, FaCloudUploadAlt, FaRegTrashAlt } from "react-icons/fa";
 import { get, } from "../../../../api/funcRequest";
 import { ModalImprimirQuebra } from "../../Components/ModalImprimirQuebra";
 import HeaderTable from "../../../Tables/headerTable";
@@ -19,6 +19,8 @@ import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 import Swal from "sweetalert2";
 import { useConferirQuebra } from "./hooks/useConferirQuebra";
 import { toFloat } from "../../../../utils/toFloat";
+import { GrView } from "react-icons/gr";
+import { mascaraCPF } from "../../../../utils/formatCPF";
 
 
 export const ActionListaQuebraCaixaIntegracao = ({ 
@@ -99,8 +101,45 @@ export const ActionListaQuebraCaixaIntegracao = ({
     XLSX.writeFile(workbook, 'quebra_caixa_loja.xlsx');
   };
 
+  const arraySituacao = [
+    {color: '#2196F3', txt: 'Pronto para Integrar SAP'},
+    {color: '#886ab5', txt: 'Em Fila'},
+    {color: '#1dc9b7', txt: 'Integrado'},
+    {color: '#fd3995', txt: 'Erro ao Tentar Integrar'}
+  ]
+
+  const arrayColorSituacao = [
+    '#2196F3',
+    '#886ab5',
+    '#1dc9b7',
+    '#fd3995'
+  ];
+
+  const arrayTxtSituacao = [
+    'Pronto para Integrar SAP',
+    'Em Fila',
+    'Integrado',
+    'Erro ao tentar integrar',
+  ];
+  const arrayMsgStatusIntegracao = [
+    'Quebra de Caixa pronta para integrar no SAP',
+    'Quebra de Caixa em processo de integração no SAP, aguarde...',
+    'Quebra de Caixa integrada no SAP'
+  ];
+
   const dados = dadosQuebraDeCaixa.map((item, index) => {
     let contador = index + 1;
+    const vrQuebraLancadoLoja = toFloat(item.VRQUEBRAEFETIVADO);
+    const docEntry = vrQuebraLancadoLoja < 0 ? item.DOCENTRY_SAP_CONTAS_A_PAGAR : item.DOCENTRY_SAP_CONTAS_A_RECEBER;
+    const stMigrado = toFloat(docEntry) > 0;
+    const stEmAndamento = item?.STATUS_BLOQUEIO_ATUALIZACAO == 'True';
+    const stErroIntegracao = item?.ERROR_LOG_SAP?.length > 0;
+    const indexSituacao = stErroIntegracao ? 3 : stMigrado ? 2 : stEmAndamento ? 1 : 0;
+    const colorSitucao = arrayColorSituacao[indexSituacao];
+    const titleMsgStatus = (stErroIntegracao) ? 'MOTIVO:' : arrayTxtSituacao[indexSituacao]
+    const txtSituacao = arrayTxtSituacao[indexSituacao];
+    const msgStatus = item?.ERROR_LOG_SAP || arrayMsgStatusIntegracao[indexSituacao];
+
     return {
       contador,
       IDQUEBRACAIXA: item.IDQUEBRACAIXA,
@@ -114,7 +153,13 @@ export const ActionListaQuebraCaixaIntegracao = ({
       CPFOPERADOR: item.CPFOPERADOR,
       IDFUNCIONARIO: item.IDFUNCIONARIO,
       STATIVO: item.STATIVO,
-      STCONFERIDO: item.STCONFERIDO
+      STCONFERIDO: item.STCONFERIDO,
+      colorSitucao,
+      txtSituacao,
+      titleMsgStatus,
+      msgStatus,
+      stMigrado,
+      stEmAndamento
     }
   });
 
@@ -202,10 +247,10 @@ export const ActionListaQuebraCaixaIntegracao = ({
       field: 'Selecione',
       selectionMode: 'multiple',
       body: (rowData) => {
-        const stAtivo = rowData.STATIVO === 'True';
-        const stConferido = rowData.STCONFERIDO === 'True';
+        const stAtivo = rowData.stMigrado;
+        const stConferido = rowData.stEmAndamento;
 
-        if (!stAtivo || stConferido) {
+        if (!stAtivo || !stConferido) {
           return null;
         }
 
@@ -214,9 +259,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
             <div className="custom-control custom-checkbox">
               <Checkbox
                 inputId={`chk-${rowData.IDQUEBRACAIXA}`}
-                checked={selectedItems.some(
-                  item => item.IDQUEBRACAIXA === rowData.IDQUEBRACAIXA
-                )}
+                checked={selectedItems.some(item => item.IDQUEBRACAIXA === rowData.IDQUEBRACAIXA)}
                 onChange={(e) => {
                   let _selectedItems = [...selectedItems];
 
@@ -271,25 +314,12 @@ export const ActionListaQuebraCaixaIntegracao = ({
     {
       field: 'CPFOPERADOR',
       header: 'CPF',
-      body: row => <th style={{ color: 'blue' }}>{row.CPFOPERADOR}</th>,
-      sortable: true,
-    },
-    {
-      field: 'VRQUEBRASISTEMA',
-      header: 'Vr Quebra Sistema',
-      body: row => {
-        if (row.VRQUEBRASISTEMA > 0) {
-          return <th style={{ color: 'blue' }}> + {formatMoeda(row.VRQUEBRASISTEMA)}</th>
-        } else {
-          return <th style={{ color: 'red' }}> - {formatMoeda(row.VRQUEBRASISTEMA)}</th>
-        }
-      },
-      footer: formatMoeda(calcularTotalVrQuebraSistema()),
+      body: row => <th style={{ color: 'blue' }}>{mascaraCPF(row.CPFOPERADOR)}</th>,
       sortable: true,
     },
     {
       field: 'VRQUEBRAEFETIVADO',
-      header: 'Vr Quebra Lançado',
+      header: 'Vr Quebra',
       body: row => {
         if (row.VRQUEBRAEFETIVADO > 0) {
           return <th style={{ color: 'blue' }}> + {formatMoeda(row.VRQUEBRAEFETIVADO)}</th>
@@ -309,120 +339,107 @@ export const ActionListaQuebraCaixaIntegracao = ({
     {
       field: 'STATIVO',
       header: 'Situação',
-      body: (row) => {
-     
-        const situacaoQuebraLoja = row.STATIVO == 'True';
-        const situacaoConferido = row.STCONFERIDO == 'True';
-        let tagQuebraAtivo = null;
-
-        if (situacaoQuebraLoja) {
-          let txt = 'ATIVO / ';
-
-          if (situacaoConferido) {
-            txt += 'CONFERIDO';
-          } else {
-            txt = (
-              <>
-                ATIVO / <span style={{ color: 'red' }}>NÃO CONFERIDO</span>
-              </>
-            );
-          }
-
-          tagQuebraAtivo = <span style={{ color: 'blue' }}>{txt}</span>;
-        } else {
-          tagQuebraAtivo = <span style={{ color: 'red' }}>CANCELADO</span>;
-        }
-
-        return <th>{tagQuebraAtivo}</th>;
-      },
+      body: row => (
+        <th style={{ color: row.colorSitucao, fontWeight: 'bold' }}>
+      
+          {row.txtSituacao}
+        </th>
+      ),
       sortable: true,
     },
     {
       field: 'IDQUEBRACAIXA',
       header: 'Opções',
       body: (row) => {
-
-        const situacaoQuebraLoja = row.STATIVO == 'True';
-        const situacaoConferido = row.STCONFERIDO == 'True';
         let containerButtons = null;
-
-        if (situacaoQuebraLoja) {
-          if (situacaoConferido) {
-            // CONFERIDO: mostrar apenas Imprimir
-            containerButtons = (
+    
+        if (row.stMigrado || row.stEmAndamento) {
+          return (
+            <div className="d-flex" style={{ justifyContent: "space-between" }}>
+              
               <div className="mr-2">
                 <ButtonTable
-                  titleButton={"Imprimir Quebra"}
+                  titleButton={"Visualizar Status Quebra de Caixa"}
                   cor={"primary"}
-                  Icon={MdOutlineLocalPrintshop}
+                  Icon={GrView}
                   iconSize={20}
                   width="30px"
                   height="30px"
-                  onClickButton={() => handleClickImprimir(row)}
+                  onClickButton={() => {
+                    Swal.fire({
+                      position: 'center',
+                      icon: row.indexSituacao === 2 ? 'success' : row.indexSituacao === 0 ? 'info' : 'info',
+                      title: row.titleMsgStatus,
+                      html: row.msgStatus,
+                      showConfirmButton: true,
+                      customClass: {
+                        container: 'custom-swal',
+                      },
+                    });
+                    return;
+                  }}
                 />
               </div>
-            );
-          } else {
-         
-            containerButtons = (
-              <div className="d-flex" style={{ justifyContent: "space-between" }}>
-                <div className="mr-2">
-                  <ButtonTable
-                    titleButton={"Cancelar Quebra"}
-                    cor={"danger"}
-                    Icon={FaRegTrashAlt}
-                    iconSize={20}
-                    width="30px"
-                    height="30px"
-                    onClickButton={() => handleClickCancelar(row, false)}
-                  />
-                </div>
-                <div className="mr-2">
-                  <ButtonTable
-                    titleButton={"Imprimir Quebra"}
-                    cor={"primary"}
-                    Icon={MdOutlineLocalPrintshop}
-                    iconSize={20}
-                    width="30px"
-                    height="30px"
-                    onClickButton={() => handleClickImprimir(row)}
-                  />
-                </div>
-                <div>
-                  <ButtonTable
-                    titleButton={"Conferir Quebra"}
-                    cor={"success"}
-                    Icon={FaCheck}
-                    iconSize={20}
-                    width="30px"
-                    height="30px"
-                    onClickButton={() => {
-                      setSelectedItems([row]);
-                      conferir(row);
-                    }}
-                  />
-                </div>
-              </div>
-            );
-          }
+              
+            </div>
+          );
         } else {
-       
-          containerButtons = (
-            <div>
-              <ButtonTable
-                titleButton={"Ativar Quebra"}
-                cor={"success"}
-                Icon={FaCheck}
-                onClickButton={() => handleCancelar(row, true)}
-                iconSize={20}
-                width="30px"
-                height="30px"
-              />
+          return (
+            <div className="d-flex" style={{ justifyContent: "space-between" }}>
+              <div className="mr-2">
+                <ButtonTable
+                  titleButton={"Visualizar Status Quebra de Caixa"}
+                  cor={"primary"}
+                  Icon={GrView}
+                  iconSize={20}
+                  width="30px"
+                  height="30px"
+                  onClickButton={() => {
+                    Swal.fire({
+                      position: 'center',
+                      icon: row.indexSituacao === 2 ? 'success' : row.indexSituacao === 0 ? 'info' : 'info',
+                      title: row.titleMsgStatus,
+                      html: row.msgStatus,
+                      showConfirmButton: true,
+                      customClass: {
+                        container: 'custom-swal',
+                      },
+                    });
+                    return;
+                  }}
+                />
+              </div>
+
+              <div className="mr-2">
+                <ButtonTable
+                  titleButton={"Integrar Quebra de Caixa no SAP"}
+                  cor={"info"}
+                  Icon={FaCloudUploadAlt}
+                  iconSize={20}
+                  width="30px"
+                  height="30px"
+                  onClickButton={() => {
+                    setSelectedItems([row]);
+                    conferir(row);
+                  }}
+                />
+              </div>
+
+              <div className="mr-2">
+                <ButtonTable
+                  titleButton={"Cancelar Confirmação de Quebra de Caixa"}
+                  cor={"danger"}
+                  Icon={FaRegTrashAlt}
+                  iconSize={20}
+                  width="30px"
+                  height="30px"
+                  onClickButton={() => handleClickCancelar(row, false)}
+                />
+              </div>
             </div>
           );
         }
-
-        return <td>{containerButtons}</td>;
+    
       },
     },
   ]
@@ -486,11 +503,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
       <Row>
         <Column footer="" colSpan={3} />
         <Column footer="Totais" colSpan={4} style={{fontSize: '1rem', fontWeight: 'bold' }}/>
-        <Column 
-          footer={formatMoeda(calcularTotalVrQuebraSistema())} 
-          style={{ color: calcularTotalVrQuebraSistema() >= 0 ? 'blue' : 'red', fontSize: '0.8rem' }}
-          colSpan={1}
-        /> 
+
         <Column 
           footer={formatMoeda(calcularTotalVrQuebraEfetivado())}
           style={{ color: calcularTotalVrQuebraEfetivado() >= 0 ? 'blue' : 'red', fontSize: '0.8rem' }}
