@@ -61,18 +61,19 @@ export const useCriarFuncionario = ({ handleClose }) => {
     }
   }, []);
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
-  const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+   const getIPUsuario = async () => {
+    try {
+      const response = await axios.get('https://api.ipify.org?format=json9');
+      if (response.data && response.data.ip) {
+        return response.data.ip;
+      }
+      throw new Error("Resposta inválida do ipfy.org");
+    } catch (error) {
+      const responseIP2 = await axios.get('https://api.ipwho.org/me');
+      return responseIP2.data?.data?.ip;
+      
     }
-    return response.data;
   };
-
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresa } = useQuery(
     'listaEmpresasIformatica',
@@ -152,6 +153,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
     }
   };
 
+
     const loginConfirmacao = async () => {
       setFormularioVisivelLogin(true);
       setFormularioVisivel(false);
@@ -186,20 +188,21 @@ export const useCriarFuncionario = ({ handleClose }) => {
   
     };
 
+
     
-    const onSubmit = async (e) => {
-      let maximoDesconto = 0;
-      let dataBase = new Date('2024-08-01')
-      let diferencaDias = Math.ceil((dataBase - new Date()) / (1000 * 60 * 60 * 24));
-      
-      if(diferencaDias < 90) {
-        maximoDesconto = 10;
-      } else if(diferencaDias >= 90 && diferencaDias < 365) {
-        maximoDesconto = 15;
-      } else if(diferencaDias >= 365 && diferencaDias < 730) {
-        maximoDesconto = 20;
-      }
-      
+  const onSubmit = async (e) => {
+    let maximoDesconto = 0;
+    let dataBase = new Date('2024-08-01')
+    let diferencaDias = Math.ceil((dataBase - new Date()) / (1000 * 60 * 60 * 24));
+
+    if(diferencaDias < 90) {
+      maximoDesconto = 10;
+    } else if(diferencaDias >= 90 && diferencaDias < 365) {
+      maximoDesconto = 15;
+    } else if(diferencaDias >= 365 && diferencaDias < 730) {
+      maximoDesconto = 20;
+    }
+
     const cpfSemMascara = removerMascaraCPF(cpfFuncionario);
 
     const funcao = usuarioLogado?.DSFUNCAO;
@@ -217,31 +220,32 @@ export const useCriarFuncionario = ({ handleClose }) => {
     }
 
     if(!empresaSelecionada || !empresaSelecionada.value ) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Empresa não selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-
-    }
+        Swal.fire({
+          title: 'Erro ao Cadastrar',
+          text: 'Empresa não selecionada',
+          icon: 'error',
+          timer: 3000,
+          customClass: {
+            container: 'custom-swal',
+          }
+        })
+        return;
+  
+      }
 
     if(!funcaoSelecionada || !funcaoSelecionada.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Função nao selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
+          Swal.fire({
+            title: 'Erro ao Cadastrar',
+            text: 'Função nao selecionada',
+            icon: 'error',
+            timer: 3000,
+            customClass: {
+              container: 'custom-swal',
+            }
+          })
+          return;
         }
-      })
-      return;
-    }
+
 
     if(!tipoSelecionado || !tipoSelecionado.value) {
       Swal.fire({
@@ -255,9 +259,8 @@ export const useCriarFuncionario = ({ handleClose }) => {
       })
       return;
     }
-    
-
-    if(!dataAdmissao || !dataAdmissao === '') {
+                
+        if(!dataAdmissao || !dataAdmissao === '') {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Data Admissão nao selecionada',
@@ -270,9 +273,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-    
-
-    if(!localizacaoSelcionada || !localizacaoSelcionada.value) {
+      if(!localizacaoSelcionada || !localizacaoSelcionada.value) {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Localização nao selecionada',
@@ -285,7 +286,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-   if(!['CLT', 'PJ'].includes(categoriaContratacao)) {
+       if(!['CLT', 'PJ'].includes(categoriaContratacao)) {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Categoria de Contratação nao selecionada',
@@ -298,7 +299,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     } 
 
-    if(valorSalario === '') {
+     if(valorSalario === '') {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Valor Salário não pode ser vazio',
@@ -311,7 +312,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-    if(!situacaoSelecionada || !situacaoSelecionada.value){
+      if(!situacaoSelecionada || !situacaoSelecionada.value){
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Situação nao selecionada',
@@ -323,6 +324,20 @@ export const useCriarFuncionario = ({ handleClose }) => {
       })
       return;
     }
+
+        if(!nomeFuncionario || nomeFuncionario.trim() === '') {
+      Swal.fire({
+        title: 'Erro ao Cadastrar',
+        text: 'Nome não pode ser vazio',
+        icon: 'error',
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+      return;
+    }
+
 
     if (parseFloat(valorDesconto) > 50) {
       Swal.fire({
@@ -337,6 +352,8 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
+    
+
     if (cpfSemMascara.length !== 11) {
       Swal.fire({
         title: 'Erro ao Cadastrar',
@@ -350,18 +367,6 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-    if(!nomeFuncionario || nomeFuncionario.trim() === '') {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Nome não pode ser vazio',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
  
     
     const postData = {
@@ -442,7 +447,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       const textDados = JSON.stringify(putData)
       const textoFuncao = 'RH/UPDATE DE FUNCIONARIOS';
 
-
+       const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
@@ -459,7 +464,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       
       const textDados = JSON.stringify(putData)
       const textoFuncao = 'RH/ERRO AO CRIAR OU ATUALIZAR FUNCIONARIO';
-
+       const ipUsuario = await getIPUsuario();
 
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
