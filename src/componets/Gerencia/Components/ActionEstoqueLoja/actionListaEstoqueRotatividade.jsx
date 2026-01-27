@@ -75,7 +75,6 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
   };
 
   const dados = dadosEstoqueRotatividade.map((item, index) => {
-    console.log(item)
     return {
 
       DSPRODUTO: item.DSPRODUTO,

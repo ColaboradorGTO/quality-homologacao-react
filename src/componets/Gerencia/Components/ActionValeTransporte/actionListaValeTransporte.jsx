@@ -23,7 +23,7 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
-  const { onSubmit } = useEditarDespesa(usuarioLogado, optionsModulos, refetchDadosLoja);
+  const { onSubmit } = useEditarDespesa(usuarioLogado, optionsModulos, refetchDadosLoja, refetchDadosLoja);
 
   const normalizeToYMD = (value) => {
     if (!value) return '';
@@ -145,6 +145,7 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
     }
     return total;
   }
+
 
   const colunasVouchers = [
     {

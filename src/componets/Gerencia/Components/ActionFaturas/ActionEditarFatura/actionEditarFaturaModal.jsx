@@ -9,7 +9,8 @@ export const ActionEditarFaturaModal = ({
   dadosDetalheFatura, 
   usuarioLogado, 
   optionsModulos,
-  handleClick 
+  handleClick,
+  refetchListaFaturas
 }) => {
   return (
     <Fragment>
@@ -36,6 +37,7 @@ export const ActionEditarFaturaModal = ({
             usuarioLogado={usuarioLogado}
             optionsModulos={optionsModulos}
             handleClick={handleClick}
+            refetchListaFaturas={refetchListaFaturas}
           />
         </Modal.Body>
 

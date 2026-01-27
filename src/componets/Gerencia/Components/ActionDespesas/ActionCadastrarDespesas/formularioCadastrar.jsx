@@ -43,6 +43,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
             const dadosParaValidar = {
                 historicoDespesa: dsHistorio,
                 dsPagoDespesa: dsPagoA,
+                tipoDespesaSelecionada: despesaSelecionada,
                 valorDespesa: vrDespesa,
 
             }
@@ -67,7 +68,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
             }
 
             const errorMessages = validationError.errors || [validationError.message];
-            //console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+            console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
     }
 
@@ -94,7 +95,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                         clearErrors={clearErrors}
                                     />
 
-                                )}  
+                                )}
                             />
 
                         </div>
@@ -126,23 +127,28 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                         <div class="col-sm-6 col-xl-4 ">
                             <label className="form-label" htmlFor={""}>Despesa</label>
                             <Select
+                                isClearable
                                 label={"Despesa"}
-                                options={dadosReceitaDespesa.map((item) => ({
-                                    value: item.IDCATEGORIARECDESP,
-                                    label: `${item.IDCATEGORIARECDESP} - ${item.DSCATEGORIA}`
-                                }))}
+                                options={[
+                                    ...dadosReceitaDespesa.map((item) => ({
+                                        value: String(item.IDCATEGORIARECDESP),
+                                        label: `${item.IDCATEGORIARECDESP} - ${item.DSCATEGORIA}`,
+                                    }))
+                                ]}
                                 value={despesaSelecionada}
-                                onChange={(e) => setDespesaSelecionada(e)}
-
+                                onChange={(e) => {
+                                    setDespesaSelecionada(e);
+                                    clearErrors("tipoDespesaSelecionada");
+                                }}
                             />
-                            {errors.despesaSelecionada && (
+                            {errors.tipoDespesaSelecionada && (
                                 <AlertError
-                                    error={errors.despesaSelecionada}
+                                    error={errors.tipoDespesaSelecionada}
                                     onClose={clearErrors}
-                                    fieldName="despesaSelecionada"
+                                    fieldName="despestipoDespesaSelecionadaaSelecionada"
                                 />
                             )}
-                           
+
                         </div>
                     </div>
                 </div>
@@ -164,7 +170,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                         clearErrors={clearErrors}
                                     />
 
-                                )}  
+                                )}
                             />
                         </div>
                         <div class="col-sm-6 col-xl-6">
@@ -182,7 +188,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                         clearErrors={clearErrors}
                                     />
 
-                                )}  
+                                )}
                             />
                         </div>
                     </div>
@@ -207,7 +213,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                     fieldName="tpNota"
                                 />
                             )}
-                          
+
                         </div>
                         <div class="col-sm-6 col-xl-6">
 
@@ -225,25 +231,25 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                         clearErrors={clearErrors}
                                     />
 
-                                )}  
+                                )}
                             />
                         </div>
                     </div>
                 </div>
 
             </form>
-                <FooterModal
-                    ButtonTypeCadastrar={ButtonTypeModal}
-                    onClickButtonCadastrar={handleValidatedSubmit}
-                    tipoBtnCadastrar={"submit"}
-                    textButtonCadastrar={"Cadastrar"}
-                    corCadastrar="success"
+            <FooterModal
+                ButtonTypeCadastrar={ButtonTypeModal}
+                onClickButtonCadastrar={handleValidatedSubmit}
+                tipoBtnCadastrar={"submit"}
+                textButtonCadastrar={"Cadastrar"}
+                corCadastrar="success"
 
-                    ButtonTypeFechar={ButtonTypeModal}
-                    textButtonFechar={"Fechar"}
-                    onClickButtonFechar={handleClose}
-                    corFechar="secondary"
-                />
+                ButtonTypeFechar={ButtonTypeModal}
+                textButtonFechar={"Fechar"}
+                onClickButtonFechar={handleClose}
+                corFechar="secondary"
+            />
 
         </Fragment>
     )

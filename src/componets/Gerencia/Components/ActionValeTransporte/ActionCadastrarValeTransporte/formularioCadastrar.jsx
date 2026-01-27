@@ -8,8 +8,9 @@ import { useCadastrarValeTransporte } from "../hooks/useCadastrarValeTransporte"
 import FormField from "../../../../Formularios/FormField";
 import { AlertError } from "../../../../Inputs/alertError";
 import { schema } from "./schema/useCadastrarSchema"
+import { set } from "date-fns";
 
-export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos }) => {
+export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos, refetchDadosLoja }) => {
     const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
         mode: "onChange"
     });
@@ -30,18 +31,18 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
         empresa,
         setEmpresa,
         dadosFuncionarios
-    } = useCadastrarValeTransporte({ handleClose, usuarioLogado, optionsModulos });
+    } = useCadastrarValeTransporte({ handleClose, usuarioLogado, optionsModulos, refetchDadosLoja });
 
     const handleValidatedSubmit = async () => {
         try {
             const dadosParaValidar = {
                 historico: dsHistorio,
                 valorDespesa: vrDespesa,
-                funcionario: usuarioSelecionado,
+                funcionarioSelecionado: usuarioSelecionado,
             }
 
             await schema.validate(dadosParaValidar, { abortEarly: false });
-         
+
             onSubmit();
 
         } catch (validationError) {
@@ -89,7 +90,7 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                                         clearErrors={clearErrors}
                                     />
 
-                                )}  
+                                )}
                             />
 
                         </div>
@@ -150,13 +151,30 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                                         clearErrors={clearErrors}
                                     />
 
-                                )}  
+                                )}
                             />
                         </div>
 
                         <div class="col-sm-6 col-xl-6">
                             <label className="form-label" htmlFor={""}>Funcionário</label>
+                            {/*             <Select
+                                isClearable
+                                label={"Despesa"}
+                                options={[
+                                    ...dadosReceitaDespesa.map((item) => ({
+                                        value: String(item.IDCATEGORIARECDESP),
+                                        label: `${item.IDCATEGORIARECDESP} - ${item.DSCATEGORIA}`,
+                                    }))
+                                ]}
+                                value={despesaSelecionada}
+                                onChange={(e) => {
+                                    setDespesaSelecionada(e);
+                                    clearErrors("tipoDespesaSelecionada");
+                                }}
+                            /> */}
+
                             <Select
+                                isClearable
                                 options={[
                                     { value: '', label: 'Selecione...' },
                                     ...dadosFuncionarios.map((item) => {
@@ -166,16 +184,21 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                                         }
                                     })]}
                                 value={usuarioSelecionado}
-                                onChange={(e) => setUsuarioSelecionado(e)}
+                                onChange={(opt) => {
+
+                                    setUsuarioSelecionado(opt ?? null)
+                                    clearErrors("funcionarioSelecionado");
+                                }}
+
                             />
-                            {errors.usuarioSelecionado && (
+                            {errors.funcionarioSelecionado && (
                                 <AlertError
-                                    error={errors.usuarioSelecionado}
+                                    error={errors.funcionarioSelecionado}
                                     onClose={clearErrors}
-                                    fieldName="usuarioSelecionado"
+                                    fieldName="funcionarioSelecionado"
                                 />
                             )}
-                                                       
+
                         </div>
 
                     </div>
@@ -189,15 +212,16 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                                 render={({ field }) => (
                                     <FormField
                                         label={"Valor do Vale Transporte "}
+                                        placeholder={"0"}
                                         name="valorDespesa"
-                                        type="text"
+                                        type="number"
                                         value={vrDespesa}
                                         onChange={(e) => setVrDespesa(e.target.value)}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
 
-                                )}  
+                                )}
                             />
                         </div>
                     </div>

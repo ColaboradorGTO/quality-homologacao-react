@@ -10,14 +10,15 @@ export const Formulario = ({
     handleClose, 
     dadosCancelarFatura, 
     usuarioLogado, 
-    optionsModulos 
+    optionsModulos,
+    refetchListaFaturas
 }) => {
     const { register, handleSubmit, errors } = useForm();
     const {
         motivo,
         setMotivo,
         onSubmit
-    } = useCancelarFatura({ handleClick, handleClose, dadosCancelarFatura, usuarioLogado, optionsModulos })
+    } = useCancelarFatura({ handleClick, handleClose, dadosCancelarFatura, usuarioLogado, optionsModulos, refetchListaFaturas })
 
 
     return (

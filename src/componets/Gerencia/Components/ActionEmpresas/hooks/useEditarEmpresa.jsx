@@ -90,7 +90,7 @@ export const useEditarEmpresa = ({dadosEmpresasDetalhe, handleClose}) => {
             EEMAILFINANCEIRO: String(dadosEmpresasDetalhe[0]?.EEMAILFINANCEIRO),
             EEMAILCONTABILIDADE: String(dadosEmpresasDetalhe[0]?.EEMAILCONTABILIDADE),
             NUTELPUBLICO: String(dadosEmpresasDetalhe[0]?.NUTELPUBLICO),
-            NUTELCOMERCIAL: String(telefone),
+            NUTELCOMERCIAL: String(telefone || '').replace(/\D/g, ''),
             NUTELFINANCEIRO: String(dadosEmpresasDetalhe[0]?.NUTELFINANCEIRO),
             NUTELGERENCIA: String(dadosEmpresasDetalhe[0]?.NUTELGERENCIA),
             EURL: String(dadosEmpresasDetalhe[0]?.EURL),

@@ -159,10 +159,10 @@ export const DashBoardGerencia = () => {
       component = <ActionRelatorioBI />
       break;
     case "/gerencia/ActionPesquisaAlteracaoPreco":
-      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado} ID={ID}/>
+      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado} ID={ID} />
       break;
     case "/gerencia/ActionPesquisaEmpresas":
-      component = <ActionPesquisaEmpresas usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaEmpresas usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaClientesVendas":
       component = <ActionPesquisaClientesVendas usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>

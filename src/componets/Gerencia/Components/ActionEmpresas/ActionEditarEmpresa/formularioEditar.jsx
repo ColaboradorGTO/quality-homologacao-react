@@ -5,6 +5,7 @@ import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { useEditarEmpresa } from "../hooks/useEditarEmpresa"
 import { useForm } from "react-hook-form"
 import { dataFormatada } from "../../../../../utils/dataFormatada"
+import { mascaraTelefone } from "../../../../../utils/mascaraTelefone"
 
 export const FormularioEditar = ({ handleClose, dadosEmpresasDetalhe }) => {
   const { register, handleSubmit, errors } = useForm();
@@ -165,7 +166,7 @@ export const FormularioEditar = ({ handleClose, dadosEmpresasDetalhe }) => {
                   <InputFieldModal
                     label={"Telefone"}
                     type="text"
-                    value={telefone}
+                    value={mascaraTelefone(telefone)}
                     onChangeModal={(e) => setTelefone(e.target.value)}
                   />
                 </div>

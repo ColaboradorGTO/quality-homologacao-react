@@ -8,10 +8,11 @@ import { ActionListaEmpresas } from "./actionListaEmpresas";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 
-
 export const ActionPesquisaEmpresas = ({ usuarioLogado, ID }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
+  const [empresaAplicada, setEmpresaAplicada] = useState(''); // filtro aplicado na tabela
+
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
 
@@ -25,11 +26,23 @@ export const ActionPesquisaEmpresas = ({ usuarioLogado, ID }) => {
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
-  const fetchEmpresas = async () => {
+  const fetchEmpresasAll = async () => {
+    const response = await get(`/empresas`);
+    return response.data;
+  };
+
+  const { data: empresasAll = [] } = useQuery(
+    ['empresas-all'],
+    fetchEmpresasAll,
+    { staleTime: 10 * 60 * 1000, cacheTime: 10 * 60 * 1000 }
+  );
+
+
+  const fetchEmpresasFiltradas = async () => {
     try {
 
-      const urlApi = `/empresas?idEmpresa=${empresaSelecionada}`;
-      const response = await get(urlApi);
+      const params = empresaAplicada ? `?idEmpresa=${empresaAplicada}` : '';
+      const response = await get(`/empresas${params}`);
 
       if (response.data.length && response.data.length === pageSize) {
         let allData = [...response.data];
@@ -67,19 +80,20 @@ export const ActionPesquisaEmpresas = ({ usuarioLogado, ID }) => {
   };
 
   const { data: dadosEmpresas = [], error: erroEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
-    'empresas',
-    () => fetchEmpresas(empresaSelecionada, currentPage, pageSize),
-    { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    ['empresas-filtradas', empresaAplicada],
+    fetchEmpresasFiltradas,
+    { enabled: true }
   );
 
   const handleSelectEmpresa = (e) => {
-    const empresa = dadosEmpresas.find((empresa) => empresa.IDEMPRESA === e.value)
-    setEmpresaSelecionada(e.value)
-    setEmpresaSelecionadaNome(empresa.NOFANTASIA)
-  }
+    const empresa = empresasAll.find((emp) => String(emp.IDEMPRESA) === String(e.value));
+    setEmpresaSelecionada(e.value);
+    setEmpresaSelecionadaNome(empresa?.NOFANTASIA || '');
+  };
+
 
   const handleClick = () => {
-    refetchEmpresas()
+    setEmpresaAplicada(empresaSelecionada);
   }
 
   return (
@@ -92,11 +106,10 @@ export const ActionPesquisaEmpresas = ({ usuarioLogado, ID }) => {
         subTitle={empresaSelecionadaNome}
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Empresa"}
-         optionsEmpresas={dadosEmpresas.map((empresa) => ({
-           value: empresa.IDEMPRESA,
-           label: empresa.NOFANTASIA,
-         }))}
-
+        optionsEmpresas={empresasAll.map((empresa) => ({
+          value: empresa.IDEMPRESA,
+          label: empresa.NOFANTASIA,
+        }))}
         valueSelectEmpresa={empresaSelecionada}
         onChangeSelectEmpresa={handleSelectEmpresa}
         ButtonSearchComponent={ButtonType}
@@ -106,7 +119,11 @@ export const ActionPesquisaEmpresas = ({ usuarioLogado, ID }) => {
         IconSearch={AiOutlineSearch}
       />
 
-      <ActionListaEmpresas dadosEmpresas={dadosEmpresas} usuarioLogado={usuarioLogado} optionsModulos={optionsModulos} />
+      <ActionListaEmpresas
+        dadosEmpresas={dadosEmpresas}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+      />
 
     </Fragment>
   )

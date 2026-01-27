@@ -3,7 +3,7 @@ import Modal from 'react-bootstrap/Modal';
 import { FormularioCadastrar } from "./formularioCadastrar";
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 
-export const ActionCadastrarValeTransporte = ({ show, handleClose, usuarioLogado, optionsModulos }) => {
+export const ActionCadastrarValeTransporte = ({ show, handleClose, usuarioLogado, optionsModulos, refetchDadosLoja }) => {
 
   return (
     <Fragment>
@@ -26,6 +26,7 @@ export const ActionCadastrarValeTransporte = ({ show, handleClose, usuarioLogado
             handleClose={handleClose}
             usuarioLogado={usuarioLogado}
             optionsModulos={optionsModulos}
+            refetchDadosLoja={refetchDadosLoja}
           />
         </Modal.Body>
 

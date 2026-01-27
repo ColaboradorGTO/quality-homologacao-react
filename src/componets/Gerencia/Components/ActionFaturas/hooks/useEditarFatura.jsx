@@ -3,7 +3,7 @@ import { post, put } from "../../../../../api/funcRequest"
 import { useEffect, useState } from "react"
 import axios from "axios"
 
-export const useEditarFatura = ({ dadosDetalheFatura, usuarioLogado, optionsModulos, handleClose, handleClick  }) => {
+export const useEditarFatura = ({ dadosDetalheFatura, usuarioLogado, optionsModulos, handleClose, handleClick, refetchListaFaturas  }) => {
   const [empresa, setEmpresa] = useState('')
   const [codAutorizacao, setCodAutorizacao] = useState('')
   const [valorFatura, setValorFatura] = useState(0)
@@ -94,6 +94,7 @@ export const useEditarFatura = ({ dadosDetalheFatura, usuarioLogado, optionsModu
 
       handleClick();
       handleClose();
+      refetchListaFaturas()
       return response.data;
     } catch (error) {
       const textDados = JSON.stringify(putData)

@@ -100,7 +100,8 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                 <label className="form-label" htmlFor={""}>Funcionários</label>
 
                                 <Select
-                                   defaultValue={usuarioSelecionado}
+                                    isClearable
+                                    defaultValue={usuarioSelecionado}
                                     options={[
                                         { value: '', label: 'Selecione...' },
                                         ...dadosFuncionarios.map((item) => {
@@ -109,8 +110,12 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                                 label: `${item.ID} - ${item.NOFUNCIONARIO}`
                                             }
                                         })]}
-                                    onChange={(e) => setUsuarioSelecionado(e.value)}   
-                                /> 
+                                    onChange={
+                                        (e) => {
+                                            setUsuarioSelecionado(e.value);
+                                            clearErrors("funcionarios");
+                                        }}
+                                />
                                 {errors.funcionarios && (
                                     <AlertError
                                         error={errors.funcionarios}
