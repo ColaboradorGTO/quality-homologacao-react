@@ -73,7 +73,7 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
 
    
   const fetchQuebra = async () => {  
-    const urlBase = `/quebra-caixa-loja?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&uf=${ufSelecionado}`;
+    const urlBase = `/quebra-caixa-integracao-sap?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&uf=${ufSelecionado}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', ''); 
     try {
@@ -106,7 +106,7 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
   }
 
   const { data: dadosQuebraDeCaixa = [], error: erroQuebra, isLoading: isLoadingQuebra, refetch: refetchQuebra } = useQuery(
-    'quebra-caixa-loja',
+    'quebra-caixa-integracao-sap',
     () => fetchQuebra(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   );
