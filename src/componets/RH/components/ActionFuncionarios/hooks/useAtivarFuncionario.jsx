@@ -69,9 +69,9 @@ export const useAtivarFuncionario = ({ handleClose, optionsModulos, usuarioLogad
         let status = putData.STATIVO;
         let textoFuncao;
         if(status === 'True'){
-          textoFuncao = 'INFORMATICA/ATIVA DESLIGAMENTO DE FUNCIONARIO';
+          textoFuncao = 'RH/ATIVA DESLIGAMENTO DE FUNCIONARIO';
         } else {
-          textoFuncao = 'INFORMATICA/DESLIGAMENTO DE FUNCIONARIO';
+          textoFuncao = 'RH/DESLIGAMENTO DE FUNCIONARIO';
         }
          const ipUsuario = await getIPUsuario();
 
