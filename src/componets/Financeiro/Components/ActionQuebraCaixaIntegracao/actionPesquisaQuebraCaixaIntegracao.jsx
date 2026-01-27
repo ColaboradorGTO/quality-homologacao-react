@@ -6,11 +6,13 @@ import { get } from "../../../../api/funcRequest";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { AiOutlineSearch } from "react-icons/ai";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
+// import { ActionListaQuebraCaixaLojaNegativa } from "./actionListaQuebraCaixaLojaNegativa";
+// import { ActionListaQuebraCaixaLojaPositiva } from "./actionListaQuebraCaixaLojaPositiva";
 import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { IoMdCheckmark } from "react-icons/io";
 import Swal from "sweetalert2";
-import { useConferirTodasQuebras } from "./hooks/useConfeririTodasQuebras";
+// import { useConferirTodasQuebras } from "./hooks/useConfeririTodasQuebras";
 import { ActionListaQuebraCaixaIntegracao } from "./actionListaQuebraCaixaIntegraca";
 
 export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
@@ -110,6 +112,86 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
   );
 
 
+  const  getListaQuebraDeCaixaPositiva = async () => {
+    const urlBase = `/quebra-caixa-loja?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    try {
+      animacaoCarregamento('Carregando dados...', true);
+        
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
+        }
+      }
+
+      return allData;
+      
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
+  }
+  
+  const {data: dadosQuebraDeCaixaPositiva = [], error: erroQuebraPositiva, isLoading: isLoadingQuebraPositiva, refetch: refetchQuebraPositiva} = useQuery(
+    'quebra-caixa-loja-Positiva',
+    () => getListaQuebraDeCaixaPositiva(),
+    { enabled: false, staleTime: 5 * 60 * 1000 }
+  )
+
+
+  const getListaQuebraDeCaixaNegativa = async () => {
+    const urlBase = `/quebra-caixa-loja?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    try {
+      animacaoCarregamento('Carregando dados...', true);
+        
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
+        }
+      }
+
+      return allData;
+    } catch (error) {
+      console.error('Erro ao buscar dados:', error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
+  }
+
+  const {data: dadosQuebraDeCaixaNegativa = [], error: erroQuebraNegativa, isLoading: isLoadingQuebraNegativa, refetch: refetchQuebraNegativa} = useQuery(
+    'lista-Quebra-Caixa-Negativa',
+    () => getListaQuebraDeCaixaNegativa(marcaSelecionada, empresaSelecionada,  cpfOperadorQuebra, quebraSelecionada, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
+    { enabled: false, staleTime: 5 * 60 * 1000 }
+  )
+
   const selectQuebraDeCaixa = (e) => {
     setQuebraSelecionada(e.value)
   }
@@ -186,9 +268,9 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
     },
   ]
 
-  const {
-    conferirTodas
-  } = useConferirTodasQuebras({ optionsModulos, usuarioLogado, selectedItems, handleClick }); 
+  // const {
+  //   conferirTodas
+  // } = useConferirTodasQuebras({ optionsModulos, usuarioLogado, selectedItems, handleClick }); 
 
   const conferirTodasSelecionadas = () => {
   
@@ -218,7 +300,7 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
       });
       return;
     } else {
-      conferirTodas();
+      // conferirTodas();
     }
   }
   
@@ -322,7 +404,32 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
       )}
 
 
+      {/* <div>
+        {tabelaVisivelNegativa && (
 
+          <ActionListaQuebraCaixaLojaNegativa 
+            dadosQuebraDeCaixaNegativa={dadosQuebraDeCaixaNegativa} 
+            optionsModulos={optionsModulos}
+            usuarioLogado={usuarioLogado}   
+            selectedItems={selectedItems}
+            setSelectedItems={setSelectedItems}
+            handleClick={handleClick}
+          />
+        )}
+      </div>
+      <div>
+        {tabelaVisivelPositiva && (
+
+          <ActionListaQuebraCaixaLojaPositiva 
+            dadosQuebraDeCaixaPositiva={dadosQuebraDeCaixaPositiva} 
+            optionsModulos={optionsModulos}
+            usuarioLogado={usuarioLogado}              
+            selectedItems={selectedItems}
+            setSelectedItems={setSelectedItems}
+            handleClick={handleClick}
+          />
+        )}
+      </div> */}
     </Fragment>
   )
 }

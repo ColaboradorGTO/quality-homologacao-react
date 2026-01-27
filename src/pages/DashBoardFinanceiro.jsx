@@ -37,6 +37,7 @@ const ActionPesquisaMotivoDevolucao = lazy(() => import('../componets/Financeiro
 const ActionPesquisaConferenciaMalote = lazy(() => import('../componets/Financeiro/Components/ActionConferenciaMalote/actionPesquisaConferenciaMalote').then(module => ({ default: module.ActionPesquisaConferenciaMalote })));
 const ActionPesquisaContas = lazy(() => import('../componets/Financeiro/Components/ActionContas/actionPesquisaContas').then(module => ({ default: module.ActionPesquisaContas })));
 const ActionPesquisaFaturasConsolidadas = lazy(() => import('../componets/Financeiro/Components/ActionFaturasConsolidadas/actionPesquisaFaturasConsolidadas').then(module => ({ default: module.ActionPesquisaFaturasConsolidadas })));
+const ActionPesquisaQuebraCaixaIntegracao = lazy(() => import('../componets/Financeiro/Components/ActionQuebraCaixaIntegracao/actionPesquisaQuebraCaixaIntegracao').then(module => ({ default: module.ActionPesquisaQuebraCaixaIntegracao })));
 
 
 export const DashBoardFinanceiro = () => {
@@ -181,6 +182,9 @@ export const DashBoardFinanceiro = () => {
       break;
     case "/financeiro/ActionPesquisaFaturasConsolidadas":
       component = <ActionPesquisaFaturasConsolidadas usuarioLogado={usuarioLogado} ID={ID} />
+      break;
+    case "/financeiro/ActionPesquisaQuebraCaixaIntegracao":
+      component = <ActionPesquisaQuebraCaixaIntegracao usuarioLogado={usuarioLogado} ID={ID} />
       break;
     default:
       component = null;
