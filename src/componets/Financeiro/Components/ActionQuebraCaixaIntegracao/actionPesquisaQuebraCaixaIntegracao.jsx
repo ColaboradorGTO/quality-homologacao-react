@@ -6,16 +6,14 @@ import { get } from "../../../../api/funcRequest";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { AiOutlineSearch } from "react-icons/ai";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
-// import { ActionListaQuebraCaixaLojaNegativa } from "./actionListaQuebraCaixaLojaNegativa";
-// import { ActionListaQuebraCaixaLojaPositiva } from "./actionListaQuebraCaixaLojaPositiva";
 import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { IoMdCheckmark } from "react-icons/io";
 import Swal from "sweetalert2";
 import { useIntegrarTodasQuebras } from "./hooks/useIntegrarTodasQuebras"
-import { ActionListaQuebraCaixaIntegracao } from "./actionListaQuebraCaixaIntegraca";
-import { ActionListaQuebraPositivaCaixaIntegracao } from "./actionListaQuebraPositivaCaixaIntegracajsx";
-import { ActionListaQuebraNegativaCaixaIntegracao } from "./actionListaQuebraNegativaCaixaIntegraca";
+import { ActionListaQuebraCaixaIntegracao } from "./actionListaQuebraCaixaIntegracao";
+import { ActionListaQuebraPositivaCaixaIntegracao } from "./actionListaQuebraPositivaCaixaIntegracao";
+import { ActionListaQuebraNegativaCaixaIntegracao } from "./actionListaQuebraNegativaCaixaIntegracao";
 
 export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
