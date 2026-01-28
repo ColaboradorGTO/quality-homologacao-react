@@ -73,7 +73,7 @@ export const useEditarDescontoFuncionario = ({
         const putData = {
             DTINICIODESC: String(dataInicioDesconto),
             DTFIMDESC: String(dataFimDesconto),
-            PERCDESCUSUAUTORIZADO: percentualDesconto ? Number(percentualDesconto) : 0,
+            PERCDESCUSUAUTORIZADO: percentualDesconto ? parseFloat(percentualDesconto) : 0,
             TXTMOTIVODESCONTO: motivoDesconto,
             IDFUNCALTERACAO: Number(usuarioLogado?.id),
             ID: Number(dadosDescontoFuncionarios[0]?.ID),

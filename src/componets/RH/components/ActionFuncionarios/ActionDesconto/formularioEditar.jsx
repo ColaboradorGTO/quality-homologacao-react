@@ -1,13 +1,12 @@
 import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
-import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { Controller, useForm } from "react-hook-form";
-import { AlertError } from "../../../../Inputs/alertError";
 import FormField from "../../../../Formularios/FormField";
 
 import { useEditarDescontoFuncionario } from "../hooks/useDescontoFuncionario";
 import { schema } from "./schemaUpdateDesconto";
+import { formatarMoeda } from "../../../../../utils/formatMoeda";
 
 export const FormularioEditar = ({
     handleClose,
@@ -72,7 +71,7 @@ export const FormularioEditar = ({
             }
 
             const errorMessages = validationError.errors || [validationError.message];
-            //alert(`Erro de validação:\n${errorMessages.join('\n')}`);
+            alert(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
 
     }
@@ -82,7 +81,7 @@ export const FormularioEditar = ({
         <Fragment>
 
             <Fragment>
-                <form onSubmit={onSubmit} >
+                <form onSubmit={handleSubmit(handleValidatedSubmit)} >
 
                     <div className="form-group">
                         <div className="row">
@@ -185,10 +184,7 @@ export const FormularioEditar = ({
                                             errors={errors}
                                             clearErrors={clearErrors}
                                             value={percentualDesconto}
-                                            onChangeModal={(e) => {
-                                                const valor = e.target.value.replace(".", "").replace(",", ".");
-                                                setPercentualDesconto(valor);
-                                            }}
+                                            onChangeModal={(e) => setPercentualDesconto(formatarMoeda(e.target.value))}
                                             
                                         />
                                     )}
