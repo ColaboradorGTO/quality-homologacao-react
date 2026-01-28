@@ -118,10 +118,7 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refe
             <div className="row form-group">
               <div className="col-sm-6 col-md-6 col-xl-6">
                 <label className="form-label" htmlFor="empresaFuncionario">Loja </label>
-
-
                 <Select
-
                   closeMenuOnSelect={false}
                   options={optionsEmpresas.map((item) => {
                     return {
@@ -179,7 +176,9 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refe
                   }))}
                   value={tipoSelecionado}
                   onChange={(e) => setTipoSelecionado(e)}
-                />{errors.tipoFuncionario && (
+                />
+                
+                {errors.tipoFuncionario && (
                   <AlertError
                     error={errors.tipoFuncionario?.value || errors.tipoFuncionario}
                     onClose={clearErrors}
@@ -205,7 +204,7 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refe
                       value={dataAdmissao}
                       onChangeModal={e => setDataAdmissao(e.target.value)}
                       min={minDataAdmissao}
-                      max={maxDataAdmissao}
+                      // max={maxDataAdmissao}
                     />
 
                   )}
@@ -241,14 +240,6 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refe
                     />
                   )}
                 />
-                {/*      <InputFieldModal
-                  type="text"
-                  className="form-control input"
-                  label="Funcionário"
-                  value={nomeFuncionario}
-                  onChangeModal={(e) => setNomeFuncionario(e.target.value)}
-
-                /> */}
               </div>
             </div>
 
@@ -354,13 +345,6 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refe
                     />
                   )}
                 />
-                {/*      <InputFieldModal
-                  type="text"
-                  className="form-control input"
-                  label="Valor Salário"
-                  value={valorSalario}
-                  onChangeModal={(e) => setValorSalario(e.target.value)}
-                /> */}
               </div>
 
               <div className="col-sm-3 col-md-6 col-xl-6">
@@ -380,30 +364,19 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refe
                     />
                   )}
                 />
-                {/*           <InputFieldModal
-                  type="text"
-                  className="form-control input"
-                  readOnly={true}
-                  label="Valor Desc."
-                  value={valorDesconto}
-                  onChangeModal={(e) => setValorDesconto(e.target.value)}
 
-                /> */}
               </div>
             </div>
 
             <div className="form-group">
               <div className="row">
                 <div className="col-sm-3 col-md-3 col-xl-2">
-
-
                   <InputFieldModal
                     type={"password"}
                     className="form-control input"
                     label="Senha"
                     value={senha}
                     onChangeModal={(e) => setSenha(e.target.value)}
-
                   />
                 </div>
                 <div className="col-sm-4 col-md-4 col-xl-4">
