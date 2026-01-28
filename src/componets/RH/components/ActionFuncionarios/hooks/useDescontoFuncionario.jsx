@@ -8,13 +8,13 @@ import { Parceiro, situacao, localizacao } from '../../../../../../parceiro.json
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 
 
-export const useEditarDescontoFuncionario = ({ 
-  handleClose, 
-  dadosAtualizarFuncionarios, 
-  handleClick, 
-  refetch,
-  usuarioLogado, 
-  optionsModulos,
+export const useEditarDescontoFuncionario = ({
+    handleClose,
+    dadosDescontoFuncionarios,
+    handleClick,
+    refetch,
+    usuarioLogado,
+    optionsModulos,
 }) => {
     const [empresa, setEmpresa] = useState('');
     const [cpf, setCpf] = useState('');
@@ -26,134 +26,127 @@ export const useEditarDescontoFuncionario = ({
     const [usuarioLogado, setUsuarioLogado] = useState(null)
     const [ipUsuario, setIpUsuario] = useState('')
 
-  const getIPUsuario = async () => {
-    try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
+    const getIPUsuario = async () => {
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
 
-      if (!usuarioIP) {
-          const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-          usuarioIP = ipifyData?.ip;
-      }
+            if (!usuarioIP) {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            }
 
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
-    } catch (error) {
-      console.error("Erro ao buscar IP:", error);
-      return null;
-    }
-  };
-
-  const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
-    'listaEmpresasIformatica',
-    async () => {
-      const response = await get(`/listaEmpresasIformatica`);
-      return response.data;
-    },
-    { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
-  );
-
- 
-
-  const onSubmit = async (e) => {
-
-    if (optionsModulos[0]?.ALTERAR == 'False') {
-      Swal.fire({
-        title: 'Acesso Negado',
-        text: 'Usuário não tem permissão para Atualizar Funcionários',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
         }
-      })
-      return;
-    }
+    };
 
-
-    const putData = {
-      DATA_ADMISSAO: String(dataAdmissao),
-      NOFUNCIONARIO: String(nomeFuncionario),
-      NUCPF: String(cpfSemMascara),
-      NOLOGIN: String(dadosAtualizarFuncionarios[0]?.NOLOGIN),
-      PWSENHA: String(senha),
-      IDEMPRESA: Number(empresaSelecionada.value),
-      IDSUBGRUPOEMPRESARIAL: Number(subGrupoEmpresarialSelecionado),
-      IDFUNCIONARIO: Number(dadosAtualizarFuncionarios[0]?.IDFUNCIONARIO),
-      DSTIPO: tipoSelecionado.value,
-      PERC: parseFloat(valorDesconto),
-      VALORSALARIO: parseFloat(valorSalario),
-      VALORDISPONIVEL: parseFloat(0),
-      IDPERFIL: Number(dadosAtualizarFuncionarios[0]?.IDPERFIL),
-      DSFUNCAO: String(funcaoSelecionada.value),
-      STCONVENIO: String(categoriaContratacao) === 'CLT' ? 'True' : 'False',
-      STDESCONTOFOLHA: String(categoriaContratacao) === 'CLT' ? 'True' : 'False',
-      STLOJA: String(localizacaoSelcionada.value),
-      STATIVO: String(situacaoSelecionada.value),
-      IDFUNCALTERACAO: Number(usuarioLogado.id),
-      MOTIVODESC: '',
-      ID: Number(dadosAtualizarFuncionarios[0]?.ID)
-    }
-
-    try {
-
-      const response = await put('/funcionarios-loja/:id', putData);
-      const textDados = JSON.stringify(putData)
-      const textoFuncao = 'RH/ATUALIZAÇÃO DE FUNCIONARIO';
-
-      const ipUsuario = await getIPUsuario();
-      const createData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
-        PATHFUNCAO: textoFuncao,
-        DADOS: textDados,
-        IP: ipUsuario
-      }
-
-      const responsePost = await post('/log-web', createData)
-
-      Swal.fire({
-        title: 'Atualização',
-        text: 'Atualizção Realizada com Sucesso',
-        icon: 'success',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
+     useEffect(() => {
+        if (dadosDescontoFuncionarios) {
+            setEmpresa(dadosDescontoFuncionarios[0]?.NOFANTASIA);
+            setCpf(dadosDescontoFuncionarios[0]?.NUCPF);
+            setFuncionario(dadosDescontoFuncionarios[0]?.NOFUNCIONARIO);
+            setPercentualDesconto(dadosDescontoFuncionarios[0]?.PERCDESCUSUAUTORIZADO || "0" );   
         }
-      })
-      refetch();
-      handleClose();
-      return responsePost.data;
-    } catch (error) {
-      const textoFuncao = 'RH/ERRO AO ATUALIZAR FUNCIONARIO';
+    }, [dadosDescontoFuncionarios]);
 
-      const ipUsuario = await getIPUsuario();
-      const createData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
-        PATHFUNCAO: textoFuncao,
-        DADOS: '',
-        IP: ipUsuario
-      }
-      handleClick()
-      const responsePost = await post('/log-web', createData)
+    const onSubmit = async (e) => {
 
-      Swal.fire({
-        title: 'Erro ao Atualizar',
-        text: 'Erro ao Tentar Atualizar',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
+        if (optionsModulos[0]?.ALTERAR == 'False') {
+            Swal.fire({
+                title: 'Acesso Negado',
+                text: 'Usuário não tem permissão para Atualizar Funcionários',
+                icon: 'error',
+                timer: 3000,
+                customClass: {
+                    container: 'custom-swal',
+                }
+            })
+            return;
         }
-      })
-      return responsePost.data;
 
+        const putData = {
+            DTINICIODESC: String(dataInicioDesconto),
+            DTFIMDESC: String(dataFimDesconto),
+            PERCDESCUSUAUTORIZADO: percentualDesconto ? Number(percentualDesconto) : 0,
+            TXTMOTIVODESCONTO: String(motivoDesconto),
+            IDFUNCALTERACAO: Number(usuarioLogado?.id),
+            ID: Number(dadosDescontoFuncionarios[0]?.ID),
+
+        }
+        try {
+
+            const response = await put('/funcionarios-desconto/:id', putData)
+            const textDados = JSON.stringify(putData)
+            const textoFuncao = 'RH/ATUALIZAR DESCONTO FUNCIONARIO AUTORIZADO';
+
+            const ipUsuario = await getIPUsuario();
+            const createData = {
+                IDFUNCIONARIO: String(usuarioLogado.id),
+                PATHFUNCAO: textoFuncao,
+                DADOS: textDados,
+                IP: ipUsuario
+            }
+
+            await post('/log-web', createData)
+
+            Swal.fire({
+                title: 'Atualização',
+                text: 'Atualização Realizada com Sucesso',
+                icon: 'success',
+                timer: 3000,
+                customClass: {
+                    container: 'custom-swal',
+                }
+            })
+            refetch();
+            handleClose();
+            return response.data;
+        } catch (error) {
+            const textoFuncao = 'RH/ERRO AO ATUALIZAR DESCONTO FUNCIONARIO';
+            const textDados = JSON.stringify(putData)
+            const ipUsuario = await getIPUsuario();
+            const createData = {
+                IDFUNCIONARIO: String(usuarioLogado.id),
+                PATHFUNCAO: textoFuncao,
+                DADOS: textDados,
+                IP: ipUsuario
+            }
+
+            const responsePost = await post('/log-web', createData)
+            Swal.fire({
+                title: 'Erro ao Atualizar',
+                text: 'Erro ao Tentar Atualizar',
+                icon: 'error',
+                timer: 3000,
+                customClass: {
+                    container: 'custom-swal',
+                }
+            })
+            handleClick()
+            return responsePost.data;
+
+        }
     }
-  }
 
-  return {
-
-    onSubmit,
-   
-
-  }
+    return {
+        empresa,
+        setEmpresa,
+        cpf,
+        setCpf,
+        funcionario,
+        setFuncionario,
+        motivoDesconto,
+        setMotivoDesconto,
+        percentualDesconto,
+        setPercentualDesconto,
+        dataInicioDesconto,
+        setDataInicioDesconto,
+        dataFimDesconto,
+        setDataFimDesconto,
+        onSubmit,
+    }
 }
