@@ -246,7 +246,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
                   cor={"primary"}
                   width="35px"
                   height="35px"
-
+                  disabledBTN={optionsModulos[0]?.ADMINISTRADOR == 'True' ? false : true}
                 />
 
               </div>
@@ -260,6 +260,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
                   cor={"info"}
                   width="35px"
                   height="35px"
+                  disabledBTN={optionsModulos[0]?.N1 == 'True' ? false : true}
                 />
 
               </div>
@@ -273,6 +274,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
                   cor={"warning"}
                   width="35px"
                   height="35px"
+                  disabledBTN={optionsModulos[0]?.ADMINISTRADOR == 'True' ? false : true}
                 />
 
               </div>
@@ -286,6 +288,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
                   cor={"danger"}
                   width="35px"
                   height="35px"
+                  disabledBTN={optionsModulos[0]?.ADMINISTRADOR == 'True' ? false : true}
                 />
 
               </div>

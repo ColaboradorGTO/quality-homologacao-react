@@ -12,7 +12,7 @@ export const schema = yup.object().shape({
         })
         .typeError('Desconto é obrigatorio')
         .min(0, 'Desconto não pode ser negativo')
-        .max(50, 'Desconto não pode ser maior que 50%')
+        // .max(50, 'Desconto não pode ser maior que 50%')
         .required('Desconto é obrigatório'),
 
 })
