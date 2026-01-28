@@ -28,7 +28,7 @@ export const FormularioEditar = ({
     const [dataFimDesconto, setDataFimDesconto] = useState('');
     const [usuarioLogado, setUsuarioLogado] = useState(null)
     const [ipUsuario, setIpUsuario] = useState('')
-    const navigate = useNavigate();
+    
 
     useEffect(() => {
         const dataAtual = getDataAtual();
