@@ -1,16 +1,15 @@
 import { useState } from "react";
-import { post, put } from "../../../../../api/funcRequest";
+import { post } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useConferirTodasQuebras = ({
+export const useIntegrarTodasQuebras = ({
     optionsModulos, 
     usuarioLogado, 
     handleClick,
     selectedItems,
 }) => {
     const [ipUsuario, setIpUsuario] = useState('');
-
 
     const getIPUsuario = async () => {
         let usuarioIP = null;
@@ -34,13 +33,12 @@ export const useConferirTodasQuebras = ({
         return usuarioIP;
     };
 
-
-    const conferirTodas = async (data) => {
+    const integrarQuebraCaixa = async () => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
                 icon: 'error',
-                title: 'Você não tem permissão para confirmar as Quebras de Caixa.',
+                title: 'Você não tem permissão para Integrar as Quebras de Caixa.',
                 showConfirmButton: false,
                 timer: 3000,
                 customClass: {
@@ -51,7 +49,7 @@ export const useConferirTodasQuebras = ({
         }
 
         Swal.fire({
-            title: 'Deseja Confirmar Todas as Quebras de Caixa Selecionadas?',
+            title: 'Deseja Integrar Todas as Quebras de Caixa Selecionadas?',
             text: 'Você não poderá reverter esta ação!',
             icon: 'warning',
             showCancelButton: true,
@@ -79,7 +77,7 @@ export const useConferirTodasQuebras = ({
                             IDFUNCIONARIO: Number(usuarioLogado.id),
                         }
 
-                        const response = await put('/quebra-caixa-conferencia/:id', putData)
+                        const response = await post('/quebras-de-caixas-integracao', putData)
                         const textDados = JSON.stringify(putData)
                         const ipUsuario = await getIPUsuario();
                         const postData = {
@@ -107,11 +105,11 @@ export const useConferirTodasQuebras = ({
                     await handleClick();
            
                 } catch (error) {
-                    const textDados = JSON.stringify(putData)
+                    const textDados = JSON.stringify(postData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/ERRO AO CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
+                        PATHFUNCAO: `FINANCEIRO/ERRO AO INTEGRAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -129,7 +127,7 @@ export const useConferirTodasQuebras = ({
                             container: 'custom-swal', 
                         },
                     });
-                    console.error('Erro Conferir Todas Quebras de Caixa:', error);
+                    console.error('Erro Integrar Todas Quebras de Caixa:', error);
                     return responsePost.data;
                 }
             } else {
@@ -139,8 +137,7 @@ export const useConferirTodasQuebras = ({
         
     }
 
-    
     return {
-        conferirTodas,
+        integrarQuebraCaixa,
     }
 }

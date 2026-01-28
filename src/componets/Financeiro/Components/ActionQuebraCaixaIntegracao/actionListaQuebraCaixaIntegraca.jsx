@@ -29,14 +29,15 @@ export const ActionListaQuebraCaixaIntegracao = ({
   optionsModulos,
   selectedItems,
   setSelectedItems,
-  handleClick 
+  handleClick,
+  btnVisivel,
+  setBtnVisivel 
 }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dadosQuebraCaixasModal, setDadosQuebraCaixasModal] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
-  const [btnVisivel, setBtnVisivel] = useState(false);
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
   const dataTableRef = useRef();
@@ -61,17 +62,17 @@ export const ActionListaQuebraCaixaIntegracao = ({
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['ID', 'DT Lançamento', 'Nº Mov', 'Matrícula', 'Colaborador', 'Vr. Quebra Sistema', 'Vr. Quebra Lançado', 'Historíco', 'Situação']],
+      head: [['Empresa', 'DT Lançamento', 'Nº Movimento', 'Matrícula', 'Colaborador', 'CPF', 'Vr. Quebra', 'Historíco', 'Situação']],
       body: dados.map(item => [
-        item.IDQUEBRACAIXA,
+        item.NOFANTASIA,
         item.DTLANCAMENTO,
         item.IDMOVIMENTOCAIXA,
         item.IDFUNCIONARIO,
         item.NOMEOPERADOR,
-        formatMoeda(item.VRQUEBRASISTEMA),
+        mascaraCPF(item.CPFOPERADOR),
         formatMoeda(item.VRQUEBRAEFETIVADO),
         item.TXTHISTORICO,
-        item.STATIVO
+        item.txtSituacao
       ]),
       horizontalPageBreak: true,
       horizontalPageBreakBehaviour: 'immediately'
@@ -82,18 +83,17 @@ export const ActionListaQuebraCaixaIntegracao = ({
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
-    const header = ['ID', 'DT Lançamento', 'Nº Mov', 'Matrícula', 'Colaborador', 'Vr. Quebra Sistema', 'Vr. Quebra Lançado', 'Historíco', 'Situação'];
+    const header = ['Empresa', 'DT Lançamento', 'Nº Movimento', 'Matrícula', 'Colaborador', 'CPF', 'Vr. Quebra', 'Historíco', 'Situação'];
     worksheet['!cols'] = [
-      { wpx: 80, caption: 'ID' },
+      { wpx: 200, caption: 'Empresa' },
       { wpx: 150, caption: 'DT Lançamento' },
-      { wpx: 150, caption: 'Nº Mov' },
+      { wpx: 150, caption: 'Nº Movimento' },
       { wpx: 100, caption: 'Matrícula' },
       { wpx: 250, caption: 'Colaborador' },
-      { wpx: 150, caption: 'Vr. Quebra Sistema' },
-      { wpx: 150, caption: 'Vr. Quebra Lançado' },
+      { wpx: 150, caption: 'CPF' },
+      { wpx: 150, caption: 'Vr. Quebra' },
       { wpx: 200, caption: 'Historíco' },
       { wpx: 50, caption: 'Situação' }
-
     ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
 
@@ -127,6 +127,16 @@ export const ActionListaQuebraCaixaIntegracao = ({
     'Quebra de Caixa integrada no SAP'
   ];
 
+  const formatarComSinal = (valor) => {
+    const sinal = valor < 0 ? ' - ' : valor > 0 ? ' + ' : '';
+    return sinal + formatMoeda(Math.abs(valor)); 
+  };
+
+  
+  const corDeAcordoComValor = (valor) => {
+    return valor < 0 ? 'red' : valor > 0 ? 'blue' : 'black';
+  };
+
   const dados = dadosQuebraDeCaixa.map((item, index) => {
     let contador = index + 1;
     const vrQuebraLancadoLoja = toFloat(item.VRQUEBRAEFETIVADO);
@@ -147,7 +157,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
       IDMOVIMENTOCAIXA: item.IDMOVIMENTOCAIXA,
       DTLANCAMENTO: item.DTLANCAMENTO,
       VRQUEBRASISTEMA: toFloat(item.VRQUEBRASISTEMA),
-      VRQUEBRAEFETIVADO: toFloat(item.VRQUEBRAEFETIVADO),
+      VRQUEBRAEFETIVADO: vrQuebraLancadoLoja,
       TXTHISTORICO: item.TXTHISTORICO,
       NOMEOPERADOR: item.NOMEOPERADOR,
       CPFOPERADOR: item.CPFOPERADOR,
@@ -159,15 +169,19 @@ export const ActionListaQuebraCaixaIntegracao = ({
       titleMsgStatus,
       msgStatus,
       stMigrado,
-      stEmAndamento
+      stEmAndamento,
+      corVrQuebraEfetivado: corDeAcordoComValor(vrQuebraLancadoLoja)
     }
   });
 
-  const calcularTotalVrQuebraSistema = () => {
-    return dados.reduce((total, item) => 
-      total + parseFloat(item.VRQUEBRASISTEMA), 0
-    );
-  };
+  useEffect(() => {
+    
+    if (dados.length > 0) {
+      setBtnVisivel(true);  
+    } else {
+      setBtnVisivel(false);
+    }
+  }, [dados]);
 
   const calcularTotalVrQuebraEfetivado = () => {
     return dados.reduce((total, item) => 
@@ -177,12 +191,12 @@ export const ActionListaQuebraCaixaIntegracao = ({
 
   useEffect(() => {
     const itensSelecionaveis = dados.filter(item =>
-      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+      item.stMigrado && item.stEmAndamento && item.IDQUEBRACAIXA
     );
 
     const dadosPaginaAtual = dados.slice(first, first + rows);
     const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
-      item.STATIVO === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+      item.stMigrado && item.stEmAndamento && item.IDQUEBRACAIXA
     );
 
     if (selectedItems.length === 0) {
@@ -219,7 +233,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
       }).then((result) => {
         if (result.isConfirmed) {
           const itensSelecionaveis = dados.filter(item =>
-            item.STATIVO  === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+            item.stMigrado && item.stEmAndamento && item.IDQUEBRACAIXA
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveis]);
@@ -227,7 +241,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
           const dadosPaginaAtual = dados.slice(first, first + rows);
 
           const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
-            item.STATIVO  === 'True' && item.STCONFERIDO !== 'True' && item.IDQUEBRACAIXA
+            item.stMigrado && item.stEmAndamento && item.IDQUEBRACAIXA
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveisPaginaAtual]);
@@ -247,10 +261,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
       field: 'Selecione',
       selectionMode: 'multiple',
       body: (rowData) => {
-        const stAtivo = rowData.stMigrado;
-        const stConferido = rowData.stEmAndamento;
-
-        if (!stAtivo || !stConferido) {
+        if (rowData.stMigrado || rowData.stEmAndamento) {
           return null;
         }
 
@@ -321,11 +332,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
       field: 'VRQUEBRAEFETIVADO',
       header: 'Vr Quebra',
       body: row => {
-        if (row.VRQUEBRAEFETIVADO > 0) {
-          return <th style={{ color: 'blue' }}> + {formatMoeda(row.VRQUEBRAEFETIVADO)}</th>
-        } else {
-          return <th style={{ color: 'red' }}> - {formatMoeda(row.VRQUEBRAEFETIVADO)}</th>
-        }
+        return <th style={{ color: row.corVrQuebraEfetivado }}> {formatarComSinal(row.VRQUEBRAEFETIVADO)}</th>
       },
       footer: formatMoeda(calcularTotalVrQuebraEfetivado()),
       sortable: true,
@@ -350,9 +357,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
     {
       field: 'IDQUEBRACAIXA',
       header: 'Opções',
-      body: (row) => {
-        let containerButtons = null;
-    
+      body: (row) => {    
         if (row.stMigrado || row.stEmAndamento) {
           return (
             <div className="d-flex" style={{ justifyContent: "space-between" }}>
