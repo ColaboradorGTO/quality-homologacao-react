@@ -6,7 +6,7 @@ import Swal from "sweetalert2";
 import { FormularioEditar } from "./formularioEditar";
 
 
-export const ActionEditarFuncionario = ({ show, handleClose, dadosAtualizarFuncionarios }) => {
+export const ActionEditarFuncionario = ({ show, handleClose, dadosAtualizarFuncionarios, refetch }) => {
   //   useEffect(() => {
   //     if (dadosAtualizarFuncionarios) {
   //       setEmpresaSelecionada(dadosAtualizarFuncionarios[0]?.IDEMPRESA);
@@ -150,7 +150,11 @@ export const ActionEditarFuncionario = ({ show, handleClose, dadosAtualizarFunci
 
 
         <Modal.Body>
-          <FormularioEditar handleClose={handleClose} dadosAtualizarFuncionarios={dadosAtualizarFuncionarios} />
+          <FormularioEditar
+            handleClose={handleClose}
+            dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
+            refetch={refetch}
+          />
 
         </Modal.Body>
 

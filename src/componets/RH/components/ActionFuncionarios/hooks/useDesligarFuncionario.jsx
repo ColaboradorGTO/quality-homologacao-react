@@ -1,9 +1,8 @@
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
 import { useEffect, useState } from "react";
-import { getDataAtual, getDataHoraAtual } from "../../../../../utils/dataAtual";
+import { getDataHoraAtual } from "../../../../../utils/dataAtual";
 import axios from 'axios';
-
 
 export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
   const [ipUsuario, setIpUsuario] = useState('');
@@ -41,11 +40,11 @@ export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLog
       })
       return;
     }
-//dataAdmissao
+
     const putData = {
       DATAULTIMAALTERACAO: String(dataAdmissao),
       STATIVO: 'False',
-      DATA_DEMISSAO:  String(dataAdmissao),
+      DATA_DEMISSAO: String(dataAdmissao),
       ID: Number(row.ID)
     }
 
@@ -114,7 +113,6 @@ export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLog
       return responsePost.data;
     }
   }
-
 
   return {
     handleDesligarFuncionario,
