@@ -28,7 +28,7 @@ export const useIntegrarQuebra = ({optionsModulos, usuarioLogado, selectedItems,
         return usuarioIP;
     };
 
-    const useIntegrarQuebra = async (data) => {
+    const integrarQuebra = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
@@ -132,6 +132,6 @@ export const useIntegrarQuebra = ({optionsModulos, usuarioLogado, selectedItems,
 
     
     return {
-        useIntegrarQuebra,
+        integrarQuebra,
     }
 }

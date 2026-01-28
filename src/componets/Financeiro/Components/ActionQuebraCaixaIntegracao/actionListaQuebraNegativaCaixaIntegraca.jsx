@@ -20,7 +20,7 @@ import { mascaraCPF } from "../../../../utils/formatCPF";
 import { useCancelar } from "./hooks/useCancelarQuebraCaixa";
 
 
-export const ActionListaQuebraCaixaIntegracao = ({ 
+export const ActionListaQuebraNegativaCaixaIntegracao = ({ 
   dadosQuebraDeCaixa, 
   usuarioLogado, 
   optionsModulos,
