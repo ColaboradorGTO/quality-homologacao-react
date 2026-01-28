@@ -175,6 +175,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
 
   };
 
+  console.log(localizacaoSelcionada?.value, 'localização no hook')
   const onSubmit = async (e) => {
     let maximoDesconto = 0;
     let dataBase = new Date('2024-08-01')
@@ -244,18 +245,18 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       return;
     }
 
-    if (!dataAdmissao || !dataAdmissao === '') {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Data Admissão nao selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!dataAdmissao || !dataAdmissao === '') {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Data Admissão nao selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
     if (!localizacaoSelcionada || !localizacaoSelcionada.value) {
       Swal.fire({
@@ -309,18 +310,18 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       return;
     }
 
-    if (!nomeFuncionario || nomeFuncionario.trim() === '') {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Nome não pode ser vazio',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!nomeFuncionario || nomeFuncionario.trim() === '') {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Nome não pode ser vazio',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
     if (parseFloat(valorDesconto) > 50) {
       Swal.fire({
@@ -349,6 +350,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     }
 
     const postData = {
+      IDFUNCIONARIO: usuarioLogado.id,
       IDSUBGRUPOEMPRESARIAL: Number(subGrupoEmpresarialSelecionado),
       IDEMPRESA: Number(empresaSelecionada.value),
       NOFUNCIONARIO: String(nomeFuncionario),
@@ -362,7 +364,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       VALORDISPONIVEL: 0,
       STCONVENIO: String(categoriaContratacao) === 'CLT' ? "True" : "False",
       STDESCONTOFOLHA: String(categoriaContratacao) === 'CLT' ? "True" : "False",
-      STLOJA: String(localizacaoSelcionada.value),
+      STLOJA: localizacaoSelcionada?.value,
       DATA_ADMISSAO: String(dataAdmissao),
 
     }

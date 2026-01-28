@@ -88,7 +88,7 @@ export const FormularioCadastrar = ({
                 situacaoFuncionario: situacaoSelecionada,
             };
 
-            await schema.validate(dadosParaValidar, { abortEarly: false });
+            // await schema.validate(dadosParaValidar, { abortEarly: false });
             onSubmit();
         } catch (validationError) {
             console.error('❌ Erro de validação:', validationError);
@@ -117,7 +117,7 @@ export const FormularioCadastrar = ({
     return (
         <Fragment>
             {formularioVisivel && (
-                <form onSubmit={handleSubmit(handleValidatedSubmit)}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="row">
                         <div className="col-sm-6 col-md-6 col-xl-6">
                             <label className="form-label" htmlFor="empresaFuncionario">Empresa</label>
@@ -212,6 +212,7 @@ export const FormularioCadastrar = ({
                                     />
                                 )}
                             />
+                            {console.log("Data de Admissão:", dataAdmissao)}
                         </div>
                     </div>
 
@@ -281,6 +282,7 @@ export const FormularioCadastrar = ({
                                     fieldName="localizacaoFuncionario"
                                 />
                             )}
+                            {console.log(localizacaoSelcionada, 'localização selecionada')}
                         </div>
                         <div className="col-sm-16 col-xl-16">
                             <label className="form-label">Categoria de Contratação</label>
@@ -428,7 +430,7 @@ export const FormularioCadastrar = ({
 
                         ButtonTypeConfirmar={ButtonTypeModal}
                         textButtonConfirmar={"Atualizar"}
-                        onClickButtonConfirmar={handleValidatedSubmit}
+                        onClickButtonConfirmar={handleSubmit(onSubmit)}
                         corConfirmar="success"
                     />
                 </form>
