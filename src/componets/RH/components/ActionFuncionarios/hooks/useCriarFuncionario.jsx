@@ -204,46 +204,46 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       return;
     }
 
-    if (!empresaSelecionada || !empresaSelecionada.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Empresa não selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
+    // if (!empresaSelecionada || !empresaSelecionada.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Empresa não selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
 
-    }
+    // }
 
-    if (!funcaoSelecionada || !funcaoSelecionada.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Função nao selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!funcaoSelecionada || !funcaoSelecionada.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Função nao selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
 
-    if (!tipoSelecionado || !tipoSelecionado.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Tipo nao selecionado',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!tipoSelecionado || !tipoSelecionado.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Tipo nao selecionado',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
     // if (!dataAdmissao || !dataAdmissao === '') {
     //   Swal.fire({
@@ -258,18 +258,18 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     //   return;
     // }
 
-    if (!localizacaoSelcionada || !localizacaoSelcionada.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Localização nao selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!localizacaoSelcionada || !localizacaoSelcionada.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Localização nao selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
     if (!['CLT', 'PJ'].includes(categoriaContratacao)) {
       Swal.fire({
@@ -284,31 +284,31 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       return;
     }
 
-    if (valorSalario === '') {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Valor Salário não pode ser vazio',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (valorSalario === '') {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Valor Salário não pode ser vazio',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
-    if (!situacaoSelecionada || !situacaoSelecionada.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Situação nao selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!situacaoSelecionada || !situacaoSelecionada.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Situação nao selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
     // if (!nomeFuncionario || nomeFuncionario.trim() === '') {
     //   Swal.fire({
@@ -336,18 +336,18 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       return;
     }
 
-    if (cpfSemMascara.length !== 11) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'CPF Inválido ou Incompleto',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (cpfSemMascara.length !== 11) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'CPF Inválido ou Incompleto',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
     const postData = {
       IDFUNCIONARIO: usuarioLogado.id,
@@ -364,7 +364,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       VALORDISPONIVEL: 0,
       STCONVENIO: String(categoriaContratacao) === 'CLT' ? "True" : "False",
       STDESCONTOFOLHA: String(categoriaContratacao) === 'CLT' ? "True" : "False",
-      STLOJA: localizacaoSelcionada?.value,
+      STLOJA: localizacaoSelcionada?.value == 'Loja' ? "True" : "False",
       DATA_ADMISSAO: String(dataAdmissao),
 
     }
