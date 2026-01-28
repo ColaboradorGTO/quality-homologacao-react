@@ -11,7 +11,7 @@ import { AlertError } from "../../../../Inputs/alertError"
 import { format, subDays } from "date-fns";
 import FormField from "../../../../Formularios/FormField";
 
-export const FormularioCadastrar = ({ 
+export const FormularioCadastrar = ({
     handleClose,
     usuarioLogado,
     optionsModulos,
@@ -50,7 +50,7 @@ export const FormularioCadastrar = ({
         senha,
         setSenha,
         cpf,
-        setCPF,       
+        setCPF,
         excecao,
         setExcecao,
         formularioVisivelLogin,
@@ -69,7 +69,7 @@ export const FormularioCadastrar = ({
         Parceiro,
         onSubmit,
         loginConfirmacao
-    } = useCriarFuncionario({ handleClose, usuarioLogado, optionsModulos, refetch});
+    } = useCriarFuncionario({ handleClose, usuarioLogado, optionsModulos, refetch });
 
     const handleValidatedSubmit = async () => {
         try {
@@ -107,7 +107,7 @@ export const FormularioCadastrar = ({
             }
 
             const errorMessages = validationError.errors || [validationError.message];
-            //alert(`Erro de validação:\n${errorMessages.join('\n')}`);
+            alert(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
 
     }
@@ -208,7 +208,7 @@ export const FormularioCadastrar = ({
                                         value={dataAdmissao}
                                         onChangeModal={e => setDataAdmissao(e.target.value)}
                                         min={minDataAdmissao}
-                                        // max={maxDataAdmissao}
+                                    // max={maxDataAdmissao}
                                     />
                                 )}
                             />
