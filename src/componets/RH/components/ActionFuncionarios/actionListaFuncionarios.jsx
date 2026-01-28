@@ -28,17 +28,10 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
   const [dadosAtualizarFuncionarios, setDadosAtualizarFuncionarios] = useState([]);
   const [dadosDescontoFuncionarios, setDadosDescontoFuncionarios] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [data, setData] = useState('');
   const dataTableRef = useRef();
   const [rowSelection, setRowSelection] = useState(null);
   const { handleDesligarFuncionario } = useDesligarFuncionario({ optionsModulos, usuarioLogado, handleClick })
   const { handleAtivarFuncionario } = useAtivarFuncionario({ optionsModulos, usuarioLogado, handleClick })
-
-
-  useEffect(() => {
-    const dataAtualCampo = getDataAtual();
-    setData(dataAtualCampo);
-  }, [])
 
 
   const onGlobalFilterChange = (e) => {
