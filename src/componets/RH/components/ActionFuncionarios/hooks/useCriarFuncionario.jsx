@@ -9,7 +9,7 @@ import { Parceiro, situacao, localizacao } from '../../../../../../parceiro.json
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 
 
-export const useCriarFuncionario = ({ handleClose }) => {
+export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos, refetch }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [subGrupoEmpresarialSelecionado, setSubGrupoEmpresarialSelecionado] = useState('');
   const [funcaoSelecionada, setFuncaoSelecionada] = useState('');
@@ -25,7 +25,6 @@ export const useCriarFuncionario = ({ handleClose }) => {
   const [isChecked, setIsChecked] = useState(false);;
   const [cpf, setCPF] = useState('');
   const [ipUsuario, setIpUsuario] = useState('');
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [funcionarioExistente, setFuncionarioExistente] = useState([]);
   const [excecao, setExcecao] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -43,32 +42,21 @@ export const useCriarFuncionario = ({ handleClose }) => {
     setDataAdmissao(dataAtual)
   }, [])
 
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, []);
-
   const getIPUsuario = async () => {
     try {
-      const response = await axios.get('https://api.ipify.org?format=json9');
-      if (response.data && response.data.ip) {
-        return response.data.ip;
-      }
-      throw new Error("Resposta inválida do ipfy.org");
-    } catch (error) {
-      const responseIP2 = await axios.get('https://api.ipwho.org/me');
-      return responseIP2.data?.data?.ip;
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      let usuarioIP = ipWhoisData?.ip;
 
+      if (!usuarioIP) {
+          const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+          usuarioIP = ipifyData?.ip;
+      }
+
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
+    } catch (error) {
+      console.error("Erro ao buscar IP:", error);
+      return null;
     }
   };
 
@@ -198,11 +186,10 @@ export const useCriarFuncionario = ({ handleClose }) => {
 
     const cpfSemMascara = removerMascaraCPF(cpfFuncionario);
 
-    const funcao = usuarioLogado?.DSFUNCAO;
-    if (funcao !== 'TI') {
+    if (optionsModulos[0]?.ALTERAR == 'False') {
       Swal.fire({
         title: 'Acesso Negado',
-        text: 'Usuário não tem permissão para desconto maior ou igual há 20%',
+        text: 'Usuário não tem permissão para Cadastrar Funcionários',
         icon: 'error',
         timer: 3000,
         customClass: {

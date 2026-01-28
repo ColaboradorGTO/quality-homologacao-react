@@ -11,7 +11,12 @@ import { AlertError } from "../../../../Inputs/alertError"
 import { format, subDays } from "date-fns";
 import FormField from "../../../../Formularios/FormField";
 
-export const FormularioCadastrar = ({ handleClose }) => {
+export const FormularioCadastrar = ({ 
+    handleClose,
+    usuarioLogado,
+    optionsModulos,
+    refetch
+}) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
         mode: "onChange"
     });
@@ -45,11 +50,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
         senha,
         setSenha,
         cpf,
-        setCPF,
-        ipUsuario,
-        setIpUsuario,
-        usuarioLogado,
-        setUsuarioLogado,
+        setCPF,       
         excecao,
         setExcecao,
         formularioVisivelLogin,
@@ -68,7 +69,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
         Parceiro,
         onSubmit,
         loginConfirmacao
-    } = useCriarFuncionario({ handleClose });
+    } = useCriarFuncionario({ handleClose, usuarioLogado, optionsModulos, refetch});
 
     const handleValidatedSubmit = async () => {
         try {

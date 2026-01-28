@@ -25,7 +25,12 @@ export const ActionCadastrarFuncionarioModal = ({ show, handleClose, usuarioLoga
 
         <Modal.Body>
 
-          <FormularioCadastrar handleClose={handleClose}/>
+          <FormularioCadastrar 
+            handleClose={handleClose}
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+            refetch={refetch}  
+          />
         </Modal.Body>
 
       </Modal>

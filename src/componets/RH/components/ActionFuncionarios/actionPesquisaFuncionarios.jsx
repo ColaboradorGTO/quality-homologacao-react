@@ -18,7 +18,6 @@ export const ActionPesquisaFuncionarios = ({ usuarioLogado, ID }) => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [cpfInput, setCpfInput] = useState("");
   const [cpfFiltro, setCpfFiltro] = useState("");
-
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
   const [modalCadastro, setModalCadastro] = useState(false);
@@ -80,11 +79,11 @@ export const ActionPesquisaFuncionarios = ({ usuarioLogado, ID }) => {
   };
 
   const { data: dadosFuncionarios = [], error: errorFuncionario, isLoading: isLoadingFuncionario, refetch } = useQuery(
-    ['funcionarios-loja', empresaSelecionada, cpfFiltro, currentPage, pageSize],
+    ['funcionarios-loja'],
     fetchListaFuncionarios,
     {
       enabled: true,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 60 * 60 * 1000,
     }
   );
 

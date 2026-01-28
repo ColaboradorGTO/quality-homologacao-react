@@ -177,7 +177,7 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refe
                   value={tipoSelecionado}
                   onChange={(e) => setTipoSelecionado(e)}
                 />
-                
+
                 {errors.tipoFuncionario && (
                   <AlertError
                     error={errors.tipoFuncionario?.value || errors.tipoFuncionario}
@@ -204,7 +204,7 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refe
                       value={dataAdmissao}
                       onChangeModal={e => setDataAdmissao(e.target.value)}
                       min={minDataAdmissao}
-                      // max={maxDataAdmissao}
+                    // max={maxDataAdmissao}
                     />
 
                   )}

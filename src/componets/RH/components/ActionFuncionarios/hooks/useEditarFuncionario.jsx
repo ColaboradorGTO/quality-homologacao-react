@@ -8,7 +8,14 @@ import { Parceiro, situacao, localizacao } from '../../../../../../parceiro.json
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 
 
-export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, handleClick, refetch }) => {
+export const useEditarFuncionario = ({ 
+  handleClose, 
+  dadosAtualizarFuncionarios, 
+  handleClick, 
+  refetch,
+  usuarioLogado, 
+  optionsModulos,
+}) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [subGrupoEmpresarialSelecionado, setSubGrupoEmpresarialSelecionado] = useState('');
   const [funcaoSelecionada, setFuncaoSelecionada] = useState('');
@@ -24,7 +31,6 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
   const [isChecked, setIsChecked] = useState(false);;
   const [cpf, setCPF] = useState('');
   const [ipUsuario, setIpUsuario] = useState('');
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [excecao, setExcecao] = useState(false);
   const [formularioVisivelLogin, setFormularioVisivelLogin] = useState(false);
   const [formularioVisivel, setFormularioVisivel] = useState(true);
@@ -34,32 +40,21 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
 
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, []);
-
   const getIPUsuario = async () => {
     try {
-      const response = await axios.get('https://api.ipify.org?format=json9');
-      if (response.data && response.data.ip) {
-        return response.data.ip;
-      }
-      throw new Error("Resposta inválida do ipfy.org");
-    } catch (error) {
-      const responseIP2 = await axios.get('https://api.ipwho.org/me');
-      return responseIP2.data?.data?.ip;
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      let usuarioIP = ipWhoisData?.ip;
 
+      if (!usuarioIP) {
+          const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+          usuarioIP = ipifyData?.ip;
+      }
+
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
+    } catch (error) {
+      console.error("Erro ao buscar IP:", error);
+      return null;
     }
   };
 
@@ -159,12 +154,11 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
     }
 
     const cpfSemMascara = removerMascaraCPF(cpf);
-    const funcao = usuarioLogado?.DSFUNCAO;
 
-    if (funcao !== 'TI') {
+    if (optionsModulos[0]?.ALTERAR == 'False') {
       Swal.fire({
         title: 'Acesso Negado',
-        text: 'Usuário não tem permissão para desconto maior ou igual há 20%',
+        text: 'Usuário não tem permissão para Atualizar Funcionários',
         icon: 'error',
         timer: 3000,
         customClass: {
@@ -176,7 +170,7 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
 
     if (!empresaSelecionada || !empresaSelecionada.value) {
       Swal.fire({
-        title: 'Erro ao Cadastrar',
+        title: 'Erro ao Atualizar ',
         text: 'Empresa não selecionada',
         icon: 'error',
         timer: 3000,
