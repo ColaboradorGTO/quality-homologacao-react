@@ -49,6 +49,15 @@ export const ActionListaQuebraCaixaIntegracao = ({
   const {
     conferir
   } = useConferirQuebra({ optionsModulos, usuarioLogado, selectedItems, handleClick }); 
+  const formatarComSinal = (valor) => {
+    const sinal = valor < 0 ? ' - ' : valor > 0 ? ' + ' : '';
+    return sinal + formatMoeda(Math.abs(valor)); 
+  };
+
+  
+  const corDeAcordoComValor = (valor) => {
+    return valor < 0 ? 'red' : valor > 0 ? 'blue' : 'black';
+  };
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -70,7 +79,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
         item.IDFUNCIONARIO,
         item.NOMEOPERADOR,
         mascaraCPF(item.CPFOPERADOR),
-        formatMoeda(item.VRQUEBRAEFETIVADO),
+        formatarComSinal(item.VRQUEBRAEFETIVADO),
         item.TXTHISTORICO,
         item.txtSituacao
       ]),
@@ -81,32 +90,23 @@ export const ActionListaQuebraCaixaIntegracao = ({
   };
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(dados);
+    const dadosExportacao = dados.map(item => ({
+      'Empresa': item.NOFANTASIA,
+      'DT Lançamento': item.DTLANCAMENTO,
+      'Nº Movimento': item.IDMOVIMENTOCAIXA,
+      'Matrícula': item.IDFUNCIONARIO,
+      'Colaborador': item.NOMEOPERADOR,
+      'CPF': mascaraCPF(item.CPFOPERADOR),
+      'Vr. Quebra': formatarComSinal(item.VRQUEBRAEFETIVADO),
+      'Historíco': item.TXTHISTORICO,
+      'Situação': item.txtSituacao
+    }));
+    
+    const worksheet = XLSX.utils.json_to_sheet(dadosExportacao);
     const workbook = XLSX.utils.book_new();
-    const header = ['Empresa', 'DT Lançamento', 'Nº Movimento', 'Matrícula', 'Colaborador', 'CPF', 'Vr. Quebra', 'Historíco', 'Situação'];
-    worksheet['!cols'] = [
-      { wpx: 200, caption: 'Empresa' },
-      { wpx: 150, caption: 'DT Lançamento' },
-      { wpx: 150, caption: 'Nº Movimento' },
-      { wpx: 100, caption: 'Matrícula' },
-      { wpx: 250, caption: 'Colaborador' },
-      { wpx: 150, caption: 'CPF' },
-      { wpx: 150, caption: 'Vr. Quebra' },
-      { wpx: 200, caption: 'Historíco' },
-      { wpx: 50, caption: 'Situação' }
-    ];
-    XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
-
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista Quebra de Caixas');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Quebras de Caixa');
     XLSX.writeFile(workbook, 'quebra_caixa_loja.xlsx');
   };
-
-  const arraySituacao = [
-    {color: '#2196F3', txt: 'Pronto para Integrar SAP'},
-    {color: '#886ab5', txt: 'Em Fila'},
-    {color: '#1dc9b7', txt: 'Integrado'},
-    {color: '#fd3995', txt: 'Erro ao Tentar Integrar'}
-  ]
 
   const arrayColorSituacao = [
     '#2196F3',
@@ -126,16 +126,6 @@ export const ActionListaQuebraCaixaIntegracao = ({
     'Quebra de Caixa em processo de integração no SAP, aguarde...',
     'Quebra de Caixa integrada no SAP'
   ];
-
-  const formatarComSinal = (valor) => {
-    const sinal = valor < 0 ? ' - ' : valor > 0 ? ' + ' : '';
-    return sinal + formatMoeda(Math.abs(valor)); 
-  };
-
-  
-  const corDeAcordoComValor = (valor) => {
-    return valor < 0 ? 'red' : valor > 0 ? 'blue' : 'black';
-  };
 
   const dados = dadosQuebraDeCaixa.map((item, index) => {
     let contador = index + 1;
@@ -501,16 +491,17 @@ export const ActionListaQuebraCaixaIntegracao = ({
     }
   };
 
-
+  const totalQuebraLanc = calcularTotalVrQuebraEfetivado();
 
   const footerGroup = (
+    
     <ColumnGroup>
       <Row>
         <Column footer="" colSpan={3} />
         <Column footer="Totais" colSpan={4} style={{fontSize: '1rem', fontWeight: 'bold' }}/>
 
         <Column 
-          footer={formatMoeda(calcularTotalVrQuebraEfetivado())}
+          footer={formatarComSinal(totalQuebraLanc)}
           style={{ color: calcularTotalVrQuebraEfetivado() >= 0 ? 'blue' : 'red', fontSize: '0.8rem' }}
           colSpan={1}
        /> 
@@ -563,7 +554,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
             selectionMode="single"
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
-            footerColumnGroup={footerGroup}
+            // footerColumnGroup={footerGroup}
             sortOrder={-1}
             paginator={true}
             rows={10}
