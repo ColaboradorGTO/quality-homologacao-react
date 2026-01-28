@@ -12,7 +12,8 @@ import { useQuery } from "react-query";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { useForm } from "react-hook-form";
 
-export const ActionUpdateDescontoFuncionarioModal = ({ show, handleClose, dadosDescontoFuncionarios, handleClick }) => {
+export const ActionUpdateDescontoFuncionarioModal = ({ 
+  show, handleClose, dadosDescontoFuncionarios, handleClick }) => {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [empresa, setEmpresa] = useState('');
   const [cpf, setCpf] = useState('');

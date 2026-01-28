@@ -447,20 +447,18 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         show={modalAlterarFuncionarioVisivel}
         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
         dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
         handleClick={handleClick}
         refetch={refetch}
       />
-
-      {/* <ActionUpdateFuncionarioModal
-        show={modalAlterarFuncionarioVisivel}
-        handleClose={() => setModalAlterarFuncionarioVisivel(false)}
-        dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
-      /> */}
 
       <ActionUpdateDescontoFuncionarioModal
         show={modalDescontoVisivel}
         handleClose={() => setModalDescontoVisivel(false)}
         dadosDescontoFuncionarios={dadosDescontoFuncionarios}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
         handleClick={handleClick}
       />
 

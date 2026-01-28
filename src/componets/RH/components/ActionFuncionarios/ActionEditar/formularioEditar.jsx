@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
@@ -10,10 +10,19 @@ import { addDays, format, subDays } from "date-fns";
 import { AlertError } from "../../../../Inputs/alertError";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schamaValidarFuncionario";
-export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refetch }) => {
+export const FormularioEditar = ({ 
+  handleClose, 
+  dadosAtualizarFuncionarios, 
+  optionsModulos, 
+  usuarioLogado, 
+  handleClick,
+  refetch 
+}) => {
+
   const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
     mode: "onChange"
   });
+  
   const {
     empresaSelecionada,
     setEmpresaSelecionada,
@@ -64,7 +73,7 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refe
     Parceiro,
     onSubmit,
     loginConfirmacao
-  } = useEditarFuncionario({ handleClose, dadosAtualizarFuncionarios, refetch });
+  } = useEditarFuncionario({ handleClose, dadosAtualizarFuncionarios, optionsModulos, usuarioLogado, handleClick, refetch });
 
   const handleValidatedSubmit = async () => {
     try {
