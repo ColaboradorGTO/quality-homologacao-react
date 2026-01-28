@@ -460,6 +460,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}
         handleClick={handleClick}
+        refetch={refetch}
       />
 
     </Fragment>

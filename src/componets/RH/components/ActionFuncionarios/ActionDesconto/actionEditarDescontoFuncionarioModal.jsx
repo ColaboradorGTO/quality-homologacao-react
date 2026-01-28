@@ -10,7 +10,8 @@ export const ActionEditarDescontoFuncionarioModal = ({
   dadosDescontoFuncionarios, 
   optionsModulos, 
   usuarioLogado, 
-  handleClick 
+  handleClick,
+  refetch 
 }) => {
 
   return (
@@ -38,6 +39,7 @@ export const ActionEditarDescontoFuncionarioModal = ({
             usuarioLogado={usuarioLogado}
             handleClick={handleClick}
             handleClose={handleClose}
+            refetch={refetch}
           />
 
         </Modal.Body>

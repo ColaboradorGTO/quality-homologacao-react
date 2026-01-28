@@ -3,7 +3,6 @@ import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { Controller, useForm } from "react-hook-form";
 import FormField from "../../../../Formularios/FormField";
-
 import { useEditarDescontoFuncionario } from "../hooks/useDescontoFuncionario";
 import { schema } from "./schemaUpdateDesconto";
 import { formatarMoeda } from "../../../../../utils/formatMoeda";
