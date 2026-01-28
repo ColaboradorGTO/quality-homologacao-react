@@ -1,33 +1,34 @@
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
 import { useEffect, useState } from "react";
-import { getDataAtual, getDataHoraAtual } from "../../../../../utils/dataAtual";
+import { getDataHoraAtual } from "../../../../../utils/dataAtual";
 import axios from 'axios';
-
 
 export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
   const [ipUsuario, setIpUsuario] = useState('');
   const [dataAdmissao, setDataAdmissao] = useState('');
- 
+
   useEffect(() => {
     const dataAtual = getDataHoraAtual()
     setDataAdmissao(dataAtual)
   }, [])
 
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    try {
+      const response = await axios.get('https://api.ipify.org?format=json9');
+      if (response.data && response.data.ip) {
+        return response.data.ip;
+      }
+      throw new Error("Resposta inválida do ipfy.org");
+    } catch (error) {
+      const responseIP2 = await axios.get('https://api.ipwho.org/me');
+      return responseIP2.data?.data?.ip;
+
     }
-    return response.data;
   };
 
- const handleDesligarFuncionario = async (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'False') {
+  const handleDesligarFuncionario = async (row) => {
+    if (optionsModulos[0]?.ALTERAR == 'False') {
       Swal.fire({
         title: 'Acesso Negado',
         text: 'Você não tem permissão para acessar esta funcionalidade.',
@@ -41,14 +42,12 @@ export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLog
     }
 
     const putData = {
-      DATAULTIMAALTERACAO: dataAdmissao,
+      DATAULTIMAALTERACAO: String(dataAdmissao),
       STATIVO: 'False',
-      DATA_DEMISSAO :dataAdmissao,
+      DATA_DEMISSAO: String(dataAdmissao),
       ID: Number(row.ID)
     }
-    
 
-  
     try {
       const response = await put('/inativar-funcionario', putData)
 
@@ -65,41 +64,41 @@ export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLog
       const textDados = JSON.stringify(putData)
       let status = putData.STATIVO;
       let textoFuncao;
-      if(status =='True'){
-        textoFuncao = 'INFORMATICA/ATIVA DESLIGAMENTO DE FUNCIONARIO';
-      }else{
-        textoFuncao = 'INFORMATICA/DESLIGAMENTO DE FUNCIONARIO';
+      if (status == 'True') {
+        textoFuncao = 'RH/ATIVA DESLIGAMENTO DE FUNCIONARIO';
+      } else {
+        textoFuncao = 'RH/DESLIGAMENTO DE FUNCIONARIO';
       }
-  
-  
+
+      const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
       }
-  
+
       const responsePost = await post('/log-web', createData)
-  
+
       handleClick()
       return responsePost.data;
     } catch (error) {
 
       const putData = {
-        DATAULTIMAALTERACAO: dataAdmissao,
+        DATAULTIMAALTERACAO: String(dataAdmissao),
         STATIVO: 'False',
-        DATA_DEMISSAO :dataAdmissao,
+        DATA_DEMISSAO: String(dataAdmissao),
         ID: Number(row.ID)
       }
 
       const textDados = JSON.stringify(putData)
-
-       const createData = {
-          IDFUNCIONARIO: String(usuarioLogado.id),
-          PATHFUNCAO: textoFuncao,
-          DADOS: textDados,
-          IP: ipUsuario
-        }
+      const ipUsuario = await getIPUsuario();
+      const createData = {
+        IDFUNCIONARIO: String(usuarioLogado.id),
+        PATHFUNCAO: textoFuncao,
+        DADOS: textDados,
+        IP: ipUsuario
+      }
       const responsePost = await post('/log-web', createData)
       Swal.fire({
         title: 'Erro ao Atualizar',
@@ -114,7 +113,6 @@ export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLog
       return responsePost.data;
     }
   }
-    
 
   return {
     handleDesligarFuncionario,

@@ -6,32 +6,32 @@ import Swal from "sweetalert2";
 import { FormularioEditar } from "./formularioEditar";
 
 
-export const ActionEditarFuncionario = ({ show, handleClose, dadosAtualizarFuncionarios }) => {
-//   useEffect(() => {
-//     if (dadosAtualizarFuncionarios) {
-//       setEmpresaSelecionada(dadosAtualizarFuncionarios[0]?.IDEMPRESA);
-//       setFuncaoSelecionado(dadosAtualizarFuncionarios[0]?.DSFUNCAO);
-//       setTipoSelecionado(dadosAtualizarFuncionarios[0]?.DSTIPO);
-//       setDataAdmissao(dadosAtualizarFuncionarios[0]?.DATA_ADMISSAO);
-//       setCPF(dadosAtualizarFuncionarios[0]?.NUCPF);
-//       setNomeFuncionario(dadosAtualizarFuncionarios[0]?.NOFUNCIONARIO);
-//       setLocalizacaoSelecionada(dadosAtualizarFuncionarios[0]?.STLOJA);
-//       setValorSalario(dadosAtualizarFuncionarios[0]?.VALORSALARIO);
-//       setValorDesconto(dadosAtualizarFuncionarios[0]?.PERC);
-//       setSituacaoSelecionada(dadosAtualizarFuncionarios[0]?.STATIVO);
-//       setSenha(dadosAtualizarFuncionarios[0]?.PWSENHA);
-//       setRepitaSenha(dadosAtualizarFuncionarios[0]?.PWSENHA);
-//       setCategoriaContratacao(dadosAtualizarFuncionarios[0]?.DSTIPO);
+export const ActionEditarFuncionario = ({ show, handleClose, dadosAtualizarFuncionarios, refetch }) => {
+  //   useEffect(() => {
+  //     if (dadosAtualizarFuncionarios) {
+  //       setEmpresaSelecionada(dadosAtualizarFuncionarios[0]?.IDEMPRESA);
+  //       setFuncaoSelecionado(dadosAtualizarFuncionarios[0]?.DSFUNCAO);
+  //       setTipoSelecionado(dadosAtualizarFuncionarios[0]?.DSTIPO);
+  //       setDataAdmissao(dadosAtualizarFuncionarios[0]?.DATA_ADMISSAO);
+  //       setCPF(dadosAtualizarFuncionarios[0]?.NUCPF);
+  //       setNomeFuncionario(dadosAtualizarFuncionarios[0]?.NOFUNCIONARIO);
+  //       setLocalizacaoSelecionada(dadosAtualizarFuncionarios[0]?.STLOJA);
+  //       setValorSalario(dadosAtualizarFuncionarios[0]?.VALORSALARIO);
+  //       setValorDesconto(dadosAtualizarFuncionarios[0]?.PERC);
+  //       setSituacaoSelecionada(dadosAtualizarFuncionarios[0]?.STATIVO);
+  //       setSenha(dadosAtualizarFuncionarios[0]?.PWSENHA);
+  //       setRepitaSenha(dadosAtualizarFuncionarios[0]?.PWSENHA);
+  //       setCategoriaContratacao(dadosAtualizarFuncionarios[0]?.DSTIPO);
 
-//     }
+  //     }
 
-//   }, [dadosAtualizarFuncionarios]);
+  //   }, [dadosAtualizarFuncionarios]);
 
   const onSubmit = async (e) => {
     // e.preventDefault();
     const funcao = dadosAtualizarFuncionarios[0]?.DSFUNCAO;
 
-    if(funcao !== 'TI') {
+    if (funcao !== 'TI') {
       Swal.fire({
         title: 'Acesso Negado',
         text: 'Usuário não tem permissão para desconto maior ou igual há 20%',
@@ -65,7 +65,7 @@ export const ActionEditarFuncionario = ({ show, handleClose, dadosAtualizarFunci
       // STATIVO: situacaoSelecionada,
       // VALORDISPONIVEL: dadosAtualizarFuncionarios[0]?.VALORDISPONIVEL || 0,
       // MOTIVODESC: dadosAtualizarFuncionarios[0]?.MOTIVODESC,
-      
+
       NOFUNCIONARIO: nomeFuncionario,
       NUCPF: dadosAtualizarFuncionarios[0]?.NUCPF,
       NOLOGIN: dadosAtualizarFuncionarios[0]?.NOLOGIN,
@@ -150,7 +150,11 @@ export const ActionEditarFuncionario = ({ show, handleClose, dadosAtualizarFunci
 
 
         <Modal.Body>
-          <FormularioEditar handleClose={handleClose} dadosAtualizarFuncionarios={dadosAtualizarFuncionarios} />
+          <FormularioEditar
+            handleClose={handleClose}
+            dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
+            refetch={refetch}
+          />
 
         </Modal.Body>
 

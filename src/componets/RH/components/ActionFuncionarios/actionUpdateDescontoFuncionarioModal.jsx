@@ -150,7 +150,7 @@ export const ActionUpdateDescontoFuncionarioModal = ({ show, handleClose, dadosD
     }
   
     // Atualize o estado ou faça o que for necessário com o valor formatado
-    //console.log(valor);
+   // console.log(valor);
   };
   
 

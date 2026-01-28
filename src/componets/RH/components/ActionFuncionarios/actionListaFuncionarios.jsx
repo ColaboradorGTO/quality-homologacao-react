@@ -1,13 +1,12 @@
 import React, { Fragment, useEffect, useState, useRef } from "react"
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { dataFormatada } from "../../../../utils/dataFormatada";
-import { get, post, put } from "../../../../api/funcRequest";
+import { get } from "../../../../api/funcRequest";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { CiEdit } from "react-icons/ci";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { FaUserAltSlash, FaUserTimes } from "react-icons/fa";
-import { ActionUpdateFuncionarioModal } from "./actionUpdateFuncionarioModal";
 import { ActionUpdateDescontoFuncionarioModal } from "./actionUpdateDescontoFuncionarioModal";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
@@ -18,14 +17,12 @@ import { toFloat } from "../../../../utils/toFloat";
 import { formatarPorcentagem } from "../../../../utils/formatarPorcentagem";
 import Swal from "sweetalert2";
 import { getDataAtual } from "../../../../utils/dataAtual";
-import axios from "axios";
-import { useNavigate } from "react-router-dom"
 import { FaCheck } from "react-icons/fa6";
 import { ActionEditarFuncionario } from "./ActionEditar/actionEditarFuncionario";
 import { useDesligarFuncionario } from "./hooks/useDesligarFuncionario";
 import { useAtivarFuncionario } from "./hooks/useAtivarFuncionario";
 
-export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usuarioLogado, handleClick }) => {
+export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usuarioLogado, handleClick, refetch }) => {
   const [modalAlterarFuncionarioVisivel, setModalAlterarFuncionarioVisivel] = useState(false);
   const [modalDescontoVisivel, setModalDescontoVisivel] = useState(false);
   const [dadosAtualizarFuncionarios, setDadosAtualizarFuncionarios] = useState([]);
@@ -34,16 +31,15 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
   const [data, setData] = useState('');
   const dataTableRef = useRef();
   const [rowSelection, setRowSelection] = useState(null);
-  const {handleDesligarFuncionario} = useDesligarFuncionario({ optionsModulos, usuarioLogado, handleClick })
-  const {handleAtivarFuncionario} = useAtivarFuncionario({ optionsModulos, usuarioLogado, handleClick })
-  
+  const { handleDesligarFuncionario } = useDesligarFuncionario({ optionsModulos, usuarioLogado, handleClick })
+  const { handleAtivarFuncionario } = useAtivarFuncionario({ optionsModulos, usuarioLogado, handleClick })
 
 
   useEffect(() => {
     const dataAtualCampo = getDataAtual();
     setData(dataAtualCampo);
-  },[])
-  
+  }, [])
+
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -54,6 +50,14 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
     documentTitle: 'Lista de Funcionarios',
   });
 
+  function formatarDataBR(dataISO) {
+
+    if (!dataISO || dataISO === "null" || dataISO === "undefined") return "";
+    const d = new Date(dataISO);
+    if (Number.isNaN(d.getTime())) return "";
+    return d.toLocaleDateString("pt-BR");
+  }
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
@@ -61,7 +65,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       body: dados.map(item => [
         item.contador,
         item.NUCPF,
-        item.NOFUNCIONARIO, 
+        item.NOFUNCIONARIO,
         item.NOLOGIN,
         item.DSFUNCAO,
         item.STLOJA == 'True' ? 'Loja' : 'Escritório',
@@ -103,7 +107,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
 
   const dados = dadosFuncionarios.map((item, index) => {
     let contador = index + 1;
-    
+
     return {
       contador,
       NUCPF: item.NUCPF,
@@ -115,13 +119,12 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       DSTIPO: item.DSTIPO,
       PERC: toFloat(item.PERC),
       STATIVO: item.STATIVO,
-      DTDEMISSAO: item.DTDEMISSAO,
+      DATA_DEMISSAO: item.DATA_DEMISSAO,
       ID: item.ID,
       IDFUNCIONARIO: item.IDFUNCIONARIO,
-     
+
     };
   });
-
   const colunasFuncionarios = [
     {
       field: 'contador',
@@ -141,7 +144,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       field: 'NOFUNCIONARIO',
       header: 'Funcionário',
       body: row => (
-        <div style={{width: '200px'}}>
+        <div style={{ width: '200px' }}>
 
           <th>{row.NOFUNCIONARIO}</th>
         </div>
@@ -191,11 +194,11 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       field: 'DSTIPO',
       header: 'Tipo',
       body: (row) => (
-        <div style={{width: '150px'}}>
+        <div style={{ width: '150px' }}>
 
-        <th>
-          {row.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO'}
-        </th>
+          <th>
+            {row.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO'}
+          </th>
         </div>
       ),
       sortable: true,
@@ -227,9 +230,9 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       sortable: true,
     },
     {
-      field: 'DTDEMISSAO',
+      field: 'DATA_DEMISSAO',
       header: 'DT Desl.',
-      body: row => <th>{dataFormatada(row.DTDEMISSAO)}</th>,
+      body: row => <th>{formatarDataBR(row.DATA_DEMISSAO)}</th>,
       sortable: true,
     },
 
@@ -237,13 +240,12 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       field: 'ID',
       header: 'Opções',
       body: (row) => {
-        if(row.STATIVO == 'True')  {
+        if (row.STATIVO == 'True') {
           return (
             <div style={{ display: "flex", justifyContent: "space-around", width: "100%" }}>
               <div className="p-1">
                 <ButtonTable
                   titleButton={"Alterar"}
-                  // textButton={"Alterar"}
                   onClickButton={() => handleClickEdit(row)}
                   Icon={CiEdit}
                   iconSize={30}
@@ -258,7 +260,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
               <div className="p-1">
                 <ButtonTable
                   titleButton={"Alterar Desconto Autorizado"}
-                  // textButton={"Alterar Desconto"}
                   onClickButton={() => handleClickDesconto(row)}
                   Icon={MdOutlineAttachMoney}
                   iconSize={30}
@@ -272,7 +273,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
               <div className="p-1">
                 <ButtonTable
                   titleButton={"Inativar"}
-                  // textButton={"Inativar"}
                   onClickButton={() => handleAtivarFuncionario(row, false)}
                   Icon={FaUserAltSlash}
                   iconSize={30}
@@ -286,7 +286,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
               <div className="p-1">
                 <ButtonTable
                   titleButton={"Desligar"}
-                  // textButton={"Desligar"}
                   onClickButton={() => handleDesligarFuncionario(row)}
                   Icon={FaUserTimes}
                   iconSize={30}
@@ -300,31 +299,30 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
 
             </div>
           )
-
         } else {
           return (
             <div className="p-1">
-            <ButtonTable
-              titleButton={"ativar"}
-              textButton={"Ativar"}
-              onClickButton={() => handleAtivarFuncionario(row, true  )}
-              Icon={FaCheck}
-              iconSize={25}
-              width="35px"
-              height="35px"
-              iconColor={"#fff"}
-              cor={"danger"}
-            />
+              <ButtonTable
+                titleButton={"ativar"}
+                textButton={"Ativar"}
+                textFontSize={10}
+                onClickButton={() => handleAtivarFuncionario(row, true)}
+                Icon={FaCheck}
+                iconSize={25}
+                width="35px"
+                height="35px"
+                iconColor={"#fff"}
+                cor={"danger"}
+              />
 
-          </div>
+            </div>
           )
         }
-    },
+      },
       sortable: true,
     },
 
   ]
-
 
   const handleEdit = async (IDFUNCIONARIO) => {
     try {
@@ -339,9 +337,8 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
     }
   };
 
-
   const handleClickEdit = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDFUNCIONARIO) {
         handleEdit(row.IDFUNCIONARIO);
       }
@@ -371,7 +368,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
   };
 
   const handleClickDesconto = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDFUNCIONARIO) {
         handleDesconto(row.IDFUNCIONARIO);
       }
@@ -388,12 +385,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
     }
   };
 
-  
-
-
-
- 
-  
   return (
 
     <Fragment>
@@ -413,7 +404,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
 
         </div>
         <div className="card" ref={dataTableRef}>
-
 
           <DataTable
             title="Lista de Funcionários"
@@ -445,7 +435,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
                 sortable={coluna.sortable}
                 headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '1rem', border: '1px solid #e9e9e9'}}
+                bodyStyle={{ fontSize: '1rem', border: '1px solid #e9e9e9' }}
               />
             ))}
           </DataTable>
@@ -453,19 +443,19 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         </div>
       </div>
 
+      <ActionEditarFuncionario
+        show={modalAlterarFuncionarioVisivel}
+        handleClose={() => setModalAlterarFuncionarioVisivel(false)}
+        dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
+        handleClick={handleClick}
+        refetch={refetch}
+      />
 
-      <ActionEditarFuncionario 
-         show={modalAlterarFuncionarioVisivel}
-         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
-         dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
-         handleClick={handleClick}
-      /> 
       {/* <ActionUpdateFuncionarioModal
         show={modalAlterarFuncionarioVisivel}
         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
         dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
       /> */}
-
 
       <ActionUpdateDescontoFuncionarioModal
         show={modalDescontoVisivel}
