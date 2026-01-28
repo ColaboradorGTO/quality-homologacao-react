@@ -20,8 +20,8 @@ import { mascaraCPF } from "../../../../utils/formatCPF";
 import { useCancelar } from "./hooks/useCancelarQuebraCaixa";
 
 
-export const ActionListaQuebraNegativaCaixaIntegracao = ({ 
-  dadosQuebraDeCaixaNegativa, 
+export const ActionListaQuebraPositivaCaixaIntegracao = ({ 
+  dadosQuebraDeCaixaPositiva, 
   usuarioLogado, 
   optionsModulos,
   selectedItems,
@@ -123,7 +123,7 @@ export const ActionListaQuebraNegativaCaixaIntegracao = ({
     'Quebra de Caixa integrada no SAP'
   ];
 
-  const dados = dadosQuebraDeCaixaNegativa.map((item, index) => {
+  const dados = dadosQuebraDeCaixaPositiva.map((item, index) => {
     let contador = index + 1;
     const vrQuebraLancadoLoja = toFloat(item.VRQUEBRAEFETIVADO);
     const docEntry = vrQuebraLancadoLoja < 0 ? item.DOCENTRY_SAP_CONTAS_A_PAGAR : item.DOCENTRY_SAP_CONTAS_A_RECEBER;

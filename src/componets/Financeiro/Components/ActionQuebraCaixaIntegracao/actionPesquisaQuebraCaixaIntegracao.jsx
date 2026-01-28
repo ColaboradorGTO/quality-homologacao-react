@@ -14,6 +14,8 @@ import { IoMdCheckmark } from "react-icons/io";
 import Swal from "sweetalert2";
 import { useIntegrarTodasQuebras } from "./hooks/useIntegrarTodasQuebras"
 import { ActionListaQuebraCaixaIntegracao } from "./actionListaQuebraCaixaIntegraca";
+import { ActionListaQuebraPositivaCaixaIntegracao } from "./actionListaQuebraPositivaCaixaIntegracajsx";
+import { ActionListaQuebraNegativaCaixaIntegracao } from "./actionListaQuebraNegativaCaixaIntegraca";
 
 export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -71,7 +73,8 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
 
    
   const fetchQuebra = async () => {  
-    const urlBase = `/quebra-caixa-integracao-sap?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&uf=${ufSelecionado}&stAtivo=True&stConferido=True`;
+    
+    const urlBase = `/quebra-caixa-integracao-sap?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&stAtivo=True&stConferido=True`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', ''); 
     try {
@@ -111,7 +114,8 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
 
 
   const getListaQuebraDeCaixaPositiva = async () => {
-    const urlBase = `/quebra-caixa-loja?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+    
+    const urlBase = `/quebra-caixa-integracao-sap?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&stAtivo=True&stConferido=True`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -145,14 +149,14 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
   }
   
   const {data: dadosQuebraDeCaixaPositiva = [], error: erroQuebraPositiva, isLoading: isLoadingQuebraPositiva, refetch: refetchQuebraPositiva} = useQuery(
-    'quebra-caixa-loja-Positiva',
+    'quebra-caixa-integracao-sap-positiva',
     () => getListaQuebraDeCaixaPositiva(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   )
 
 
   const getListaQuebraDeCaixaNegativa = async () => {
-    const urlBase = `/quebra-caixa-loja?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+    const urlBase = `/quebra-caixa-integracao-sap?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&stAtivo=True&stConferido=True`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -185,7 +189,7 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
   }
 
   const {data: dadosQuebraDeCaixaNegativa = [], error: erroQuebraNegativa, isLoading: isLoadingQuebraNegativa, refetch: refetchQuebraNegativa} = useQuery(
-    'lista-Quebra-Caixa-Negativa',
+    'quebra-caixa-integracao-sap-negativa',
     () => getListaQuebraDeCaixaNegativa(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   )
@@ -403,32 +407,37 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
       )}
 
 
-      {/* <div>
+      <div>
         {tabelaVisivelNegativa && (
 
-          <ActionListaQuebraCaixaLojaNegativa 
+          <ActionListaQuebraNegativaCaixaIntegracao 
             dadosQuebraDeCaixaNegativa={dadosQuebraDeCaixaNegativa} 
             optionsModulos={optionsModulos}
             usuarioLogado={usuarioLogado}   
             selectedItems={selectedItems}
             setSelectedItems={setSelectedItems}
             handleClick={handleClick}
+            btnVisivel={btnVisivel}
+            setBtnVisivel={setBtnVisivel}
           />
         )}
       </div>
+
       <div>
         {tabelaVisivelPositiva && (
 
-          <ActionListaQuebraCaixaLojaPositiva 
+          <ActionListaQuebraPositivaCaixaIntegracao 
             dadosQuebraDeCaixaPositiva={dadosQuebraDeCaixaPositiva} 
             optionsModulos={optionsModulos}
             usuarioLogado={usuarioLogado}              
             selectedItems={selectedItems}
             setSelectedItems={setSelectedItems}
             handleClick={handleClick}
+            btnVisivel={btnVisivel}
+            setBtnVisivel={setBtnVisivel}
           />
         )}
-      </div> */}
+      </div> 
     </Fragment>
   )
 }
