@@ -7,7 +7,7 @@ import { AlertError } from "../../../../Inputs/alertError";
 import FormField from "../../../../Formularios/FormField";
 
 import { useEditarDescontoFuncionario } from "../hooks/useDescontoFuncionario";
-// import { schema } from "./schemaUpdateDesconto";
+import { schema } from "./schemaUpdateDesconto";
 
 export const FormularioEditar = ({
     handleClose,
@@ -49,11 +49,11 @@ export const FormularioEditar = ({
     const handleValidatedSubmit = async () => {
         try {
             const dadosParaValidar = {
-                // empresaFuncionario: empresaSelecionada,
+                descontoAutorizado: percentualDesconto,
 
             };
 
-            // await schema.validate(dadosParaValidar, { abortEarly: false });
+            await schema.validate(dadosParaValidar, { abortEarly: false });
             onSubmit();
         } catch (validationError) {
             console.error('❌ Erro de validação:', validationError);

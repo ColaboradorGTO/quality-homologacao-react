@@ -74,7 +74,7 @@ export const useEditarDescontoFuncionario = ({
             DTINICIODESC: String(dataInicioDesconto),
             DTFIMDESC: String(dataFimDesconto),
             PERCDESCUSUAUTORIZADO: percentualDesconto ? Number(percentualDesconto) : 0,
-            TXTMOTIVODESCONTO: String(motivoDesconto),
+            TXTMOTIVODESCONTO: motivoDesconto,
             IDFUNCALTERACAO: Number(usuarioLogado?.id),
             ID: Number(dadosDescontoFuncionarios[0]?.ID),
 
@@ -104,8 +104,8 @@ export const useEditarDescontoFuncionario = ({
                     container: 'custom-swal',
                 }
             })
-            refetch();
-            handleClose();
+            // refetch();
+            // handleClose();
             return response.data;
         } catch (error) {
             const textoFuncao = 'RH/ERRO AO ATUALIZAR DESCONTO FUNCIONARIO';
