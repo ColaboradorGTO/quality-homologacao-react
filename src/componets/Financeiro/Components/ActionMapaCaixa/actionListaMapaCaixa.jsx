@@ -177,11 +177,9 @@ export const ActionListaMapaCaixa = ({ dadosMapaCaixa, dadosAdiantamentoSalarial
   });
 
   const calcularTotalFaturas = () => {
-    let total = 0;
-    for(let resultado of dadosFatura) {
-      total += toFloat(resultado.VRRECEBIDO); 
-    }
-    return total;
+    return dadosFatura.reduce((total, item) =>
+      total + toFloat(item.VRRECEBIDO), 0
+    )
   }
 
   const footerGroup = (
@@ -256,7 +254,7 @@ export const ActionListaMapaCaixa = ({ dadosMapaCaixa, dadosAdiantamentoSalarial
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
             sortOrder={-1}
-            rows={10}
+            rows={dados.length}
             paginator={true}
             footerColumnGroup={footerGroup}
             rowsPerPageOptions={[5, 10, 20, 50, 100]}

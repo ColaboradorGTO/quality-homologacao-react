@@ -382,7 +382,7 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
               headerColumnGroup={headerGroup}
               footerColumnGroup={footerGroup}
               paginator={true}
-              rows={10}
+              rows={dados.length}
               selectionMode="single"
               selection={rowSelection}
               onSelectionChange={(e) => setRowSelection(e.value)}

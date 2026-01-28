@@ -503,8 +503,6 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     setCPF,
     ipUsuario,
     setIpUsuario,
-    usuarioLogado,
-    setUsuarioLogado,
     excecao,
     setExcecao,
     formularioVisivelLogin,

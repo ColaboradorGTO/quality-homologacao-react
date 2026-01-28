@@ -50,10 +50,11 @@ export const Permissoes = ({}) => {
     const [pageSize, setPageSize] = useState(1000);
     const [selectedModule, setSelectedModule] = useState(null)
     const [moduloUsuario, setModuloUsuario] = useState(null);
+    const [empresaSelecionada, setEmpresaSelecionada] = useState('');
     const navigate = useNavigate();
     const menuLeft = useRef(null);
 
-      useEffect(() => {
+    useEffect(() => {
         const moduloArmazenado = localStorage.getItem('moduloUsuario');
         if (moduloArmazenado) {
           const parsedModulo = JSON.parse(moduloArmazenado);
@@ -77,8 +78,17 @@ export const Permissoes = ({}) => {
             return response.data;
         },
         { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
-        // { enabled: Boolean(usuarioLogado?.id), staleTime: Infinity, cacheTime: Infinity, }
     );
+    
+    const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
+        'empresas',
+        async () => {
+        const response = await get(`/empresas`);
+        return response.data;
+        },
+        { staleTime: 60 * 60 * 1000 }
+    );
+
 
     useEffect(() => {
         if (moduloSelecionado) {
@@ -97,7 +107,7 @@ export const Permissoes = ({}) => {
 
     const fetchListaFuncionarios = async () => {
         try {
-            const urlApi = `/funcionarios-loja?idEmpresa=${usuarioLogado?.IDEMPRESA}`;
+            const urlApi = `/funcionarios-loja?idEmpresa=${empresaSelecionada?.value}`;
             const response = await get(urlApi);
 
             if (response.data.length && response.data.length === pageSize) {
@@ -136,10 +146,10 @@ export const Permissoes = ({}) => {
     };
 
     const { data: dadosFuncionarios = [], error: errorFuncionario, isLoading: isLoadingFuncionario } = useQuery(
-        ['funcionarios-loja'],
+        ['funcionarios-loja', empresaSelecionada?.value],
         () => fetchListaFuncionarios(),
         {
-         enabled: Boolean(usuarioLogado?.id), staleTime: Infinity, cacheTime: Infinity,
+         enabled: Boolean(empresaSelecionada?.value), staleTime: Infinity, cacheTime: Infinity,
         }
     );
 
@@ -230,6 +240,38 @@ export const Permissoes = ({}) => {
                                     
                                 </div>
 
+                                <div className="col-sm-6 col-md-6 col-lg-6 col-xl-6  ">
+                                    <div style={{ width: '100%' }} className="mb-2 ">
+
+                                        <label style={{ color: '#fff', fontSize: '1.5rem' }} htmlFor="">Selecione uma Empresa</label>
+                                    </div>
+
+                                    <Select
+                                        options={optionsEmpresas?.map((item) => ({
+                                            value: item.IDEMPRESA,
+                                            label: item.NOFANTASIA
+                                        }))}
+                                        value={empresaSelecionada}
+                                        onChange={(e) => setEmpresaSelecionada(e)}
+                                    />
+                                
+                                </div>
+                                <div className="col-sm-6 col-md-6 col-lg-6 col-xl-6  ">
+                                    <div style={{ width: '100%' }} className="mb-2 ">
+
+                                        <label style={{ color: '#fff', fontSize: '1.5rem' }} htmlFor="">Selecione um Departamento</label>
+                                    </div>
+
+                                    <Select
+                                        options={dadosFuncionarios?.map((item) => ({
+                                            value: item.IDFUNCIONARIO,
+                                            label: `${item.NOLOGIN} - ${item.NOFUNCIONARIO} `
+                                        }))}
+                                        value={funcionarioSelecionado}
+                                        onChange={(e) => setFuncionarioSelecionado(e)}
+                                    />
+                                
+                                </div>
                                 <div className="col-sm-6 col-md-6 col-lg-6 col-xl-6  ">
                                     <div style={{ width: '100%' }} className="mb-2 ">
 
