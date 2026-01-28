@@ -206,7 +206,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
                                         value={dataAdmissao}
                                         onChangeModal={e => setDataAdmissao(e.target.value)}
                                         min={minDataAdmissao}
-                                        max={maxDataAdmissao}
+                                        // max={maxDataAdmissao}
                                     />
                                 )}
                             />
