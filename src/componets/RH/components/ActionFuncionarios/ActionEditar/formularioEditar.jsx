@@ -10,7 +10,7 @@ import { addDays, format, subDays } from "date-fns";
 import { AlertError } from "../../../../Inputs/alertError";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schamaValidarFuncionario";
-export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) => {
+export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios, refetch }) => {
   const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
     mode: "onChange"
   });
@@ -64,7 +64,7 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
     Parceiro,
     onSubmit,
     loginConfirmacao
-  } = useEditarFuncionario({ handleClose, dadosAtualizarFuncionarios });
+  } = useEditarFuncionario({ handleClose, dadosAtualizarFuncionarios, refetch });
 
   const handleValidatedSubmit = async () => {
     try {

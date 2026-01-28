@@ -2,13 +2,12 @@ import Swal from "sweetalert2";
 import { get, post, put } from "../../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { getDataAtual } from "../../../../../utils/dataAtual";
 import axios from 'axios';
 import { Funcoes } from '../../../../../../tipoFuncao.json';
 import { Parceiro, situacao, localizacao } from '../../../../../../parceiro.json';
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
-import { use } from "react";
+
 
 export const useCriarFuncionario = ({ handleClose }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
@@ -39,8 +38,6 @@ export const useCriarFuncionario = ({ handleClose }) => {
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
 
-  const navigate = useNavigate();
-
   useEffect(() => {
     const dataAtual = getDataAtual()
     setDataAdmissao(dataAtual)
@@ -61,7 +58,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
     }
   }, []);
 
-   const getIPUsuario = async () => {
+  const getIPUsuario = async () => {
     try {
       const response = await axios.get('https://api.ipify.org?format=json9');
       if (response.data && response.data.ip) {
@@ -71,7 +68,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
     } catch (error) {
       const responseIP2 = await axios.get('https://api.ipwho.org/me');
       return responseIP2.data?.data?.ip;
-      
+
     }
   };
 
@@ -86,23 +83,23 @@ export const useCriarFuncionario = ({ handleClose }) => {
   );
 
   useEffect(() => {
-      if(empresaSelecionada) {
-        refetchEmpresa();
-      }
-  },[empresaSelecionada])
+    if (empresaSelecionada) {
+      refetchEmpresa();
+    }
+  }, [empresaSelecionada])
 
 
   const { data: optionsCPF = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
     ['funcionarios-loja', cpfFuncionario],
     async () => {
       const response = await get(`/funcionarios-loja?cpf=${removerMascaraCPF(cpfFuncionario)}`);
-    
+
       if (response.data.length > 0) {
         setFuncionarioExistente(response.data[0])
       }
       return response.data;
     },
-    { enabled: cpfFuncionario.length > 10, staleTime: 5 * 60 * 1000,}
+    { enabled: cpfFuncionario.length > 10, staleTime: 5 * 60 * 1000, }
   );
 
   useEffect(() => {
@@ -129,7 +126,6 @@ export const useCriarFuncionario = ({ handleClose }) => {
       setCPF(funcionarioExistente.NUCPF);
     }
 
-
   }, [funcionarioExistente]);
   useEffect(() => {
     if (optionsCPF && optionsCPF.length > 0) {
@@ -153,53 +149,50 @@ export const useCriarFuncionario = ({ handleClose }) => {
     }
   };
 
+  const loginConfirmacao = async () => {
+    setFormularioVisivelLogin(true);
+    setFormularioVisivel(false);
 
-    const loginConfirmacao = async () => {
-      setFormularioVisivelLogin(true);
-      setFormularioVisivel(false);
-  
-      const postData = {
-        usuario: usuario,
-        senha: senha,
-        modulo: selectedModule?.nome
+    const postData = {
+      usuario: usuario,
+      senha: senha,
+      modulo: selectedModule?.nome
+    }
+    try {
+      const response = await post('/login', postData);
+
+      const textDados = JSON.stringify(postData)
+      const textoFuncao = 'RH/AUTORIZAÇÃO DESCONTO FOLHA FUNCIONARIO';
+
+      const createLog = {
+        IDFUNCIONARIO: usuarioLogado.id,
+        PATHFUNCAO: textoFuncao,
+        DADOS: textDados,
+        IP: ipUsuario
       }
-      try {
-        const response = await post('/login', postData);
-  
-        const textDados = JSON.stringify(postData)
-        const textoFuncao = 'RH/AUTORIZAÇÃO DESCONTO FOLHA FUNCIONARIO';
-  
-        const createLog = {
-          IDFUNCIONARIO: usuarioLogado.id,
-          PATHFUNCAO: textoFuncao,
-          DADOS: textDados,
-          IP: ipUsuario
-        }
-  
-        const responsePost = await post('/log-web', createLog)
-  
-        setFormularioVisivelLogin(false);
-        setFormularioVisivel(true);
-        setIsLoading(true);
-        return responsePost.data;
-      } catch (error) {
-        Swal.showValidationMessage(`Erro ao autenticar: ${error.message}`);
-      }
-  
-    };
 
+      const responsePost = await post('/log-web', createLog)
 
-    
+      setFormularioVisivelLogin(false);
+      setFormularioVisivel(true);
+      setIsLoading(true);
+      return responsePost.data;
+    } catch (error) {
+      Swal.showValidationMessage(`Erro ao autenticar: ${error.message}`);
+    }
+
+  };
+
   const onSubmit = async (e) => {
     let maximoDesconto = 0;
     let dataBase = new Date('2024-08-01')
     let diferencaDias = Math.ceil((dataBase - new Date()) / (1000 * 60 * 60 * 24));
 
-    if(diferencaDias < 90) {
+    if (diferencaDias < 90) {
       maximoDesconto = 10;
-    } else if(diferencaDias >= 90 && diferencaDias < 365) {
+    } else if (diferencaDias >= 90 && diferencaDias < 365) {
       maximoDesconto = 15;
-    } else if(diferencaDias >= 365 && diferencaDias < 730) {
+    } else if (diferencaDias >= 365 && diferencaDias < 730) {
       maximoDesconto = 20;
     }
 
@@ -219,35 +212,35 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-    if(!empresaSelecionada || !empresaSelecionada.value ) {
-        Swal.fire({
-          title: 'Erro ao Cadastrar',
-          text: 'Empresa não selecionada',
-          icon: 'error',
-          timer: 3000,
-          customClass: {
-            container: 'custom-swal',
-          }
-        })
-        return;
-  
-      }
-
-    if(!funcaoSelecionada || !funcaoSelecionada.value) {
-          Swal.fire({
-            title: 'Erro ao Cadastrar',
-            text: 'Função nao selecionada',
-            icon: 'error',
-            timer: 3000,
-            customClass: {
-              container: 'custom-swal',
-            }
-          })
-          return;
+    if (!empresaSelecionada || !empresaSelecionada.value) {
+      Swal.fire({
+        title: 'Erro ao Cadastrar',
+        text: 'Empresa não selecionada',
+        icon: 'error',
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
         }
+      })
+      return;
+
+    }
+
+    if (!funcaoSelecionada || !funcaoSelecionada.value) {
+      Swal.fire({
+        title: 'Erro ao Cadastrar',
+        text: 'Função nao selecionada',
+        icon: 'error',
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+      return;
+    }
 
 
-    if(!tipoSelecionado || !tipoSelecionado.value) {
+    if (!tipoSelecionado || !tipoSelecionado.value) {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Tipo nao selecionado',
@@ -259,8 +252,8 @@ export const useCriarFuncionario = ({ handleClose }) => {
       })
       return;
     }
-                
-        if(!dataAdmissao || !dataAdmissao === '') {
+
+    if (!dataAdmissao || !dataAdmissao === '') {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Data Admissão nao selecionada',
@@ -273,7 +266,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-      if(!localizacaoSelcionada || !localizacaoSelcionada.value) {
+    if (!localizacaoSelcionada || !localizacaoSelcionada.value) {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Localização nao selecionada',
@@ -286,7 +279,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-       if(!['CLT', 'PJ'].includes(categoriaContratacao)) {
+    if (!['CLT', 'PJ'].includes(categoriaContratacao)) {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Categoria de Contratação nao selecionada',
@@ -297,9 +290,9 @@ export const useCriarFuncionario = ({ handleClose }) => {
         }
       })
       return;
-    } 
+    }
 
-     if(valorSalario === '') {
+    if (valorSalario === '') {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Valor Salário não pode ser vazio',
@@ -312,7 +305,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-      if(!situacaoSelecionada || !situacaoSelecionada.value){
+    if (!situacaoSelecionada || !situacaoSelecionada.value) {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Situação nao selecionada',
@@ -325,7 +318,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-        if(!nomeFuncionario || nomeFuncionario.trim() === '') {
+    if (!nomeFuncionario || nomeFuncionario.trim() === '') {
       Swal.fire({
         title: 'Erro ao Cadastrar',
         text: 'Nome não pode ser vazio',
@@ -337,7 +330,6 @@ export const useCriarFuncionario = ({ handleClose }) => {
       })
       return;
     }
-
 
     if (parseFloat(valorDesconto) > 50) {
       Swal.fire({
@@ -352,8 +344,6 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
-    
-
     if (cpfSemMascara.length !== 11) {
       Swal.fire({
         title: 'Erro ao Cadastrar',
@@ -367,8 +357,6 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return;
     }
 
- 
-    
     const postData = {
       IDSUBGRUPOEMPRESARIAL: Number(subGrupoEmpresarialSelecionado),
       IDEMPRESA: Number(empresaSelecionada.value),
@@ -410,21 +398,16 @@ export const useCriarFuncionario = ({ handleClose }) => {
       STATIVO: situacaoSelecionada.value,
       STLOJA: localizacaoSelcionada.value,
     }
-    
 
     try {
       let response;
-     
-      if (funcionarioExistente.length > 0 ) {
-        response = await put('/funcionarios-loja/:id', putData); // Fazer PUT se o funcionário já existir
+
+      if (funcionarioExistente.length > 0) {
+        response = await put('/funcionarios-loja/:id', putData);
 
       } else {
-        response = await post('/criar-funcionarios-loja', postData); // Fazer POST se o funcionário não existir
+        response = await post('/criar-funcionarios-loja', postData);
       }
-
-
-     
-      // const response = await post('/criar-funcionarios-loja', putData)
 
       setEmpresaSelecionada('');
       setNomeFuncionario('');
@@ -447,7 +430,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
       const textDados = JSON.stringify(putData)
       const textoFuncao = 'RH/UPDATE DE FUNCIONARIOS';
 
-       const ipUsuario = await getIPUsuario();
+      const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
@@ -461,10 +444,10 @@ export const useCriarFuncionario = ({ handleClose }) => {
       return responsePost.data;
     } catch (error) {
 
-      
+
       const textDados = JSON.stringify(putData)
       const textoFuncao = 'RH/ERRO AO CRIAR OU ATUALIZAR FUNCIONARIO';
-       const ipUsuario = await getIPUsuario();
+      const ipUsuario = await getIPUsuario();
 
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
@@ -493,8 +476,6 @@ export const useCriarFuncionario = ({ handleClose }) => {
     const empresa = optionsEmpresas.find((item) => item.IDEMPRESA === selected);
     setSubGrupoEmpresarialSelecionado(empresa.IDSUBGRUPOEMPRESARIAL);
   }
-
-
 
   return {
     empresaSelecionada,
@@ -550,10 +531,7 @@ export const useCriarFuncionario = ({ handleClose }) => {
     situacao,
     Parceiro,
     onSubmit,
-    loginConfirmacao  
-  
+    loginConfirmacao
+
   }
 }
-
-// NOLOGIN: "32264"
-// PWSENHA: "36943"

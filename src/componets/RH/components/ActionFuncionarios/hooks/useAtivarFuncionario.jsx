@@ -1,20 +1,17 @@
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
 import { useEffect, useState } from "react";
-import { getDataAtual, getDataHoraAtual } from "../../../../../utils/dataAtual";
+import { getDataHoraAtual } from "../../../../../utils/dataAtual";
 import axios from 'axios';
-
 
 export const useAtivarFuncionario = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
   const [ipUsuario, setIpUsuario] = useState('');
   const [dataAdmissao, setDataAdmissao] = useState('');
  
-
   useEffect(() => {
     const dataAtual = getDataHoraAtual()
     setDataAdmissao(dataAtual)
   }, [])
-
 
   const getIPUsuario = async () => {
     try {
@@ -119,7 +116,6 @@ export const useAtivarFuncionario = ({ handleClose, optionsModulos, usuarioLogad
       }
     }
     
-
   return {
     handleAtivarFuncionario
   }

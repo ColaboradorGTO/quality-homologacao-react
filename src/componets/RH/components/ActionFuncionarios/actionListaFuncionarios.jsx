@@ -1,13 +1,12 @@
 import React, { Fragment, useEffect, useState, useRef } from "react"
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { dataFormatada } from "../../../../utils/dataFormatada";
-import { get, post, put } from "../../../../api/funcRequest";
+import { get } from "../../../../api/funcRequest";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { CiEdit } from "react-icons/ci";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { FaUserAltSlash, FaUserTimes } from "react-icons/fa";
-import { ActionUpdateFuncionarioModal } from "./actionUpdateFuncionarioModal";
 import { ActionUpdateDescontoFuncionarioModal } from "./actionUpdateDescontoFuncionarioModal";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
@@ -18,14 +17,12 @@ import { toFloat } from "../../../../utils/toFloat";
 import { formatarPorcentagem } from "../../../../utils/formatarPorcentagem";
 import Swal from "sweetalert2";
 import { getDataAtual } from "../../../../utils/dataAtual";
-import axios from "axios";
-import { useNavigate } from "react-router-dom"
 import { FaCheck } from "react-icons/fa6";
 import { ActionEditarFuncionario } from "./ActionEditar/actionEditarFuncionario";
 import { useDesligarFuncionario } from "./hooks/useDesligarFuncionario";
 import { useAtivarFuncionario } from "./hooks/useAtivarFuncionario";
 
-export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usuarioLogado, handleClick }) => {
+export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usuarioLogado, handleClick, refetch }) => {
   const [modalAlterarFuncionarioVisivel, setModalAlterarFuncionarioVisivel] = useState(false);
   const [modalDescontoVisivel, setModalDescontoVisivel] = useState(false);
   const [dadosAtualizarFuncionarios, setDadosAtualizarFuncionarios] = useState([]);
@@ -36,7 +33,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
   const [rowSelection, setRowSelection] = useState(null);
   const { handleDesligarFuncionario } = useDesligarFuncionario({ optionsModulos, usuarioLogado, handleClick })
   const { handleAtivarFuncionario } = useAtivarFuncionario({ optionsModulos, usuarioLogado, handleClick })
-
 
 
   useEffect(() => {
@@ -250,7 +246,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
               <div className="p-1">
                 <ButtonTable
                   titleButton={"Alterar"}
-                  // textButton={"Alterar"}
                   onClickButton={() => handleClickEdit(row)}
                   Icon={CiEdit}
                   iconSize={30}
@@ -265,7 +260,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
               <div className="p-1">
                 <ButtonTable
                   titleButton={"Alterar Desconto Autorizado"}
-                  // textButton={"Alterar Desconto"}
                   onClickButton={() => handleClickDesconto(row)}
                   Icon={MdOutlineAttachMoney}
                   iconSize={30}
@@ -279,7 +273,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
               <div className="p-1">
                 <ButtonTable
                   titleButton={"Inativar"}
-                  // textButton={"Inativar"}
                   onClickButton={() => handleAtivarFuncionario(row, false)}
                   Icon={FaUserAltSlash}
                   iconSize={30}
@@ -293,7 +286,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
               <div className="p-1">
                 <ButtonTable
                   titleButton={"Desligar"}
-                  // textButton={"Desligar"}
                   onClickButton={() => handleDesligarFuncionario(row)}
                   Icon={FaUserTimes}
                   iconSize={30}
@@ -307,7 +299,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
 
             </div>
           )
-
         } else {
           return (
             <div className="p-1">
@@ -333,7 +324,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
 
   ]
 
-
   const handleEdit = async (IDFUNCIONARIO) => {
     try {
       const response = await get(`/funcionarios-loja?byId=${IDFUNCIONARIO}`)
@@ -346,7 +336,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       console.error('Erro ao buscar detalhes da venda: ', error);
     }
   };
-
 
   const handleClickEdit = (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
@@ -416,7 +405,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         </div>
         <div className="card" ref={dataTableRef}>
 
-
           <DataTable
             title="Lista de Funcionários"
             value={dados}
@@ -455,19 +443,19 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         </div>
       </div>
 
-
       <ActionEditarFuncionario
         show={modalAlterarFuncionarioVisivel}
         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
         dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
         handleClick={handleClick}
+        refetch={refetch}
       />
+
       {/* <ActionUpdateFuncionarioModal
         show={modalAlterarFuncionarioVisivel}
         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
         dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
       /> */}
-
 
       <ActionUpdateDescontoFuncionarioModal
         show={modalDescontoVisivel}

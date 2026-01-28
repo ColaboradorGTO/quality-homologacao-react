@@ -2,14 +2,13 @@ import Swal from "sweetalert2";
 import { get, post, put } from "../../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getDataAtual } from "../../../../../utils/dataAtual";
 import axios from 'axios';
 import { Funcoes } from '../../../../../../tipoFuncao.json';
 import { Parceiro, situacao, localizacao } from '../../../../../../parceiro.json';
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 
-export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, handleClick }) => {
+
+export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, handleClick, refetch }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [subGrupoEmpresarialSelecionado, setSubGrupoEmpresarialSelecionado] = useState('');
   const [funcaoSelecionada, setFuncaoSelecionada] = useState('');
@@ -34,13 +33,6 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
   const [repitaSenha, setRepitaSenha] = useState('')
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
-
-  const navigate = useNavigate();
-
-  /*   useEffect(() => {
-      const dataAtual = getDataAtual()
-      setDataAdmissao(dataAtual)
-    }, []) */
 
   useEffect(() => {
     const usuarioArmazenado = localStorage.getItem('usuario');
@@ -80,7 +72,6 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
     { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
-
   useEffect(() => {
 
     if (dadosAtualizarFuncionarios[0]) {
@@ -110,10 +101,7 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
       setCPF(dadosAtualizarFuncionarios[0].NUCPF);
     }
 
-
   }, [dadosAtualizarFuncionarios]);
-
-
 
   const handleRadioChange = (event) => {
     const { id } = event.target;
@@ -123,7 +111,6 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
       setCategoriaContratacao('PJ');
     }
   };
-
 
   const loginConfirmacao = async () => {
     setFormularioVisivelLogin(true);
@@ -172,9 +159,8 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
     }
 
     const cpfSemMascara = removerMascaraCPF(cpf);
-
-
     const funcao = usuarioLogado?.DSFUNCAO;
+
     if (funcao !== 'TI') {
       Swal.fire({
         title: 'Acesso Negado',
@@ -307,7 +293,6 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
       return;
     }
 
-
     if (parseFloat(valorDesconto) > 50) {
       Swal.fire({
         title: 'Desconto maior que permitido',
@@ -320,7 +305,6 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
       })
       return;
     }
-
 
     const putData = {
       DATA_ADMISSAO: String(dataAdmissao),
@@ -349,9 +333,6 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
     try {
 
       const response = await put('/funcionarios-loja/:id', putData);
-
-
-
       const textDados = JSON.stringify(putData)
       const textoFuncao = 'RH/ATUALIZAÇÃO DE FUNCIONARIO';
 
@@ -374,7 +355,7 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
           container: 'custom-swal',
         }
       })
-
+      refetch();
       handleClose();
       return responsePost.data;
     } catch (error) {
