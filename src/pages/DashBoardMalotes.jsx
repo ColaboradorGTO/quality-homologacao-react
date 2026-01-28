@@ -66,7 +66,7 @@ export const DashBoardMalotes = ({ }) => {
 
 
   let component = null;
-
+  
   switch (componentToShow) {
    
     case "/malotes/ActionPesquisaRecebimentoMalote":
@@ -102,7 +102,7 @@ export const DashBoardMalotes = ({ }) => {
                             <Suspense fallback={<div>Loading...</div>}>
                               {resumoVisivel && !componentToShow && (
                            
-                               <ActionPesquisaRecebimentoMalote />         
+                               <ActionPesquisaRecebimentoMalote usuarioLogado={usuarioLogado} ID={ID}/>         
                               )} 
                               {componentToShow && component}
                             </Suspense>
