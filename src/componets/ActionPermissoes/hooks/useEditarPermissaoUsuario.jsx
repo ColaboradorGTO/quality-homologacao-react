@@ -143,7 +143,7 @@ export const useEditarPermissaoUsuario = () => {
 
   try {
     const responseMenusUsuario = await get(`/menus-usuario?idUsuario=${funcionarioSelecionado.value}`);
-    console.log(funcionarioSelecionado.value, 'funcionarioSelecionado.value');
+   
     const menusExistentes = responseMenusUsuario.data || [];
     
     const menuFilhoExistentes = [];

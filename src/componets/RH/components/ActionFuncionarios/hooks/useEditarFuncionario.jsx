@@ -414,8 +414,6 @@ export const useEditarFuncionario = ({
     setCPF,
     ipUsuario,
     setIpUsuario,
-    usuarioLogado,
-    setUsuarioLogado,
     excecao,
     setExcecao,
     formularioVisivelLogin,
