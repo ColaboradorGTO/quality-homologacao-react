@@ -7,9 +7,16 @@ export const schema = yup.object().shape({
     .required('Desconto Obrigatório'),
 
     descontoAutorizado: yup
-        .number()
+        .string()
+        .transform((value) => {
+            if (typeof value === 'string') {
+                return value === '' ? null : Number(value);
+            }
+            return value;
+        })
         .typeError('Desconto é obrigatorio')
-        .nullable(),
+        .max(50, 'Desconto não pode ser maior que 50%')
+        .required('Desconto é obrigatório'),
 
     
     dataIncio: yup

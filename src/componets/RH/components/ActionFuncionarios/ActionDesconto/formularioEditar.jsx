@@ -5,9 +5,10 @@ import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { Controller, useForm } from "react-hook-form";
 import { AlertError } from "../../../../Inputs/alertError";
 import FormField from "../../../../Formularios/FormField";
-import { schema } from "./schamaValidarFuncionario";
-import Swal from "sweetalert2";
+
 import { useEditarDescontoFuncionario } from "../hooks/useDescontoFuncionario";
+// import { schema } from "./schemaUpdateDesconto";
+
 export const FormularioEditar = ({
     handleClose,
     dadosDescontoFuncionarios,
@@ -52,7 +53,7 @@ export const FormularioEditar = ({
 
             };
 
-            await schema.validate(dadosParaValidar, { abortEarly: false });
+            // await schema.validate(dadosParaValidar, { abortEarly: false });
             onSubmit();
         } catch (validationError) {
             console.error('❌ Erro de validação:', validationError);
@@ -86,15 +87,22 @@ export const FormularioEditar = ({
                     <div className="form-group">
                         <div className="row">
                             <div className="col-sm-6 col-xl-12">
+                                <Controller
+                                    name="empresaFuncionario"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormField
+                                            name="empresaFuncionario"
+                                            label={"Empresa"}
+                                            type="text"
+                                            errors={errors}
+                                            clearErrors={clearErrors}
+                                            value={empresa}
+                                            onChangeModal={e => setEmpresa(e.target.value)}
+                                            readOnly={true}
+                                        />
 
-                                <InputFieldModal
-                                    type="text"
-                                    className="form-control input"
-                                    readOnly={true}
-                                    label="Empresa"
-                                    value={empresa}
-                                    onChangeModal={(e) => setEmpresa(e.target.value)}
-
+                                    )}
                                 />
                             </div>
                         </div>
@@ -102,27 +110,40 @@ export const FormularioEditar = ({
                     <div className="form-group">
                         <div className="row">
                             <div className="col-sm-4 col-xl-4">
+                                <Controller
+                                    name="cpfFuncionario"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormField
+                                            name="cpfFuncionario"
+                                            label={"CPF"}
+                                            type="text"
+                                            errors={errors}
+                                            clearErrors={clearErrors}
+                                            value={cpf}
+                                            onChangeModal={e => setCpf(e.target.value)}
+                                            readOnly={true}
+                                        />
 
-
-                                <InputFieldModal
-                                    type="text"
-                                    className="form-control input"
-                                    readOnly={true}
-                                    label="CPF"
-                                    value={cpf}
-                                    onChangeModa={(e) => setCpf(e.target.value)}
-
+                                    )}
                                 />
                             </div>
                             <div className="col-sm-8 col-xl-8">
-                                <InputFieldModal
-                                    type="text"
-                                    className="form-control input"
-                                    readOnly={true}
-                                    label="Funcionário"
-                                    value={funcionario}
-                                    onChangeModal={(e) => setFuncionario(e.target.value)}
-
+                                <Controller
+                                    name="nomeFuncionario"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormField
+                                            name="nomeFuncionario"
+                                            label={"Funcionário"}
+                                            type="text"
+                                            errors={errors}
+                                            clearErrors={clearErrors}
+                                            value={funcionario}
+                                            onChangeModal={e => setFuncionario(e.target.value)}
+                                            readOnly={true}
+                                        />
+                                    )}
                                 />
                             </div>
                         </div>
@@ -130,62 +151,90 @@ export const FormularioEditar = ({
                     <div className="form-group">
                         <div className="row">
                             <div className="col-sm-12 col-xl-12">
-                                <InputFieldModal
-                                    type="text"
-                                    className="form-control input"
-                                    label="Motivo do Desconto"
-                                    value={motivoDesconto}
-                                    onChangeModal={(e) => setMotivoDesconto(e.target.value)}
-
+                                <Controller
+                                    name="motivoDescontoFuncionario"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormField
+                                            name="motivoDescontoFuncionario"
+                                            label={"Motivo do Desconto"}
+                                            type="text"
+                                            errors={errors}
+                                            clearErrors={clearErrors}
+                                            value={motivoDesconto}
+                                            onChangeModal={e => setMotivoDesconto(e.target.value)}
+                                            
+                                        />
+                                    )}
                                 />
+
                             </div>
                         </div>
                     </div>
                     <div className="form-group">
                         <div className="row">
                             <div className="col-sm-3 col-md-4 col-xl-4">
-
-                                <InputFieldModal
-                                    type="text"
-                                    className="form-control input"
-                                    label="% Desconto Autorizado"
-                                    value={percentualDesconto}
-                                    onChangeModal={(e) => {
-                                        const valor = e.target.value.replace(".", "").replace(",", ".");
-                                        setPercentualDesconto(valor);
-                                    }}
-
-                                // onChangeModal={handleChangeValor}
-
-
+                                <Controller
+                                    name="descontoAutorizado"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormField
+                                            name="descontoAutorizado"
+                                            label={"% Desconto Autorizado"}
+                                            type="text"
+                                            errors={errors}
+                                            clearErrors={clearErrors}
+                                            value={percentualDesconto}
+                                            onChangeModal={(e) => {
+                                                const valor = e.target.value.replace(".", "").replace(",", ".");
+                                                setPercentualDesconto(valor);
+                                            }}
+                                            
+                                        />
+                                    )}
                                 />
                             </div>
                             <div className="col-sm-3 col-md-4 col-xl-4">
-
-                                <InputFieldModal
-                                    type="date"
-                                    className="form-control input"
-                                    label="Início Desconto"
-                                    value={dataInicioDesconto}
-                                    onChangeModal={(e) => setDataInicioDesconto(e.target.value)}
-
+                                <Controller
+                                    name="dataInicioDesconto"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormField
+                                            name="dataInicioDesconto"
+                                            label={"Início Desconto"}
+                                            type="date"
+                                            errors={errors}
+                                            clearErrors={clearErrors}
+                                            value={dataInicioDesconto}
+                                            onChangeModal={(e) => setDataInicioDesconto(e.target.value)}
+                                            
+                                        />
+                                    )}
                                 />
                             </div>
                             <div className="col-sm-3 col-md-4 col-xl-4">
-
-                                <InputFieldModal
-                                    type="date"
-                                    className="form-control input"
-                                    label="Fim Desconto"
-                                    value={dataFimDesconto}
-                                    onChangeModal={(e) => setDataFimDesconto(e.target.value)}
-
+                                <Controller
+                                    name="dataFimDesconto"
+                                    control={control}
+                                    render={({ field }) => (
+                                        <FormField
+                                            name="dataFimDesconto"
+                                            label={"Fim Desconto"}
+                                            type="date"
+                                            errors={errors}
+                                            clearErrors={clearErrors}
+                                            value={dataFimDesconto}
+                                            onChangeModal={(e) => setDataFimDesconto(e.target.value)}
+                                            
+                                        />
+                                    )}
                                 />
                             </div>
                         </div>
                     </div>
 
                 </form>
+
                 <FooterModal
                     ButtonTypeFechar={ButtonTypeModal}
                     textButtonFechar={"Fechar"}
@@ -199,9 +248,6 @@ export const FormularioEditar = ({
 
                 />
             </Fragment>
-
-
-
         </Fragment>
     )
 }

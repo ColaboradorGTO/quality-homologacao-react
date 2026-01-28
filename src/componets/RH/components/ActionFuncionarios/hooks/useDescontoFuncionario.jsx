@@ -20,7 +20,6 @@ export const useEditarDescontoFuncionario = ({
     const [percentualDesconto, setPercentualDesconto] = useState('');
     const [dataInicioDesconto, setDataInicioDesconto] = useState('');
     const [dataFimDesconto, setDataFimDesconto] = useState('');
-    const [usuarioLogado, setUsuarioLogado] = useState(null)
     const [ipUsuario, setIpUsuario] = useState('')
 
     const getIPUsuario = async () => {

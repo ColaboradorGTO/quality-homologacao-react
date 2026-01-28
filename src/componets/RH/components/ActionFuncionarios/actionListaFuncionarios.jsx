@@ -7,7 +7,6 @@ import { Column } from 'primereact/column';
 import { CiEdit } from "react-icons/ci";
 import { MdOutlineAttachMoney } from "react-icons/md";
 import { FaUserAltSlash, FaUserTimes } from "react-icons/fa";
-import { ActionUpdateDescontoFuncionarioModal } from "./actionUpdateDescontoFuncionarioModal";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -21,6 +20,7 @@ import { FaCheck } from "react-icons/fa6";
 import { ActionEditarFuncionario } from "./ActionEditar/actionEditarFuncionario";
 import { useDesligarFuncionario } from "./hooks/useDesligarFuncionario";
 import { useAtivarFuncionario } from "./hooks/useAtivarFuncionario";
+import { ActionEditarDescontoFuncionarioModal } from "./ActionDesconto/actionEditarDescontoFuncionarioModal";
 
 export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usuarioLogado, handleClick, refetch }) => {
   const [modalAlterarFuncionarioVisivel, setModalAlterarFuncionarioVisivel] = useState(false);
@@ -453,7 +453,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         refetch={refetch}
       />
 
-      <ActionUpdateDescontoFuncionarioModal
+      <ActionEditarDescontoFuncionarioModal
         show={modalDescontoVisivel}
         handleClose={() => setModalDescontoVisivel(false)}
         dadosDescontoFuncionarios={dadosDescontoFuncionarios}
