@@ -14,17 +14,25 @@ export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLog
   }, [])
 
   const getIPUsuario = async () => {
-    try {
-      const response = await axios.get('https://api.ipify.org?format=json9');
-      if (response.data && response.data.ip) {
-        return response.data.ip;
-      }
-      throw new Error("Resposta inválida do ipfy.org");
-    } catch (error) {
-      const responseIP2 = await axios.get('https://api.ipwho.org/me');
-      return responseIP2.data?.data?.ip;
+    let usuarioIP = null;
 
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
 
   const handleDesligarFuncionario = async (row) => {

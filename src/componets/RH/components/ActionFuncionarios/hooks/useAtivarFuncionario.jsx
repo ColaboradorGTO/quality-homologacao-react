@@ -7,115 +7,123 @@ import axios from 'axios';
 export const useAtivarFuncionario = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
   const [ipUsuario, setIpUsuario] = useState('');
   const [dataAdmissao, setDataAdmissao] = useState('');
- 
+
   useEffect(() => {
     const dataAtual = getDataHoraAtual()
     setDataAdmissao(dataAtual)
   }, [])
 
   const getIPUsuario = async () => {
+    let usuarioIP = null;
+
     try {
-      const response = await axios.get('https://api.ipify.org?format=json9');
-      if (response.data && response.data.ip) {
-        return response.data.ip;
-      }
-      throw new Error("Resposta inválida do ipfy.org");
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
     } catch (error) {
-      const responseIP2 = await axios.get('https://api.ipwho.org/me');
-      return responseIP2.data?.data?.ip;
-      
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
 
   const handleAtivarFuncionario = async (row, status) => {
-    console.log(row, 'row');
-   
-      if(optionsModulos[0]?.ALTERAR == 'False') {
-        Swal.fire({
-          title: 'Acesso Negado',
-          text: 'Você não tem permissão para acessar esta funcionalidade.',
-          icon: 'warning',
-          timer: 3000,
-          customClass: {
-            container: 'custom-swal',
-          }
-        })
-        return;
+
+    if (optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        title: 'Acesso Negado',
+        text: 'Você não tem permissão para acessar esta funcionalidade.',
+        icon: 'warning',
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+      return;
+    }
+    const putData = {
+      DATAULTIMAALTERACAO: dataAdmissao,
+      STATIVO: status ? 'True' : 'False',
+      DATA_DEMISSAO: '',
+      ID: Number(row.ID)
+    }
+    try {
+      const response = await put('/inativar-funcionario', putData)
+
+
+      Swal.fire({
+        title: 'Atualização',
+        text: 'Atualizção Realizada com Sucesso',
+        icon: 'success',
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+
+      const textDados = JSON.stringify(putData)
+      let status = putData.STATIVO;
+      let textoFuncao;
+      if (status === 'True') {
+        textoFuncao = 'RH/ATIVA DESLIGAMENTO DE FUNCIONARIO';
+      } else {
+        textoFuncao = 'RH/DESLIGAMENTO DE FUNCIONARIO';
       }
+      const ipUsuario = await getIPUsuario();
+
+      const createData = {
+        IDFUNCIONARIO: String(usuarioLogado.id),
+        PATHFUNCAO: textoFuncao,
+        DADOS: textDados,
+        IP: ipUsuario || ""
+      }
+
+      await post('/log-web', createData)
+
+      handleClick()
+      return response.data;
+    } catch (error) {
+
       const putData = {
         DATAULTIMAALTERACAO: dataAdmissao,
         STATIVO: status ? 'True' : 'False',
         DATA_DEMISSAO: '',
         ID: Number(row.ID)
       }
-      try {
-        const response = await put('/inativar-funcionario', putData)
-        
-  
-        Swal.fire({
-          title: 'Atualização',
-          text: 'Atualizção Realizada com Sucesso',
-          icon: 'success',
-          timer: 3000,
-          customClass: {
-            container: 'custom-swal',
-          }
-        })
-  
-        const textDados = JSON.stringify(putData)
-        let status = putData.STATIVO;
-        let textoFuncao;
-        if(status === 'True'){
-          textoFuncao = 'RH/ATIVA DESLIGAMENTO DE FUNCIONARIO';
-        } else {
-          textoFuncao = 'RH/DESLIGAMENTO DE FUNCIONARIO';
-        }
-         const ipUsuario = await getIPUsuario();
+      const textDados = JSON.stringify(putData)
+      const ipUsuario = await getIPUsuario();
 
-        const createData = {
-          IDFUNCIONARIO: String(usuarioLogado.id),
-          PATHFUNCAO: textoFuncao,
-          DADOS: textDados,
-          IP: ipUsuario || ""
-        }
-    
-        const responsePost = await post('/log-web', createData)
-    
-        handleClick()
-        return responsePost.data;
-      } catch (error) {
-
-          const putData = {
-            DATAULTIMAALTERACAO: dataAdmissao,
-            STATIVO: status ? 'True' : 'False',
-            DATA_DEMISSAO: '',
-            ID: Number(row.ID)
-          }
-          const response = await put('/inativar-funcionario', putData)
-           const ipUsuario = await getIPUsuario();
-
-           const createData = {
-            IDFUNCIONARIO: String(usuarioLogado.id),
-            PATHFUNCAO: textoFuncao,
-            DADOS: textDados,
-            IP: ipUsuario || ""
-          }
-    
-        const responsePost = await post('/log-web', createData)
-
-        Swal.fire({
-          title: 'Erro ao Atualizar',
-          text: 'Erro ao Tentar Atualizar',
-          icon: 'error',
-          timer: 3000,
-          customClass: {
-            container: 'custom-swal',
-          }
-        })
-        console.error('Erro ao parsear o usuário do localStorage:', error);
+      const createData = {
+        IDFUNCIONARIO: String(usuarioLogado.id),
+        PATHFUNCAO: textoFuncao,
+        DADOS: textDados,
+        IP: ipUsuario || ""
       }
+
+      const responsePost = await post('/log-web', createData)
+
+      Swal.fire({
+        title: 'Erro ao Atualizar',
+        text: 'Erro ao Tentar Atualizar',
+        icon: 'error',
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+      console.error('Erro ao parsear o usuário do localStorage:', error);
+      return responsePost.data;
     }
-    
+  }
+
   return {
     handleAtivarFuncionario
   }
