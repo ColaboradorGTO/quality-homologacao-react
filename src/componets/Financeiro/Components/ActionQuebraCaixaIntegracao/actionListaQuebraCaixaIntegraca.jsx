@@ -15,12 +15,12 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 import Swal from "sweetalert2";
 import { useConferirQuebra } from "./hooks/useConferirQuebra";
 import { toFloat } from "../../../../utils/toFloat";
 import { GrView } from "react-icons/gr";
 import { mascaraCPF } from "../../../../utils/formatCPF";
+import { useCancelar } from "./hooks/useCancelarQuebraCaixa";
 
 
 export const ActionListaQuebraCaixaIntegracao = ({ 
@@ -43,7 +43,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
 
   const {
     handleCancelar
-  } = useAtivarCancelar({ usuarioLogado, optionsModulos, handleClick });
+  } = useCancelar({ usuarioLogado, optionsModulos, handleClick });
 
   const {
     conferir

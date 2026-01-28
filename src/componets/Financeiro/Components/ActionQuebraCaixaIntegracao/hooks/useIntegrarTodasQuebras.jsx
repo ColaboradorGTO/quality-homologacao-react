@@ -76,7 +76,6 @@ export const useConferirTodasQuebras = ({
                         const rowData = selectedItems[i];
                         const putData = {   
                             IDQUEBRACAIXA: Number(rowData.IDQUEBRACAIXA),
-                            STCONFERIDO: 'True',
                             IDFUNCIONARIO: Number(usuarioLogado.id),
                         }
 
@@ -85,7 +84,7 @@ export const useConferirTodasQuebras = ({
                         const ipUsuario = await getIPUsuario();
                         const postData = {
                             IDFUNCIONARIO: String(usuarioLogado.id),
-                            PATHFUNCAO: `FINANCEIRO/CONFIRMAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
+                            PATHFUNCAO: `FINANCEIRO/INTEGRAR TODAS QUEBRAS DE CAIXA SELECIONADAS`,
                             DADOS: textDados,
                             IP: ipUsuario
                         }

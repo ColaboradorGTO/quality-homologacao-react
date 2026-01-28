@@ -3,9 +3,9 @@ import { useState } from "react";
 import { post, put } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 
-export const useAtivarCancelar = ({ usuarioLogado, optionsModulos, handleClick }) => {
+export const useCancelar = ({ usuarioLogado, optionsModulos, handleClick }) => {
   const [ipUsuario, setIpUsuario] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
 
   const getIPUsuario = async () => {
     let usuarioIP = null;
@@ -85,7 +85,7 @@ export const useAtivarCancelar = ({ usuarioLogado, optionsModulos, handleClick }
 
         try {
 
-          const response = await post('/adiantamentos-salariais-integracao', putData)
+          const response = await put('/quebra-caixa-conferencia/:id', putData)
           const textDados = JSON.stringify(putData)
           const ipUsuario = await getIPUsuario();
           const postData = {
