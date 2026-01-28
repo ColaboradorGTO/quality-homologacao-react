@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { post, put } from "../../../../../api/funcRequest";
+import { post } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems, handleClick}) => {
+export const useIntegrarQuebra = ({optionsModulos, usuarioLogado, selectedItems, handleClick}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
@@ -28,9 +28,7 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
         return usuarioIP;
     };
 
-    console.log(selectedItems, 'selectedItems no useConferirQuebra');
-
-    const conferir = async (data) => {
+    const useIntegrarQuebra = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
@@ -46,7 +44,7 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
         }
 
         Swal.fire({
-            title: 'Deseja confirmar a conferência da Quebra de Caixa?',
+            title: 'Deseja confirmar a Integração da Quebra de Caixa?',
             text: 'Você não poderá reverter esta ação!',
             icon: 'warning',
             showCancelButton: true,
@@ -75,12 +73,12 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
         
                 try {
         
-                    const response = await put('/quebra-caixa-conferencia/:id', putData)
+                    const response = await post('/quebras-de-caixas-integracao', putData)
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/CONFERIR QUEBRA DE CAIXA SELECIONADA`,
+                        PATHFUNCAO: `FINANCEIRO/INTEGRAR QUEBRA DE CAIXA SELECIONADA`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -104,7 +102,7 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/ERRO AO CONFERIR QUEBRA DE CAIXA SELECIONADA`,
+                        PATHFUNCAO: `FINANCEIRO/ERRO AO INTEGRAR QUEBRA DE CAIXA SELECIONADA`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -115,14 +113,14 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
                     Swal.fire({
                         position: 'center',
                         icon: 'error',
-                        title: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.',
+                        title: 'Ocorreu um erro ao integrar a Quebra de Caixa selecionada. Por favor, tente novamente.',
                         showConfirmButton: false,
                         timer: 3000,
                         customClass: {
                             container: 'custom-swal', 
                         },
                     });
-                    console.error('Erro Conferir Quebra de Caixa:', error);
+                    console.error('Erro Integrar Quebra de Caixa:', error);
                     return responsePost.data;
                 }
             } else {
@@ -134,6 +132,6 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
 
     
     return {
-        conferir,
+        useIntegrarQuebra,
     }
 }

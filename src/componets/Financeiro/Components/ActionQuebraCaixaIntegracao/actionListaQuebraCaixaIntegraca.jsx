@@ -6,10 +6,7 @@ import { Row } from "primereact/row";
 import { Checkbox } from "primereact/checkbox";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { formatMoeda } from "../../../../utils/formatMoeda";
-import { MdOutlineLocalPrintshop } from "react-icons/md";
-import { FaCheck, FaCloudUploadAlt, FaRegTrashAlt } from "react-icons/fa";
-import { get, } from "../../../../api/funcRequest";
-import { ModalImprimirQuebra } from "../../Components/ModalImprimirQuebra";
+import { FaCloudUploadAlt, FaRegTrashAlt } from "react-icons/fa";
 import HeaderTable from "../../../Tables/headerTable";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
@@ -33,8 +30,6 @@ export const ActionListaQuebraCaixaIntegracao = ({
   btnVisivel,
   setBtnVisivel 
 }) => {
-  const [modalVisivel, setModalVisivel] = useState(false);
-  const [dadosQuebraCaixasModal, setDadosQuebraCaixasModal] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const [selectAllChecked, setSelectAllChecked] = useState(false);
@@ -49,6 +44,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
   const {
     conferir
   } = useConferirQuebra({ optionsModulos, usuarioLogado, selectedItems, handleClick }); 
+  
   const formatarComSinal = (valor) => {
     const sinal = valor < 0 ? ' - ' : valor > 0 ? ' + ' : '';
     return sinal + formatMoeda(Math.abs(valor)); 
@@ -181,12 +177,12 @@ export const ActionListaQuebraCaixaIntegracao = ({
 
   useEffect(() => {
     const itensSelecionaveis = dados.filter(item =>
-      item.stMigrado && item.stEmAndamento && item.IDQUEBRACAIXA
+      !item.stMigrado && !item.stEmAndamento && item.IDQUEBRACAIXA
     );
 
     const dadosPaginaAtual = dados.slice(first, first + rows);
     const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
-      item.stMigrado && item.stEmAndamento && item.IDQUEBRACAIXA
+      !item.stMigrado && !item.stEmAndamento && item.IDQUEBRACAIXA
     );
 
     if (selectedItems.length === 0) {
@@ -205,7 +201,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
     }
     
   }, [selectedItems, dados, first, rows]);
-
+  //  01974101622
   const onSelectAllChange = (e) => {
     if (e.checked) {
      
@@ -223,7 +219,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
       }).then((result) => {
         if (result.isConfirmed) {
           const itensSelecionaveis = dados.filter(item =>
-            item.stMigrado && item.stEmAndamento && item.IDQUEBRACAIXA
+            !item.stMigrado && !item.stEmAndamento && item.IDQUEBRACAIXA
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveis]);
@@ -231,7 +227,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
           const dadosPaginaAtual = dados.slice(first, first + rows);
 
           const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item =>
-            item.stMigrado && item.stEmAndamento && item.IDQUEBRACAIXA
+            !item.stMigrado && !item.stEmAndamento && item.IDQUEBRACAIXA
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveisPaginaAtual]);
@@ -439,37 +435,6 @@ export const ActionListaQuebraCaixaIntegracao = ({
     },
   ]
 
-  const handleImprimir = async (IDQUEBRACAIXA) => {
-    try {
-      const response = await get(`/quebra-caixa?idQuebraCaixa=${IDQUEBRACAIXA}`);
-      if (response.data && response.data.length > 0) {
-        setDadosQuebraCaixasModal(response.data);
-        setModalVisivel(true);
-      } else {
-        Swal.fire({
-          position: 'center',
-          icon: 'error',
-          title: 'Erro ao buscar dados!',
-          text: 'Nenhum dado encontrado para esta quebra de caixa.',
-          showConfirmButton: false,
-          timer: 1500,
-          customClass: {
-            container: 'custom-swal',
-          }
-        })
-        return;
-      }
-    } catch (error) {
-      console.error('Erro ao buscar detalhes da quebra de caixa: ', error);
-    }
-  };
-
-  const handleClickImprimir = (row) => {
-    if (row && row.IDQUEBRACAIXA) {
-      handleImprimir(row.IDQUEBRACAIXA);
-    }
-  };
-
   const handleClickCancelar = (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDQUEBRACAIXA) {
@@ -554,7 +519,7 @@ export const ActionListaQuebraCaixaIntegracao = ({
             selectionMode="single"
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
-            // footerColumnGroup={footerGroup}
+            footerColumnGroup={footerGroup}
             sortOrder={-1}
             paginator={true}
             rows={10}
@@ -584,13 +549,6 @@ export const ActionListaQuebraCaixaIntegracao = ({
           </DataTable>
         </div>
       </div>
-
-
-      <ModalImprimirQuebra
-        show={modalVisivel}
-        handleClose={() => setModalVisivel(false)}
-        dadosQuebraCaixasModal={dadosQuebraCaixasModal}
-      />
     </Fragment>
   )
 }
