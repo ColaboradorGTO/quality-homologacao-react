@@ -425,7 +425,6 @@ export const ActionPesquisaQuebraCaixaIntegracao = ({usuarioLogado, ID}) => {
 
       <div>
         {tabelaVisivelPositiva && (
-
           <ActionListaQuebraPositivaCaixaIntegracao 
             dadosQuebraDeCaixaPositiva={dadosQuebraDeCaixaPositiva} 
             optionsModulos={optionsModulos}
