@@ -1,11 +1,8 @@
-import Swal from "sweetalert2";
-import { get, post, put } from "../../../../../api/funcRequest";
-import { useQuery } from "react-query";
 import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import axios from 'axios';
-import { Funcoes } from '../../../../../../tipoFuncao.json';
-import { Parceiro, situacao, localizacao } from '../../../../../../parceiro.json';
-import { removerMascaraCPF } from "../../../../../utils/formatCPF";
+import { post, put } from "../../../../../api/funcRequest";
+import { getDataAtual } from "../../../../../utils/dataAtual";
 
 
 export const useEditarDescontoFuncionario = ({
@@ -44,7 +41,13 @@ export const useEditarDescontoFuncionario = ({
         }
     };
 
-     useEffect(() => {
+    useEffect(() => {
+        const dataAtual = getDataAtual();
+        setDataInicioDesconto(dataAtual);
+        setDataFimDesconto(dataAtual);
+    }, [])
+
+    useEffect(() => {
         if (dadosDescontoFuncionarios) {
             setEmpresa(dadosDescontoFuncionarios[0]?.NOFANTASIA);
             setCpf(dadosDescontoFuncionarios[0]?.NUCPF);

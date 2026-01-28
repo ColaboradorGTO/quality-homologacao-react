@@ -113,9 +113,8 @@ export const ActionPesquisaFuncionarios = ({ usuarioLogado, ID }) => {
 
   const handleClick = () => {
     setCpfFiltro(cpfInput);
-    setCurrentPage(prevPage => prevPage + 1);
     setTabelaVisivel(true);
-    refetch(empresaSelecionada);
+    refetch();
   }
 
   return (
