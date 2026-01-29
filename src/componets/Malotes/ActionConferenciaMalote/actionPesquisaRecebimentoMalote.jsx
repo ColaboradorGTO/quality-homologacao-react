@@ -138,7 +138,7 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID }) => {
                 InputSelectSubGrupoComponent={InputSelectAction}
                 labelSelectSubGrupo={"Status"}
                 optionsSubGrupos={[
-                    { value: '', label: 'Selecione...' },
+                   
                     ...optionsStatus.map((item) => ({
                         value: item.value,
                         label: item.label,
