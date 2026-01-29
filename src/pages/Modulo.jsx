@@ -32,19 +32,15 @@ export const Modulo = ({usuarioLogado}) => {
   const { handleLogout, usuario } = useAuth();
   const [selectedModule, setSelectedModule] = useState(null)
 
-  
-  // console.log(usuarioLogado, 'usuarioLogado')
-  // const { data: optionsModulos = [] } = useFetchData('modulos', `/modulos?idUsuario=${usuarioLogado?.id}`);
-    console.log(usuarioLogado, 'usuarioLogado')
-    const { data: optionsModulos = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
-      'modulos',
-      async () => {
-        const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}`);
-        
-        return response.data;
-      },
-      { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
-    );
+  const { data: optionsModulos = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
+    'modulos',
+    async () => {
+      const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}`);
+      
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
+  );
 
 
   useEffect(() => {

@@ -11,14 +11,13 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   // Recupera usuário do localStorage ao carregar a aplicação
-  useEffect(() => {
-    const usuarioStorage = localStorage.getItem('usuario');
-    if (usuarioStorage) {
-      const usuarioObj = JSON.parse(usuarioStorage);
-
-    }
-    setLoading(false);
-  }, []);
+  // useEffect(() => {
+  //   const usuarioStorage = localStorage.getItem('usuario');
+  //   if (usuarioStorage) {
+  //     const usuarioObj = JSON.parse(usuarioStorage);
+  //   }
+  //   setLoading(false);
+  // }, []);
 
   const handleSenhaChange = (e) => {
     setSenha(e.target.value);

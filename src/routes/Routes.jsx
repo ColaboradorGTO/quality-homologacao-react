@@ -48,7 +48,7 @@ export const RoutesMain = () => {
   return (
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/modulo" element={usuarioLogado ? <ModuloTeste usuarioLogado={usuarioLogado} /> : <Navigate to="/"  />} />
+        <Route path="/modulo" element={usuarioLogado ? <ModuloTeste  /> : <Navigate to="/"  />} />
         <Route path="/DashBoardFinanceiro" element={<DashBoardFinanceiro componentToShow={componentToShow} handleShowComponent={handleShowComponent}   />  } />
         <Route path="/DashBoardAdministrativo" element={<DashBoardAdministrativo componentToShow={componentToShow} handleShowComponent={handleShowComponent}  />  } />
         <Route path="/DashBoardGerencia" element={<DashBoardGerencia componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />

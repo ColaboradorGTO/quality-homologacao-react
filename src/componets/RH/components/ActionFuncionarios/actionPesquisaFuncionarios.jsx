@@ -18,8 +18,6 @@ export const ActionPesquisaFuncionarios = ({ usuarioLogado, ID }) => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [cpfInput, setCpfInput] = useState("");
   const [cpfFiltro, setCpfFiltro] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
   const [modalCadastro, setModalCadastro] = useState(false);
 
 
@@ -29,7 +27,7 @@ export const ActionPesquisaFuncionarios = ({ usuarioLogado, ID }) => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
   );
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
@@ -40,7 +38,7 @@ export const ActionPesquisaFuncionarios = ({ usuarioLogado, ID }) => {
       return response.data;
     },
     {
-      staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000
+      staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000
     }
   );
 

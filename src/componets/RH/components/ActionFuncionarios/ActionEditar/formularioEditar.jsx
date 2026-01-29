@@ -104,7 +104,7 @@ export const FormularioEditar = ({
         telefoneFuncionario: telefone,
         departamentoFuncionario: departamentoSelecionado
       };
-
+      console.log('Dados para validação:', dadosParaValidar);
       await schema.validate(dadosParaValidar, { abortEarly: false });
       onSubmit();
     } catch (validationError) {

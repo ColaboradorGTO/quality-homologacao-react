@@ -230,7 +230,7 @@ export const ActionPesquisaMapaCaixa = () => {
   const fetchListaDetalheFatura = async () => {
 
     try {
-      const urlApi = `/detalhe-faturas?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+      const urlApi = `/detalhe-fatura-financeiro?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
       const response = await get(urlApi);
 
       if (response.data.length && response.data.length === pageSize) {
@@ -269,7 +269,7 @@ export const ActionPesquisaMapaCaixa = () => {
   }
 
   const { data: dadosDetalheFatura = [], error: erroFatura, isLoading: isLoadingFatura, refetch: refetchListaDetalheFatura } = useQuery(
-    'detalhe-faturas',
+    'detalhe-fatura-financeiro',
     () => fetchListaDetalheFatura(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   );

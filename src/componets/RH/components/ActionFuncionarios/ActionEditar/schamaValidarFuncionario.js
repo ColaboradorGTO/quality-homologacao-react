@@ -66,9 +66,9 @@ export const schema = yup.object({
     .typeError('Situação Obrigatória'),
 
 
-  cpf: yup.string()
-    .required('CPF Obrigatório')
-    .matches(/^\d{11}$/, 'CPF deve conter exatamente 11 números'),
+  // cpf: yup.string()
+  //   .required('CPF Obrigatório')
+  //   .matches(/^\d{11}$/, 'CPF deve conter exatamente 11 números'),
 
   telefoneFuncionario: yup.string()
     .transform((value) => {
