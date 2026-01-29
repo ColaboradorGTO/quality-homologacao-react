@@ -7,6 +7,7 @@ import axios from 'axios';
 import { Funcoes } from '../../../../../../tipoFuncao.json';
 import { Parceiro, situacao, localizacao } from '../../../../../../parceiro.json';
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
+import { set } from "date-fns";
 
 
 export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos, refetch }) => {
@@ -25,15 +26,17 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
   const [isChecked, setIsChecked] = useState(false);;
   const [cpf, setCPF] = useState('');
   const [ipUsuario, setIpUsuario] = useState('');
-  const [funcionarioExistente, setFuncionarioExistente] = useState([]);
+  // const [funcionarioExistente, setFuncionarioExistente] = useState([]);
   const [excecao, setExcecao] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [usuarioAutorizado, setUsuarioAutorizado] = useState(null);
+  const [idFuncionario, setIdFuncionario] = useState(null);
   const [formularioVisivelLogin, setFormularioVisivelLogin] = useState(false);
   const [formularioVisivel, setFormularioVisivel] = useState(true);
   const [usuario, setUsuario] = useState('')
   const [senha, setSenha] = useState('')
   const [repitaSenha, setRepitaSenha] = useState('')
+  const [noLogin, setNoLogin] = useState('')
+  const [idPerfil, setIdPerfil] = useState('')
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
 
@@ -68,17 +71,17 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     'listaEmpresasIformatica',
     async () => {
       const response = await get(`/listaEmpresasIformatica`);
-
+      console.log("Empresas:", response.data);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    {enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
-  useEffect(() => {
-    if (empresaSelecionada) {
-      refetchEmpresa();
-    }
-  }, [empresaSelecionada])
+  // useEffect(() => {
+  //   if (empresaSelecionada) {
+  //     refetchEmpresa();
+  //   }
+  // }, [empresaSelecionada])
 
 
   const { data: optionsCPF = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
@@ -86,16 +89,15 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     async () => {
       const response = await get(`/funcionarios-loja?cpf=${removerMascaraCPF(cpfFuncionario)}`);
 
-      if (response.data.length > 0) {
-        setFuncionarioExistente(response.data[0])
-      }
       return response.data;
     },
     { enabled: cpfFuncionario.length > 10, staleTime: 5 * 60 * 1000, }
   );
 
   useEffect(() => {
-    if (funcionarioExistente) {
+    if (optionsCPF.length > 0) {
+      const funcionarioExistente = optionsCPF[0];
+      setIdFuncionario(funcionarioExistente?.IDFUNCIONARIO);
       setEmpresaSelecionada({ value: funcionarioExistente?.IDEMPRESA, label: funcionarioExistente?.NOFANTASIA });
       setSubGrupoEmpresarialSelecionado(funcionarioExistente?.IDSUBGRUPOEMPRESARIAL);
       setFuncaoSelecionada({ value: funcionarioExistente?.DSFUNCAO, label: funcionarioExistente?.DSFUNCAO });
@@ -107,6 +109,8 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       setValorDesconto(funcionarioExistente.PERC);
       setSituacaoSelecionada({ value: funcionarioExistente?.STLOJA == 'True' ? 'Ativo' : 'Inativo', label: funcionarioExistente?.STLOJA == 'True' ? 'Ativo' : 'Inativo' });
       setTipoSelecionado({ value: funcionarioExistente?.DSTIPO, label: funcionarioExistente?.DSTIPO });
+      setNoLogin(funcionarioExistente.NOLOGIN);
+      setIdPerfil(funcionarioExistente.IDPERFIL);
       if (funcionarioExistente.STCONVENIO == 'True' && funcionarioExistente.STDESCONTOFOLHA == 'True') {
         setIsChecked(true);
         setCategoriaContratacao('CLT');
@@ -116,9 +120,14 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       }
       setSenha(funcionarioExistente.PWSENHA);
       setCPF(funcionarioExistente.NUCPF);
+      {console.log(funcionarioExistente, 'empresaSelecionada hook')}
     }
 
-  }, [funcionarioExistente]);
+    // console.log("Funcionario Existente:", funcionarioExistente);
+                            
+
+  }, [optionsCPF]);
+
   useEffect(() => {
     if (optionsCPF && optionsCPF.length > 0) {
       Swal.fire({
@@ -175,7 +184,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
 
   };
 
-  console.log(localizacaoSelcionada?.value, 'localização no hook')
+  
   const onSubmit = async (e) => {
     let maximoDesconto = 0;
     let dataBase = new Date('2024-08-01')
@@ -349,6 +358,9 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     //   return;
     // }
 
+    const isUpdate = optionsCPF.length > 0 && idFuncionario;
+
+    
     const postData = {
       IDFUNCIONARIO: usuarioLogado.id,
       IDSUBGRUPOEMPRESARIAL: Number(subGrupoEmpresarialSelecionado),
@@ -370,35 +382,37 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     }
 
     const putData = {
-      ID: funcionarioExistente?.IDFUNCIONARIO,
+      ID: idFuncionario,
       DATA_ADMISSAO: dataAdmissao,
       IDFUNCIONARIOULTALTERACAO: usuarioLogado.id,
       NOFUNCIONARIO: nomeFuncionario,
       NUCPF: cpfSemMascara,
-      NOLOGIN: funcionarioExistente.NULOGIN,
+      NOLOGIN: noLogin,
       PWSENHA: cpfSemMascara.substring(0, 5),
       IDEMPRESA: empresaSelecionada.value,
       IDSUBGRUPOEMPRESARIAL: subGrupoEmpresarialSelecionado,
       DSFUNCAO: funcaoSelecionada.value,
-      IDFUNCIONARIO: funcionarioExistente.IDFUNCIONARIO,
+      IDFUNCIONARIO: idFuncionario,
       DSTIPO: tipoSelecionado.value,
-      PERC: valorDesconto,
-      VALORSALARIO: valorSalario,
+      PERC: parseFloat(valorDesconto),
+      VALORSALARIO: parseFloat(valorSalario),
       VALORDISPONIVEL: 0,
-      IDPERFIL: funcionarioExistente.IDPERFIL,
-      STCONVENIO: isChecked,
-      STDESCONTOFOLHA: isChecked,
-      STATIVO: situacaoSelecionada.value,
-      STLOJA: localizacaoSelcionada.value,
+      IDPERFIL: idPerfil,
+      STCONVENIO: isChecked ? "True" : "False",
+      STDESCONTOFOLHA: isChecked ? "True" : "False",
+      STATIVO: situacaoSelecionada.value == 'Ativo' ? "True" : "False",
+      STLOJA: localizacaoSelcionada.value == 'Loja' ? "True" : "False",
     }
 
     try {
       let response;
 
-      if (funcionarioExistente.length > 0) {
+      if (isUpdate) {
+        // response = await console.log('PUT', putData);
         response = await put('/funcionarios-loja/:id', putData);
 
       } else {
+        // response = await console.log('POST', postData);
         response = await post('/criar-funcionarios-loja', postData);
       }
 
@@ -526,3 +540,26 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
 
   }
 }
+
+// {
+//   "DATA_ADMISSAO":
+//   "2026-01-28T03:00:00.000Z",
+//   "NOFUNCIONARIO":"MYLTIANE LIMA",
+//   "NUCPF":"69271623053",
+//   "NOLOGIN":"33341",
+//   "PWSENHA":"69271",
+//   "IDEMPRESA":1,"IDSUBGRUPOEMPRESARIAL":1,"IDFUNCIONARIO":33341,"DSTIPO":"PN","PERC":"5.00","VALORSALARIO":"10.00","VALORDISPONIVEL":0,"IDPERFIL":0,"DSFUNCAO":"TI","STCONVENIO":"False","STDESCONTOFOLHA":"False","STLOJA":"False","STATIVO":
+//   "IDSUBGRUPOEMPRESARIAL":1,
+//   "IDFUNCIONARIO":33341,
+//   "DSTIPO":"PN",
+//   "PERC":"5.00",
+//   "VALORSALARIO":"10.00",
+//   "VALORDISPONIVEL":0,
+//   "IDPERFIL":0,
+//   "DSFUNCAO":"TI",
+//   "STCONVENIO":"False",
+//   "STDESCONTOFOLHA":"False",
+//   "STLOJA":"False",
+//   "STATIVO":
+//   "False",
+//   "ID":33341}'

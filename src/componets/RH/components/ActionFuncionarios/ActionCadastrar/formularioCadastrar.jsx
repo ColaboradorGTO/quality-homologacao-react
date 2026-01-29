@@ -8,7 +8,7 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { mascaraCPF, removerMascaraCPF, validarCPF } from "../../../../../utils/formatCPF";
 import { schema } from "./schamaValidarFuncionario";
 import { AlertError } from "../../../../Inputs/alertError"
-import { format, subDays } from "date-fns";
+import { format, set, subDays } from "date-fns";
 import FormField from "../../../../Formularios/FormField";
 
 export const FormularioCadastrar = ({
@@ -88,7 +88,7 @@ export const FormularioCadastrar = ({
                 situacaoFuncionario: situacaoSelecionada,
             };
 
-            // await schema.validate(dadosParaValidar, { abortEarly: false });
+            await schema.validate(dadosParaValidar, { abortEarly: false });
             onSubmit();
         } catch (validationError) {
             console.error('❌ Erro de validação:', validationError);
@@ -127,6 +127,20 @@ export const FormularioCadastrar = ({
                                 classNamePrefix={"select"}
                                 options={optionsEmpresas.map((item) => ({
                                     value: item.IDEMPRESA,
+           
+                                    label: item.NOFANTASIA
+
+                                }))}
+                                value={empresaSelecionada}
+                                onChange={(selected) => setEmpresaSelecionada(selected)}
+                            />
+                        
+                            
+                            {/* <Select
+                                className="basic-single"
+                                classNamePrefix={"select"}
+                                options={optionsEmpresas.map((item) => ({
+                                    value: item.IDEMPRESA,
                                     idSubgrupo: item.IDSUBGRUPOEMPRESARIAL,
                                     label: item.NOFANTASIA
 
@@ -139,7 +153,7 @@ export const FormularioCadastrar = ({
                                     setEmpresaSelecionada(selected);
 
                                 }}
-                            />
+                            /> */}
                             {errors.empresaFuncionario && (
                                 <AlertError
                                     error={errors.empresaFuncionario?.value || errors.empresaFuncionario}
@@ -212,7 +226,7 @@ export const FormularioCadastrar = ({
                                     />
                                 )}
                             />
-                            {console.log("Data de Admissão:", dataAdmissao)}
+                           
                         </div>
                     </div>
 
@@ -282,7 +296,7 @@ export const FormularioCadastrar = ({
                                     fieldName="localizacaoFuncionario"
                                 />
                             )}
-                            {console.log(localizacaoSelcionada, 'localização selecionada')}
+                            
                         </div>
                         <div className="col-sm-16 col-xl-16">
                             <label className="form-label">Categoria de Contratação</label>

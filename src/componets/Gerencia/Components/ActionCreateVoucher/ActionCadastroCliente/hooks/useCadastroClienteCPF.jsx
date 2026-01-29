@@ -82,7 +82,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         ['cliente-todos', cpf],
         async () => {
             const response = await get(`/cliente-todos?numeroCpfCnpj=${removerMascaraCPF(cpf)}`);
-            console.log("response cliente-todos", response)
+            
             return response.data;
         },
         { enabled: cpf?.length >= 8, staleTime: 5 * 60 * 1000 }
