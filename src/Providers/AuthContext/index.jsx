@@ -39,15 +39,18 @@ export function AuthProvider({ children }) {
     try {
       const response = await post('/login', data);
       if (response && response?.usuario.token) {
-        localStorage.clear();
+        
+        localStorage.removeItem('token');
+        localStorage.removeItem('usuario');
         localStorage.setItem('token', response?.usuario.token);
         localStorage.setItem('usuario', JSON.stringify(response?.usuario));
         // setUsuario(response.NOLOGIN);
         // setSenha('');
-      
+        
+        console.log('🟢 Login bem-sucedido, redirecionando para /modulo');
         navigate('/modulo', { replace: true });
       }
-      // console.log('response', response.body);
+   
       return response.body;
     } catch (error) {
       console.error('Login error:', error);

@@ -35,7 +35,7 @@ export const Modulo = ({usuarioLogado}) => {
   
   // console.log(usuarioLogado, 'usuarioLogado')
   // const { data: optionsModulos = [] } = useFetchData('modulos', `/modulos?idUsuario=${usuarioLogado?.id}`);
-
+    console.log(usuarioLogado, 'usuarioLogado')
     const { data: optionsModulos = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
       'modulos',
       async () => {
