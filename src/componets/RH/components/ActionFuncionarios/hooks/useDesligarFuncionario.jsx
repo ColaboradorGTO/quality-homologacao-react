@@ -53,7 +53,7 @@ export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLog
       DATAULTIMAALTERACAO: String(dataAdmissao),
       STATIVO: 'False',
       DATA_DEMISSAO: String(dataAdmissao),
-      ID: Number(row.ID)
+      ID: parseInt(row.ID)
     }
 
     try {
@@ -86,10 +86,10 @@ export const useDesligarFuncionario = ({ handleClose, optionsModulos, usuarioLog
         IP: ipUsuario
       }
 
-      const responsePost = await post('/log-web', createData)
+      await post('/log-web', createData)
 
       handleClick()
-      return responsePost.data;
+      return response.data;
     } catch (error) {
 
       const putData = {

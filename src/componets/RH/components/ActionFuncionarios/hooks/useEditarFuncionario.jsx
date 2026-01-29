@@ -181,72 +181,72 @@ export const useEditarFuncionario = ({
       return;
     }
 
-    if (!empresaSelecionada || !empresaSelecionada.value) {
-      Swal.fire({
-        title: 'Erro ao Atualizar ',
-        text: 'Empresa não selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
+    // if (!empresaSelecionada || !empresaSelecionada.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Atualizar ',
+    //     text: 'Empresa não selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
 
-    }
+    // }
 
-    if (!funcaoSelecionada || !funcaoSelecionada.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Função nao selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!funcaoSelecionada || !funcaoSelecionada.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Função nao selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
 
-    if (!tipoSelecionado || !tipoSelecionado.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Tipo nao selecionado',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!tipoSelecionado || !tipoSelecionado.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Tipo nao selecionado',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
-    if (!dataAdmissao || !dataAdmissao === '') {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Data Admissão nao selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!dataAdmissao || !dataAdmissao === '') {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Data Admissão nao selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
-    if (!localizacaoSelcionada || !localizacaoSelcionada.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Localização nao selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!localizacaoSelcionada || !localizacaoSelcionada.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Localização nao selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
     if (!['CLT', 'PJ'].includes(categoriaContratacao)) {
       Swal.fire({
@@ -261,44 +261,44 @@ export const useEditarFuncionario = ({
       return;
     }
 
-    if (valorSalario === '') {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Valor Salário não pode ser vazio',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (valorSalario === '') {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Valor Salário não pode ser vazio',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
-    if (!situacaoSelecionada || !situacaoSelecionada.value) {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Situação nao selecionada',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!situacaoSelecionada || !situacaoSelecionada.value) {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Situação nao selecionada',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
-    if (!nomeFuncionario || nomeFuncionario.trim() === '') {
-      Swal.fire({
-        title: 'Erro ao Cadastrar',
-        text: 'Nome não pode ser vazio',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
+    // if (!nomeFuncionario || nomeFuncionario.trim() === '') {
+    //   Swal.fire({
+    //     title: 'Erro ao Cadastrar',
+    //     text: 'Nome não pode ser vazio',
+    //     icon: 'error',
+    //     timer: 3000,
+    //     customClass: {
+    //       container: 'custom-swal',
+    //     }
+    //   })
+    //   return;
+    // }
 
     if (parseFloat(valorDesconto) > 50) {
       Swal.fire({
@@ -325,7 +325,7 @@ export const useEditarFuncionario = ({
       IDFUNCIONARIO: dadosAtualizarFuncionarios[0]?.IDFUNCIONARIO,
       DSTIPO: tipoSelecionado.value,
       PERC: parseFloat(valorDesconto),
-      VALORSALARIO: parseFloat(valorSalario),
+      VALORSALARIO: removerFormatacaoMoeda(valorSalario),
       VALORDISPONIVEL: parseFloat(0),
       IDPERFIL: Number(dadosAtualizarFuncionarios[0]?.IDPERFIL),
       DSFUNCAO: funcaoSelecionada.value,

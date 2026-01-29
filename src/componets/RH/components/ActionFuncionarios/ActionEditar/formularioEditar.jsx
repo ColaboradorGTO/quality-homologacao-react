@@ -11,6 +11,7 @@ import { AlertError } from "../../../../Inputs/alertError";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schamaValidarFuncionario";
 import { mascaraTelefone } from "../../../../../utils/mascaraTelefone";
+import { formatarMoeda } from "../../../../../utils/formatMoeda";
 export const FormularioEditar = ({
   handleClose,
   dadosAtualizarFuncionarios,
@@ -408,7 +409,7 @@ export const FormularioEditar = ({
                       errors={errors}
                       clearErrors={clearErrors}
                       value={valorSalario}
-                      onChangeModal={e => setValorSalario(e.target.value)}
+                      onChangeModal={e => setValorSalario(formatarMoeda(e.target.value))}
                     />
                   )}
                 />

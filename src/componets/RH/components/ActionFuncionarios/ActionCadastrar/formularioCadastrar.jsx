@@ -318,7 +318,6 @@ export const FormularioCadastrar = ({
                                 options={Departamentos.map((item) => ({
                                     value: item.value,
                                     label: item.label
-
                                 }))}
                                 value={departamentoSelecionado}
                                 onChange={(selected) => {
@@ -378,7 +377,7 @@ export const FormularioCadastrar = ({
                                     /> CLT
 
                                 </label>
-                                {console.log(isChecked, 'isChecked')}
+                             
                                 <label className="form-check-label" htmlFor="radioPJ">
                                     <input
                                         id="radioPJ"
