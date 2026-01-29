@@ -10,7 +10,10 @@ import { schema } from "./schamaValidarFuncionario";
 import { AlertError } from "../../../../Inputs/alertError"
 import { format, subDays } from "date-fns";
 import FormField from "../../../../Formularios/FormField";
-export const FormularioCadastrar = ({ handleClose }) => {
+import { formatarMoeda, removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
+import { mascaraTelefone } from "../../../../../utils/mascaraTelefone";
+
+export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos, refetch }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
         mode: "onChange"
     });
@@ -45,10 +48,6 @@ export const FormularioCadastrar = ({ handleClose }) => {
         setSenha,
         cpf,
         setCPF,
-        ipUsuario,
-        setIpUsuario,
-        usuarioLogado,
-        setUsuarioLogado,
         excecao,
         setExcecao,
         formularioVisivelLogin,
@@ -65,9 +64,18 @@ export const FormularioCadastrar = ({ handleClose }) => {
         localizacao,
         situacao,
         Parceiro,
+        Departamentos,
         onSubmit,
-        loginConfirmacao
-    } = useCriarFuncionario({ handleClose });
+        loginConfirmacao,
+        senhaLogin,
+        setSenhaLogin,
+        isLoggedIn,
+        setIsLoggedIn,
+        telefone,
+        setTelefone,
+        departamentoSelecionado,
+        setDepartamentoSelecionado
+    } = useCriarFuncionario({ handleClose, usuarioLogado, optionsModulos, refetch });
 
     const handleValidatedSubmit = async () => {
         try {
@@ -78,9 +86,10 @@ export const FormularioCadastrar = ({ handleClose }) => {
                 dataAdmissaoFuncionario: dataAdmissao,
                 cpf: cpfFuncionario,
                 nome: nomeFuncionario,
+                telefoneFuncionario: telefone,
+                departamentoFuncionario: departamentoSelecionado,
                 localizacaoFuncionario: localizacaoSelcionada,
-                categoriaContratacao: isChecked,
-                salarioFuncionario: valorSalario,
+                salarioFuncionario: removerFormatacaoMoeda(valorSalario),
                 valorDesconroFuncionario: valorDesconto,
                 execaoDescFuncionario: excecao,
                 situacaoFuncionario: situacaoSelecionada,
@@ -105,7 +114,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
             }
 
             const errorMessages = validationError.errors || [validationError.message];
-            //alert(`Erro de validação:\n${errorMessages.join('\n')}`);
+            console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
 
     }
@@ -118,29 +127,29 @@ export const FormularioCadastrar = ({ handleClose }) => {
                 <form onSubmit={handleSubmit(handleValidatedSubmit)}>
                     <div className="row">
                         <div className="col-sm-6 col-md-6 col-xl-6">
-                            <label className="form-label" htmlFor="empresaFuncionario">Empresa</label>
+                            <label className="form-label" htmlFor="empresaFuncionario">Empresa *</label>
 
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="empresaFuncionario"
                                 options={optionsEmpresas.map((item) => ({
                                     value: item.IDEMPRESA,
-                                    idSubgrupo: item.IDSUBGRUPOEMPRESARIAL,
                                     label: item.NOFANTASIA
-
                                 }))}
                                 value={empresaSelecionada}
                                 onChange={(selected) => {
-                                    const idEmpresa = selected.value;
-                                    const idSubGrupo = selected.idSubgrupo;
-                                    setSubGrupoEmpresarialSelecionado(idSubGrupo);
                                     setEmpresaSelecionada(selected);
-
+                                    clearErrors("empresaFuncionario");
                                 }}
+                                isClearable={true}
+                                isSearchable={true}
+                                placeholder="Selecione a Empresa"
                             />
+
                             {errors.empresaFuncionario && (
                                 <AlertError
-                                    error={errors.empresaFuncionario?.value || errors.empresaFuncionario}
+                                    error={errors.empresaFuncionario}
                                     onClose={clearErrors}
                                     fieldName="empresaFuncionario"
                                 />
@@ -148,45 +157,58 @@ export const FormularioCadastrar = ({ handleClose }) => {
 
                         </div>
                         <div className="col-sm-6 col-md-6 col-xl-6">
-                            <label className="form-label" htmlFor="funcaoFuncionario">Função</label>
+                            <label className="form-label" htmlFor="funcaoFuncionario">Função *</label>
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="funcaoFuncionario"
                                 options={Funcoes.map((item) => ({
                                     value: item.value,
                                     label: item.label
-
                                 }))}
                                 value={funcaoSelecionada}
-                                onChange={(selected) => setFuncaoSelecionada(selected)}
+                                onChange={(selected) => {
+                                    setFuncaoSelecionada(selected)
+                                    clearErrors("funcaoFuncionario");
+                                }}
+                                isClearable={true}
+                                isSearchable={true}
                             />
+
                             {errors.funcaoFuncionario && (
                                 <AlertError
-                                    error={errors.funcaoFuncionario?.value || errors.funcaoFuncionario}
+                                    error={errors.funcaoFuncionario}
                                     onClose={clearErrors}
                                     fieldName="funcaoFuncionario"
                                 />
                             )}
+
                         </div>
 
                     </div>
                     <div className="row mt-4">
                         <div className="col-sm-6 col-md-6 col-xl-6">
-                            <label className="form-label">Tipo</label>
+                            <label className="form-label">Tipo *</label>
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="tipoFuncionario"
                                 options={Parceiro.map((item) => ({
                                     value: item.value,
                                     label: item.label
-
                                 }))}
                                 value={tipoSelecionado}
-                                onChange={(selected) => setTipoSelecionado(selected)}
+                                onChange={(selected) => {
+                                    setTipoSelecionado(selected)
+                                    clearErrors("tipoFuncionario");
+                                }}
+                                isClearable={true}
+                                isSearchable={true}
                             />
+
                             {errors.tipoFuncionario && (
                                 <AlertError
-                                    error={errors.tipoFuncionario?.value || errors.tipoFuncionario}
+                                    error={errors.tipoFuncionario}
                                     onClose={clearErrors}
                                     fieldName="tipoFuncionario"
                                 />
@@ -206,10 +228,11 @@ export const FormularioCadastrar = ({ handleClose }) => {
                                         value={dataAdmissao}
                                         onChangeModal={e => setDataAdmissao(e.target.value)}
                                         min={minDataAdmissao}
-                                        max={maxDataAdmissao}
+                                    // max={maxDataAdmissao}
                                     />
                                 )}
                             />
+
                         </div>
                     </div>
 
@@ -239,6 +262,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
                                 )}
                             />
                         </div>
+
                         <div className="col-sm-8 col-xl-8">
                             <Controller
                                 name="nome"
@@ -259,29 +283,79 @@ export const FormularioCadastrar = ({ handleClose }) => {
                     </div>
 
                     <div className="row mt-4">
-                        <div className="col-sm-6 col-xl-16">
-                            <label htmlFor="">Localização</label>
+                        <div className="col-sm-4 col-xl-4">
+                            <Controller
+                                name="telefoneFuncionario"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        name="telefoneFuncionario"
+                                        label={"Telefone"}
+                                        type="text"
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                        value={mascaraTelefone(telefone)}
+                                        onChangeModal={(e) => setTelefone(e.target.value)}
+                                    />
+                                )}
+                            />
+                        </div>
+
+                        <div className="col-sm-6 col-xl-8">
+                            <label htmlFor="">Departamento *</label>
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="departamentoFuncionario"
+                                options={Departamentos.map((item) => ({
+                                    value: item.value,
+                                    label: item.label
+                                }))}
+                                value={departamentoSelecionado}
+                                onChange={(selected) => {
+                                    setDepartamentoSelecionado(selected)
+                                    clearErrors("departamentoFuncionario");
+                                }}
+                            />
+                            {errors.departamentoFuncionario && (
+                                <AlertError
+                                    error={errors.departamentoFuncionario}
+                                    onClose={clearErrors}
+                                    fieldName="departamentoFuncionario"
+                                />
+                            )}
+
+                        </div>
+                    </div>
+                    <div className="row mt-4">
+                        <div className="col-sm-6 col-xl-16">
+                            <label htmlFor="">Localização *</label>
+                            <Select
+                                className="basic-single"
+                                classNamePrefix={"select"}
+                                name="localizacaoFuncionario"
                                 options={localizacao.map((item) => ({
                                     value: item.value,
                                     label: item.label
 
                                 }))}
                                 value={localizacaoSelcionada}
-                                onChange={(selected) => setLocalizacaoSelecionada(selected)}
+                                onChange={(selected) => {
+                                    setLocalizacaoSelecionada(selected)
+                                    clearErrors("localizacaoFuncionario");
+                                }}
                             />
                             {errors.localizacaoFuncionario && (
                                 <AlertError
-                                    error={errors.localizacaoFuncionario?.value || errors.localizacaoFuncionario}
+                                    error={errors.localizacaoFuncionario}
                                     onClose={clearErrors}
                                     fieldName="localizacaoFuncionario"
                                 />
                             )}
+
                         </div>
                         <div className="col-sm-16 col-xl-16">
-                            <label className="form-label">Categoria de Contratação</label>
+                            <label className="form-label">Categoria de Contratação *</label>
                             <div className="form-check">
                                 <label className="form-check-label" htmlFor="radioCLT">
                                     <input
@@ -290,10 +364,12 @@ export const FormularioCadastrar = ({ handleClose }) => {
                                         className="form-check-input"
                                         name="radioCategoria"
                                         isChecked={isChecked}
+                                        checked={categoriaContratacao === 'CLT'}
                                         onChange={handleRadioChange}
                                     /> CLT
 
                                 </label>
+
                                 <label className="form-check-label" htmlFor="radioPJ">
                                     <input
                                         id="radioPJ"
@@ -301,6 +377,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
                                         className="form-check-input"
                                         name="radioCategoria"
                                         isChecked={isChecked}
+                                        checked={categoriaContratacao === 'PJ'}
                                         onChange={handleRadioChange}
                                     /> PJ
                                 </label>
@@ -323,7 +400,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={valorSalario}
-                                        onChangeModal={e => setValorSalario(e.target.value)}
+                                        onChangeModal={e => setValorSalario(formatarMoeda(e.target.value))}
                                     />
                                 )}
                             />
@@ -363,7 +440,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={valorDesconto}
-                                        onChangeModal={e => setValorDesconto(e.target.value)}
+                                        onChangeModal={e => setValorDesconto(formatarMoeda(e.target.value))}
 
                                     />
                                 )}
@@ -395,21 +472,25 @@ export const FormularioCadastrar = ({ handleClose }) => {
                     <div className="row mt-4">
 
                         <div className="col-sm-6 col-xl-6">
-                            <label className="form-label" htmlFor="stativofuncionario">Situação</label>
+                            <label className="form-label" htmlFor="situacaoFuncionario">Situação</label>
 
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="situacaoFuncionario"
                                 options={situacao.map((item) => ({
                                     value: item.value,
                                     label: item.label
                                 }))}
                                 value={situacaoSelecionada}
-                                onChange={(selected) => setSituacaoSelecionada(selected)}
+                                onChange={(selected) => {
+                                    setSituacaoSelecionada(selected)
+                                    clearErrors("situacaoFuncionario");
+                                }}
                             />
                             {errors.situacaoFuncionario && (
                                 <AlertError
-                                    error={errors.situacaoFuncionario?.value || errors.situacaoFuncionario}
+                                    error={errors.situacaoFuncionario}
                                     onClose={clearErrors}
                                     fieldName="situacaoFuncionario"
                                 />
@@ -426,7 +507,7 @@ export const FormularioCadastrar = ({ handleClose }) => {
 
                         ButtonTypeConfirmar={ButtonTypeModal}
                         textButtonConfirmar={"Atualizar"}
-                        onClickButtonConfirmar={handleValidatedSubmit}
+                        onClickButtonConfirmar={handleSubmit(handleValidatedSubmit)}
                         corConfirmar="success"
                     />
                 </form>
@@ -459,8 +540,8 @@ export const FormularioCadastrar = ({ handleClose }) => {
                                     type="password"
                                     className="form-control input"
                                     label="Senha"
-                                    value={senha}
-                                    onChangeModal={(e) => setSenha(e.target.value)}
+                                    value={senhaLogin}
+                                    onChangeModal={(e) => setSenhaLogin(e.target.value)}
                                     placeholder={"Digite sua senha"}
                                 />
                             </div>

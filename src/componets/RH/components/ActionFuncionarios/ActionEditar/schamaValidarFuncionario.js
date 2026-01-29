@@ -73,7 +73,7 @@ export const schema = yup.object({
   telefoneFuncionario: yup.string()
     .transform((value) => {
         if (typeof value === 'string') {
-            return value.replace(/\D/g, ''); // Remove espaços e caracteres especiais
+            return value.replace(/\D/g, ''); 
         }
         return value;
     })

@@ -8,10 +8,7 @@ import { Funcoes } from '../../../../../../tipoFuncao.json';
 import { Parceiro, situacao, localizacao, Departamentos } from '../../../../../../parceiro.json';
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
-
 import { removerMascaraTelefone } from "../../../../../utils/mascaraTelefone";
-
-
 
 export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos, refetch }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');

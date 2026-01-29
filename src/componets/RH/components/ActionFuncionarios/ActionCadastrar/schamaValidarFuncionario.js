@@ -73,12 +73,13 @@ export const schema = yup.object({
   telefoneFuncionario: yup.string()
     .transform((value) => {
         if (typeof value === 'string') {
-            return value.replace(/\D/g, ''); // Remove espaços e caracteres especiais
+            return value.replace(/\D/g, ''); 
         }
         return value;
     })
     .required('Telefone Obrigatório')
     .matches(/^\d{10,11}$/, 'Telefone deve conter 10 ou 11 números'),
+  
   
   departamentoFuncionario: yup.object()
     .nullable()

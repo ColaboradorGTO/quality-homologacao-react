@@ -8,13 +8,10 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { mascaraCPF, removerMascaraCPF, validarCPF } from "../../../../../utils/formatCPF";
 import { schema } from "./schamaValidarFuncionario";
 import { AlertError } from "../../../../Inputs/alertError"
-import { format, set, subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 import FormField from "../../../../Formularios/FormField";
-import { formatarMoeda, formatMoeda, removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
+import { formatarMoeda, removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 import { mascaraTelefone } from "../../../../../utils/mascaraTelefone";
-
-// Função para remover formatação de moeda
-
 
 export const FormularioCadastrar = ({
     handleClose,
@@ -101,8 +98,6 @@ export const FormularioCadastrar = ({
                 valorDesconroFuncionario: valorDesconto,
                 execaoDescFuncionario: excecao,
                 situacaoFuncionario: situacaoSelecionada,
-               
-        
             };
             
             await schema.validate(dadosParaValidar, { abortEarly: false });

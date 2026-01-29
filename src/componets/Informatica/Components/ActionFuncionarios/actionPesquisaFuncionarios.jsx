@@ -80,10 +80,10 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
   };
 
   const { data: dadosFuncionarios = [], error: errorFuncionario, isLoading: isLoadingFuncionario, refetch } = useQuery(
-    ['funcionarios-loja', empresaSelecionada, cpf, currentPage, pageSize],
-    () => fetchListaFuncionarios(empresaSelecionada, cpf, currentPage, pageSize),
+    ['funcionarios-loja',],
+    () => fetchListaFuncionarios(),
     {
-      enabled: true, staleTime: 5 * 60 * 1000, 
+      enabled: true, staleTime: 60 * 60 * 1000, 
     }
   );
   
@@ -114,8 +114,8 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
   }
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
-    refetch(empresaSelecionada);
+
+    refetch();
     setTabelaVisivel(true);
   }
 
