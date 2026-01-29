@@ -108,7 +108,7 @@ export const useEditarFuncionario = ({
       setTelefone(dadosAtualizarFuncionarios[0].TELEFONE);
       setDepartamentoSelecionado({value: dadosAtualizarFuncionarios[0].DEPARTAMENTO, label: dadosAtualizarFuncionarios[0].DEPARTAMENTO});
     }
-    console.log(situacaoSelecionada, 'situacaoSelecionada');
+  
   }, [dadosAtualizarFuncionarios]);
 
   const handleRadioChange = (event) => {
@@ -181,73 +181,6 @@ export const useEditarFuncionario = ({
       return;
     }
 
-    // if (!empresaSelecionada || !empresaSelecionada.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Atualizar ',
-    //     text: 'Empresa não selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-
-    // }
-
-    // if (!funcaoSelecionada || !funcaoSelecionada.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Função nao selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-
-    // if (!tipoSelecionado || !tipoSelecionado.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Tipo nao selecionado',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-    // if (!dataAdmissao || !dataAdmissao === '') {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Data Admissão nao selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-    // if (!localizacaoSelcionada || !localizacaoSelcionada.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Localização nao selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
     if (!['CLT', 'PJ'].includes(categoriaContratacao)) {
       Swal.fire({
         title: 'Erro ao Cadastrar',
@@ -260,45 +193,6 @@ export const useEditarFuncionario = ({
       })
       return;
     }
-
-    // if (valorSalario === '') {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Valor Salário não pode ser vazio',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-    // if (!situacaoSelecionada || !situacaoSelecionada.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Situação nao selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-    // if (!nomeFuncionario || nomeFuncionario.trim() === '') {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Nome não pode ser vazio',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
 
     if (parseFloat(valorDesconto) > 50) {
       Swal.fire({
@@ -369,12 +263,12 @@ export const useEditarFuncionario = ({
       return response.data;
     } catch (error) {
       const textoFuncao = 'RH/ERRO AO ATUALIZAR FUNCIONARIO';
-
+      const textDados = JSON.stringify(putData)
       const ipUsuario = await getIPUsuario();
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
-        DADOS: '',
+        DADOS: textDados,
         IP: ipUsuario
       }
       handleClick()
