@@ -111,7 +111,7 @@ export const FormularioEditar = ({
       }
 
       const errorMessages = validationError.errors || [validationError.message];
-      //alert(`Erro de validação:\n${errorMessages.join('\n')}`);
+      console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
     }
 
   }

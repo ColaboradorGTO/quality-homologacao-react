@@ -97,7 +97,6 @@ export const FormularioCadastrar = ({
                 telefoneFuncionario: telefone,
                 departamentoFuncionario: departamentoSelecionado,
                 localizacaoFuncionario: localizacaoSelcionada,
-                // categoriaContratacao: isChecked,
                 salarioFuncionario: removerFormatacaoMoeda(valorSalario),
                 valorDesconroFuncionario: valorDesconto,
                 execaoDescFuncionario: excecao,
