@@ -11,6 +11,7 @@ import { AlertError } from "../../../../Inputs/alertError"
 import { format, set, subDays } from "date-fns";
 import FormField from "../../../../Formularios/FormField";
 import { formatarMoeda, formatMoeda, removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
+import { mascaraTelefone } from "../../../../../utils/mascaraTelefone";
 
 // Função para remover formatação de moeda
 
@@ -300,7 +301,7 @@ export const FormularioCadastrar = ({
                                         type="text"
                                         errors={errors}
                                         clearErrors={clearErrors}
-                                        value={telefone}
+                                        value={mascaraTelefone(telefone)}
                                         onChangeModal={(e) => setTelefone(e.target.value)}
                                     />
                                 )}
@@ -371,10 +372,12 @@ export const FormularioCadastrar = ({
                                         className="form-check-input"
                                         name="radioCategoria"
                                         isChecked={isChecked}
+                                        checked={categoriaContratacao === 'CLT'}
                                         onChange={handleRadioChange}
                                     /> CLT
 
                                 </label>
+                                {console.log(isChecked, 'isChecked')}
                                 <label className="form-check-label" htmlFor="radioPJ">
                                     <input
                                         id="radioPJ"
@@ -382,6 +385,7 @@ export const FormularioCadastrar = ({
                                         className="form-check-input"
                                         name="radioCategoria"
                                         isChecked={isChecked}
+                                        checked={categoriaContratacao === 'PJ'}
                                         onChange={handleRadioChange}
                                     /> PJ
                                 </label>

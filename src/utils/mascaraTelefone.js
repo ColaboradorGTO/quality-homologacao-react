@@ -14,6 +14,12 @@ export const mascaraTelefone = (valor) => {
     }
 };
 
+export const removerMascaraTelefone = (valor) => {
+    if (!valor) return "";
+    // Remove todos os caracteres que não são números
+    return valor.replace(/\D/g, "");
+};
+
 export const validaTelefoneOrCelular = (telefoneOrCelular) => {
     telefoneOrCelular = String(telefoneOrCelular).replace(/\D/g, "");
 

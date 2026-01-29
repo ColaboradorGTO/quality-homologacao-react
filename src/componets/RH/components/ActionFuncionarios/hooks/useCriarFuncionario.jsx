@@ -8,6 +8,8 @@ import { Funcoes } from '../../../../../../tipoFuncao.json';
 import { Parceiro, situacao, localizacao, Departamentos } from '../../../../../../parceiro.json';
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
+import { set } from "date-fns";
+import { removerMascaraTelefone } from "../../../../../utils/mascaraTelefone";
 
 
 
@@ -103,20 +105,23 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       setDataAdmissao(funcionarioExistente.DATA_ADMISSAO);
       setValorSalario(funcionarioExistente.VALORSALARIO);
       setValorDesconto(funcionarioExistente.PERC);
-      setSituacaoSelecionada({ value: funcionarioExistente?.STLOJA == 'True' ? 'Ativo' : 'Inativo', label: funcionarioExistente?.STLOJA == 'True' ? 'Ativo' : 'Inativo' });
+      setSituacaoSelecionada({ value: funcionarioExistente?.STATIVO == 'True' ? 'Ativo' : 'Inativo', label: funcionarioExistente?.STATIVO == 'True' ? 'Ativo' : 'Inativo' });
       setTipoSelecionado({ value: funcionarioExistente?.DSTIPO, label: funcionarioExistente?.DSTIPO });
       setNoLogin(funcionarioExistente.NOLOGIN);
       setIdPerfil(funcionarioExistente.IDPERFIL);
       if (funcionarioExistente.STCONVENIO == 'True' && funcionarioExistente.STDESCONTOFOLHA == 'True') {
         setIsChecked(true);
+        
         setCategoriaContratacao('CLT');
       } else if (funcionarioExistente.STCONVENIO == 'False' && funcionarioExistente.STDESCONTOFOLHA == 'False') {
         setIsChecked(false);
         setCategoriaContratacao('PJ');
       }
+  
       setSenha(funcionarioExistente.PWSENHA);
       setCPF(funcionarioExistente.NUCPF);
-      
+      setTelefone(funcionarioExistente.TELEFONE);
+      setDepartamentoSelecionado({ value: funcionarioExistente.DEPARTAMENTO, label: funcionarioExistente.DEPARTAMENTO });
     }                            
 
   }, [optionsCPF]);
@@ -267,7 +272,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       STDESCONTOFOLHA: String(categoriaContratacao) === 'CLT' ? "True" : "False",
       STLOJA: localizacaoSelcionada?.value == 'Loja' ? "True" : "False",
       DATA_ADMISSAO: String(dataAdmissao),
-      TELEFONE: telefone,
+      TELEFONE: removerMascaraTelefone(telefone),
       DEPARTAMENTO: departamentoSelecionado?.value
 
     }
@@ -289,11 +294,11 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       VALORSALARIO: removerFormatacaoMoeda(valorSalario),
       VALORDISPONIVEL: 0,
       IDPERFIL: idPerfil,
-      STCONVENIO: isChecked ? "True" : "False",
-      STDESCONTOFOLHA: isChecked ? "True" : "False",
+      STCONVENIO: String(categoriaContratacao) === 'CLT' ? "True" : "False",
+      STDESCONTOFOLHA: String(categoriaContratacao) === 'CLT' ? "True" : "False",
       STATIVO: situacaoSelecionada.value == 'Ativo' ? "True" : "False",
       STLOJA: localizacaoSelcionada.value == 'Loja' ? "True" : "False",
-      TELEFONE: telefone,
+      TELEFONE: removerMascaraTelefone(telefone),
       DEPARTAMENTO: departamentoSelecionado?.value
     }
 
