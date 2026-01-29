@@ -117,7 +117,7 @@ export const FormularioCadastrar = ({
     return (
         <Fragment>
             {formularioVisivel && (
-                <form onSubmit={handleSubmit(handleValidatedSubmit)}>
+                <form onSubmit={handleSubmit(onSubmit)}>
                     <div className="row">
                         <div className="col-sm-6 col-md-6 col-xl-6">
                             <label className="form-label" htmlFor="empresaFuncionario">Empresa</label>
@@ -437,7 +437,7 @@ export const FormularioCadastrar = ({
 
                         ButtonTypeConfirmar={ButtonTypeModal}
                         textButtonConfirmar={"Atualizar"}
-                        onClickButtonConfirmar={handleSubmit(handleValidatedSubmit)}
+                        onClickButtonConfirmar={handleSubmit(onSubmit)}
                         corConfirmar="success"
                     />
                 </form>
