@@ -75,12 +75,11 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID }) => {
         }
     };
 
-    const { data: dadosMalotes = [], error: errorMalotes, isLoading: isLoadingMalotes, refetch: refetchLista } = useQuery(
-        ['malotes-loja', empresaSelecionada, statusSelecionado, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
-        () => fetchListaMalotes(empresaSelecionada, statusSelecionado, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
-        { enabled: Boolean(isQuery), staleTime: 5 * 60 * 1000, }
-    );
-
+     const {  data: dadosMalotes = [], error: errorMalotes, isLoading: isLoadingMalotes, refetch: refetchLista  } = useQuery(
+    ['malotes-loja', empresaSelecionada, statusSelecionado, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
+    () => fetchListaMalotes(),
+    { enabled: Boolean(isQuery), cacheTime: 5 * 60 * 1000, staleTime: 5 * 60 * 1000, }
+  );
     const handleClick = () => {
         setCurrentPage(prevPage => prevPage + 1);
         setIsQuery(true);
@@ -100,7 +99,6 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID }) => {
     return (
 
         <Fragment>
-
             <ActionMain
                 linkComponentAnterior={["Home"]}
                 linkComponent={["Recepção de Malotes"]}
