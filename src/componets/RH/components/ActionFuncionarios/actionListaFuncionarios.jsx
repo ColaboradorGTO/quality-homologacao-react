@@ -360,8 +360,8 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
 
   const handleClickEdit = (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
-      if (row && row.IDFUNCIONARIO) {
-        handleEdit(row.IDFUNCIONARIO);
+      if (row && row.ID) {
+        handleEdit(row.ID);
       }
     } else {
       Swal.fire({
