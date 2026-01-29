@@ -52,7 +52,7 @@ export const ModuloTeste = ({ }) => {
       
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
   
   useEffect(() => {
