@@ -92,7 +92,7 @@ export const FormularioEditar = ({
         situacaoFuncionario: situacaoSelecionada,
       };
 
-      await schema.validate(dadosParaValidar, { abortEarly: false });
+      // await schema.validate(dadosParaValidar, { abortEarly: false });
       onSubmit();
     } catch (validationError) {
       console.error('❌ Erro de validação:', validationError);
@@ -138,9 +138,10 @@ export const FormularioEditar = ({
                   })}
                   value={empresaSelecionada}
                   onChange={(selectedOption) => { setEmpresaSelecionada(selectedOption) }}
-                />{errors.empresaFuncionario && (
+                />
+                {errors.empresaFuncionario && (
                   <AlertError
-                    error={errors.empresaFuncionario?.value || errors.empresaFuncionario}
+                    error={errors.empresaFuncionario}
                     onClose={clearErrors}
                     fieldName="empresaFuncionario"
                   />
@@ -430,7 +431,7 @@ export const FormularioEditar = ({
 
               ButtonTypeConfirmar={ButtonTypeModal}
               textButtonConfirmar={"Atualizar"}
-              onClickButtonConfirmar={handleValidatedSubmit}
+              onClickButtonConfirmar={onSubmit}
               corConfirmar="success"
 
             />

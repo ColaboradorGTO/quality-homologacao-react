@@ -1,24 +1,18 @@
 import * as yup from 'yup';
 
-export const schema = yup.object().shape({
+export const schema = yup.object({
 
-  empresaFuncionario: yup
-    .object({
-      value: yup.string().required('Empresa Obrigatória'),
-      label: yup.string(),
-    }),
+  empresaFuncionario: yup.string()
+    .required('Empresa Obrigatória'),
+    
 
-  funcaoFuncionario: yup
-    .object({
-      value: yup.string().required('Função Obrigatória'),
-      label: yup.string(),
-    }),
+  funcaoFuncionario: yup.string()
+    .required('Função Obrigatória'),
+      
 
-  tipoFuncionario: yup
-    .object({
-      value: yup.string().required('Tipo Obrigatório'),
-      label: yup.string(),
-    }),
+  tipoFuncionario: yup.string()
+    .required('Tipo Obrigatório'),
+     
 
   dataAdmissaoFuncionario: yup
     .date()
@@ -36,11 +30,8 @@ export const schema = yup.object().shape({
       }
     ),
 
-  localizacaoFuncionario: yup
-    .object({
-      value: yup.string().required('Localização Obrigatória'),
-      label: yup.string(),
-    }),
+  localizacaoFuncionario: yup.string()
+    .required('Localização Obrigatória'),
 
   salarioFuncionario: yup
     .number()
@@ -56,14 +47,11 @@ export const schema = yup.object().shape({
     .string()
     .nullable(),
 
-  situacaoFuncionario: yup
-    .object({
-      value: yup.string().required('Situação Obrigatória'),
-      label: yup.string(),
-    }),
+  situacaoFuncionario: yup.string()
+    .required('Situação Obrigatória'),
 
-    cpf: yup
-    .string()
+
+  cpf: yup.string()
     .required('CPF Obrigatório')
     .matches(/^\d{11}$/, 'CPF deve conter exatamente 11 números'),
 

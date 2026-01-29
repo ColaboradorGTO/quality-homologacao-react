@@ -117,7 +117,7 @@ export const FormularioCadastrar = ({
     return (
         <Fragment>
             {formularioVisivel && (
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(handleValidatedSubmit)}>
                     <div className="row">
                         <div className="col-sm-6 col-md-6 col-xl-6">
                             <label className="form-label" htmlFor="empresaFuncionario">Empresa</label>
@@ -127,36 +127,18 @@ export const FormularioCadastrar = ({
                                 classNamePrefix={"select"}
                                 options={optionsEmpresas.map((item) => ({
                                     value: item.IDEMPRESA,
-           
                                     label: item.NOFANTASIA
-
-                                }))}
-                                value={empresaSelecionada}
-                                onChange={(selected) => setEmpresaSelecionada(selected)}
-                            />
-                        
-                            
-                            {/* <Select
-                                className="basic-single"
-                                classNamePrefix={"select"}
-                                options={optionsEmpresas.map((item) => ({
-                                    value: item.IDEMPRESA,
-                                    idSubgrupo: item.IDSUBGRUPOEMPRESARIAL,
-                                    label: item.NOFANTASIA
-
                                 }))}
                                 value={empresaSelecionada}
                                 onChange={(selected) => {
-                                    const idEmpresa = selected.value;
-                                    const idSubGrupo = selected.idSubgrupo;
-                                    setSubGrupoEmpresarialSelecionado(idSubGrupo);
-                                    setEmpresaSelecionada(selected);
-
+                                    setEmpresaSelecionada(selected)
+                                    clearErrors("empresaFuncionario");
                                 }}
-                            /> */}
+                            />
+                        
                             {errors.empresaFuncionario && (
                                 <AlertError
-                                    error={errors.empresaFuncionario?.value || errors.empresaFuncionario}
+                                    error={errors.empresaFuncionario}
                                     onClose={clearErrors}
                                     fieldName="empresaFuncionario"
                                 />
@@ -171,14 +153,16 @@ export const FormularioCadastrar = ({
                                 options={Funcoes.map((item) => ({
                                     value: item.value,
                                     label: item.label
-
                                 }))}
                                 value={funcaoSelecionada}
-                                onChange={(selected) => setFuncaoSelecionada(selected)}
+                                onChange={(selected) => { 
+                                    setFuncaoSelecionada(selected)
+                                    clearErrors("funcaoFuncionario");
+                                }}
                             />
                             {errors.funcaoFuncionario && (
                                 <AlertError
-                                    error={errors.funcaoFuncionario?.value || errors.funcaoFuncionario}
+                                    error={errors.funcaoFuncionario}
                                     onClose={clearErrors}
                                     fieldName="funcaoFuncionario"
                                 />
@@ -195,14 +179,17 @@ export const FormularioCadastrar = ({
                                 options={Parceiro.map((item) => ({
                                     value: item.value,
                                     label: item.label
-
                                 }))}
                                 value={tipoSelecionado}
-                                onChange={(selected) => setTipoSelecionado(selected)}
+                                onChange={(selected) => { 
+                                    setTipoSelecionado(selected)
+                                    clearErrors("tipoFuncionario");
+                                }}
                             />
+
                             {errors.tipoFuncionario && (
                                 <AlertError
-                                    error={errors.tipoFuncionario?.value || errors.tipoFuncionario}
+                                    error={errors.tipoFuncionario}
                                     onClose={clearErrors}
                                     fieldName="tipoFuncionario"
                                 />
@@ -287,11 +274,14 @@ export const FormularioCadastrar = ({
 
                                 }))}
                                 value={localizacaoSelcionada}
-                                onChange={(selected) => setLocalizacaoSelecionada(selected)}
+                                onChange={(selected) => {
+                                    setLocalizacaoSelecionada(selected)
+                                    clearErrors("localizacaoFuncionario");
+                                }}
                             />
                             {errors.localizacaoFuncionario && (
                                 <AlertError
-                                    error={errors.localizacaoFuncionario?.value || errors.localizacaoFuncionario}
+                                    error={errors.localizacaoFuncionario}
                                     onClose={clearErrors}
                                     fieldName="localizacaoFuncionario"
                                 />
@@ -423,11 +413,14 @@ export const FormularioCadastrar = ({
                                     label: item.label
                                 }))}
                                 value={situacaoSelecionada}
-                                onChange={(selected) => setSituacaoSelecionada(selected)}
+                                onChange={(selected) => {
+                                    setSituacaoSelecionada(selected)
+                                    clearErrors("situacaoFuncionario");
+                                }}
                             />
                             {errors.situacaoFuncionario && (
                                 <AlertError
-                                    error={errors.situacaoFuncionario?.value || errors.situacaoFuncionario}
+                                    error={errors.situacaoFuncionario}
                                     onClose={clearErrors}
                                     fieldName="situacaoFuncionario"
                                 />
@@ -444,7 +437,7 @@ export const FormularioCadastrar = ({
 
                         ButtonTypeConfirmar={ButtonTypeModal}
                         textButtonConfirmar={"Atualizar"}
-                        onClickButtonConfirmar={handleSubmit(onSubmit)}
+                        onClickButtonConfirmar={handleSubmit(handleValidatedSubmit)}
                         corConfirmar="success"
                     />
                 </form>
