@@ -10,19 +10,20 @@ import { addDays, format, subDays } from "date-fns";
 import { AlertError } from "../../../../Inputs/alertError";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schamaValidarFuncionario";
-export const FormularioEditar = ({ 
-  handleClose, 
-  dadosAtualizarFuncionarios, 
-  optionsModulos, 
-  usuarioLogado, 
+import { mascaraTelefone } from "../../../../../utils/mascaraTelefone";
+export const FormularioEditar = ({
+  handleClose,
+  dadosAtualizarFuncionarios,
+  optionsModulos,
+  usuarioLogado,
   handleClick,
-  refetch 
+  refetch
 }) => {
 
   const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
     mode: "onChange"
   });
-  
+
   const {
     empresaSelecionada,
     setEmpresaSelecionada,
@@ -71,8 +72,17 @@ export const FormularioEditar = ({
     localizacao,
     situacao,
     Parceiro,
+    Departamentos,
     onSubmit,
-    loginConfirmacao
+    loginConfirmacao,
+    senhaLogin,
+    setSenhaLogin,
+    isLoggedIn,
+    setIsLoggedIn,
+    telefone,
+    setTelefone,
+    departamentoSelecionado,
+    setDepartamentoSelecionado
   } = useEditarFuncionario({ handleClose, dadosAtualizarFuncionarios, optionsModulos, usuarioLogado, handleClick, refetch });
 
   const handleValidatedSubmit = async () => {
@@ -253,7 +263,54 @@ export const FormularioEditar = ({
               </div>
             </div>
 
-            <div className="row form-group">
+            <div className="row mt-4">
+              <div className="col-sm-4 col-xl-4">
+                <Controller
+                  name="telefoneFuncionario"
+                  control={control}
+                  render={({ field }) => (
+                    <FormField
+                      name="telefoneFuncionario"
+                      label={"Telefone"}
+                      type="text"
+                      errors={errors}
+                      clearErrors={clearErrors}
+                      value={mascaraTelefone(telefone)}
+                      onChangeModal={(e) => setTelefone(e.target.value)}
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="col-sm-6 col-xl-8">
+                <label htmlFor="">Departamento *</label>
+                <Select
+                  className="basic-single"
+                  classNamePrefix={"select"}
+                  name="departamentoFuncionario"
+                  options={Departamentos.map((item) => ({
+                    value: item.value,
+                    label: item.label
+
+                  }))}
+                  value={departamentoSelecionado}
+                  onChange={(selected) => {
+                    setDepartamentoSelecionado(selected)
+                    clearErrors("departamentoFuncionario");
+                  }}
+                />
+                {errors.departamentoFuncionario && (
+                  <AlertError
+                    error={errors.departamentoFuncionario}
+                    onClose={clearErrors}
+                    fieldName="departamentoFuncionario"
+                  />
+                )}
+
+              </div>
+            </div>
+
+            <div className="row form-group mt-4">
               <div className="col-sm-6 col-md-6 col-xl-6">
                 <label htmlFor="">Localização</label>
                 <Select

@@ -4,8 +4,10 @@ import { useQuery } from "react-query";
 import { useEffect, useState } from "react";
 import axios from 'axios';
 import { Funcoes } from '../../../../../../tipoFuncao.json';
-import { Parceiro, situacao, localizacao } from '../../../../../../parceiro.json';
+import { Parceiro, situacao, localizacao, Departamentos } from '../../../../../../parceiro.json';
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
+import { removerMascaraTelefone } from "../../../../../utils/mascaraTelefone";
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
 
 export const useEditarFuncionario = ({ 
@@ -32,11 +34,16 @@ export const useEditarFuncionario = ({
   const [cpf, setCPF] = useState('');
   const [ipUsuario, setIpUsuario] = useState('');
   const [excecao, setExcecao] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [formularioVisivelLogin, setFormularioVisivelLogin] = useState(false);
   const [formularioVisivel, setFormularioVisivel] = useState(true);
   const [usuario, setUsuario] = useState('')
   const [senha, setSenha] = useState('')
   const [repitaSenha, setRepitaSenha] = useState('')
+  const [telefone, setTelefone] = useState('')
+  const [departamentoSelecionado, setDepartamentoSelecionado] = useState('')
+  const [senhaLogin, setSenhaLogin] = useState('')
+  const [noLogin, setNoLogin] = useState('')
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
 
@@ -86,7 +93,7 @@ export const useEditarFuncionario = ({
       }
       setValorSalario(dadosAtualizarFuncionarios[0].VALORSALARIO);
       setValorDesconto(dadosAtualizarFuncionarios[0].PERC);
-      setSituacaoSelecionada({ value: dadosAtualizarFuncionarios[0]?.STLOJA == 'True' || 'False', label: dadosAtualizarFuncionarios[0]?.STLOJA == 'True' ? 'Ativo' : 'Inativo' });
+      setSituacaoSelecionada({ value: dadosAtualizarFuncionarios[0]?.STATIVO == 'True' ? 'Ativo' : 'Inativo', label: dadosAtualizarFuncionarios[0]?.STATIVO == 'True' ? 'Ativo' : 'Inativo' });
       setTipoSelecionado({ value: dadosAtualizarFuncionarios[0]?.DSTIPO, label: dadosAtualizarFuncionarios[0]?.DSTIPO });
       if (dadosAtualizarFuncionarios[0].STCONVENIO == 'True' && dadosAtualizarFuncionarios[0].STDESCONTOFOLHA == 'True') {
         setIsChecked(true);
@@ -98,8 +105,10 @@ export const useEditarFuncionario = ({
       setSenha(dadosAtualizarFuncionarios[0].PWSENHA);
       setRepitaSenha(dadosAtualizarFuncionarios[0].PWSENHA);
       setCPF(dadosAtualizarFuncionarios[0].NUCPF);
+      setTelefone(dadosAtualizarFuncionarios[0].TELEFONE);
+      setDepartamentoSelecionado({value: dadosAtualizarFuncionarios[0].DEPARTAMENTO, label: dadosAtualizarFuncionarios[0].DEPARTAMENTO});
     }
-
+    console.log(situacaoSelecionada, 'situacaoSelecionada');
   }, [dadosAtualizarFuncionarios]);
 
   const handleRadioChange = (event) => {
@@ -117,7 +126,7 @@ export const useEditarFuncionario = ({
 
     const postData = {
       usuario: usuario,
-      senha: senha,
+      senha: senhaLogin,
       modulo: selectedModule?.nome
     }
     try {
@@ -127,7 +136,7 @@ export const useEditarFuncionario = ({
       const textoFuncao = 'RH/AUTORIZAÇÃO DESCONTO FOLHA FUNCIONARIO';
       const ipUsuario = await getIPUsuario();
       const createLog = {
-        IDFUNCIONARIO: usuarioLogado.id,
+        IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
@@ -305,27 +314,29 @@ export const useEditarFuncionario = ({
     }
 
     const putData = {
-      DATA_ADMISSAO: String(dataAdmissao),
+      ID: Number(dadosAtualizarFuncionarios[0]?.ID),
+      DATA_ADMISSAO: dataAdmissao,
       NOFUNCIONARIO: String(nomeFuncionario),
-      NUCPF: String(cpfSemMascara),
-      NOLOGIN: String(dadosAtualizarFuncionarios[0]?.NOLOGIN),
-      PWSENHA: String(senha),
-      IDEMPRESA: Number(empresaSelecionada.value),
+      NUCPF: cpfSemMascara,
+      NOLOGIN: dadosAtualizarFuncionarios[0]?.NOLOGIN,
+      PWSENHA: senha,
+      IDEMPRESA: parseInt(empresaSelecionada.value),
       IDSUBGRUPOEMPRESARIAL: Number(subGrupoEmpresarialSelecionado),
-      IDFUNCIONARIO: Number(dadosAtualizarFuncionarios[0]?.IDFUNCIONARIO),
+      IDFUNCIONARIO: dadosAtualizarFuncionarios[0]?.IDFUNCIONARIO,
       DSTIPO: tipoSelecionado.value,
       PERC: parseFloat(valorDesconto),
       VALORSALARIO: parseFloat(valorSalario),
       VALORDISPONIVEL: parseFloat(0),
       IDPERFIL: Number(dadosAtualizarFuncionarios[0]?.IDPERFIL),
-      DSFUNCAO: String(funcaoSelecionada.value),
-      STCONVENIO: String(categoriaContratacao) === 'CLT' ? 'True' : 'False',
-      STDESCONTOFOLHA: String(categoriaContratacao) === 'CLT' ? 'True' : 'False',
-      STLOJA: String(localizacaoSelcionada.value),
-      STATIVO: String(situacaoSelecionada.value),
-      IDFUNCALTERACAO: Number(usuarioLogado.id),
+      DSFUNCAO: funcaoSelecionada.value,
+      STCONVENIO: categoriaContratacao === 'CLT' ? 'True' : 'False',
+      STDESCONTOFOLHA: categoriaContratacao === 'CLT' ? 'True' : 'False',
+      STLOJA: localizacaoSelcionada.value,
+      STATIVO: situacaoSelecionada.value,
+      IDFUNCALTERACAO: usuarioLogado.id,
       MOTIVODESC: '',
-      ID: Number(dadosAtualizarFuncionarios[0]?.ID)
+      TELEFONE: removerMascaraTelefone(telefone),
+      DEPARTAMENTO: departamentoSelecionado?.value
     }
 
     try {
@@ -342,7 +353,7 @@ export const useEditarFuncionario = ({
         IP: ipUsuario
       }
 
-      const responsePost = await post('/log-web', createData)
+      await post('/log-web', createData)
 
       Swal.fire({
         title: 'Atualização',
@@ -355,7 +366,7 @@ export const useEditarFuncionario = ({
       })
       refetch();
       handleClose();
-      return responsePost.data;
+      return response.data;
     } catch (error) {
       const textoFuncao = 'RH/ERRO AO ATUALIZAR FUNCIONARIO';
 
@@ -432,8 +443,17 @@ export const useEditarFuncionario = ({
     localizacao,
     situacao,
     Parceiro,
+    Departamentos,
     onSubmit,
-    loginConfirmacao
+    loginConfirmacao,
+    senhaLogin,
+    setSenhaLogin,
+    isLoggedIn,
+    setIsLoggedIn,
+    telefone,
+    setTelefone,
+    departamentoSelecionado,
+    setDepartamentoSelecionado
 
   }
 }

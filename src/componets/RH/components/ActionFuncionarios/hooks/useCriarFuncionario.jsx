@@ -8,7 +8,7 @@ import { Funcoes } from '../../../../../../tipoFuncao.json';
 import { Parceiro, situacao, localizacao, Departamentos } from '../../../../../../parceiro.json';
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
-import { set } from "date-fns";
+
 import { removerMascaraTelefone } from "../../../../../utils/mascaraTelefone";
 
 
