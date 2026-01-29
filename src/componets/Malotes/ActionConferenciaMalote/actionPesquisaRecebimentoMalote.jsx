@@ -11,8 +11,7 @@ import { ButtonType } from "../../Buttons/ButtonType"
 import { getDataAtual } from "../../../utils/dataAtual"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../utils/animationCarregamento"
 
-
-export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID  }) => {
+export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID }) => {
     const [dataPesquisaInicio, setDataPesquisaInicio] = useState("");
     const [dataPesquisaFim, setDataPesquisaFim] = useState("");
     const [empresaSelecionada, setEmpresaSelecionada] = useState("");
@@ -30,8 +29,8 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID  }) => {
 
     }, [])
 
-   
     const { data: optionsEmpresas = [] } = useFetchData('empresas', '/empresas');
+
     const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
         'menus-usuario-excecao',
         async () => {
@@ -44,11 +43,10 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID  }) => {
 
     const fetchListaMalotes = async () => {
         try {
-                                                     
+
             const urlApi = `/malotes-loja?idEmpresa=${empresaSelecionada}&statusMalote=${statusSelecionado}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
             const response = await get(urlApi);
 
-            
             if (response.data.length && response.data.length === pageSize) {
                 let pages = currentPage ? Math.ceil(response.data.length / pageSize) : '';
                 let allData = [...response.data];
@@ -73,7 +71,7 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID  }) => {
                 await fetchNextPage(currentPage);
                 return allData;
             } else {
-               
+
                 return response.data;
             }
         } catch (error) {
@@ -83,8 +81,8 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID  }) => {
             fecharAnimacaoCarregamento();
         }
     };
-    
-    const { data: dadosMalotes = [], error: errorMalotes, isLoading: isLoadingMalotes, refetch } = useQuery(
+
+    const { data: dadosMalotes = [], error: errorMalotes, isLoading: isLoadingMalotes, refetch: refetchLista } = useQuery(
         ['malotes-loja', empresaSelecionada, statusSelecionado, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
         () => fetchListaMalotes(empresaSelecionada, statusSelecionado, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
         { enabled: Boolean(isQuery), staleTime: 5 * 60 * 1000, }
@@ -94,13 +92,11 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID  }) => {
         setCurrentPage(prevPage => prevPage + 1);
         setIsQuery(true);
         setTabelaVisivel(true);
-        refetch();
+        refetchLista();
     }
 
-
-
     const optionsStatus = [
-        { value: '0', label: 'Selecione um Status' },
+        { value: '', label: 'Selecione um Status' },
         { value: 'Pendente de Envio', label: 'Pendente de Envio' },
         { value: 'Enviado', label: 'Enviado' },
         { value: 'Recepcionado', label: 'Recepcionado' },
@@ -117,7 +113,6 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID  }) => {
                 linkComponent={["Recepção de Malotes"]}
                 title="Lista de Malotes por Período"
 
-
                 InputFieldDTInicioComponent={InputField}
                 labelInputFieldDTInicio={"Data Início"}
                 valueInputFieldDTInicio={dataPesquisaInicio}
@@ -128,49 +123,44 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID  }) => {
                 valueInputFieldDTFim={dataPesquisaFim}
                 onChangeInputFieldDTFim={(e) => setDataPesquisaFim(e.target.value)}
 
-
-
                 InputSelectGrupoComponent={InputSelectAction}
                 labelSelectGrupo={"Empresa"}
                 optionsGrupos={[
-                    { value: '0', label: 'Selecione uma Empresa' },
+                    { value: '', label: 'Selecione uma Empresa' },
                     ...optionsEmpresas.map((item) => ({
                         value: item.IDEMPRESA,
                         label: item.NOFANTASIA,
-
                     }))
                 ]}
                 valueSelectGrupo={empresaSelecionada}
                 onChangeSelectGrupo={(e) => setEmpresaSelecionada(e.value)}
 
-
                 InputSelectSubGrupoComponent={InputSelectAction}
                 labelSelectSubGrupo={"Status"}
                 optionsSubGrupos={[
-                    { value: '0', label: 'Selecione...' },
+                    { value: '', label: 'Selecione...' },
                     ...optionsStatus.map((item) => ({
                         value: item.value,
                         label: item.label,
-
                     }))
                 ]}
                 valueSelectSubGrupo={statusSelecionado}
                 onChangeSelectSubGrupo={(e) => setStatusSelecionado(e.value)}
-
 
                 ButtonSearchComponent={ButtonType}
                 linkNomeSearch={"Pesquisar"}
                 IconSearch={AiOutlineSearch}
                 corSearch={"primary"}
                 onButtonClickSearch={handleClick}
-
             />
 
             {tabelaVisivel && (
-                <ActionListaConferenciaMalotes 
-                    dadosMalotes={dadosMalotes} 
-                    handleClick={handleClick} 
+                <ActionListaConferenciaMalotes
+                    dadosMalotes={dadosMalotes}
+                    handleClick={handleClick}
                     optionsModulos={optionsModulos}
+                    usuarioLogado={usuarioLogado}
+                    refetchLista={refetchLista}
                 />
             )}
         </Fragment>

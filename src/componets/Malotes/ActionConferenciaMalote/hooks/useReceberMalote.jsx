@@ -1,67 +1,64 @@
-import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { post, put } from "../../../../api/funcRequest";
 
-export const useReceberMalote = ({salvarDadosMalotes}) => {
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
+export const useReceberMalote = ({ usuarioLogado, optionsModulos, refetchLista }) => {
   const [ipUsuario, setIpUsuario] = useState('');
-  const navigate = useNavigate();
-
-
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
 
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
-    }
-    return response.data;
-  }
+    let usuarioIP = null;
 
-
-  const onSalvarMalote = async () => {
-
-
-    if(!usuarioLogado?.id || !salvarDadosMalotes[0]?.IDEMPRESA) {
-  
-        Swal.fire({
-          title: 'Erro!',
-          text: `Erro ao tentar recuperar os dados da Sessão do Usuário ${usuarioLogado?.NOFUNCIONARIO}, faça o logoff e entre novamente no sistema!`,
-          icon: 'error',
-          customClass: {
-            container: 'custom-swal',
-          },
-        });
-        return;
-      
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
 
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
+
+
+  const onSalvarMalote = async (row) => {
+    if (optionsModulos[0]?.ALTERAR == 'False') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Acesso Negado',
+        text: 'Você não tem permissão para realizar esta ação.',
+        confirmButtonText: 'OK',
+        timer: 3000,
+      });
+      return;
+    }
+    /*       if(!usuarioLogado?.id || !salvarDadosMalotes[0]?.IDEMPRESA) {
+       
+             Swal.fire({
+               title: 'Erro!',
+               text: `Erro ao tentar recuperar os dados da Sessão do Usuário ${usuarioLogado?.NOFUNCIONARIO}, faça o logoff e entre novamente no sistema!`,
+               icon: 'error',
+               customClass: {
+                 container: 'custom-swal',
+               },
+             });
+             return;
+         } 
+     */
     const putData = [{
-      IDMALOTE: salvarDadosMalotes?.IDMALOTE,
+      IDMALOTE: row?.IDMALOTE,
       STATUS: 'Recepcionado',
       IDUSERULTIMAALTERACAO: usuarioLogado?.id
     }];
-    
-  
+
     Swal.fire({
       icon: 'question',
       text: `${usuarioLogado?.NOFUNCIONARIO} \n Deseja realmente confirmar a RECEPÇÃO do Malote?`,
@@ -77,59 +74,64 @@ export const useReceberMalote = ({salvarDadosMalotes}) => {
 
     }).then(async (result) => {
       if (result.isConfirmed) {
-        
+
         try {
-          const response = await put(`/malotes-por-loja/${salvarDadosMalotes?.IDMALOTE}`, putData);
- 
-          if(response.data?.status == 'success') {
+          const response = await put(`/malotes-por-loja/${row?.IDMALOTE}`, putData);
 
-            const textDados = JSON.stringify(putData);
-            let textoFuncao = 'RECEPÇÃO DE MALOTE / RECEBIMENTO DE MALOTE';
-  
-            const createData = {
-              IDFUNCIONARIO: usuarioLogado.id,
-              PATHFUNCAO: textoFuncao,
-              DADOS: textDados,
-              IP: ipUsuario,
-            };
-  
-            await post('/log-web', createData);
-  
-            Swal.fire({
-              icon: 'success',
-              title: 'Sucesso!',
-              text: `${usuarioLogado?.NOFUNCIONARIO} \n Malote Recebido com Sucesso!`,
-              customClass: {
-                container: 'custom-swal',
-              },
-            });
-
-          } else {
-              throw new Error((response.data?.message || 'Resposta inesperada da API'));
-          }
-        } catch (error) {
-
-          // const textDados = JSON.stringify(putData);
-          let textoFuncao = 'RECEPÇÃO DE MALOTE / ERRO AO RECEBER MALOTE';
+          const textDados = JSON.stringify(putData);
+          let textoFuncao = 'RECEPÇÃO DE MALOTE / RECEBIMENTO DE MALOTE';
+          const ipUsuario = await getIPUsuario();
 
           const createData = {
-            IDFUNCIONARIO: usuarioLogado.id,
+            IDFUNCIONARIO: String(usuarioLogado.id),
             PATHFUNCAO: textoFuncao,
-            DADOS: '',
+            DADOS: textDados,
+            IP: ipUsuario,
+          };
+
+          await post('/log-web', createData)
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Sucesso!',
+            text: `${usuarioLogado?.NOFUNCIONARIO} \n Malote Recebido com Sucesso!`,
+            customClass: {
+              container: 'custom-swal',
+            },
+          });
+
+          refetchLista()
+
+          return response.data;
+        } catch (error) {
+
+          const textDados = JSON.stringify(putData);
+          let textoFuncao = 'RECEPÇÃO DE MALOTE / ERRO AO RECEBER MALOTE';
+          const ipUsuario = await getIPUsuario();
+
+          const createData = {
+            IDFUNCIONARIO: String(usuarioLogado.id),
+            PATHFUNCAO: textoFuncao,
+            DADOS: textDados,
             IP: ipUsuario,
           };
 
           const responsePost = await post('/log-web', createData);
 
-         
+          Swal.fire({
+            icon: 'error',
+            title: 'Erro!',
+            text: `Erro ao Receber Malote`,
+            customClass: {
+              container: 'custom-swal',
+            },
+          });
         }
       }
     });
   };
 
   return {
-    usuarioLogado,
-    setUsuarioLogado,
     onSalvarMalote,
   };
 };

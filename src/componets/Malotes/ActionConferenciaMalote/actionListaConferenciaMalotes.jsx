@@ -4,26 +4,21 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useReactToPrint } from "react-to-print";
-import { GrView } from "react-icons/gr";
-
 import { GoDownload } from "react-icons/go";
 import { toFloat } from "../../../utils/toFloat";
-import { formatMoeda } from "../../../utils/formatMoeda";
 import { ButtonTable } from "../../ButtonsTabela/ButtonTable";
-import { get } from "../../../api/funcRequest";
 import HeaderTable from "../../Tables/headerTable";
 import { Column } from "primereact/column";
 import { useReceberMalote } from "./hooks/useReceberMalote";
 import Swal from "sweetalert2";
 
-
-export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, optionsModulos  }) => {
+export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, optionsModulos, usuarioLogado, refetchLista }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [salvarDadosMalotes, setSalvarDadosMalotes] = useState([]);
   const dataTableRef = useRef();
   const {
     onSalvarMalote,
-  } = useReceberMalote({salvarDadosMalotes})
+  } = useReceberMalote({ salvarDadosMalotes, usuarioLogado, optionsModulos, handleClick, refetchLista })
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -61,7 +56,7 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, optio
         'R$ ***',
         'R$ ***',
         'R$ ***',
-        item.statusFormatado,  
+        item.statusFormatado,
       ]),
       autoPrint: true,
       horizontalPageBreak: true,
@@ -80,7 +75,7 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, optio
       msg += 'Aguardando Recepção...';
     } else if (status == 'Recepcionado') {
       classe = 'text-success';
-    } 
+    }
 
     return { classe, msg };
   };
@@ -167,8 +162,6 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, optio
     }
   });
 
-
-
   const colunasMovimentoCixa = [
     {
       field: 'contador',
@@ -226,7 +219,7 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, optio
       field: 'VALORTOTALVOUCHER',
       header: 'Voucher',
       body: row => (
-        <th style={{ }}> R$*** </th>
+        <th style={{}}> R$*** </th>
       ),
       sortable: true,
     },
@@ -287,15 +280,14 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, optio
                 width="100px"
                 height="40px"
                 textButton={"Recepcionar"}
-                
               />
-     
+
             </div>
           )
-        } else  {
+        } else {
           return (
             <div className="p-1">
-            {/* <ButtonTable
+              {/* <ButtonTable
               titleButton={"Conferir"}
               cor={"success"}
               Icon={GoDownload}
@@ -306,32 +298,30 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, optio
               textButton={"Conferir"}
               
             /> */}
-   
-          </div>
+
+            </div>
           )
-        } 
+        }
       },
     },
   ]
 
-  const handleEnviarMalote = async (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
-      if (row) {
-        setSalvarDadosMalotes(row);
-        await onSalvarMalote(salvarDadosMalotes); 
-   
+    const handleEnviarMalote = async (row) => {
+      if (optionsModulos[0]?.ALTERAR == 'True') {
+        if (row) {
+          await onSalvarMalote(row);
+        }
+  
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Acesso Negado',
+          text: 'Você não tem permissão para realizar esta ação.',
+          confirmButtonText: 'OK',
+          timer: 3000,
+        });
       }
-
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Acesso Negado',
-        text: 'Você não tem permissão para realizar esta ação.',
-        confirmButtonText: 'OK',
-        timer: 3000,
-      });
     }
-  }
 
   return (
 
@@ -339,7 +329,7 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, optio
       <div className="panel">
         <div className="panel-hdr">
           <h2>
-           Lista de Malotes Enviados
+            Lista de Malotes Enviados
           </h2>
         </div>
         <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
