@@ -345,9 +345,9 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
 
   ]
 
-  const handleEdit = async (IDFUNCIONARIO) => {
+  const handleEdit = async (ID) => {
     try {
-      const response = await get(`/funcionarios-loja?byId=${IDFUNCIONARIO}`)
+      const response = await get(`/funcionarios-loja?byId=${ID}`)
       if (response.data) {
         setDadosAtualizarFuncionarios(response.data)
 
