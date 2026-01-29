@@ -213,19 +213,19 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       return;
     }
 
-    // if (!empresaSelecionada || !empresaSelecionada.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Empresa não selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
+    if (!empresaSelecionada.value) {
+      Swal.fire({
+        title: 'Erro ao Cadastrar',
+        text: 'Empresa não selecionada',
+        icon: 'error',
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+      return;
 
-    // }
+    }
 
     // if (!funcaoSelecionada || !funcaoSelecionada.value) {
     //   Swal.fire({
