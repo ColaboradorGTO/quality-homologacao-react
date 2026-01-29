@@ -74,18 +74,18 @@ export const FormularioCadastrar = ({
     const handleValidatedSubmit = async () => {
         try {
             const dadosParaValidar = {
-                empresaFuncionario: empresaSelecionada,
-                funcaoFuncionario: funcaoSelecionada,
-                tipoFuncionario: tipoSelecionado,
+                // empresaFuncionario: empresaSelecionada,
+                // funcaoFuncionario: funcaoSelecionada,
+                // tipoFuncionario: tipoSelecionado,
                 dataAdmissaoFuncionario: dataAdmissao,
                 cpf: cpfFuncionario,
                 nome: nomeFuncionario,
-                localizacaoFuncionario: localizacaoSelcionada,
-                categoriaContratacao: isChecked,
+                // localizacaoFuncionario: localizacaoSelcionada,
+                // categoriaContratacao: isChecked,
                 salarioFuncionario: valorSalario,
                 valorDesconroFuncionario: valorDesconto,
                 execaoDescFuncionario: excecao,
-                situacaoFuncionario: situacaoSelecionada,
+                // situacaoFuncionario: situacaoSelecionada,
             };
 
             await schema.validate(dadosParaValidar, { abortEarly: false });
@@ -107,7 +107,7 @@ export const FormularioCadastrar = ({
             }
 
             const errorMessages = validationError.errors || [validationError.message];
-            alert(`Erro de validação:\n${errorMessages.join('\n')}`);
+            console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
 
     }
