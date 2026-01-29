@@ -94,6 +94,8 @@ export const FormularioCadastrar = ({
                 dataAdmissaoFuncionario: dataAdmissao,
                 cpf: cpfFuncionario,
                 nome: nomeFuncionario,
+                telefoneFuncionario: telefone,
+                departamentoFuncionario: departamentoSelecionado,
                 localizacaoFuncionario: localizacaoSelcionada,
                 // categoriaContratacao: isChecked,
                 salarioFuncionario: removerFormatacaoMoeda(valorSalario),

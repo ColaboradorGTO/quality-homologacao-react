@@ -70,4 +70,12 @@ export const schema = yup.object({
     .required('CPF Obrigatório')
     .matches(/^\d{11}$/, 'CPF deve conter exatamente 11 números'),
 
+  telefoneFuncionario: yup.string()
+    .required('Telefone Obrigatório')
+    .matches(/^\d{10,11}$/, 'Telefone deve conter 10 ou 11 números'),
+  
+  departamentoFuncionario: yup.object()
+    .nullable()
+    .required('Departamento Obrigatório')
+    .typeError('Departamento Obrigatório'),
 });
