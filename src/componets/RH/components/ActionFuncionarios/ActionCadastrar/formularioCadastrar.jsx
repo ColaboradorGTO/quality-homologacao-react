@@ -10,6 +10,10 @@ import { schema } from "./schamaValidarFuncionario";
 import { AlertError } from "../../../../Inputs/alertError"
 import { format, set, subDays } from "date-fns";
 import FormField from "../../../../Formularios/FormField";
+import { formatarMoeda, formatMoeda, removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
+
+// Função para remover formatação de moeda
+
 
 export const FormularioCadastrar = ({
     handleClose,
@@ -67,27 +71,36 @@ export const FormularioCadastrar = ({
         localizacao,
         situacao,
         Parceiro,
+        Departamentos,
         onSubmit,
-        loginConfirmacao
+        loginConfirmacao,
+        senhaLogin,
+        setSenhaLogin,
+        isLoggedIn,
+        setIsLoggedIn,
+        telefone,
+        setTelefone,
+        departamentoSelecionado,
+        setDepartamentoSelecionado
     } = useCriarFuncionario({ handleClose, usuarioLogado, optionsModulos, refetch });
 
     const handleValidatedSubmit = async () => {
         try {
             const dadosParaValidar = {
-                // empresaFuncionario: empresaSelecionada,
-                // funcaoFuncionario: funcaoSelecionada,
-                // tipoFuncionario: tipoSelecionado,
+                empresaFuncionario: empresaSelecionada,
+                funcaoFuncionario: funcaoSelecionada,
+                tipoFuncionario: tipoSelecionado,
                 dataAdmissaoFuncionario: dataAdmissao,
                 cpf: cpfFuncionario,
                 nome: nomeFuncionario,
-                // localizacaoFuncionario: localizacaoSelcionada,
+                localizacaoFuncionario: localizacaoSelcionada,
                 // categoriaContratacao: isChecked,
-                salarioFuncionario: valorSalario,
+                salarioFuncionario: removerFormatacaoMoeda(valorSalario),
                 valorDesconroFuncionario: valorDesconto,
                 execaoDescFuncionario: excecao,
-                // situacaoFuncionario: situacaoSelecionada,
+                situacaoFuncionario: situacaoSelecionada,
             };
-
+            
             await schema.validate(dadosParaValidar, { abortEarly: false });
             onSubmit();
         } catch (validationError) {
@@ -117,23 +130,27 @@ export const FormularioCadastrar = ({
     return (
         <Fragment>
             {formularioVisivel && (
-                <form onSubmit={handleSubmit(onSubmit)}>
+                <form onSubmit={handleSubmit(handleValidatedSubmit)}>
                     <div className="row">
                         <div className="col-sm-6 col-md-6 col-xl-6">
-                            <label className="form-label" htmlFor="empresaFuncionario">Empresa</label>
+                            <label className="form-label" htmlFor="empresaFuncionario">Empresa *</label>
 
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="empresaFuncionario"
                                 options={optionsEmpresas.map((item) => ({
                                     value: item.IDEMPRESA,
                                     label: item.NOFANTASIA
                                 }))}
                                 value={empresaSelecionada}
                                 onChange={(selected) => {
-                                    setEmpresaSelecionada(selected)
+                                    setEmpresaSelecionada(selected);
                                     clearErrors("empresaFuncionario");
                                 }}
+                                isClearable={true}
+                                isSearchable={true}
+                                placeholder="Selecione a Empresa"
                             />
                         
                             {errors.empresaFuncionario && (
@@ -143,13 +160,14 @@ export const FormularioCadastrar = ({
                                     fieldName="empresaFuncionario"
                                 />
                             )}
-
+                            
                         </div>
                         <div className="col-sm-6 col-md-6 col-xl-6">
-                            <label className="form-label" htmlFor="funcaoFuncionario">Função</label>
+                            <label className="form-label" htmlFor="funcaoFuncionario">Função *</label>
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="funcaoFuncionario"
                                 options={Funcoes.map((item) => ({
                                     value: item.value,
                                     label: item.label
@@ -159,7 +177,10 @@ export const FormularioCadastrar = ({
                                     setFuncaoSelecionada(selected)
                                     clearErrors("funcaoFuncionario");
                                 }}
+                                isClearable={true}
+                                isSearchable={true}
                             />
+
                             {errors.funcaoFuncionario && (
                                 <AlertError
                                     error={errors.funcaoFuncionario}
@@ -167,15 +188,17 @@ export const FormularioCadastrar = ({
                                     fieldName="funcaoFuncionario"
                                 />
                             )}
+                            
                         </div>
 
                     </div>
                     <div className="row mt-4">
                         <div className="col-sm-6 col-md-6 col-xl-6">
-                            <label className="form-label">Tipo</label>
+                            <label className="form-label">Tipo *</label>
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="tipoFuncionario"
                                 options={Parceiro.map((item) => ({
                                     value: item.value,
                                     label: item.label
@@ -185,6 +208,8 @@ export const FormularioCadastrar = ({
                                     setTipoSelecionado(selected)
                                     clearErrors("tipoFuncionario");
                                 }}
+                                isClearable={true}
+                                isSearchable={true}
                             />
 
                             {errors.tipoFuncionario && (
@@ -243,6 +268,7 @@ export const FormularioCadastrar = ({
                                 )}
                             />
                         </div>
+                       
                         <div className="col-sm-8 col-xl-8">
                             <Controller
                                 name="nome"
@@ -261,13 +287,60 @@ export const FormularioCadastrar = ({
                             />
                         </div>
                     </div>
-
+                
                     <div className="row mt-4">
-                        <div className="col-sm-6 col-xl-16">
-                            <label htmlFor="">Localização</label>
+                        <div className="col-sm-4 col-xl-4">
+                            <Controller
+                                name="telefoneFuncionario"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        name="telefoneFuncionario"
+                                        label={"Telefone"}
+                                        type="text"
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                        value={telefone}
+                                        onChangeModal={(e) => setTelefone(e.target.value)}
+                                    />
+                                )}
+                            />
+                        </div>
+
+                        <div className="col-sm-6 col-xl-8">
+                            <label htmlFor="">Departamento *</label>
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="departamentoFuncionario"
+                                options={Departamentos.map((item) => ({
+                                    value: item.value,
+                                    label: item.label
+
+                                }))}
+                                value={departamentoSelecionado}
+                                onChange={(selected) => {
+                                    setDepartamentoSelecionado(selected)
+                                    clearErrors("departamentoFuncionario");
+                                }}
+                            />
+                            {errors.departamentoFuncionario && (
+                                <AlertError
+                                    error={errors.departamentoFuncionario}
+                                    onClose={clearErrors}
+                                    fieldName="departamentoFuncionario"
+                                />
+                            )}
+                            
+                        </div>
+                    </div>
+                    <div className="row mt-4">
+                        <div className="col-sm-6 col-xl-16">
+                            <label htmlFor="">Localização *</label>
+                            <Select
+                                className="basic-single"
+                                classNamePrefix={"select"}
+                                name="localizacaoFuncionario"
                                 options={localizacao.map((item) => ({
                                     value: item.value,
                                     label: item.label
@@ -289,7 +362,7 @@ export const FormularioCadastrar = ({
                             
                         </div>
                         <div className="col-sm-16 col-xl-16">
-                            <label className="form-label">Categoria de Contratação</label>
+                            <label className="form-label">Categoria de Contratação *</label>
                             <div className="form-check">
                                 <label className="form-check-label" htmlFor="radioCLT">
                                     <input
@@ -331,7 +404,7 @@ export const FormularioCadastrar = ({
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={valorSalario}
-                                        onChangeModal={e => setValorSalario(e.target.value)}
+                                        onChangeModal={e => setValorSalario(formatarMoeda(e.target.value))}
                                     />
                                 )}
                             />
@@ -371,7 +444,7 @@ export const FormularioCadastrar = ({
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={valorDesconto}
-                                        onChangeModal={e => setValorDesconto(e.target.value)}
+                                        onChangeModal={e => setValorDesconto(formatarMoeda(e.target.value))}
 
                                     />
                                 )}
@@ -403,11 +476,12 @@ export const FormularioCadastrar = ({
                     <div className="row mt-4">
 
                         <div className="col-sm-6 col-xl-6">
-                            <label className="form-label" htmlFor="stativofuncionario">Situação</label>
+                            <label className="form-label" htmlFor="situacaoFuncionario">Situação</label>
 
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
+                                name="situacaoFuncionario"
                                 options={situacao.map((item) => ({
                                     value: item.value,
                                     label: item.label
@@ -437,7 +511,7 @@ export const FormularioCadastrar = ({
 
                         ButtonTypeConfirmar={ButtonTypeModal}
                         textButtonConfirmar={"Atualizar"}
-                        onClickButtonConfirmar={handleSubmit(onSubmit)}
+                        onClickButtonConfirmar={handleSubmit(handleValidatedSubmit)}
                         corConfirmar="success"
                     />
                 </form>
@@ -470,8 +544,8 @@ export const FormularioCadastrar = ({
                                     type="password"
                                     className="form-control input"
                                     label="Senha"
-                                    value={senha}
-                                    onChangeModal={(e) => setSenha(e.target.value)}
+                                    value={senhaLogin}
+                                    onChangeModal={(e) => setSenhaLogin(e.target.value)}
                                     placeholder={"Digite sua senha"}
                                 />
                             </div>

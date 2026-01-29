@@ -5,9 +5,10 @@ import { useEffect, useState } from "react";
 import { getDataAtual } from "../../../../../utils/dataAtual";
 import axios from 'axios';
 import { Funcoes } from '../../../../../../tipoFuncao.json';
-import { Parceiro, situacao, localizacao } from '../../../../../../parceiro.json';
+import { Parceiro, situacao, localizacao, Departamentos } from '../../../../../../parceiro.json';
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
-import { set } from "date-fns";
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
+
 
 
 export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos, refetch }) => {
@@ -19,24 +20,26 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
   const [localizacaoSelcionada, setLocalizacaoSelecionada] = useState('');
   const [categoriaContratacao, setCategoriaContratacao] = useState('');
   const [dataAdmissao, setDataAdmissao] = useState('');
-  const [valorSalario, setValorSalario] = useState('');
+  const [valorSalario, setValorSalario] = useState(0);
   const [valorDesconto, setValorDesconto] = useState(0);
   const [situacaoSelecionada, setSituacaoSelecionada] = useState('');
   const [tipoSelecionado, setTipoSelecionado] = useState('');
   const [isChecked, setIsChecked] = useState(false);;
   const [cpf, setCPF] = useState('');
   const [ipUsuario, setIpUsuario] = useState('');
-  // const [funcionarioExistente, setFuncionarioExistente] = useState([]);
   const [excecao, setExcecao] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [idFuncionario, setIdFuncionario] = useState(null);
   const [formularioVisivelLogin, setFormularioVisivelLogin] = useState(false);
   const [formularioVisivel, setFormularioVisivel] = useState(true);
   const [usuario, setUsuario] = useState('')
+  const [senhaLogin, setSenhaLogin] = useState('')
   const [senha, setSenha] = useState('')
   const [repitaSenha, setRepitaSenha] = useState('')
   const [noLogin, setNoLogin] = useState('')
   const [idPerfil, setIdPerfil] = useState('')
+  const [telefone, setTelefone] = useState('')
+  const [departamentoSelecionado, setDepartamentoSelecionado] = useState('')
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
 
@@ -71,18 +74,11 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     'listaEmpresasIformatica',
     async () => {
       const response = await get(`/listaEmpresasIformatica`);
-      console.log("Empresas:", response.data);
+      
       return response.data;
     },
     {enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
-
-  // useEffect(() => {
-  //   if (empresaSelecionada) {
-  //     refetchEmpresa();
-  //   }
-  // }, [empresaSelecionada])
-
 
   const { data: optionsCPF = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
     ['funcionarios-loja', cpfFuncionario],
@@ -91,7 +87,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
 
       return response.data;
     },
-    { enabled: cpfFuncionario.length > 10, staleTime: 5 * 60 * 1000, }
+    { enabled: cpfFuncionario.length > 10 }
   );
 
   useEffect(() => {
@@ -120,11 +116,8 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       }
       setSenha(funcionarioExistente.PWSENHA);
       setCPF(funcionarioExistente.NUCPF);
-      {console.log(funcionarioExistente, 'empresaSelecionada hook')}
-    }
-
-    // console.log("Funcionario Existente:", funcionarioExistente);
-                            
+      
+    }                            
 
   }, [optionsCPF]);
 
@@ -156,7 +149,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
 
     const postData = {
       usuario: usuario,
-      senha: senha,
+      senha: senhaLogin,
       modulo: selectedModule?.nome
     }
     try {
@@ -166,7 +159,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       const textoFuncao = 'RH/AUTORIZAÇÃO DESCONTO FOLHA FUNCIONARIO';
 
       const createLog = {
-        IDFUNCIONARIO: usuarioLogado.id,
+        IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
         IP: ipUsuario
@@ -227,58 +220,6 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
 
     }
 
-    // if (!funcaoSelecionada || !funcaoSelecionada.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Função nao selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-
-    // if (!tipoSelecionado || !tipoSelecionado.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Tipo nao selecionado',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-    // if (!dataAdmissao || !dataAdmissao === '') {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Data Admissão nao selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-    // if (!localizacaoSelcionada || !localizacaoSelcionada.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Localização nao selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
 
     if (!['CLT', 'PJ'].includes(categoriaContratacao)) {
       Swal.fire({
@@ -293,45 +234,6 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       return;
     }
 
-    // if (valorSalario === '') {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Valor Salário não pode ser vazio',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-    // if (!situacaoSelecionada || !situacaoSelecionada.value) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Situação nao selecionada',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
-    // if (!nomeFuncionario || nomeFuncionario.trim() === '') {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'Nome não pode ser vazio',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
     if (parseFloat(valorDesconto) > 50) {
       Swal.fire({
         title: 'Desconto maior que permitido',
@@ -345,19 +247,6 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       return;
     }
 
-    // if (cpfSemMascara.length !== 11) {
-    //   Swal.fire({
-    //     title: 'Erro ao Cadastrar',
-    //     text: 'CPF Inválido ou Incompleto',
-    //     icon: 'error',
-    //     timer: 3000,
-    //     customClass: {
-    //       container: 'custom-swal',
-    //     }
-    //   })
-    //   return;
-    // }
-
     const isUpdate = optionsCPF.length > 0 && idFuncionario;
 
     
@@ -369,7 +258,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       NUCPF: String(cpfSemMascara),
       PWSENHA: String(cpfSemMascara.substring(0, 5)),
       DSFUNCAO: String(funcaoSelecionada.value),
-      VALORSALARIO: Number(valorSalario),
+      VALORSALARIO: removerFormatacaoMoeda(valorSalario),
       PERC: parseFloat(valorDesconto) || parseFloat(0),
       STATIVO: 'True',
       DSTIPO: String(tipoSelecionado.value),
@@ -378,6 +267,8 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       STDESCONTOFOLHA: String(categoriaContratacao) === 'CLT' ? "True" : "False",
       STLOJA: localizacaoSelcionada?.value == 'Loja' ? "True" : "False",
       DATA_ADMISSAO: String(dataAdmissao),
+      TELEFONE: telefone,
+      DEPARTAMENTO: departamentoSelecionado?.value
 
     }
 
@@ -395,24 +286,23 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       IDFUNCIONARIO: idFuncionario,
       DSTIPO: tipoSelecionado.value,
       PERC: parseFloat(valorDesconto),
-      VALORSALARIO: parseFloat(valorSalario),
+      VALORSALARIO: removerFormatacaoMoeda(valorSalario),
       VALORDISPONIVEL: 0,
       IDPERFIL: idPerfil,
       STCONVENIO: isChecked ? "True" : "False",
       STDESCONTOFOLHA: isChecked ? "True" : "False",
       STATIVO: situacaoSelecionada.value == 'Ativo' ? "True" : "False",
       STLOJA: localizacaoSelcionada.value == 'Loja' ? "True" : "False",
+      TELEFONE: telefone,
+      DEPARTAMENTO: departamentoSelecionado?.value
     }
 
     try {
       let response;
 
       if (isUpdate) {
-        // response = await console.log('PUT', putData);
         response = await put('/funcionarios-loja/:id', putData);
-
       } else {
-        // response = await console.log('POST', postData);
         response = await post('/criar-funcionarios-loja', postData);
       }
 
@@ -535,9 +425,17 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     localizacao,
     situacao,
     Parceiro,
+    Departamentos,
     onSubmit,
-    loginConfirmacao
-
+    loginConfirmacao,
+    senhaLogin,
+    setSenhaLogin,
+    isLoggedIn,
+    setIsLoggedIn,
+    telefone,
+    setTelefone,
+    departamentoSelecionado,
+    setDepartamentoSelecionado
   }
 }
 

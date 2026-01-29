@@ -2,16 +2,21 @@ import * as yup from 'yup';
 
 export const schema = yup.object({
 
-  empresaFuncionario: yup.string()
-    .required('Empresa Obrigatória'),
-    
+  empresaFuncionario: yup
+  .object()
+  .nullable()
+  .required('Empresa é obrigatória')
+  .typeError('Empresa é obrigatória'),
 
-  funcaoFuncionario: yup.string()
-    .required('Função Obrigatória'),
-      
+  funcaoFuncionario: yup.object()
+    .nullable()
+    .required('Função Obrigatória')
+    .typeError('Função Obrigatória'),
 
-  tipoFuncionario: yup.string()
-    .required('Tipo Obrigatório'),
+  tipoFuncionario: yup.object()
+    .nullable()
+    .required('Tipo Obrigatório')
+    .typeError('Tipo Obrigatório'),
      
 
   dataAdmissaoFuncionario: yup
@@ -30,11 +35,19 @@ export const schema = yup.object({
       }
     ),
 
-  localizacaoFuncionario: yup.string()
-    .required('Localização Obrigatória'),
+  localizacaoFuncionario: yup.object()
+    .nullable()
+    .required('Localização Obrigatória')
+    .typeError('Localização Obrigatória'),
 
   salarioFuncionario: yup
     .number()
+    .transform((value) => {
+        if(typeof value === 'string') {
+            return value.replace(/\./g, '').replace(',', '.');
+        }
+        return value;
+    })
     .typeError('Salário deve ser um número')
     .required('Salário Obrigatório'),
 
@@ -47,8 +60,10 @@ export const schema = yup.object({
     .string()
     .nullable(),
 
-  situacaoFuncionario: yup.string()
-    .required('Situação Obrigatória'),
+  situacaoFuncionario: yup.object()
+    .nullable()
+    .required('Situação Obrigatória')
+    .typeError('Situação Obrigatória'),
 
 
   cpf: yup.string()

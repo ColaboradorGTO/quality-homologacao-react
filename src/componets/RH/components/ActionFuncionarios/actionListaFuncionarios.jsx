@@ -115,6 +115,8 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       DATA_DEMISSAO: item.DATA_DEMISSAO,
       ID: item.ID,
       IDFUNCIONARIO: item.IDFUNCIONARIO,
+      TELEFONE: item.TELEFONE,
+      DEPARTAMENTO: item.DEPARTAMENTO
 
     };
   });
@@ -188,9 +190,32 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       header: 'Tipo',
       body: (row) => (
         <div style={{ width: '150px' }}>
-
           <th>
             {row.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO'}
+          </th>
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      field: 'TELEFONE',
+      header: 'Telefone',
+      body: (row) => (
+        <div style={{ }}>
+          <th>
+            {row.TELEFONE}
+          </th>
+        </div>
+      ),
+      sortable: true,
+    },
+    {
+      field: 'DEPARTAMENTO',
+      header: 'Departamento',
+      body: (row) => (
+        <div style={{ }}>
+          <th>
+            {row.DEPARTAMENTO}
           </th>
         </div>
       ),

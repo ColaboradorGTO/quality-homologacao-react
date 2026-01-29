@@ -17,3 +17,27 @@ export function formatarMoeda (valor) {
   
   return integrosFormatado + '.' + centavos;
 };
+
+export function removerFormatacaoMoeda(valor) {
+  if (!valor) return 0;
+  let str = String(valor).trim();
+  
+  // Se tem vírgula, é o separador decimal (formato brasileiro)
+  if (str.includes(',')) {
+      // Remove pontos (separadores de milhares)
+      str = str.replace(/\./g, '');
+      // Troca vírgula por ponto
+      str = str.replace(',', '.');
+  } else {
+      // Sem vírgula, pode ter ponto como decimal
+      // Remover apenas pontos que são separadores de milhares (não o último ponto)
+      const lastDotIndex = str.lastIndexOf('.');
+      if (lastDotIndex > -1) {
+          const beforeLastDot = str.substring(0, lastDotIndex).replace(/\./g, '');
+          const afterLastDot = str.substring(lastDotIndex);
+          str = beforeLastDot + afterLastDot;
+      }
+  }
+  
+  return parseFloat(str);
+};
