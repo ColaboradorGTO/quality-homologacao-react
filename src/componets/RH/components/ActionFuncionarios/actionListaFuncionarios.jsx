@@ -376,9 +376,9 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
     }
   };
 
-  const handleDesconto = async (IDFUNCIONARIO) => {
+  const handleDesconto = async (ID) => {
     try {
-      const response = await get(`/funcionarios-loja?byId=${IDFUNCIONARIO}`)
+      const response = await get(`/funcionarios-loja?byId=${ID}`)
       if (response.data) {
         setDadosDescontoFuncionarios(response.data)
         setModalDescontoVisivel(true);
@@ -390,8 +390,8 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
 
   const handleClickDesconto = (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
-      if (row && row.IDFUNCIONARIO) {
-        handleDesconto(row.IDFUNCIONARIO);
+      if (row && row.ID) {
+        handleDesconto(row.ID);
       }
     } else {
       Swal.fire({
