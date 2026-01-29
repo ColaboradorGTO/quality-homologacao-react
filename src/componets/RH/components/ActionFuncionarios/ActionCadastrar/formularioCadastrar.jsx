@@ -101,6 +101,8 @@ export const FormularioCadastrar = ({
                 valorDesconroFuncionario: valorDesconto,
                 execaoDescFuncionario: excecao,
                 situacaoFuncionario: situacaoSelecionada,
+               
+        
             };
             
             await schema.validate(dadosParaValidar, { abortEarly: false });

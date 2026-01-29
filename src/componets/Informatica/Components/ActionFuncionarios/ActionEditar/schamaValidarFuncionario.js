@@ -1,24 +1,23 @@
 import * as yup from 'yup';
 
-export const schema = yup.object().shape({
+export const schema = yup.object({
 
   empresaFuncionario: yup
-    .object({
-      value: yup.string().required('Empresa Obrigatória'),
-      label: yup.string(),
-    }),
+  .object()
+  .nullable()
+  .required('Empresa é obrigatória')
+  .typeError('Empresa é obrigatória'),
 
-  funcaoFuncionario: yup
-    .object({
-      value: yup.string().required('Função Obrigatória'),
-      label: yup.string(),
-    }),
+  funcaoFuncionario: yup.object()
+    .nullable()
+    .required('Função Obrigatória')
+    .typeError('Função Obrigatória'),
 
-  tipoFuncionario: yup
-    .object({
-      value: yup.string().required('Tipo Obrigatório'),
-      label: yup.string(),
-    }),
+  tipoFuncionario: yup.object()
+    .nullable()
+    .required('Tipo Obrigatório')
+    .typeError('Tipo Obrigatório'),
+     
 
   dataAdmissaoFuncionario: yup
     .date()
@@ -36,21 +35,21 @@ export const schema = yup.object().shape({
       }
     ),
 
-  localizacaoFuncionario: yup
-    .object({
-      value: yup.string().required('Localização Obrigatória'),
-      label: yup.string(),
-    }),
+  localizacaoFuncionario: yup.object()
+    .nullable()
+    .required('Localização Obrigatória')
+    .typeError('Localização Obrigatória'),
 
   salarioFuncionario: yup
     .number()
+    .transform((value) => {
+        if(typeof value === 'string') {
+            return value.replace(/\./g, '').replace(',', '.');
+        }
+        return value;
+    })
     .typeError('Salário deve ser um número')
     .required('Salário Obrigatório'),
-
-  descontoConvFuncionario: yup
-    .number()
-    .typeError('Desconto deve ser um número')
-    .nullable(),
 
   valorDescontoFuncionario: yup
     .number()
@@ -61,10 +60,25 @@ export const schema = yup.object().shape({
     .string()
     .nullable(),
 
-  situacaoFuncionario: yup
-    .object({
-      value: yup.string().required('Situação Obrigatória'),
-      label: yup.string(),
-    }),
+  situacaoFuncionario: yup.object()
+    .nullable()
+    .required('Situação Obrigatória')
+    .typeError('Situação Obrigatória'),
 
+
+  telefoneFuncionario: yup.string()
+    .transform((value) => {
+        if (typeof value === 'string') {
+            return value.replace(/\D/g, ''); // Remove espaços e caracteres especiais
+        }
+        return value;
+    })
+    .required('Telefone Obrigatório')
+    .matches(/^\d{10,11}$/, 'Telefone deve conter 10 ou 11 números'),
+  
+  
+  departamentoFuncionario: yup.object()
+    .nullable()
+    .required('Departamento Obrigatório')
+    .typeError('Departamento Obrigatório'),
 });

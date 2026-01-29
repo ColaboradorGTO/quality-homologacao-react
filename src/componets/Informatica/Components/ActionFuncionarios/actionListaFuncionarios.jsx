@@ -453,6 +453,8 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
         dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
         handleClick={handleClick}
+        optionsModulos={optionsModulos} 
+        usuarioLogado={usuarioLogado}
       />
       {/* <ActionUpdateFuncionarioModal
         show={modalAlterarFuncionarioVisivel}

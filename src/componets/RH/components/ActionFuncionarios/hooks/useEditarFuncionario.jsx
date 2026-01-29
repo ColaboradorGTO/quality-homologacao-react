@@ -229,8 +229,8 @@ export const useEditarFuncionario = ({
       STATIVO: situacaoSelecionada.value,
       IDFUNCALTERACAO: usuarioLogado.id,
       MOTIVODESC: '',
-      TELEFONE: removerMascaraTelefone(telefone),
-      DEPARTAMENTO: departamentoSelecionado?.value
+      TELEFONE: removerMascaraTelefone(telefone) || '',
+      DEPARTAMENTO: departamentoSelecionado?.value || ''
     }
 
     try {

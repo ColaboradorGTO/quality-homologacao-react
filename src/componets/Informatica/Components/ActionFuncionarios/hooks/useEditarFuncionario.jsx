@@ -2,15 +2,14 @@ import Swal from "sweetalert2";
 import { get, post, put } from "../../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { getDataAtual } from "../../../../../utils/dataAtual";
 import axios from 'axios';
 import { Funcoes } from '../../../../../../tipoFuncao.json';
 import { Parceiro, situacao, localizacao, Departamentos } from '../../../../../../parceiro.json';
 import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 import { removerMascaraTelefone } from "../../../../../utils/mascaraTelefone";
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
-export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, handleClick }) => {
+export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, handleClick, optionsModulos, usuarioLogado }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [subGrupoEmpresarialSelecionado, setSubGrupoEmpresarialSelecionado] = useState('');
   const [funcaoSelecionada, setFuncaoSelecionada] = useState('');
@@ -26,7 +25,6 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
   const [isChecked, setIsChecked] = useState(false);;
   const [cpf, setCPF] = useState('');
   const [ipUsuario, setIpUsuario] = useState('');
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [excecao, setExcecao] = useState(false);
   const [formularioVisivelLogin, setFormularioVisivelLogin] = useState(false);
   const [formularioVisivel, setFormularioVisivel] = useState(true);
@@ -37,30 +35,10 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
   const [departamentoSelecionado, setDepartamentoSelecionado] = useState('')
   const [senhaLogin, setSenhaLogin] = useState('')
   const [noLogin, setNoLogin] = useState('')
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
 
-  const navigate = useNavigate();
-
-  /*   useEffect(() => {
-      const dataAtual = getDataAtual()
-      setDataAdmissao(dataAtual)
-    }, []) */
-
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, []);
 
   const getIPUsuario = async () => {
     let usuarioIP = null;
@@ -248,8 +226,8 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
       STATIVO: situacaoSelecionada.value,
       IDFUNCALTERACAO: usuarioLogado.id,
       MOTIVODESC: '',
-      TELEFONE: removerMascaraTelefone(telefone),
-      DEPARTAMENTO: departamentoSelecionado?.value
+      TELEFONE: removerMascaraTelefone(telefone) || '',
+      DEPARTAMENTO: departamentoSelecionado?.value || ''
     }
 
     try {
@@ -277,7 +255,7 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
           container: 'custom-swal',
         }
       })
-      refetch();
+      handleClick();
       handleClose();
       return response.data;
     } catch (error) {
@@ -342,8 +320,6 @@ export const useEditarFuncionario = ({ handleClose, dadosAtualizarFuncionarios, 
     setCPF,
     ipUsuario,
     setIpUsuario,
-    usuarioLogado,
-    setUsuarioLogado,
     excecao,
     setExcecao,
     formularioVisivelLogin,

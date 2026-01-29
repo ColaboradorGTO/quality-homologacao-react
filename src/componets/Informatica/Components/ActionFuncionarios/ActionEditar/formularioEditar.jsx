@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
@@ -6,11 +6,19 @@ import Select from 'react-select';
 import { Controller, useForm } from "react-hook-form";
 import { useEditarFuncionario } from "../hooks/useEditarFuncionario";
 import { mascaraCPF } from "../../../../../utils/formatCPF";
-import { addDays, format, subDays } from "date-fns";
+import { format, subDays } from "date-fns";
 import { AlertError } from "../../../../Inputs/alertError";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schamaValidarFuncionario";
-export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) => {
+import { mascaraTelefone } from "../../../../../utils/mascaraTelefone";
+
+export const FormularioEditar = ({
+  handleClose, 
+  dadosAtualizarFuncionarios,
+  handleClick,
+  optionsModulos,
+  usuarioLogado  
+}) => {
   const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
     mode: "onChange"
   });
@@ -62,9 +70,19 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
     localizacao,
     situacao,
     Parceiro,
+    Departamentos,
     onSubmit,
-    loginConfirmacao
-  } = useEditarFuncionario({ handleClose, dadosAtualizarFuncionarios });
+    loginConfirmacao,
+    senhaLogin,
+    setSenhaLogin,
+    isLoggedIn,
+    setIsLoggedIn,
+    telefone,
+    setTelefone,
+    departamentoSelecionado,
+    setDepartamentoSelecionado
+
+  } = useEditarFuncionario({ handleClose, dadosAtualizarFuncionarios, handleClick, optionsModulos, usuarioLogado });
 
   const handleValidatedSubmit = async () => {
     try {
@@ -73,7 +91,6 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
         funcaoFuncionario: funcaoSelecionada,
         tipoFuncionario: tipoSelecionado,
         dataAdmissaoFuncionario: dataAdmissao,
-        cpf: cpfFuncionario,
         nome: nomeFuncionario,
         localizacaoFuncionario: localizacaoSelcionada,
         categoriaContratacao: isChecked,
@@ -81,6 +98,8 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
         valorDesconroFuncionario: valorDesconto,
         execaoDescFuncionario: excecao,
         situacaoFuncionario: situacaoSelecionada,
+        telefoneFuncionario: telefone,
+        departamentoFuncionario: departamentoSelecionado
       };
 
       await schema.validate(dadosParaValidar, { abortEarly: false });
@@ -102,7 +121,7 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
       }
 
       const errorMessages = validationError.errors || [validationError.message];
-      //alert(`Erro de validação:\n${errorMessages.join('\n')}`);
+      console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
     }
 
   }
@@ -113,15 +132,12 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
     <Fragment>
       {formularioVisivel && (
         <Fragment>
-          <form onSubmit={onSubmit} >
+          <form onSubmit={handleSubmit(handleValidatedSubmit)} >
 
             <div className="row form-group">
               <div className="col-sm-6 col-md-6 col-xl-6">
                 <label className="form-label" htmlFor="empresaFuncionario">Loja </label>
-
-
                 <Select
-
                   closeMenuOnSelect={false}
                   options={optionsEmpresas.map((item) => {
                     return {
@@ -132,9 +148,10 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
                   })}
                   value={empresaSelecionada}
                   onChange={(selectedOption) => { setEmpresaSelecionada(selectedOption) }}
-                />{errors.empresaFuncionario && (
+                />
+                {errors.empresaFuncionario && (
                   <AlertError
-                    error={errors.empresaFuncionario?.value || errors.empresaFuncionario}
+                    error={errors.empresaFuncionario}
                     onClose={clearErrors}
                     fieldName="empresaFuncionario"
                   />
@@ -154,7 +171,8 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
                   }))}
                   value={funcaoSelecionada}
                   onChange={(e) => setFuncaoSelecionada(e)}
-                />{errors.funcaoFuncionario && (
+                />
+                {errors.funcaoFuncionario && (
                   <AlertError
                     error={errors.funcaoFuncionario?.value || errors.funcaoFuncionario}
                     onClose={clearErrors}
@@ -179,7 +197,9 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
                   }))}
                   value={tipoSelecionado}
                   onChange={(e) => setTipoSelecionado(e)}
-                />{errors.tipoFuncionario && (
+                />
+
+                {errors.tipoFuncionario && (
                   <AlertError
                     error={errors.tipoFuncionario?.value || errors.tipoFuncionario}
                     onClose={clearErrors}
@@ -205,7 +225,7 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
                       value={dataAdmissao}
                       onChangeModal={e => setDataAdmissao(e.target.value)}
                       min={minDataAdmissao}
-                      max={maxDataAdmissao}
+                    // max={maxDataAdmissao}
                     />
 
                   )}
@@ -241,18 +261,56 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
                     />
                   )}
                 />
-                {/*      <InputFieldModal
-                  type="text"
-                  className="form-control input"
-                  label="Funcionário"
-                  value={nomeFuncionario}
-                  onChangeModal={(e) => setNomeFuncionario(e.target.value)}
-
-                /> */}
               </div>
             </div>
 
-            <div className="row form-group">
+            <div className="row mt-4">
+              <div className="col-sm-4 col-xl-4">
+                <Controller
+                  name="telefoneFuncionario"
+                  control={control}
+                  render={({ field }) => (
+                    <FormField
+                      name="telefoneFuncionario"
+                      label={"Telefone"}
+                      type="text"
+                      errors={errors}
+                      clearErrors={clearErrors}
+                      value={mascaraTelefone(telefone)}
+                      onChangeModal={(e) => setTelefone(e.target.value)}
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="col-sm-6 col-xl-8">
+                <label htmlFor="">Departamento *</label>
+                <Select
+                  className="basic-single"
+                  classNamePrefix={"select"}
+                  name="departamentoFuncionario"
+                  options={Departamentos.map((item) => ({
+                    value: item.value,
+                    label: item.label
+                  }))}
+                  value={departamentoSelecionado}
+                  onChange={(selected) => {
+                    setDepartamentoSelecionado(selected)
+                    clearErrors("departamentoFuncionario");
+                  }}
+                />
+                {errors.departamentoFuncionario && (
+                  <AlertError
+                    error={errors.departamentoFuncionario}
+                    onClose={clearErrors}
+                    fieldName="departamentoFuncionario"
+                  />
+                )}
+
+              </div>
+            </div>
+
+            <div className="row form-group mt-4">
               <div className="col-sm-6 col-md-6 col-xl-6">
                 <label htmlFor="">Localização</label>
                 <Select
@@ -350,17 +408,10 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
                       errors={errors}
                       clearErrors={clearErrors}
                       value={valorSalario}
-                      onChangeModal={e => setValorSalario(e.target.value)}
+                      onChangeModal={e => setValorSalario(formatarMoeda(e.target.value))}
                     />
                   )}
                 />
-                {/*      <InputFieldModal
-                  type="text"
-                  className="form-control input"
-                  label="Valor Salário"
-                  value={valorSalario}
-                  onChangeModal={(e) => setValorSalario(e.target.value)}
-                /> */}
               </div>
 
               <div className="col-sm-3 col-md-6 col-xl-6">
@@ -380,30 +431,19 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
                     />
                   )}
                 />
-                {/*           <InputFieldModal
-                  type="text"
-                  className="form-control input"
-                  readOnly={true}
-                  label="Valor Desc."
-                  value={valorDesconto}
-                  onChangeModal={(e) => setValorDesconto(e.target.value)}
 
-                /> */}
               </div>
             </div>
 
             <div className="form-group">
               <div className="row">
                 <div className="col-sm-3 col-md-3 col-xl-2">
-
-
                   <InputFieldModal
                     type={"password"}
                     className="form-control input"
                     label="Senha"
                     value={senha}
                     onChangeModal={(e) => setSenha(e.target.value)}
-
                   />
                 </div>
                 <div className="col-sm-4 col-md-4 col-xl-4">
@@ -448,7 +488,7 @@ export const FormularioEditar = ({ handleClose, dadosAtualizarFuncionarios }) =>
 
               ButtonTypeConfirmar={ButtonTypeModal}
               textButtonConfirmar={"Atualizar"}
-              onClickButtonConfirmar={handleValidatedSubmit}
+              onClickButtonConfirmar={handleSubmit(handleValidatedSubmit)}
               corConfirmar="success"
 
             />

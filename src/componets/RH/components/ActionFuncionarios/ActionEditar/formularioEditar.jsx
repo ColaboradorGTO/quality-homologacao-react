@@ -101,9 +101,11 @@ export const FormularioEditar = ({
         valorDesconroFuncionario: valorDesconto,
         execaoDescFuncionario: excecao,
         situacaoFuncionario: situacaoSelecionada,
+        telefoneFuncionario: telefone,
+        departamentoFuncionario: departamentoSelecionado
       };
 
-      // await schema.validate(dadosParaValidar, { abortEarly: false });
+      await schema.validate(dadosParaValidar, { abortEarly: false });
       onSubmit();
     } catch (validationError) {
       console.error('❌ Erro de validação:', validationError);
@@ -133,7 +135,7 @@ export const FormularioEditar = ({
     <Fragment>
       {formularioVisivel && (
         <Fragment>
-          <form onSubmit={onSubmit} >
+          <form onSubmit={handleSubmit(handleValidatedSubmit)} >
 
             <div className="row form-group">
               <div className="col-sm-6 col-md-6 col-xl-6">
@@ -292,7 +294,6 @@ export const FormularioEditar = ({
                   options={Departamentos.map((item) => ({
                     value: item.value,
                     label: item.label
-
                   }))}
                   value={departamentoSelecionado}
                   onChange={(selected) => {
@@ -489,7 +490,7 @@ export const FormularioEditar = ({
 
               ButtonTypeConfirmar={ButtonTypeModal}
               textButtonConfirmar={"Atualizar"}
-              onClickButtonConfirmar={onSubmit}
+              onClickButtonConfirmar={handleSubmit(handleValidatedSubmit)}
               corConfirmar="success"
 
             />
