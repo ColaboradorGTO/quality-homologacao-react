@@ -45,7 +45,7 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado, ID}) => {
   );
 
   const fetchConciliarBanco = async () => {
-    const urlBase = `/deposito-loja?idConta=${contaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&dataCompensacaoInicio=${dataPesquisaInicioB}&dataCompensacaoFim=${dataPesquisaFimB}&dataMovimentoInicio=${dataPesquisaInicioC}&dataMovimentoFim=${dataPesquisaFimC}`;
+    const urlBase = `/deposito-loja-conciliacao?idConta=${contaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&dataCompensacaoInicio=${dataPesquisaInicioB}&dataCompensacaoFim=${dataPesquisaFimB}&dataMovimentoInicio=${dataPesquisaInicioC}&dataMovimentoFim=${dataPesquisaFimC}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
 
@@ -79,7 +79,7 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado, ID}) => {
   };
 
   const { data: dadosConciliarBanco = [], error: errorConciliarBanco, isLoading: isLoadingConciliarBanco, refetch: refetchConciliarBanco } = useQuery(
-    ['deposito-loja'],
+    ['deposito-loja-conciliacao'],
     () => fetchConciliarBanco(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   )

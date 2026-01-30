@@ -104,7 +104,7 @@ export const FormularioEditar = ({
         telefoneFuncionario: telefone,
         departamentoFuncionario: departamentoSelecionado
       };
-      console.log('Dados para validação:', dadosParaValidar);
+      
       await schema.validate(dadosParaValidar, { abortEarly: false });
       onSubmit();
     } catch (validationError) {
@@ -131,6 +131,7 @@ export const FormularioEditar = ({
 
   const maxDataAdmissao = format(new Date(), "yyyy-MM-dd");
   const minDataAdmissao = format(subDays(new Date(), 45), "yyyy-MM-dd");
+  
   return (
     <Fragment>
       {formularioVisivel && (
