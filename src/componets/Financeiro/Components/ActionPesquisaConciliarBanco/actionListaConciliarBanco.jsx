@@ -214,37 +214,34 @@ export const ActionListaConciliarPorBanco = ({
       field: 'Selecione',
       selectionMode: 'multiple',
       body: (rowData) => {
-        if (rowData.STCONFERIDO == 'True') {
-          if (!rowData.STINTEGRADOSAP) {
-            if (rowData.STATUS_BLOQUEIO_ATUALIZACAO) {
-              return <th></th>
-            } else {
+        const podeMarcar = (
+          rowData.STCONFERIDO === 'True' &&
+          !rowData.STINTEGRADOSAP &&
+          !rowData.STATUS_BLOQUEIO_ATUALIZACAO
+        );
 
-              return (
-                <div className="custom-control custom-checkbox">
-                  <Checkbox
-                    checked={selectedItems.some(item => item.IDDEPOSITOLOJA === rowData.IDDEPOSITOLOJA)}
-                    onChange={(e) => {
-                      let _selectedItems = [...selectedItems];
-
-                      if (e.checked) {
-                        _selectedItems.push(rowData);
-                      } else {
-                        _selectedItems = _selectedItems.filter(item => item.IDDEPOSITOLOJA !== rowData.IDDEPOSITOLOJA);
-                      }
-
-                      setSelectedItems(_selectedItems);
-                    }}
-                  />
-                </div>
-              );
-            }
-          } else {
-            return <th></th>
-          }
-        } else {
-          return <th></th>
+        if (!podeMarcar) {
+          return <th></th>; 
         }
+
+        return (
+          <div className="custom-control custom-checkbox">
+            <Checkbox
+              checked={selectedItems.some(item => item.IDDEPOSITOLOJA === rowData.IDDEPOSITOLOJA)}
+              onChange={(e) => {
+                let _selectedItems = [...selectedItems];
+
+                if (e.checked) {
+                  _selectedItems.push(rowData);
+                } else {
+                  _selectedItems = _selectedItems.filter(item => item.IDDEPOSITOLOJA !== rowData.IDDEPOSITOLOJA);
+                }
+
+                setSelectedItems(_selectedItems);
+              }}
+            />
+          </div>
+        );
       },
       sortable: true,
     },
@@ -364,89 +361,20 @@ export const ActionListaConciliarPorBanco = ({
       },
     },
     {
-  field: 'STCONFERIDO',
-  header: 'Opções',
-  button: true,
-  body: (row) => {
-    // ========== CONDIÇÃO 1: Se tem DocEntry - NÃO MOSTRA NADA ==========
-    if (row.DOCENTRY_SAP_CONTAS_A_PAGAR > 0 || row.DOCENTRY_SAP_CONTAS_A_RECEBER > 0) {
-      return (
-        <div className="p-1" style={{ justifyContent: "center" }}>
-          {/* Vazio - sem botões quando tem DocEntry */}
-        </div>
-      );
-    }
+      field: 'STCONFERIDO',
+      header: 'Opções',
+      button: true,
+      body: (row) => {
+   
+        const podeCanselar = !(row.DOCENTRY_SAP_CONTAS_A_PAGAR > 0 || row.DOCENTRY_SAP_CONTAS_A_RECEBER > 0);
 
-    // ========== CONDIÇÃO 2: Se CONCILIADO ==========
-    if (row.STCONFERIDO === 'True') {
-      
-      // ========== SUBCONDIÇÃO 2.1: NÃO INTEGRADO ==========
-      if (row.STINTEGRADOSAP !== 'True') {
-        
-        // ========== SUBCONDIÇÃO 2.1.1: EM FILA DE INTEGRAÇÃO ==========
-        if (row.STATUS_BLOQUEIO_ATUALIZACAO) {
-          return (
-            <div className="p-1" style={{ justifyContent: "center" }}>
-              {/* SÓ BOTÃO STATUS (informativo) */}
-              <ButtonTable
-                titleButton={"Em Processo de Integração, Aguarde..."}
-                textButton={"Status"}
-                cor={"primary"}
-                Icon={BsEye}
-                iconSize={20}
-                width="50px"
-                height="50px"
-                onClickButton={() => {
-                  Swal.fire({
-                    title: 'Em Processo de Integração, Aguarde...',
-                    text: 'Motivo: Já está em processo de integração no SAP',
-                    icon: 'info'
-                  });
-                }}
-              />
-              {/* Sem Editar, Integrar e Cancelar quando em fila */}
-            </div>
-          );
-        } 
-        // ========== SUBCONDIÇÃO 2.1.2: NÃO EM FILA - TODOS OS BOTÕES ==========
-        else {
-          return (
-            <div className="p-1" style={{
-              display: "flex",
-              justifyContent: "center",
-              gap: "5px",
-              width: "250px"
-            }}>
-              {/* BOTÃO STATUS */}
-              <ButtonTable
-                titleButton={row.ERRORLOGSAP ? "Visualizar Status - Erro" : "Visualizar Status Integração"}
-                textButton={"Status"}
-                cor={"primary"}
-                Icon={BsEye}
-                iconSize={20}
-                width="50px"
-                height="50px"
-                onClickButton={() => {
-                  if (row.ERRORLOGSAP && row.ERRORLOGSAP.trim().length > 0) {
-                    const errorMsg = row.ERRORLOGSAP === 'Account for cash payments has not been defined'
-                      ? 'Conta de pagamentos em dinheiro não foi definida'
-                      : row.ERRORLOGSAP.replaceAll("'", '');
-                    Swal.fire({
-                      title: 'Erro ao integrar no SAP',
-                      text: `Motivo: ${errorMsg}`,
-                      icon: 'warning'
-                    });
-                  } else {
-                    Swal.fire({
-                      title: 'Status da Integração',
-                      text: 'Conciliado e pronto para integração',
-                      icon: 'info'
-                    });
-                  }
-                }}
-              />
+        if (row.STCONFERIDO !== 'True') {
+          return <div className="p-1" style={{ justifyContent: "center" }}></div>;
+        }
 
-              {/* BOTÃO EDITAR */}
+        if (row.STINTEGRADOSAP === true) {
+          return (
+            <div className="p-1" style={{ display: "flex", justifyContent: "center", gap: "5px" }}>
               <ButtonTable
                 titleButton={"Editar Data Movimento Conciliação"}
                 textButton={"Editar"}
@@ -457,43 +385,72 @@ export const ActionListaConciliarPorBanco = ({
                 height="50px"
                 onClickButton={() => onEitarDataMovimentoConciliacao(row.IDDEPOSITOLOJA, row.DTMOVDEP)}
               />
+            </div>
+          );
+        }
 
-              {/* BOTÃO INTEGRAR */}
+
+        if (row.STATUS_BLOQUEIO_ATUALIZACAO === true) {
+          return (
+            <div className="p-1" style={{ justifyContent: "center" }}>
               <ButtonTable
-                titleButton={"Integrar Conciliação"}
-                textButton={"Integrar"}
-                cor={"info"}
-                Icon={BsCloudUpload}
+                titleButton={"Em Processo de Integração, Aguarde..."}
+                textButton={"Status"}
+                cor={"primary"}
                 iconSize={20}
                 width="50px"
                 height="50px"
-                onClickButton={() => handleClickIntegrar(row)}
-              />
-
-              {/* BOTÃO CANCELAR */}
-              <ButtonTable
-                titleButton={"Cancelar Conciliação"}
-                textButton={"Cancelar"}
-                cor={"danger"}
-                Icon={BsTrash3}
-                iconSize={20}
-                width="50px"
-                height="50px"
-                onClickButton={() => handleClickCancelar(row)}
+                Icon={BsEye}
+                onClickButton={() => {
+                  Swal.fire({
+                    title: 'Em Processo de Integração, Aguarde...',
+                    text: 'Motivo: Já está em processo de integração no SAP',
+                    icon: 'info'
+                  });
+                }}
               />
             </div>
           );
         }
-      } 
-      // ========== SUBCONDIÇÃO 2.2: JÁ INTEGRADO - SÓ BOTÃO EDITAR ==========
-      else {
+
+       
         return (
           <div className="p-1" style={{
             display: "flex",
             justifyContent: "center",
-            gap: "5px"
+            gap: "5px",
+            width: "250px"
           }}>
-            {/* SÓ BOTÃO EDITAR quando já integrado */}
+           
+            <ButtonTable
+              titleButton={row.ERRORLOGSAP ? "Visualizar Status - Erro" : "Visualizar Status Integração"}
+              textButton={"Status"}
+              cor={"primary"}
+              Icon={BsEye}
+              iconSize={20}
+              width="50px"
+              height="50px"
+              onClickButton={() => {
+                if (row.ERRORLOGSAP && row.ERRORLOGSAP.trim().length > 0) {
+                  const errorMsg = row.ERRORLOGSAP === 'Account for cash payments has not been defined'
+                    ? 'Conta de pagamentos em dinheiro não foi definida'
+                    : row.ERRORLOGSAP.replaceAll("'", '');
+                  Swal.fire({
+                    title: 'Erro ao integrar no SAP',
+                    text: `Motivo: ${errorMsg}`,
+                    icon: 'warning'
+                  });
+                } else {
+                  Swal.fire({
+                    title: 'Status da Integração',
+                    text: 'Conciliado e pronto para integração',
+                    icon: 'info'
+                  });
+                }
+              }}
+            />
+
+           
             <ButtonTable
               titleButton={"Editar Data Movimento Conciliação"}
               textButton={"Editar"}
@@ -504,20 +461,36 @@ export const ActionListaConciliarPorBanco = ({
               height="50px"
               onClickButton={() => onEitarDataMovimentoConciliacao(row.IDDEPOSITOLOJA, row.DTMOVDEP)}
             />
+
+          
+            <ButtonTable
+              titleButton={"Integrar Conciliação"}
+              textButton={"Integrar"}
+              cor={"info"}
+              Icon={BsCloudUpload}
+              iconSize={20}
+              width="50px"
+              height="50px"
+              onClickButton={() => handleClickIntegrar(row)}
+            />
+
+          
+            {podeCanselar && (
+              <ButtonTable
+                titleButton={"Cancelar Conciliação"}
+                textButton={"Cancelar"}
+                cor={"danger"}
+                Icon={BsTrash3}
+                iconSize={20}
+                width="50px"
+                height="50px"
+                onClickButton={() => handleClickCancelar(row)}
+              />
+            )}
           </div>
         );
-      }
-    } 
-    // ========== CONDIÇÃO 3: NÃO CONCILIADO - SEM BOTÕES ==========
-    else {
-      return (
-        <div className="p-1" style={{ justifyContent: "center" }}>
-          {/* Vazio - sem botões quando não conciliado */}
-        </div>
-      );
-    }
-  },
-},
+      },
+    },
   ]
 
 
