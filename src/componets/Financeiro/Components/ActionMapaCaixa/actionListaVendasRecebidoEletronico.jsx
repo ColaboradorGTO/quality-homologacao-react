@@ -17,14 +17,22 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 
-export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletronico, dadosTotalRecebidoPeriodo, dataPesquisaInicio, dataPesquisaFim }) => {
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
+
+export const ActionListaVendasRecebidoEletronico = ({ 
+  dadosTotalRecebidoEletronico, 
+  dadosTotalRecebidoPeriodo, 
+  dataPesquisaInicio, 
+  dataPesquisaFim ,
+  empresaSelecionada,
+  usuarioLogado,
+  optionsModulos
+}) => {
   const [dadosDetalheRecebimentosEletronico, setDadosDetalheRecebimentosEletronico] = useState([]);
   const [modalDetalheRecebimentos, setModalDetalheRecebimento] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
-  const navigate = useNavigate();
+  
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -67,20 +75,6 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
   };
 
 
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
 
   const calcularTotalRecebidoMapaVenda = (item) => {
     return (
@@ -98,34 +92,46 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
 
   const calcularTotalDinheiro = () => {
     let total = 0;
-    for (let resultado of dadosTotalRecebidoPeriodo) {
-      total += parseFloat(resultado.VALORTOTALDINHEIRO)
+    for (let i = 0; i < dadosTotalRecebidoPeriodo.length; i++) {
+      const valor = parseFloat(dadosTotalRecebidoPeriodo[i].VALORTOTALDINHEIRO || 0);
+      total = parseFloat(total) + valor;  // ← DIFERENÇA CRÍTICA
     }
-    return total;
+    return parseFloat(total).toFixed(2);
   }
 
   const calcularTotalConvenio = () => {
     let total = 0;
-    for (let resultado of dadosTotalRecebidoPeriodo) {
-      total += parseFloat(resultado.VALORTOTALCONVENIO)
+    for (let i = 0; i < dados.length; i++) {
+      const valor = parseFloat(dados[i].VALORRECEBIDO || 0);
+      total = parseFloat(total) + valor;  // ← DIFERENÇA CRÍTICA
     }
-    return total;
+    return parseFloat(total).toFixed(2);
+    // return dadosTotalRecebidoEletronico.reduce((total, item) =>
+    //   total + parseFloat(item.VALORRECEBIDO), 0
+    // );
   }
 
   const calcularTotalFatura = () => {
-    let total = 0;
-    for (let resultado of dadosTotalRecebidoPeriodo) {
-      total += parseFloat(resultado.VALORTOTALFATURA)
-    }
-    return total;
+    return dadosTotalRecebidoPeriodo.reduce((total, item) =>
+      total + parseFloat(item.VALORTOTALFATURA), 0
+    );
   }
 
   const dadosPeriodo = Array.isArray(dadosTotalRecebidoPeriodo) ? dadosTotalRecebidoPeriodo.map((item, index) => {
-    const valorTotalRecebidoMapaVenda = calcularTotalRecebidoMapaVenda(item);
-    const valorTotalPagamentoMapaDespesas = calcularTotalRecebidoMapaDespesas(item);
-    const valorTotalDisponivelMapaDinheiro = calcularTotalDinheiro() - valorTotalPagamentoMapaDespesas;
+    const calcularTotalDinheiro = () => {
+      let total = 0;
+      for (let i = 0; i < dadosTotalRecebidoPeriodo.length; i++) {
+        const valor = parseFloat(dadosTotalRecebidoPeriodo[i].VALORTOTALDINHEIRO || 0);
+        total = parseFloat(total) + valor;  // ← DIFERENÇA CRÍTICA
+      }
+      return parseFloat(total).toFixed(2);
+    }
+    
+    const valorTotalRecebidoMapaVenda = parseFloat(item.VALORTOTALCONVENIO) + parseFloat(item.VALORTOTALDINHEIRO)
+    const valorTotalPagamentoMapaDespesas = parseFloat(item.VALORTOTALDESPESA) + parseFloat(item.VALORTOTALADIANTAMENTOSALARIAL)
+    const valorTotalDisponivelMapaDinheiro = calcularTotalDinheiro() - parseFloat(item.VALORTOTALDESPESA) + parseFloat(item.VALORTOTALADIANTAMENTOSALARIAL);
     const valorTotalDisponivelMapaDinheiroFatura = valorTotalDisponivelMapaDinheiro + calcularTotalFatura();
-
+    console.log(valorTotalDisponivelMapaDinheiro, 'valorTotalDisponivelMapaDinheiro')
     return {
 
       VALORTOTALCONVENIO: item.VALORTOTALCONVENIO,
@@ -143,28 +149,25 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
 
 
 
-  const dados = Array.isArray(dadosTotalRecebidoEletronico) ? dadosTotalRecebidoEletronico.map((item, index) => {
-
-    if (item.DSTIPOPAGAMENTO != 'VALE FUNCIONÁRIO') {
-      return {
-        NOTEF: item.NOTEF,
-        NPARCELAS: item.NPARCELAS,
-        QTDPGTOS: item.QTDPGTOS,
-        VALORRECEBIDO: item.VALORRECEBIDO,
-
-        NOAUTORIZADOR: item.NOAUTORIZADOR,
-        DSTIPOPAGAMENTO: item.DSTIPOPAGAMENTO,
-        QTDE: item.QTDE,
-      }
-    }
-  }) : [];
+  const dados = Array.isArray(dadosTotalRecebidoEletronico) ?   dadosTotalRecebidoEletronico
+    .filter(item => item.DSTIPOPAGAMENTO !== 'VALE FUNCIONÁRIO')  // ← FILTRO
+    .map((item, index) => ({
+      NOTEF: item.NOTEF,
+      NPARCELAS: item.NPARCELAS,
+      QTDPGTOS: item.QTDPGTOS,
+      VALORRECEBIDO: item.VALORRECEBIDO,
+      NOAUTORIZADOR: item.NOAUTORIZADOR,
+      DSTIPOPAGAMENTO: item.DSTIPOPAGAMENTO,
+      QTDE: item.QTDE,
+    })) 
+  : [];
 
   const calcularTotalValorRecebido = () => {
     let total = 0;
     for (let resultado of dados) {
       total += parseFloat(resultado.VALORRECEBIDO);
     }
-    return total;
+    return parseFloat(total).toFixed(2);
   }
 
   const calcularValorTotalRecebidoMapaVenda = () => {
@@ -172,12 +175,16 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
     for (let resultado of dadosPeriodo) {
       total += parseFloat(resultado.valorTotalDisponivelMapaDinheiroFatura);
     }
-    return total;
+    return parseFloat(total).toFixed(2);
   }
 
   // como fazer os calculos de headerGroup e footerGroup
-  const calculoValorTotalRecebidoMapaVenda = dadosPeriodo[0]?.valorTotalRecebidoMapaVenda + calcularTotalValorRecebido();
-
+  // const calculoValorTotalRecebidoMapaVenda = dadosPeriodo[0]?.valorTotalRecebidoMapaVenda + calcularTotalValorRecebido();
+  const calculoValorTotalRecebidoMapaVenda = 
+  parseFloat(
+    (parseFloat(dadosPeriodo[0]?.valorTotalRecebidoMapaVenda || 0) + 
+     parseFloat(calcularTotalValorRecebido() || 0))
+  ).toFixed(2);
   const headerGroup = (
     <ColumnGroup style={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}>
 
@@ -326,7 +333,7 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
 
   const handleEditar = async (NOTEF, NOAUTORIZADOR, NPARCELAS) => {
     try {
-      const response = await get(`/venda-detalhe-recebimento-eletronico?idEmpresa=${usuarioLogado.IDEMPRESA}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&nomeTef=${NOTEF}&nomeAutorizador=${NOAUTORIZADOR}&numeroParcelas=${NPARCELAS}`);
+      const response = await get(`/venda-detalhe-recebimento-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&nomeTef=${NOTEF}&nomeAutorizador=${NOAUTORIZADOR}&numeroParcelas=${NPARCELAS}`);
 
       if (response.data) {
         setDadosDetalheRecebimentosEletronico(response.data)
@@ -394,7 +401,7 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
               stripedRows
               emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
             >
-              {colunasEmpresas.map(coluna => (
+              {/* {colunasEmpresas.map(coluna => (
                 <Column
                   key={coluna.field}
                   field={coluna.field}
@@ -407,11 +414,9 @@ export const ActionListaVendasRecebidoEletronico = ({ dadosTotalRecebidoEletroni
                   bodyStyle={{ fontSize: '1rem' }}
 
                 />
-              ))}
+              ))} */}
 
             </DataTable>
-
-
           </div>
         </div>
       </div>

@@ -3,7 +3,7 @@ import { useState } from "react";
 import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
 
-export const useEditarDeposito = ({ optionsModulos, usuarioLogado, handleClick }) => {
+export const useCancelarConciliacaoDeposito = ({ optionsModulos, usuarioLogado, handleClick }) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {

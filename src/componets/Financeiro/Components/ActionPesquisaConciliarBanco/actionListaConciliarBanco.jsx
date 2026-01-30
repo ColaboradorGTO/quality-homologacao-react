@@ -17,6 +17,7 @@ import { useIntegrarConciliarDepositoNoSAP } from "./hooks/useIntegrarConciliarD
 import { useIntegrarTodasConciliacoesDepositosNoSAP } from "./hooks/useIntegrarTodasConciliacoesDepositosNoSAP";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import translateText from "../../../../utils/translateText";
+import { useCancelarConciliacaoDeposito } from "./hooks/useCancelarConciliacaoDeposito";
 
 export const ActionListaConciliarPorBanco = ({
   dadosConciliarBanco,
@@ -34,7 +35,7 @@ export const ActionListaConciliarPorBanco = ({
 
   const {
     handleCancelar
-  } = useEditarDeposito({ optionsModulos, usuarioLogado, handleClick })
+  } = useCancelarConciliacaoDeposito({ optionsModulos, usuarioLogado, handleClick })
 
   const {
     handleConciliar
@@ -441,6 +442,17 @@ export const ActionListaConciliarPorBanco = ({
                         });
                       }
                     }}
+                  />
+
+                  <ButtonTable
+                    titleButton={"Editar Data Movimento Conciliação"}
+                    textButton={"Editar "}
+                    cor={"warning"}
+                    Icon={BsCloudUpload}
+                    iconSize={20}
+                    width="50px"
+                    height="50px"
+                    onClickButton={() => handleClickIntegrar(row)}
                   />
 
                   <ButtonTable

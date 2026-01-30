@@ -12,7 +12,7 @@ import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 
 
-export const ActionPesquisaMapaCaixa = () => {
+export const ActionPesquisaMapaCaixa = ({ usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
@@ -29,6 +29,15 @@ export const ActionPesquisaMapaCaixa = () => {
     setDataPesquisaFim(dataFinal);
 
   }, [])
+  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  );
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
     'empresas',
@@ -389,19 +398,22 @@ export const ActionPesquisaMapaCaixa = () => {
 
         <div className="card mt-4">
 
-          <ActionListaMapaCaixa
+          {/* <ActionListaMapaCaixa
             dadosMapaCaixa={dadosMapaCaixa}
             dadosAdiantamentoSalarial={dadosAdiantamentoSalarial}
             dadosResumoVoucher={dadosResumoVoucher}
             dadosDetalheFatura={dadosDetalheFatura}
 
-          />
+          /> */}
 
           <ActionListaVendasRecebidoEletronico
             dadosTotalRecebidoEletronico={dadosTotalRecebidoEletronico}
             dadosTotalRecebidoPeriodo={dadosTotalRecebidoPeriodo}
             dataPesquisaInicio={dataPesquisaInicio}
             dataPesquisaFim={dataPesquisaFim}
+            empresaSelecionada={empresaSelecionada}
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
           />
         </div>
       )}

@@ -131,18 +131,18 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado, ID}) => {
 
   const handleClick = () => {
 
-    if (contaSelecionada) {
-      setTabelaVisivel(true)
-      setTabelaVisivelConsolidado(false)
- 
+    setTabelaVisivel(true)
+    setTabelaVisivelConsolidado(false)
 
-      setIsLoadingPesquisa(true);
-      setCurrentPage(+1); 
-      refetchConciliarBanco()
-      // getConciliarBanco()
-    } else {
-      Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
-    }
+
+    setIsLoadingPesquisa(true);
+    setCurrentPage(+1); 
+    refetchConciliarBanco()
+    // if (contaSelecionada) {
+    //   // getConciliarBanco()
+    // } else {
+    //   Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
+    // }
 
   }
 
