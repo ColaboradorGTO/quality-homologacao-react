@@ -46,8 +46,9 @@ export const useEditarDeposito = ({ optionsModulos, usuarioLogado, handleClick }
             icon: 'warning',
             showCancelButton: true,
             showConfirmButton: true,
-            cancelButtonText: 'Cancelar',
-            confirmButtonText: 'OK',
+            cancelButtonText: 'Confirmar',
+            confirmButtonText: 'Cancelar',
+            html: '<input type="date" id="dtOriginal" name="dtOriginal" class="form-control" value="" >',
             customClass: {
                 confirmButton: 'btn btn-success mx-2',
                 cancelButton: 'btn btn-danger mx-2',
@@ -56,15 +57,17 @@ export const useEditarDeposito = ({ optionsModulos, usuarioLogado, handleClick }
             buttonsStyling: false
         }).then(async (result) => {
             if (result.isConfirmed) {
+                const dtOriginal = document.getElementById('dtOriginal').value;
                 try {
                     const putData = {
                         IDDEPOSITOLOJA: IDDEPOSITOLOJA,
+                        DTMOVIMENTOCAIXA: dtOriginal
                     }
 
                     const response = await put('/atualizar-deposito-loja/:id', putData)
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario()
-                    let textoFuncao = 'FINANCEIRO/CANCELADO CONCILIAÇÃO DO DEPOSITO';
+                    let textoFuncao = 'FINANCEIRO/ALTERAÇÃO DATA DE MOVIMENTO DO DEPOSITO';
 
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
@@ -76,8 +79,8 @@ export const useEditarDeposito = ({ optionsModulos, usuarioLogado, handleClick }
                     await post('/log-web', postData)
 
                     Swal.fire({
-                        title: 'Cancelado',
-                        text: 'Conciliação do Depósito cancelado com Sucesso',
+                        title: 'Alterado',
+                        text: 'Data de Movimento Alterada Com Sucesso!',
                         icon: 'success'
                     })
                     handleClick()
@@ -88,7 +91,7 @@ export const useEditarDeposito = ({ optionsModulos, usuarioLogado, handleClick }
                         IDDEPOSITOLOJA: IDDEPOSITOLOJA,
                     }
                     const textDados = JSON.stringify(putData)
-                    let textoFuncao = 'FINANCEIRO/ERRO AO CANCELAR CONCILIAÇÃO DO DEPOSITO';
+                    let textoFuncao = 'FINANCEIRO/ERRO AO ALTERAR DATA DE MOVIMENTO DO DEPOSITO';
                     const ipUsuario = await getIPUsuario()
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
@@ -103,7 +106,7 @@ export const useEditarDeposito = ({ optionsModulos, usuarioLogado, handleClick }
                     Swal.fire({
                         icon: 'error',
                         title: 'Erro!',
-                        text: 'Erro ao cancelar a conciliação do depósito!',
+                        text: 'Erro ao alterar a data de movimento do depósito!',
                         customClass: {
                             container: 'custom-swal',
                         },
