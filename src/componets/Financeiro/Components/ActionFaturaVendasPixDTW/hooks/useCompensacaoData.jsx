@@ -24,6 +24,7 @@ export const useCompensacaoData = ({ usuarioLogado, optionsModulos, handleClickV
         }
     };
 
+    
     const handleDetalhar = async (updatedSelectedIds, IDDETALHEFATURA) => {
         if (optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({

@@ -89,6 +89,7 @@ export const useEditarDeposito = ({ optionsModulos, usuarioLogado, handleClick }
                 } catch (error) {
                     const putData = {
                         IDDEPOSITOLOJA: IDDEPOSITOLOJA,
+                        DTMOVIMENTOCAIXA: dtOriginal
                     }
                     const textDados = JSON.stringify(putData)
                     let textoFuncao = 'FINANCEIRO/ERRO AO ALTERAR DATA DE MOVIMENTO DO DEPOSITO';
