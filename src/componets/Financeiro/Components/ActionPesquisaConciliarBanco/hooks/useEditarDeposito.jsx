@@ -64,7 +64,7 @@ export const useEditarDeposito = ({ optionsModulos, usuarioLogado, handleClick }
                         DTMOVIMENTOCAIXA: dtOriginal
                     }
 
-                    const response = await put('/atualizar-deposito-loja/:id', putData)
+                    const response = await put('/deposito-alteracao-data-movimento/:id', putData)
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario()
                     let textoFuncao = 'FINANCEIRO/ALTERAÇÃO DATA DE MOVIMENTO DO DEPOSITO';
