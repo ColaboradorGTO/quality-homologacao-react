@@ -14,7 +14,7 @@ export const schema = yup.object().shape({
 
     dsPagoDespesa: yup
         .string()
-        .required("O campo Histórico é obrigatório."),
+        .required("o campo é obrigatório."),
 
     valorDespesa: yup
         .string()
