@@ -98,7 +98,7 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
       categoria: item.categoria,
       numeroOR: item.numeroOR || 'N/A',
       numeroOT: item.numeroOT || 'N/A',
-      empresaDestino: item.empresaDestinoSelecionada,
+      empresaDestino: item.tipoSelecionado == 'DEVOLUÇÃO' ? " 0101 - TO - CD (DEPÓSITO)" : item.empresaDestinoSelecionada,
       empresaOrigem: item.empresaOrigem,
       solicitante: item.solicitanteSelecionado,
       quantidade,

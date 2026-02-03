@@ -21,7 +21,7 @@ const chunkArray = (array, size) => {
 };
 
 
-export const ActionImprimirAcumuladorEtiquetaModal = ({ show, handleClose,  dadosAcumuladorEtiquetas, copias, setDadosEtiquetas }) => {
+export const ActionImprimirAcumuladorEtiquetaModal = ({ show, handleClose,  dadosAcumuladorEtiquetas, copias, setDadosEtiquetas, dadosAcumuladorImpressao }) => {
   const dataTableRef = useRef();
 
   const handlePrint = useReactToPrint({
@@ -38,12 +38,6 @@ export const ActionImprimirAcumuladorEtiquetaModal = ({ show, handleClose,  dado
    
   }));
 
-
-    const handleCloseAndClear = () => {
-      setDadosEtiquetas([]);
-      handleClose();
-    }
-
   const quantidadeTotalEtiquetas = etiquetas.reduce((total, etiqueta) => total + etiqueta.quantidade, 0);
   const etiquetasPorPagina = chunkArray(etiquetas, 4);
   const totalPaginas = etiquetasPorPagina.length * copias;
@@ -53,7 +47,7 @@ export const ActionImprimirAcumuladorEtiquetaModal = ({ show, handleClose,  dado
     <Fragment>
       <Modal
         show={show}
-        onHide={handleCloseAndClear}
+        onHide={handleClose}
         size="xl"
         className="modal fade"
         role="dialog"
@@ -61,7 +55,7 @@ export const ActionImprimirAcumuladorEtiquetaModal = ({ show, handleClose,  dado
         <HeaderModal
           title={"Etiquetas"}
           subTitle={"Etiquetas"}
-          handleClose={handleCloseAndClear}
+          handleClose={handleClose}
         />
         <Modal.Body>
           <header>

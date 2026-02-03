@@ -3,24 +3,29 @@ import Swal from 'sweetalert2';
 import { post } from '../../../../api/funcRequest';
 import axios from 'axios';
 
-
-
-export const useAuthFuncionarioCreate = ({usuarioLogado}) => {
+export const useAuthFuncionarioCreate = ({ usuarioLogado }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
   const [ipUsuario, setIpUsuario] = useState('');
 
-  useEffect(() => {
-    getIPUsuario();
-  }, []);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      let usuarioIP = ipWhoisData?.ip;
+
+      if (!usuarioIP) {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      }
+
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
+    } catch (error) {
+      console.error("Erro ao buscar IP:", error);
+      return null;
     }
-    return response.data;
-  }
+  };
+
 
   const openSwal = async (callback, row) => {
     const { value: formValues } = await Swal.fire({
@@ -58,29 +63,41 @@ export const useAuthFuncionarioCreate = ({usuarioLogado}) => {
       preConfirm: async () => {
         const usuario = document.getElementById('matricula').value;
         const senha = document.getElementById('senha').value;
-    
-        const data = { 
-          MATRICULA: usuario, 
-          SENHA: senha, 
+
+        const data = {
+          MATRICULA: usuario,
+          SENHA: senha,
           IDEMPRESALOGADA: usuarioLogado.IDEMPRESA,
-          IDGRUPOEMPRESARIAL: usuarioLogado.IDGRUPOEMPRESARIAL, 
+          IDGRUPOEMPRESARIAL: usuarioLogado.IDGRUPOEMPRESARIAL,
           IDVENDA: row.IDVENDA,
           STTIPOTROCA: row.STTIPOTROCA
-        }; 
+        };
 
         try {
           const response = await post('/auth-funcionario-update-voucher', data);
-        
-          
+
+          const textDados = JSON.stringify(putData)
+          let textoFuncao = 'GERENCIA/CRIAÇÃO FUNCIONARIO VOUCHER';
+          await getIPUsuario();
+
+          const postData = {
+            IDFUNCIONARIO: String(usuarioLogado?.id),
+            PATHFUNCAO: textoFuncao,
+            DADOS: textDados,
+            IP: ipUsuario
+          }
+
+          const responsePost = await post('/log-web', postData)
+
           if (response.data) {
             return response.data;
           } else {
             Swal.showValidationMessage(`Credenciais inválidas`);
           }
-          
+
         } catch (error) {
           let errorMessage = 'Erro desconhecido';
-                              
+
           if (typeof error.response.data.error === 'string') {
             errorMessage = error.response.data.error;
           } else if (error.response.data.error?.error) {
@@ -88,12 +105,12 @@ export const useAuthFuncionarioCreate = ({usuarioLogado}) => {
           } else if (typeof error.response.data.error === 'object') {
             errorMessage = JSON.stringify(error.response.data.error);
           }
-          
+
           Swal.showValidationMessage(`Erro ao autenticar: ${errorMessage}`);
         }
       }
     });
-  
+
     if (formValues) {
       setIsLoggedIn(true);
       setUsuarioAutorizado(formValues);

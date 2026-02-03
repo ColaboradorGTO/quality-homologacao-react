@@ -19,7 +19,7 @@ const chunkArray = (array, size) => {
 
 export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosEtiquetas, copias, quantidadeEtiquetas }) => {
   const dataTableRef = useRef();
-
+console.log(dadosEtiquetas, "dadosEtiquetas")
   // Função original jQuery adaptada para React - garante impressão na ZPL
   const imprimirEtiquetasZPL = () => {
     try {
