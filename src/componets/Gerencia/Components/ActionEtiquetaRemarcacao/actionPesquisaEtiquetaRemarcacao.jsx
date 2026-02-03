@@ -22,12 +22,6 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ ID, optionsEmpresas, usuarioL
   const [dadosAcumuladorImpressao, setDadosAcumuladorImpressao] = useState([]);
   const [copias, setCopias] = useState(1);
 
-  console.log(copias, "copias");
-  console.log(dadosAcumuladorEtiquetas, "dadosAcumuladorEtiquetas");
-  console.log(dadosAcumuladorImpressao, "dadosAcumuladorImpressao");
-  console.log(dadosEtiquetas, "dadosEtiquetas");
-
-
   const multiplicarObjetos = (dados, copias) => {
     const objetosMultiplicados = [];
     for (let i = 0; i < copias; i++) {
