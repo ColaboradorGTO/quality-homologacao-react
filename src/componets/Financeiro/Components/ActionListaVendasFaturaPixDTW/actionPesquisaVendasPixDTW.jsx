@@ -14,6 +14,7 @@ import { ActionListaVendasPIXCompensacao } from "./actionListaVendasPixCompensac
 import { ActionListaVendasPIXCompensacaoCapa } from "./actionListaVendasPixCompensacaoCapa"
 import { ActionListaVendasPIXCompensacaoCredito } from "./actionListaVendasPixCompensacaoCredito"
 import { ActionListaVendasPIXCompensacaoDebito } from "./actionListaVendasPixCompensacaoDebito"
+import { useIntegrarTodosPagamentosPix } from "./hooks/useIntegrarTodosPagamentosPixSAP"
 
 
 export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
@@ -242,7 +243,13 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
     }
   }
 
-
+  const { integrarTodos } = useIntegrarTodosPagamentosPix({
+    optionsModulos,
+    usuarioLogado,
+    handleClickVendasPixCompensacao,
+    selectedItems,
+  })
+  
   return (
 
     <Fragment>
