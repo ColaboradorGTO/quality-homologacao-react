@@ -36,6 +36,7 @@ export const ListaPendencias = ({ dadosPendenciasMalotes, onChange, checkedItems
                   checked={checkedItems?.includes(IDPENDENCIA)} 
                   onChange={(e) => onChange(IDPENDENCIA, e.target.checked)}
                 />
+               
                 <label
                   className="form-check-label d-inline-block fw-700 text-dark"
                   title={TXTPENDENCIA}

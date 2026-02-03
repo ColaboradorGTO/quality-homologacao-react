@@ -80,7 +80,7 @@ export const useConferirMalote = ({
       IDMALOTE: salvarDadosMalotes[0]?.IDMALOTE,
       STATUS: status,
       OBSERVACAOADMINISTRATIVO: observacaoFinanceiro,
-      PENDENCIAS: checkedItems,
+      PENDENCIAS: checkedItems.map(id => ({ IDPENDENCIA: id })),
       IDUSERULTIMAALTERACAO: usuarioLogado?.id
     };
     
