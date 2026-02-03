@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 import { ocultaParteDosDadosVoucher } from "../../../../../utils/ocultarParte";
 
 export const useEditarStatusVoucher = ({
-    dadosEditarVoucher, 
-    usuarioLogado, 
-    optionsModulos, 
-    handleClose, 
+    dadosEditarVoucher,
+    usuarioLogado,
+    optionsModulos,
+    handleClose,
     refetchListaVouchers
 }) => {
     const [trocaSelecionado, setTrocaSelecionado] = useState('')
@@ -17,19 +17,6 @@ export const useEditarStatusVoucher = ({
     const [numeroVoucher, setNumeroVoucher] = useState('')
     const [statusFoiTrocado, setStatusFoiTrocado] = useState(false);
     const [ipUsuario, setIpUsuario] = useState('');
-
-
-    // useEffect(() => {
-    //     getIPUsuario();
-    // }, []);
-
-    // const getIPUsuario = async () => {
-    //     const response = await axios.get('http://ipwho.is/')
-    //     if (response.data) {
-    //         setIpUsuario(response.data.ip);
-    //     }
-    //     return response.data;
-    // }
 
     const getIPUsuario = async () => {
         try {
@@ -53,13 +40,13 @@ export const useEditarStatusVoucher = ({
         setTrocaSelecionado(dadosEditarVoucher[0]?.voucher.STTIPOTROCA)
     }, [dadosEditarVoucher])
 
-    
+
     const onSubmit = async () => {
         let STATIVO = 'True';
         let STCANCELADO = 'False';
         try {
 
-            if(!usuarioLogado?.IDEMPRESA || !usuarioLogado?.IDGRUPOEMPRESARIAL) {
+            if (!usuarioLogado?.IDEMPRESA || !usuarioLogado?.IDGRUPOEMPRESARIAL) {
                 Swal.fire({
                     title: 'Atenção! Dados do usuário não localizados',
                     text: `Faça o logoff, entre novamente e tente atualizar`,
@@ -89,7 +76,7 @@ export const useEditarStatusVoucher = ({
                 })
                 return;
             }
-    
+
             if (statusSelecionado == 'NOVO' || statusSelecionado == 'LIBERADO PARA CLIENTE') {
                 STATIVO = 'True';
                 STCANCELADO = 'False';
@@ -100,34 +87,35 @@ export const useEditarStatusVoucher = ({
                 STATIVO = 'False';
                 STCANCELADO = 'False';
             }
-    
+
             const putData = {
                 STATIVO,
                 STCANCELADO,
-                DSMOTIVOTROCASTATUS: motivoTroca.toUpperCase().trim(),
+                DSMOTIVOTROCASTATUS: motivoTroca,
                 IDFUNCIONARIO: usuarioLogado?.id,
                 STSTATUS: statusSelecionado,
                 STTIPOTROCA: trocaSelecionado,
-                IDVOUCHER: dadosEditarVoucher[0]?.IDVOUCHER,
+                IDVOUCHER: dadosEditarVoucher[0]?.voucher.IDVOUCHER,
                 IDEMPRESALOGADA: usuarioLogado?.IDEMPRESA,
                 IDGRUPOEMPRESARIAL: usuarioLogado?.IDGRUPOEMPRESARIAL,
             }
+
             const response = await put('/todos-web/:id', putData)
-    
+
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'GERENCIA/ATUALIZAÇÃO DE VOUCHER';
-    
             await getIPUsuario();
+            
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado?.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
-    
+
             const responsePost = await post('/log-web', postData)
-    
-             
+
+
             Swal.fire({
                 title: 'Cadastro',
                 text: 'Status Voucher Atualizado com Sucesso',
@@ -162,7 +150,7 @@ export const useEditarStatusVoucher = ({
                 DADOS: textDados,
                 IP: ipUsuario
             }
-    
+
             const responsePost = await post('/log-web', postData)
 
             Swal.fire({
@@ -174,7 +162,7 @@ export const useEditarStatusVoucher = ({
                     container: 'custom-swal',
                 },
             });
-            
+
             return responsePost.data;
         }
     }
@@ -211,7 +199,7 @@ export const useEditarStatusVoucher = ({
             ...provided,
             color: state.data.color,
         }),
-        
+
     };
 
 

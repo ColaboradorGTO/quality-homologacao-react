@@ -89,6 +89,6 @@ export const schema = yup.object().shape({
         .required('Cidade Obrigatória')
         .matches(/^[A-Za-z0-9\s\-\/.,ºªÇçÁáÉéÍíÓóÚúÂâÊêÎîÔôÛûÀàÈèÌìÒòÙùÃãÕõÜü]*$/, 'Cidade inválida'),
     estadoCliente: yup.string().required('Estado Obrigatório'),
-    dataCriacaoCliente: yup.date()
+    dataCriacaoCliente: yup.string()
         .required('Data de Criação Obrigatória')
 });
