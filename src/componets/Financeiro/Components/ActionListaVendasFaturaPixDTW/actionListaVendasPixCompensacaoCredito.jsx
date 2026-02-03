@@ -7,6 +7,9 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
+import { ColumnGroup } from "primereact/columngroup";
+import { Row } from "primereact/row";
+import { formatMoeda } from "../../../../utils/formatMoeda";
 
 
 export const ActionListaVendasPIXCompensacaoCredito = ({ dadosVendasPixCompensacao }) => {
@@ -97,6 +100,14 @@ export const ActionListaVendasPIXCompensacaoCredito = ({ dadosVendasPixCompensac
       IDEMPRESA: item.NOFANTASIA.substring(1, 5),
     }
   }) : [];
+
+  const calcularTotalValorPix = () => {
+    let total = 0;
+    for (let dados of dadosVendasPixCompensacao) {
+      total += parseFloat(dados.PIX);
+    }
+    return total;
+  }
 
   const dadosListaVendasPix = Array.isArray(dadosVendasPixCompensacao) ? dadosVendasPixCompensacao.map((item, index) => {
     let contador = index + 1;
@@ -199,8 +210,17 @@ export const ActionListaVendasPIXCompensacaoCredito = ({ dadosVendasPixCompensac
       body: row => <th style={{ color: '#212529' }}>{row.IDEMPRESA}</th>,
       sortable: true,
     },
-
   ]
+
+  const footerGroup = (
+    <ColumnGroup>
+      <Row>
+        <Column footer="Total Vendas " colSpan={5} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', textAlign: 'center' }} />
+        <Column footer={formatMoeda(calcularTotalValorPix())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
+        <Column colSpan={7} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }} />
+      </Row>
+    </ColumnGroup>
+  )
 
   return (
 
@@ -235,6 +255,7 @@ export const ActionListaVendasPIXCompensacaoCredito = ({ dadosVendasPixCompensac
                     selectionMode="single"
                     selection={rowSelection}
                     onSelectionChange={(e) => setRowSelection(e.value)}
+                    footerColumnGroup={footerGroup}
                     sortOrder={-1}
                     paginator={true}
                     rows={10}

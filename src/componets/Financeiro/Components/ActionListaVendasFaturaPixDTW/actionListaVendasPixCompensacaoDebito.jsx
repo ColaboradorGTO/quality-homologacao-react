@@ -7,6 +7,9 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
+import { ColumnGroup } from "primereact/columngroup";
+import { Row } from "primereact/row";
+import { formatMoeda } from "../../../../utils/formatMoeda";
 
 
 export const ActionListaVendasPIXCompensacaoDebito = ({ dadosVendasPixCompensacao }) => {
@@ -97,10 +100,18 @@ export const ActionListaVendasPIXCompensacaoDebito = ({ dadosVendasPixCompensaca
     }
   }) : [];
 
+  const calcularTotalValorPix = () => {
+    let total = 0;
+    for (let dados of dadosVendasPixCompensacao) {
+      total += parseFloat(dados.PIX);
+    }
+    return total;
+  }
+
   const dadosListaVendasPix = Array.isArray(dadosVendasPixCompensacao) ? dadosVendasPixCompensacao.map((item, index) => {
     let contador = index + 1;
     let lineNum = '';
-    let line_ID = '1';
+    let line_ID = '0';
     let contaDebitoSap = '1.01.01.02.0003';
     let contaCreditoSap = '';
     return {
@@ -122,7 +133,7 @@ export const ActionListaVendasPIXCompensacaoDebito = ({ dadosVendasPixCompensaca
   const colunasVendasPix = [
     {
       field: 'contador',
-      header: 'Nº',
+      header: 'JdtNum',
       body: row => <th style={{ color: '#212529' }}>{row.contador}</th>,
       sortable: true,
     },
@@ -140,66 +151,75 @@ export const ActionListaVendasPIXCompensacaoDebito = ({ dadosVendasPixCompensaca
     },
     {
       field: 'contaCreditoSap',
-      header: 'Conta Crédito',
+      header: 'Account',
       body: row => <th style={{ color: '#212529', width: 100 }}> </th>,
       sortable: true,
     },
     {
       field: 'contaDebitoSap',
-      header: 'Conta Débito',
+      header: 'Debit',
       body: row => <th style={{ color: '#212529' }}>{row.contaDebitoSap}</th>,
       sortable: true,
     },
     {
       field: 'contaDebitoSap',
-      header: 'Crédito',
+      header: 'Credit',
       body: row => <th style={{ color: '#212529' }}>{row.PIX}</th>,
       sortable: true,
     },
     {
       field: 'DATA_COMPENSACAO',
-      header: 'Data Compensação',
+      header: 'DueDate',
       body: row => <th style={{ color: '#212529' }}>{row.DATA_COMPENSACAO || 'NÃO INFORMADO'}</th>,
       sortable: true,
     },
     {
       field: 'NOFANTASIA',
-      header: 'Loja',
+      header: 'LineMemo',
       body: row => <p style={{ color: '#212529', width: '200px', fontWeight: 600 }}> {row.NOFANTASIA}</p>,
       sortable: true,
     },
     {
       field: 'DATA_COMPENSACAO',
-      header: 'Data Compensação',
+      header: 'RefDate',
       body: row => <th style={{ color: '#212529' }}>{row.DATA_COMPENSACAO || 'NÃO INFORMADO'}</th>,
       sortable: true,
     },
     {
       field: 'DSTIPOPAGAMENTO',
-      header: 'Tipo',
+      header: 'Ref1',
       body: row => <th style={{ color: '#212529', width: '150px' }}> {row.DSTIPOPAGAMENTO}</th>,
       sortable: true,
     },
     {
       field: 'NUAUTORIZACAO',
-      header: 'Autorização',
+      header: 'Ref2',
       body: row => <th style={{ color: '#212529' }}>{row.NUAUTORIZACAO}</th>,
       sortable: true,
     },
     {
       field: 'DATA_COMPENSACAO',
-      header: 'Data Compensação',
+      header: 'TexDate',
       body: row => <th style={{ color: '#212529' }}>{row.DATA_COMPENSACAO || 'NÃO INFORMADO'}</th>,
       sortable: true,
     },
     {
       field: 'IDEMPRESA',
-      header: 'ID',
+      header: 'BPLId',
       body: row => <th style={{ color: '#212529' }}>{row.IDEMPRESA}</th>,
       sortable: true,
     },
-
   ]
+
+  const footerGroup = (
+    <ColumnGroup>
+      <Row>
+        <Column footer="Total Vendas " colSpan={5} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', textAlign: 'center' }} />
+        <Column footer={formatMoeda(calcularTotalValorPix())} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
+        <Column colSpan={7} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }} />
+      </Row>
+    </ColumnGroup>
+  )
 
   return (
 
@@ -235,6 +255,7 @@ export const ActionListaVendasPIXCompensacaoDebito = ({ dadosVendasPixCompensaca
                     selection={rowSelection}
                     onSelectionChange={(e) => setRowSelection(e.value)}
                     sortField="VRTOTALPAGO"
+                    footerColumnGroup={footerGroup}
                     sortOrder={-1}
                     paginator={true}
                     rows={10}

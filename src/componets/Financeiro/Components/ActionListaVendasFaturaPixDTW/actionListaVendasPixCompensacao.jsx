@@ -228,27 +228,8 @@ export const ActionListaVendasPIXCompensacao = ({
     }
   };
 
-  // const handleClickIntegrar = (row) => {
-  //   Swal.fire({
-  //     icon: 'question',
-  //     title: 'Confirmação',
-  //     text: 'Certeza que Deseja Integrar o PIX no SAP?',
-  //     showConfirmButton: true,
-  //     showCancelButton: true,
-  //     confirmButtonText: 'Sim, Integrar',
-  //     cancelButtonText: 'Cancelar'
-  //   }).then((result) => {
-  //     if (result.isConfirmed) {
-  //       // Aqui você implementaria a lógica de integração
-  //       console.log('Integrando PIX:', row.IDVENDAPAGAMENTO);
-  //       // Chame sua função de integração aqui
-  //       // integrarPagamentoPixNoSAP(row.IDVENDAPAGAMENTO);
-  //     }
-  //   });
-  // };
 
   useEffect(() => {
-    // Filtra apenas os itens que podem ser selecionados
     const itensSelecionaveis = dadosListaVendasPix.filter(item => 
       item.DOCENTRY_SAP_CONTAS_A_RECEBER_PGTO_PIX === 0
     );
@@ -313,7 +294,6 @@ export const ActionListaVendasPIXCompensacao = ({
     }
   };
   
-  console.log(selectedItems, 'selectedItems compensacao');
   const colunasVendasPix = [
     {
       field: 'Selecione',
@@ -536,11 +516,6 @@ export const ActionListaVendasPIXCompensacao = ({
                     sortOrder={-1}
                     paginator={true}
                     rows={10}
-                    // first={first}
-                    // onPage={(e) => {
-                    //   setFirst(e.first);
-                    //   setRows(e.rows);
-                    // }}
                     rowsPerPageOptions={[10, 20, 50, 100, dadosListaVendasPix.length]}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
