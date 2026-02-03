@@ -9,7 +9,6 @@ import { getDataAtual } from "../../../../utils/dataAtual"
 import { useQuery } from "react-query"
 import Swal from "sweetalert2"
 
-
 export const ActionPesquisaValeTransporte = ({ usuarioLogado, ID }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
@@ -29,7 +28,6 @@ export const ActionPesquisaValeTransporte = ({ usuarioLogado, ID }) => {
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
-
   
   const { data: dadosDespesasLoja = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchDadosLoja } = useQuery(
     'despesas-loja-empresa',
@@ -58,8 +56,6 @@ export const ActionPesquisaValeTransporte = ({ usuarioLogado, ID }) => {
       return;
     }
   };
-
-
 
   return (
 
