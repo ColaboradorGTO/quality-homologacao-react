@@ -3,26 +3,26 @@ import { post } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleClick, setSelectedItems}) => {
+export const useIntegrarPagamentoPix = ({optionsModulos, usuarioLogado, handleClick, setSelectedItems}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
         try {
-        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-        usuarioIP = ipWhoisData?.ip;
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-        console.error("Erro ao buscar IP via ipwho.is:", error);
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
 
         if (!usuarioIP) {
-        try {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
-        } catch (error) {
-            console.error("Erro ao buscar IP via ipify.org:", error);
-        }
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
         }
         setIpUsuario(usuarioIP);
         return usuarioIP;
@@ -44,7 +44,7 @@ export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleCl
         }
 
         Swal.fire({
-            title: 'Certeza que Deseja Integrar o Adiantamento?',
+            title: 'Certeza que Deseja Integrar o PIX no SAP?',
             text: 'Você não poderá reverter esta ação!',
             icon: 'warning',
             showCancelButton: true,
@@ -66,7 +66,7 @@ export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleCl
                 Swal.fire({
                     position: 'center',
                     icon: 'info',
-                    title: 'Integrando Adiantamentos',
+                    title: 'Integrando PIX no SAP',
                     html: 'Aguarde... <br><small><strong id="progressoIntegracao">0</strong> de <strong id="totalIntegracao">' + rowData.length + '</strong></small>',
                     showConfirmButton: false,
                     allowOutsideClick: false,
@@ -77,8 +77,7 @@ export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleCl
                 });
 
                 const putData = {
-                    IDADIANTAMENTOSALARIO: parseInt(rowData.IDADIANTAMENTOSALARIO),
-                    IDFUNCIONARIO: Number(usuarioLogado.id),
+                    IDVENDAPAGAMENTO: parseInt(rowData.IDVENDAPAGAMENTO),
                 }
 
                 try {
@@ -88,7 +87,7 @@ export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleCl
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/INTEGRAR ADIANTAMENTO SALARIAL`,
+                        PATHFUNCAO: `FINANCEIRO/INTEGRACAO DO PAGAMENTO PIX VENDA`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
@@ -113,7 +112,7 @@ export const useIntegrarAdiantamento = ({optionsModulos, usuarioLogado, handleCl
                     const ipUsuario = await getIPUsuario();
                     const postData = {
                         IDFUNCIONARIO: String(usuarioLogado.id),
-                        PATHFUNCAO: `FINANCEIRO/ERRO AO INTEGRAR ADIANTAMENTO SALARIAL`,
+                        PATHFUNCAO: `FINANCEIRO/ERRO AO INTEGRAR PAGAMENTO PIX VENDA`,
                         DADOS: textDados,
                         IP: ipUsuario
                     }
