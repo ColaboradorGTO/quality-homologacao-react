@@ -30,6 +30,8 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
   const [pixCompensacaoCapa, setPixCompensacaoCapa] = useState(false);
   const [pixCompensacaoCredito, setPixCompensacaoCredito] = useState(false);
   const [pixCompensacaoDebito, setPixCompensacaoDebito] = useState(false);
+  const [selectedItems, setSelectedItems] = useState([]);
+  const [btnVisivel, setBtnVisivel] = useState(true);
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -121,7 +123,7 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
   );
 
   const fetchListaVendasPixCompensacao = async () => {
-    const urlBase = `/venda-pix-periodo?idMarca=${marcaSelecionada}&dataCompInicio=${dataCompenscaoInicio}&dataCompFim=${dataCompenscaoFim}&idLoja=${empresaSelecionada}&listaEmpresas=${empresaLivre}`;
+    const urlBase = `/venda-pix-periodo?idMarca=${marcaSelecionada}&dataPesquisaInicio=${dataCompenscaoInicio}&dataPesquisaFim=${dataCompenscaoFim}&idLoja=${empresaSelecionada}&empresaLista=${empresaLivre}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -240,14 +242,15 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
     }
   }
 
+
   return (
 
     <Fragment>
 
       <ActionMain
         linkComponentAnterior={["Home"]}
-        linkComponent={["Lista de Vendas e Faturas PIX"]}
-        title="Vendas / Faturas PIX por Período"
+        linkComponent={["Lista de Vendas PIX"]}
+        title="Vendas PIX por Período"
 
         InputFieldDTInicioAComponent={InputField}
         labelInputDTInicioA={"Data Início"}
@@ -328,8 +331,6 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
         onButtonClickVendasVendedor={handleClickPixCompensacaoDebito}
         corVendasVendedor={"info"}
         iconVendasVendedor={AiOutlineSearch}
-
-
       />
 
       {tabelaVendasPixVisivel && (
@@ -342,7 +343,15 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
       )}
 
       {tabelaVendasPixCompensacao && (
-        <ActionListaVendasPIXCompensacao dadosVendasPixCompensacao={dadosVendasPixCompensacao} />
+        <ActionListaVendasPIXCompensacao 
+          dadosVendasPixCompensacao={dadosVendasPixCompensacao} 
+          selectedItems={selectedItems}
+          setSelectedItems={setSelectedItems}
+          optionsModulos={optionsModulos}
+          usuarioLogado={usuarioLogado}
+          btnVisivel={btnVisivel}
+          setBtnVisivel={setBtnVisivel}
+        />
       )}
       {pixCompensacaoCapa && (
         <ActionListaVendasPIXCompensacaoCapa dadosVendasPixCompensacao={dadosVendasPixCompensacao} />

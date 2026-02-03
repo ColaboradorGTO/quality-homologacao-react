@@ -133,40 +133,26 @@ export const ActionPesquisaConciliacaoBancosDTW = ({ usuarioLogado, ID }) => {
   }
 
   const handleClick = () => {
-
     setTabelaVisivel(true)
     setTabelaVisivelConsolidado(false)
     setTabelaVisivelCompensacao(false)
     refetchConciliarBanco()
-    // if (contaSelecionada) {
-    // } else {
-    //   Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
-    // }
   }
 
   const handleClickCompensacao = () => {
-
     setTabelaVisivel(false)
     setTabelaVisivelConsolidado(false)
     setTabelaVisivelCompensacao(true)
     refetchConciliarBanco()
-    // if (contaSelecionada) {
-    // } else {
-    //   Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
-    // }
+
   }
 
   const handleClickConsolidado = () => {
-   
-
     setTabelaVisivelConsolidado(true)
     setTabelaVisivel(false)
     setTabelaVisivelCompensacao(false)
     refetchBancoConsolidado()
-    // if (contaSelecionada) {
-      // } else {
-      //   Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
-      // }
+
   }
 
   return (
@@ -175,8 +161,8 @@ export const ActionPesquisaConciliacaoBancosDTW = ({ usuarioLogado, ID }) => {
 
       <ActionMain
         linkComponentAnterior={["Home"]}
-        linkComponent={["Conciliação por Bancos"]}
-        title="Conciliação por Bancos"
+        linkComponent={["Conciliação por Bancos DTW"]}
+        title="Conciliação por Bancos DTW"
   
         InputFieldDTInicioAComponent={InputField}
         labelInputDTInicioA={"Data Depósito Início"}
