@@ -171,7 +171,6 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
   }
 
 
-
   return (
 
     <Fragment>
@@ -239,11 +238,11 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado, ID }) => {
         
       />
 
-{console.log(optionsEmpresas, 'optionsEmpresas')}
+
       {tabelaVendasPixVisivel && (
         <ActionFaturaListaVendasPIX
-        dadosFaturaVendasPix={dadosFaturaVendasPix}
-        optionsModulos={optionsModulos}
+          dadosFaturaVendasPix={dadosFaturaVendasPix}
+          optionsModulos={optionsModulos}
           usuarioLogado={usuarioLogado}
           handleClickVendasPix={handleClickVendasPix}
         />
