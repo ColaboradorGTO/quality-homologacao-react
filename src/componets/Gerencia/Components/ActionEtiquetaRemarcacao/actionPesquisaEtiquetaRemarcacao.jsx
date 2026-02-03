@@ -11,7 +11,7 @@ import { ActionImprimirEtiquetaModal } from "./actionImprimirEtiquetaModal";
 import { ActionImprimirAcumuladorEtiquetaModal } from "./actionImprimirAcumuladorEtiquetaModal";
 import { formatToDecimal, maskValorEmDecimal } from "../../../../utils/mascaraValor";
 
-export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLogado}) => {
+export const ActionPesquisaEtiquetaRemarcacao = ({ ID, optionsEmpresas, usuarioLogado }) => {
   const [modalDetalhar, setModalDetalhar] = useState(false);
   const [modalAcumulador, setModalAcumulador] = useState(false);
   const [preco, setPreco] = useState(0);
@@ -19,8 +19,8 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
   const [idEtiqueta, setIdEtiqueta] = useState(0);
   const [dadosEtiquetas, setDadosEtiquetas] = useState([]);
   const [dadosAcumuladorEtiquetas, setDadosAcumuladorEtiquetas] = useState([]);
+  const [dadosAcumuladorImpressao, setDadosAcumuladorImpressao] = useState([]);
   const [copias, setCopias] = useState(1);
-
 
   const multiplicarObjetos = (dados, copias) => {
     const objetosMultiplicados = [];
@@ -29,18 +29,19 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
     }
     return objetosMultiplicados;
   };
-  
+
   const handleImprimir = async () => {
     if (dadosAcumuladorEtiquetas.length > 0) {
-      const objetosMultiplicados = multiplicarObjetos(dadosAcumuladorEtiquetas, copias);
+      const copiasNum = Number(copias) || 1;
+      const objetosMultiplicados = multiplicarObjetos(dadosAcumuladorEtiquetas, copiasNum);
 
-      setDadosAcumuladorEtiquetas(objetosMultiplicados);
+      setDadosAcumuladorImpressao(objetosMultiplicados);
       setDadosEtiquetas([]);
       setModalAcumulador(true);
     } else if (preco > 0 || dadosEtiquetas.length > 0) {
       //setModalDetalhar(true);
       setDadosEtiquetas(dadosEtiquetas)
-    
+
       const { value: formValues, isDismissed } = await Swal.fire({
         icon: 'question',
         text: 'Digite a quantidade de Etiquetas.',
@@ -60,25 +61,23 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
           }
         },
       });
-  
+
       if (isDismissed) {
         // setModalAcumulador(false);
         setQuantidadeEtiquetas(0);
       } else if (formValues) {
         const qtdEtiqueta = parseInt(formValues, 10);
-        setQuantidadeEtiquetas(qtdEtiqueta); 
-  
+        setQuantidadeEtiquetas(qtdEtiqueta);
+
         const novasEtiquetas = Array.from({ length: qtdEtiqueta }, (_, index) => ({
           idEtiqueta: idEtiqueta + index + 1,
           quantidade: 1,
           valor: preco,
         }));
-  
-           
 
         setDadosEtiquetas((prevEtiquetas) => [...prevEtiquetas, ...novasEtiquetas]);
         setIdEtiqueta((prevId) => prevId + 1);
-        setModalDetalhar(true); 
+        setModalDetalhar(true);
       }
     } else {
       Swal.fire({
@@ -110,7 +109,7 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
         },
       });
 
-       if (formValues) {
+      if (formValues) {
         const qtd = parseInt(formValues, 10);
 
         const etiquetaExistente = dadosAcumuladorEtiquetas.find(
@@ -124,18 +123,16 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
               : etiqueta
           );
           setDadosAcumuladorEtiquetas(novasEtiquetas);
-          console.log(dadosAcumuladorEtiquetas, 'dadosAcumuladorEtiquetas');
+
         } else {
           const novasEtiquetas = Array.from({ length: 1 }, (_, index) => ({
             idEtiqueta: idEtiqueta + index + 1,
             quantidade: qtd,
             valor: preco,
           }));
-          console.log(novasEtiquetas, 'else');
           setDadosAcumuladorEtiquetas((prevEtiquetas) => [...prevEtiquetas, ...novasEtiquetas]);
           setIdEtiqueta((prevId) => prevId + 1);
         }
-        console.log(dadosAcumuladorEtiquetas, 'dadosAcumuladorEtiquetas');
         setQuantidadeEtiquetas(qtd);
       }
     } else {
@@ -175,6 +172,15 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
     setDadosEtiquetas(updatedEtiquetas);
   };
 
+  const fecharModalAcumulador = () => {
+    setModalAcumulador(false);
+    setDadosAcumuladorImpressao([]);
+  };
+
+  const fecharModalImprimir = () => {
+    setModalDetalhar(false);
+    setDadosEtiquetas([]);
+  };
 
   const handlePrecoChange = (e) => {
     const formattedValue = formatToDecimal(e.target.value, 2);
@@ -195,12 +201,12 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
         onChangeInputField={handlePrecoChange}
         placeHolderInputFieldComponent={"Digite o valor da etiqueta"}
 
-        InputFieldQuantidadeComponent={InputField}
+
+        InputFieldQuantidadeComponent={dadosAcumuladorEtiquetas.length > 0 ? InputField : null}
         labelInputFieldQuantidade={"QTD CÓPIAS"}
         valueInputQuantidade={copias}
-        onChangeInputQuantidade={(e) => setCopias(e.target.value)}
+        onChangeInputQuantidade={(e) => setCopias(Number(e.target.value) || 1)}
         placeHolderInputFieldQuantidade={"Digite a quantidade"}
-        styleInputQuantidade={{display: parseFloat(preco) > 0 ? 'block' : 'none'}}
 
         ButtonTypeCadastro={ButtonType}
         linkNome={"Imprimir"}
@@ -208,21 +214,21 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
         corCadastro={"primary"}
         IconCadastro={MdOutlineLocalPrintshop}
         //styleCadastro={{display: preco > 0 ? 'block' : 'none'}}
-        
+
         ButtonTypeVendasEstrutura={ButtonType}
         linkNomeVendasEstrutura={"Limpar Todos"}
         onButtonClickVendasEstrutura={handleCancelar}
         corVendasEstrutura={"danger"}
         iconVendasEstrutura={BsTrash3}
-        styleVendasEstrutura={{display: dadosAcumuladorEtiquetas.length > 0 || parseFloat(preco) > 0 ? 'block' : 'none'}}
-     
+        styleVendasEstrutura={{ display: dadosAcumuladorEtiquetas.length > 0 || parseFloat(preco) > 0 ? 'block' : 'none' }}
+
         ButtonTypeCancelar={ButtonType}
         linkCancelar={"Guardar"}
         onButtonClickCancelar={handleAcumuladorEtiquetas}
         corCancelar={"success"}
         IconCancelar={GoDownload}
-        styleCancelar={{display: parseFloat(preco) > 0 ? 'block' : 'none'}}
-     />
+        styleCancelar={{ display: parseFloat(preco) > 0 ? 'block' : 'none' }}
+      />
 
       <ActionListaEtiquetaRemarcacao
         dadosAcumuladorEtiquetas={dadosAcumuladorEtiquetas}
@@ -231,17 +237,17 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ID, optionsEmpresas, usuarioLo
         handleUpdateQuantidadeEtiqueta={handleUpdateQuantidadeEtiqueta}
       />
 
-      <ActionImprimirEtiquetaModal 
+      <ActionImprimirEtiquetaModal
         show={modalDetalhar}
-        handleClose={() => setModalDetalhar(false)}
+        handleClose={fecharModalImprimir}
         dadosEtiquetas={dadosEtiquetas}
         quantidadeEtiquetas={quantidadeEtiquetas}
         copias={copias}
       />
-      <ActionImprimirAcumuladorEtiquetaModal 
+      <ActionImprimirAcumuladorEtiquetaModal
         show={modalAcumulador}
-        handleClose={() => setModalAcumulador(false)}
-        dadosAcumuladorEtiquetas={dadosAcumuladorEtiquetas}
+        handleClose={fecharModalAcumulador}
+        dadosAcumuladorEtiquetas={dadosAcumuladorImpressao}
         quantidadeEtiquetas={quantidadeEtiquetas}
         copias={copias}
       />
