@@ -86,7 +86,6 @@ export const useIntegrarTodosPagamentosPix = ({
                         const rowData = selectedItems[i];
                         const putData = {
                             IDVENDAPAGAMENTO: parseInt(rowData.IDVENDAPAGAMENTO),
-                            IDFUNCIONARIO: Number(usuarioLogado.id),
                         };
                         
                         document.getElementById('progressoIntegracao').innerText = i + 1;

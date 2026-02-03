@@ -15,6 +15,7 @@ import { ActionListaVendasPIXCompensacaoCapa } from "./actionListaVendasPixCompe
 import { ActionListaVendasPIXCompensacaoCredito } from "./actionListaVendasPixCompensacaoCredito"
 import { ActionListaVendasPIXCompensacaoDebito } from "./actionListaVendasPixCompensacaoDebito"
 import { useIntegrarTodosPagamentosPix } from "./hooks/useIntegrarTodosPagamentosPixSAP"
+import { BsCloudUpload } from "react-icons/bs"
 
 
 export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
@@ -32,7 +33,7 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
   const [pixCompensacaoCredito, setPixCompensacaoCredito] = useState(false);
   const [pixCompensacaoDebito, setPixCompensacaoDebito] = useState(false);
   const [selectedItems, setSelectedItems] = useState([]);
-  const [btnVisivel, setBtnVisivel] = useState(true);
+  const [btnVisivel, setBtnVisivel] = useState(false);
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -56,7 +57,7 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
     'marcasLista',
     async () => {
       const response = await get(`/marcasLista`);
-      console.log(response, 'marcas')
+    
       return response.data;
     },
     { staleTime: 5 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
@@ -249,7 +250,7 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
     handleClickVendasPixCompensacao,
     selectedItems,
   })
-  
+
   return (
 
     <Fragment>
@@ -338,6 +339,13 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
         onButtonClickVendasVendedor={handleClickPixCompensacaoDebito}
         corVendasVendedor={"info"}
         iconVendasVendedor={AiOutlineSearch}
+
+        ButtonTypeProdutoVendidos={ButtonType}
+        linkNomeProdutoVendido={"Integrar Todos PIX SAP"}
+        onButtonClickProdutoVendido={integrarTodos}
+        corProdutoVendido={"primary"}
+        iconProdutoVendido={BsCloudUpload}
+        styleProdutoVendido={{ display: btnVisivel ? 'block' : 'none' }}
       />
 
       {tabelaVendasPixVisivel && (

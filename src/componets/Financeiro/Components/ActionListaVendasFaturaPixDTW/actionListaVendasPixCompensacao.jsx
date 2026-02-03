@@ -36,7 +36,7 @@ export const ActionListaVendasPIXCompensacao = ({
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
-  const {confirmar} = useIntegrarPagamentoPix({optionsModulos, usuarioLogado, handleClickVendasPixCompensacao, setSelectedItems})
+  const { handleClickIntegrar } = useIntegrarPagamentoPix({optionsModulos, usuarioLogado, handleClickVendasPixCompensacao, setSelectedItems})
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -119,7 +119,7 @@ export const ActionListaVendasPIXCompensacao = ({
     let contador = index + 1;
     var contaDebitoSap = '1.01.01.02.0003';
     var contaCreditoSap = '1.01.01.01.9998';
-    console.log(item.IDVENDAPAGAMENTO, 'idvendapagamento');
+ 
     return {
       Numero: contador,
       NOFANTASIA: item.NOFANTASIA,
@@ -228,24 +228,24 @@ export const ActionListaVendasPIXCompensacao = ({
     }
   };
 
-  const handleClickIntegrar = (row) => {
-    Swal.fire({
-      icon: 'question',
-      title: 'Confirmação',
-      text: 'Certeza que Deseja Integrar o PIX no SAP?',
-      showConfirmButton: true,
-      showCancelButton: true,
-      confirmButtonText: 'Sim, Integrar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
-      if (result.isConfirmed) {
-        // Aqui você implementaria a lógica de integração
-        console.log('Integrando PIX:', row.IDVENDAPAGAMENTO);
-        // Chame sua função de integração aqui
-        // integrarPagamentoPixNoSAP(row.IDVENDAPAGAMENTO);
-      }
-    });
-  };
+  // const handleClickIntegrar = (row) => {
+  //   Swal.fire({
+  //     icon: 'question',
+  //     title: 'Confirmação',
+  //     text: 'Certeza que Deseja Integrar o PIX no SAP?',
+  //     showConfirmButton: true,
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Sim, Integrar',
+  //     cancelButtonText: 'Cancelar'
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       // Aqui você implementaria a lógica de integração
+  //       console.log('Integrando PIX:', row.IDVENDAPAGAMENTO);
+  //       // Chame sua função de integração aqui
+  //       // integrarPagamentoPixNoSAP(row.IDVENDAPAGAMENTO);
+  //     }
+  //   });
+  // };
 
   useEffect(() => {
     // Filtra apenas os itens que podem ser selecionados
@@ -313,6 +313,7 @@ export const ActionListaVendasPIXCompensacao = ({
     }
   };
   
+  console.log(selectedItems, 'selectedItems compensacao');
   const colunasVendasPix = [
     {
       field: 'Selecione',
@@ -461,7 +462,10 @@ export const ActionListaVendasPIXCompensacao = ({
                   iconSize={15}
                   width="50px"
                   height="50px"
-                  onClickButton={() => handleClickIntegrar(row)}
+                  onClickButton={() => {
+                    setSelectedItems([row]);
+                    handleClickIntegrar(row);
+                  }}
                 />
               </div>
             )}

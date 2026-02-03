@@ -28,7 +28,8 @@ export const useIntegrarPagamentoPix = ({optionsModulos, usuarioLogado, handleCl
         return usuarioIP;
     };
 
-    const confirmar = async (rowData) => {
+    const handleClickIntegrar = async (rowData) => {
+        console.log(rowData, 'rowData integrar pix');
         if (optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 position: 'center',
@@ -77,7 +78,7 @@ export const useIntegrarPagamentoPix = ({optionsModulos, usuarioLogado, handleCl
                 });
 
                 const putData = {
-                    IDVENDAPAGAMENTO: parseInt(rowData.IDVENDAPAGAMENTO),
+                    IDVENDAPAGAMENTO: rowData.IDVENDAPAGAMENTO,
                 }
 
                 try {
@@ -140,6 +141,6 @@ export const useIntegrarPagamentoPix = ({optionsModulos, usuarioLogado, handleCl
 
 
     return {
-        confirmar
+        handleClickIntegrar
     }
 }

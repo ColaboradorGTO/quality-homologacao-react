@@ -551,6 +551,7 @@ export const ActionMain = ({
   styleInputFieldOR,
   styleInputFieldOT,
   stylesGrupo,
+  styleProdutoVendido,
   // Funções
 
   onButtonClickSearch,
@@ -1836,6 +1837,7 @@ export const ActionMain = ({
                         Icon={iconProdutoVendido}
                         iconColor="#212529"
                         iconSize={16}
+                        style={styleProdutoVendido}
                       />
                     )}
 
