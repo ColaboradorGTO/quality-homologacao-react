@@ -82,7 +82,7 @@ export const useIntegrarPagamentoPix = ({optionsModulos, usuarioLogado, handleCl
 
                 try {
         
-                    const response = await post('/adiantamentos-salariais-integracao', putData)
+                    const response = await post('/pix-integracao', putData)
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
@@ -128,7 +128,7 @@ export const useIntegrarPagamentoPix = ({optionsModulos, usuarioLogado, handleCl
                             container: 'custom-swal',
                         },
                     });
-                    console.error('Erro Integrar Adiantamento Salarial:', error);
+                    console.error('Erro Integrar Pagamento PIX:', error);
                     return responsePost.data;
                 }
             } else {
