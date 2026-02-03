@@ -3,7 +3,7 @@ import { post } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useIntegrarPagamentoPix = ({optionsModulos, usuarioLogado, handleClick, setSelectedItems}) => {
+export const useIntegrarPagamentoPix = ({optionsModulos, usuarioLogado, handleClickVendasPixCompensacao, setSelectedItems}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
@@ -104,7 +104,7 @@ export const useIntegrarPagamentoPix = ({optionsModulos, usuarioLogado, handleCl
                         },
                     })
         
-                    handleClick();
+                    handleClickVendasPixCompensacao();
                     setSelectedItems([]);
                     return response.data;
                 } catch (error) {

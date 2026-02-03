@@ -16,6 +16,7 @@ import { Checkbox } from "primereact/checkbox";
 import Swal from "sweetalert2";
 import { useEffect } from "react";
 import { GrView } from "react-icons/gr";
+import { useIntegrarPagamentoPix } from "./hooks/useIntegrarPagamentoPixSAP";
 
 
 export const ActionListaVendasPIXCompensacao = ({
@@ -25,7 +26,8 @@ export const ActionListaVendasPIXCompensacao = ({
   usuarioLogado,
   optionsModulos,
   btnVisivel,
-  setBtnVisivel
+  setBtnVisivel,
+  handleClickVendasPixCompensacao
 }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [first, setFirst] = useState(0);
@@ -33,6 +35,8 @@ export const ActionListaVendasPIXCompensacao = ({
   const [selectAllChecked, setSelectAllChecked] = useState(false);
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
+
+  const {confirmar} = useIntegrarPagamentoPix({optionsModulos, usuarioLogado, handleClickVendasPixCompensacao, setSelectedItems})
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);

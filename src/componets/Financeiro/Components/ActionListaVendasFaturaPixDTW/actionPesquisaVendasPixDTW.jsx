@@ -351,6 +351,7 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
           usuarioLogado={usuarioLogado}
           btnVisivel={btnVisivel}
           setBtnVisivel={setBtnVisivel}
+          handleClickVendasPixCompensacao={handleClickVendasPixCompensacao}
         />
       )}
       {pixCompensacaoCapa && (
