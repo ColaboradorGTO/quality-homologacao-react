@@ -291,7 +291,6 @@ export const ActionPesquisaRecebimentosLoja = () => {
         IconCadastro={AiOutlineSearch}
 
       />
-  {console.log(dadosFormaPagamento, "dadosFormaPagamento")}
       {tabelaRecebimentos && (
         <ActionListaRecebimentos dadosRecebimentos={dadosRecebimentos} />
       )}
