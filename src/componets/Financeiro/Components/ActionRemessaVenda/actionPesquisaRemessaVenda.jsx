@@ -240,7 +240,6 @@ export const ActionPesquisaRemessaVenda = ({ usuarioLogado, ID }) => {
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marca"}
         optionsMarcas={[
-          // { value: '0', label: 'Selecione uma loja' },
           ...optionsMarcas.map((marca) => ({
             value: marca.IDGRUPOEMPRESARIAL,
             label: marca.DSGRUPOEMPRESARIAL

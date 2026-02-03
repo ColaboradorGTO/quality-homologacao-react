@@ -97,6 +97,23 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
     }
   }) : [];
 
+  const calcularTotalCartao = () => {
+    let total = 0;
+    for (let dado of dadosDescontoVendas) {
+      total += toFloat(dado.VRRECCARTAO)
+    }
+    return total;
+  }
+
+  const calcularTotalDinheiro = () => {
+    let total = 0;
+    for (let dado of dadosDescontoVendas) {
+      total += toFloat(dado.VRRECDINHEIRO)
+    }
+    return total;
+  }
+
+
   const dadosListaDetalhada = Array.isArray(dadosDescontoVendas) ? dadosDescontoVendas.map((item, index) => {
     let contador = index + 1;
 
@@ -147,6 +164,8 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
     }
   }) :[];
 
+  
+
   const calcularTotal = (field) => {
     const firstIndex = first * rows;
     const lastIndex = firstIndex + rows;
@@ -156,16 +175,19 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
 
 
   const calcularTotalDinheiroPercentual = () => {
-    const totalDinheiro = calcularTotal('VRRECDINHEIRO');
+    const totalPagina = calcularTotal('VRRECDINHEIRO');
+    const totalDinheiro = calcularTotalDinheiro('VRRECDINHEIRO');
     const totalVendas = calcularTotal('percentualDinheiro' );
-    const percentualDinheiroVenda = ((totalDinheiro * 100) / (totalVendas));
-    return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
+    const percentualDinheiroVenda = ((totalDinheiro * 100) / (calcularTotalVendido()));
+    return `${formatMoeda(totalDinheiro)}  (${totalPagina} - ${percentualDinheiroVenda.toFixed(6)} % do total bruto da venda)`;
   };
+  
   const calcularPercentualCartao = () => {
-    const totalDinheiro = calcularTotal('VRRECCARTAO');
-    const totalVendas = calcularTotal('percentualCartao');
-    // const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-    return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
+    const totalPagina = calcularTotal('VRRECCARTAO');
+    const totalCartao = calcularTotalCartao();
+    const totalPercentualCartao = calcularTotal('percentualCartao');
+    const percentualDinheiroVenda = (totalCartao * 100) / totalCartao;
+    return `${formatMoeda(totalCartao)}  (${formatMoeda(totalPagina)} - ${totalPercentualCartao.toFixed(6)} % do total bruto da venda)`;
   };
   const calcularPercentualConvenio = () => {
     const totalDinheiro = calcularTotal('VRRECCONVENIO');

@@ -50,14 +50,7 @@ export const useAtivarCancelar = ({ refetchCaixaZerado, usuarioLogado, optionsMo
 
       const response = await put('/fechar-caixas-zerados', putData)
 
-      Swal.fire({
-        position: 'center',
-        icon: 'success',
-        title: 'Caixa Fechado com sucesso!',
-        showConfirmButton: false,
-        timer: 15000
-      })
-
+      
       const textDados = JSON.stringify(putData)
       let textoFuncao = 'FINANCEIRO/FECHAMENTO DE CAIXAS ZERADOS';
       const ipUsuario = await getIPUsuario();
@@ -67,9 +60,16 @@ export const useAtivarCancelar = ({ refetchCaixaZerado, usuarioLogado, optionsMo
         DADOS: textDados,
         IP: ipUsuario
       }
-
+      
       await post('/log-web', postData)
       refetchCaixaZerado()
+      Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: 'Caixa Fechado com sucesso!',
+        showConfirmButton: false,
+        timer: 15000
+      })
       return response.data;
     } catch (error) {
       const textDados = JSON.stringify(putData)

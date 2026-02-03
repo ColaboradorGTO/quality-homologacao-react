@@ -145,9 +145,6 @@ export const ActionPesquisaCaixaStatus = ({usuarioLogado, ID}) => {
     if (marcaSelecionada) {
       setTabelaCaixaStatus(true)
       setTabelaCaixaZerado(false)
-      setIsLoadingPesquisa(true);
-      setIsQueryCaixaStatus(true)
-      setCurrentPage(prevPage => prevPage + 1);
       refetchCaixaStatus()
     } else {
       Swal.fire('Erro', 'Por favor, Verifique os Campos', 'error');
@@ -160,9 +157,6 @@ export const ActionPesquisaCaixaStatus = ({usuarioLogado, ID}) => {
     if (marcaSelecionada) {
       setTabelaCaixaZerado(true)
       setTabelaCaixaStatus(false)
-      setIsLoadingPesquisa(true);
-      setIsQueryCaixaZerado(true)
-      setCurrentPage(prevPage => prevPage + 1);
       refetchCaixaZerado()
 
     } else {

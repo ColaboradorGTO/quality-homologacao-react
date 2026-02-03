@@ -380,7 +380,7 @@ export const ActionListaConciliarPorBanco = ({
                 textButton={"Editar"}
                 cor={"warning"}
                 Icon={BsCloudUpload}
-                iconSize={20}
+                iconSize={15}
                 width="50px"
                 height="50px"
                 onClickButton={() => onEitarDataMovimentoConciliacao(row.IDDEPOSITOLOJA, row.DTMOVDEP)}
@@ -397,7 +397,7 @@ export const ActionListaConciliarPorBanco = ({
                 titleButton={"Em Processo de Integração, Aguarde..."}
                 textButton={"Status"}
                 cor={"primary"}
-                iconSize={20}
+                iconSize={15}
                 width="50px"
                 height="50px"
                 Icon={BsEye}
@@ -427,7 +427,7 @@ export const ActionListaConciliarPorBanco = ({
               textButton={"Status"}
               cor={"primary"}
               Icon={BsEye}
-              iconSize={20}
+              iconSize={15}
               width="50px"
               height="50px"
               onClickButton={() => {
@@ -456,7 +456,7 @@ export const ActionListaConciliarPorBanco = ({
               textButton={"Editar"}
               cor={"warning"}
               Icon={BsCloudUpload}
-              iconSize={20}
+              iconSize={15}
               width="50px"
               height="50px"
               onClickButton={() => onEitarDataMovimentoConciliacao(row.IDDEPOSITOLOJA, row.DTMOVDEP)}
@@ -468,7 +468,7 @@ export const ActionListaConciliarPorBanco = ({
               textButton={"Integrar"}
               cor={"info"}
               Icon={BsCloudUpload}
-              iconSize={20}
+              iconSize={15}
               width="50px"
               height="50px"
               onClickButton={() => handleClickIntegrar(row)}
@@ -481,7 +481,7 @@ export const ActionListaConciliarPorBanco = ({
                 textButton={"Cancelar"}
                 cor={"danger"}
                 Icon={BsTrash3}
-                iconSize={20}
+                iconSize={15}
                 width="50px"
                 height="50px"
                 onClickButton={() => handleClickCancelar(row)}

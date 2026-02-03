@@ -8,7 +8,6 @@ import { ActionListaConsolidadoBanco } from "./actionListaConsolidadoBanco"
 import { ActionListaConciliarPorBanco } from "./actionListaConciliarBanco"
 import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { useQuery } from 'react-query';
-import Swal from "sweetalert2"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 
 
@@ -133,32 +132,14 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado, ID}) => {
 
     setTabelaVisivel(true)
     setTabelaVisivelConsolidado(false)
-
-
-    setIsLoadingPesquisa(true);
-    setCurrentPage(+1); 
     refetchConciliarBanco()
-    // if (contaSelecionada) {
-    //   // getConciliarBanco()
-    // } else {
-    //   Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
-    // }
-
   }
 
   const handleClickConsolidado = () => {
-   
 
-    if (contaSelecionada) {
-      setTabelaVisivelConsolidado(true)
-      setTabelaVisivel(false)
-
-      setIsLoadingPesquisa(true);
-      setCurrentPage(+1);
-      refetchBancoConsolidado()
-    } else {
-      Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
-    }
+    setTabelaVisivelConsolidado(true)
+    setTabelaVisivel(false)
+    refetchBancoConsolidado()
   }
 
   return (

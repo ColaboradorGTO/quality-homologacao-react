@@ -227,97 +227,98 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
     const firstIndex = first * rows;
     const lastIndex = firstIndex + rows;
     const dataPaginada = dadosListaDetalhada.slice(firstIndex, lastIndex); 
-    return dataPaginada.reduce((total, item) => total + parseFloat(item[field]), 0);
+    return dataPaginada.reduce((total, item) => total + toFloat(item[field]), 0);
   };
 
   const calcularTotalDinheiroPercentual = () => {
-    const totalDinheiro = calcularTotal('VRRECDINHEIRO');
-    const totalVendas = calcularTotal('VLTOTALVENDIDO');
-    const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-    return `${formatMoeda(totalDinheiro)} (${percentualDinheiroVenda.toFixed(4)}%) do total bruto da venda`;
+    const totalDinheiroPageAtual = calcularTotal('VRRECDINHEIRO'); // página atual
+    const totalDinheiroGeral = calcularTotalDinheiro(); // total geral
+    const valorTotalVendido = calcularPercentualDinheiro(); // VLTOTALVENDIDO do período
+    const percentualDinheiroVenda = (totalDinheiroGeral * 100) / valorTotalVendido;
+    return `${formatMoeda(totalDinheiroPageAtual)} (${formatMoeda(totalDinheiroGeral)} - ${percentualDinheiroVenda.toFixed(6)} % do total bruto da venda)`;
   };
 
+  const calcularPercentualCartao = (item) => {
+    const totalCartaoPageAtual = calcularTotal('VRRECCARTAO');
+    const totalCartaoGeral = calcularTotalCartao();
+    const valorTotalVendido = calcularPercentualDinheiro();
+    const percentual = (totalCartaoGeral * 100) / valorTotalVendido;
+    return `${formatMoeda(totalCartaoPageAtual)} (${formatMoeda(totalCartaoGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
+  } 
 
+  const calcularPercentualConvenio = (item) => {
+      const totalConvenioPageAtual = calcularTotal('VRRECCONVENIO');
+      const totalConvenioGeral = calcularTotalConvenio();
+      const valorTotalVendido = calcularPercentualDinheiro();
+      const percentual = (totalConvenioGeral * 100) / valorTotalVendido;
+      return `${formatMoeda(totalConvenioPageAtual)} (${formatMoeda(totalConvenioGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
+  }
   const calcularPercentualDinheiro = () => {
     let total = 0;
     for (let vendas of dadosListaDetalhada) {
       total += parseFloat(vendas.VLTOTALVENDIDO);
     }
-    console.log(total, 'total')
+ 
     return total;
   }
 
-  const calcularPercentualCartao = (item) => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.percentualCartao);
-    }
-    return total;
-  }
+  const calcularPercentualPos = () => {
+    const totalPosPageAtual = calcularTotal('VRRECPOS');
+    const totalPosGeral = calcularTotalPos();
+    const valorTotalVendido = calcularPercentualDinheiro();
+    const percentual = (totalPosGeral * 100) / valorTotalVendido;
+    return `${formatMoeda(totalPosPageAtual)} (${formatMoeda(totalPosGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
+};
 
-  const calcularPercentualConvenio = (item) => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.percentualConvenio);
-    }
-    return total;
-  }
+const calcularPercentualVoucher = () => {
+    const totalVoucherPageAtual = calcularTotal('VRRECVOUCHER');
+    const totalVoucherGeral = calcularTotalVoucher();
+    const valorTotalVendido = calcularPercentualDinheiro();
+    const percentual = (totalVoucherGeral * 100) / valorTotalVendido;
+    return `${formatMoeda(totalVoucherPageAtual)} (${formatMoeda(totalVoucherGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
+};
 
-  const calcularPercentualPos = (item) => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.percentualPos);
-    }
-    return total;
-  }
+const calcularPercentualBruto = () => {
+    const totalBrutoPageAtual = calcularTotal('VALORTOTALPRODUTOBRUTO');
+    const totalBrutoGeral = calcularTotalBruto();
+    const valorTotalVendido = calcularPercentualDinheiro();
+    const percentual = (totalBrutoGeral * 100) / valorTotalVendido;
+    return `${formatMoeda(totalBrutoPageAtual)} (${formatMoeda(totalBrutoGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
+};
 
-  const calcularPercentualVoucher = (item) => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.percentualVoucher);
-    }
-    return total;
-  }
+const calcularPercentualDescontoFuncionario = () => {
+    const totalDescontoFuncPageAtual = calcularTotal('VLTOTALDESCONTOFUNCIONARIO');
+    const totalDescontoFuncGeral = calcularTotalDescontoFuncionario();
+    const valorTotalVendido = calcularPercentualDinheiro();
+    const percentual = (totalDescontoFuncGeral * 100) / valorTotalVendido;
+    return `${formatMoeda(totalDescontoFuncPageAtual)} (${formatMoeda(totalDescontoFuncGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
+};
 
-  const calcularPercentualBruto = (item) => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.percentualBruto);
-    }
-    return total;
-  }
+const calcularPercentualDescontoCliente = () => {
+    const totalDescontoCliPageAtual = calcularTotal('VLTOTALDESCONTOCLIENTE');
+    const totalDescontoCliGeral = calcularTotalDescontoCliente();
+    const valorTotalVendido = calcularPercentualDinheiro();
+    const percentual = (totalDescontoCliGeral * 100) / valorTotalVendido;
+    return `${formatMoeda(totalDescontoCliPageAtual)} (${formatMoeda(totalDescontoCliGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
+};
 
-  const calcularPercentualDesconto = (item) => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.percentualDesconto);
-    }
-    return total;
-  }
+const calcularPercentualDesconto = () => {
+    const totalDescontoPageAtual = calcularTotal('VRDESCONTO');
+    const totalDescontoGeral = calcularTotalDesconto();
+    const valorTotalVendido = calcularPercentualDinheiro();
+    const percentual = (totalDescontoGeral * 100) / valorTotalVendido;
+    return `${formatMoeda(totalDescontoPageAtual)} (${formatMoeda(totalDescontoGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
+};
 
-  const calcularPercentualDescontoFuncionario = (item) => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.percentualDescontoFuncionario);
-    }
-    return total;
-  }
+const calcularPercentualLiquido = () => {
+    const totalLiquidoPageAtual = calcularTotal('TOTALLIQUIDO');
+    const totalLiquidoGeral = calcularTotalLiquido();
+    const valorTotalVendido = calcularPercentualDinheiro();
+    const percentual = (totalLiquidoGeral * 100) / valorTotalVendido;
+    return `${formatMoeda(totalLiquidoPageAtual)} (${formatMoeda(totalLiquidoGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
+};
 
-  const calcularPercentualDescontoCliente = (item) => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.percentualDescontoCliente);
-    }
-    return total;
-  }
-
-  const calcularPercentualLiquido = (item) => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.percentualLiquido);
-    }
-    return total;
-  }
+  
   const colunasDetalhada = [
     {
       field: 'contador',
@@ -347,10 +348,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{calcularTotalDinheiroPercentual()}</p>
-            {/* <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalDinheiro())}</p> */}
-            <hr />
-            {/* <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualDinheiro().toFixed(6))} % do total bruto da venda</p> */}
+            <p style={{ fontWeight: 600 }}>{calcularPercentualDinheiro()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -363,9 +361,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalCartao())}</p>
-            <hr style={{ color: 'black', fontSize: "5px" }} />
-            <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualCartao().toFixed(6))} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularPercentualCartao()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -378,9 +374,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalConvenio())}</p>
-            <hr />
-            <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualConvenio().toFixed(6))} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularPercentualConvenio()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -393,9 +387,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalPos())}</p>
-            <hr />
-            <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualPos().toFixed(6))} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularPercentualPos()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -408,9 +400,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalVoucher())}</p>
-            <hr />
-            <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualVoucher().toFixed(6))} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularPercentualVoucher()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -423,9 +413,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalBruto())}</p>
-            <hr />
-            <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualBruto().toFixed(6))} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularPercentualBruto()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -438,9 +426,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalDescontoFuncionario())}</p>
-            <hr />
-            <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualDescontoFuncionario().toFixed(6))} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularPercentualDescontoFuncionario()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -453,9 +439,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalDescontoCliente())}</p>
-            <hr />
-            <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualDescontoCliente().toFixed(6))} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularPercentualDescontoCliente()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -468,9 +452,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalDesconto())}</p>
-            <hr />
-            <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualDesconto().toFixed(6))} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularPercentualDesconto()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -483,9 +465,7 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{formatMoeda(calcularTotalLiquido())}</p>
-            <hr />
-            <p style={{ fontWeight: 600 }}>{parseFloat(calcularPercentualLiquido().toFixed(6))} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularPercentualLiquido()} % do total bruto da venda</p>
           </div>
         )
       },

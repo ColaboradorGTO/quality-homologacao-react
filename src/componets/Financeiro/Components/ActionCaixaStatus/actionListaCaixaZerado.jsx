@@ -171,7 +171,6 @@ export const ActionListaCaixaZerado = ({
   return (
 
     <Fragment>
-
       <div className="panel" >
         <div className="panel-hdr">
           <h2>
@@ -226,11 +225,7 @@ export const ActionListaCaixaZerado = ({
             ))}
           </DataTable>
         </div>
-
       </div>
-
-
     </Fragment>
   )
 }
-

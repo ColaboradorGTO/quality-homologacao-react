@@ -10,7 +10,6 @@ import { ActionListaDescontoVendasSimplificada } from "./actionListaDescontoVend
 import { AiOutlineSearch } from "react-icons/ai"
 import { ActionListaDescontoMotivoVenda } from "./actionListaDescontoMotivoVenda"
 import { useQuery } from 'react-query';
-import Swal from 'sweetalert2'
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData"
 
@@ -25,8 +24,7 @@ export const ActionPesquisaDescontoVendas = () => {
   const [marcaSelecionada, setMarcaSelecionada] = useState('');
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+
 
 
   useEffect(() => {
@@ -181,16 +179,13 @@ export const ActionPesquisaDescontoVendas = () => {
   }
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
     refetchDescontoVendas()
     setTabelaDetalhada(true)
     setTabelaSimplificada(false)
     setTabelaMotivo(false)
-    setIsLoadingPesquisa(true);
   }
 
   const handleClickPesqSimplificada = () => {
-    setCurrentPage(prevPage => prevPage + 1);
     refetchDescontoVendasSimplificada();
     setTabelaSimplificada(true)
     setTabelaDetalhada(false)
@@ -198,7 +193,6 @@ export const ActionPesquisaDescontoVendas = () => {
   }
 
   const handleClickPesquisaMotivo = () => {
-    setCurrentPage(prevPage => prevPage + 1);
     refetchDescontoMotivoVendas(); 
     setTabelaMotivo(true)
     setTabelaSimplificada(false)
@@ -300,4 +294,3 @@ export const ActionPesquisaDescontoVendas = () => {
     </Fragment>
   )
 }
-

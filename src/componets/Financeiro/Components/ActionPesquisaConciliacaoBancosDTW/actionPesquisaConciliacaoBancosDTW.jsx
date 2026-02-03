@@ -24,11 +24,7 @@ export const ActionPesquisaConciliacaoBancosDTW = ({ usuarioLogado, ID }) => {
   const [dataPesquisaInicioC, setDataPesquisaInicioC] = useState('')
   const [dataPesquisaFimC, setDataPesquisaFimC] = useState('')
   const [contaSelecionada, setContaSelecionada] = useState('')
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(500); 
-  const [isQueryConciliarBanco, setIsQueryConciliarBanco] = useState(false);
-  const [isQueryBancoConsolidado, setIsQueryBancoConsolidado] = useState(false);
 
   const { data: dadosContaBanco = [], error: errorContaBanco, isLoading: isLoadingContaBanco, } = useFetchData('contaBanco', '/contaBanco');
   
@@ -138,39 +134,39 @@ export const ActionPesquisaConciliacaoBancosDTW = ({ usuarioLogado, ID }) => {
 
   const handleClick = () => {
 
-    if (contaSelecionada) {
-      setTabelaVisivel(true)
-      setTabelaVisivelConsolidado(false)
-      setTabelaVisivelCompensacao(false)
-      refetchConciliarBanco()
-    } else {
-      Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
-    }
+    setTabelaVisivel(true)
+    setTabelaVisivelConsolidado(false)
+    setTabelaVisivelCompensacao(false)
+    refetchConciliarBanco()
+    // if (contaSelecionada) {
+    // } else {
+    //   Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
+    // }
   }
 
   const handleClickCompensacao = () => {
 
-    if (contaSelecionada) {
-      setTabelaVisivel(false)
-      setTabelaVisivelConsolidado(false)
-      setTabelaVisivelCompensacao(true)
-      refetchConciliarBanco()
-    } else {
-      Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
-    }
+    setTabelaVisivel(false)
+    setTabelaVisivelConsolidado(false)
+    setTabelaVisivelCompensacao(true)
+    refetchConciliarBanco()
+    // if (contaSelecionada) {
+    // } else {
+    //   Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
+    // }
   }
 
   const handleClickConsolidado = () => {
    
 
-    if (contaSelecionada) {
-      setTabelaVisivelConsolidado(true)
-      setTabelaVisivel(false)
-      setTabelaVisivelCompensacao(false)
-      refetchBancoConsolidado()
-    } else {
-      Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
-    }
+    setTabelaVisivelConsolidado(true)
+    setTabelaVisivel(false)
+    setTabelaVisivelCompensacao(false)
+    refetchBancoConsolidado()
+    // if (contaSelecionada) {
+      // } else {
+      //   Swal.fire('Erro', 'Por favor, selecione uma Conta.', 'error');
+      // }
   }
 
   return (
