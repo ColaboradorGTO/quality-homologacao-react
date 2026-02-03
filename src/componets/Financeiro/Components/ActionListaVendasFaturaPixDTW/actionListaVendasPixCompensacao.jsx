@@ -246,12 +246,12 @@ export const ActionListaVendasPIXCompensacao = ({
   useEffect(() => {
     // Filtra apenas os itens que podem ser selecionados
     const itensSelecionaveis = dadosListaVendasPix.filter(item => 
-      item.DOCENTRY_SAP_CONTAS_A_RECEBER_PGTO_PIX == 0 && !item.STATUS_BLOQUEIO_ATUALIZACAO
+      item.DOCENTRY_SAP_CONTAS_A_RECEBER_PGTO_PIX === 0
     );
 
     const dadosPaginaAtual = dadosListaVendasPix.slice(first, first + rows);
     const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item => 
-      item.DOCENTRY_SAP_CONTAS_A_RECEBER_PGTO_PIX == 0 && !item.STATUS_BLOQUEIO_ATUALIZACAO
+      item.DOCENTRY_SAP_CONTAS_A_RECEBER_PGTO_PIX === 0
     );
 
     if(selectedItems.length == 0) {
@@ -287,14 +287,14 @@ export const ActionListaVendasPIXCompensacao = ({
       }).then((result) => {
         if (result.isConfirmed) {
           const itensSelecionaveis = dadosListaVendasPix.filter(item => 
-            item.DOCENTRY_SAP_CONTAS_A_RECEBER_PGTO_PIX === 0 && !item.STATUS_BLOQUEIO_ATUALIZACAO
+            item.DOCENTRY_SAP_CONTAS_A_RECEBER_PGTO_PIX === 0
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveis]);
         } else if (result.dismiss === Swal.DismissReason.cancel) {
           const dadosPaginaAtual = dadosListaVendasPix.slice(first, first + rows);
           const itensSelecionaveisPaginaAtual = dadosPaginaAtual.filter(item => 
-            item.DOCENTRY_SAP_CONTAS_A_RECEBER_PGTO_PIX === 0 && !item.STATUS_BLOQUEIO_ATUALIZACAO
+            item.DOCENTRY_SAP_CONTAS_A_RECEBER_PGTO_PIX === 0
           );
           setBtnVisivel(true);
           setSelectedItems([...itensSelecionaveisPaginaAtual]);
@@ -309,7 +309,6 @@ export const ActionListaVendasPIXCompensacao = ({
     }
   };
   
-  {console.log('Itens Selecionados:', ...selectedItems)};
   const colunasVendasPix = [
     {
       field: 'Selecione',
