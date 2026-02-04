@@ -44,7 +44,7 @@ export const useEditarStatusVoucher = ({
     const onSubmit = async () => {
         let STATIVO = 'True';
         let STCANCELADO = 'False';
-        
+
         if (!usuarioLogado?.IDEMPRESA || !usuarioLogado?.IDGRUPOEMPRESARIAL) {
             Swal.fire({
                 title: 'Atenção! Dados do usuário não localizados',
@@ -99,7 +99,6 @@ export const useEditarStatusVoucher = ({
             IDGRUPOEMPRESARIAL: usuarioLogado?.IDGRUPOEMPRESARIAL,
         }
         try {
-
             const response = await put('/todos-web/:id', putData)
 
             const textDados = JSON.stringify(putData)

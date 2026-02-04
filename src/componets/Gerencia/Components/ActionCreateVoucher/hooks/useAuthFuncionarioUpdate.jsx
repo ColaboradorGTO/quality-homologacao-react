@@ -68,7 +68,7 @@ export const useAuthFuncionarioUpdate = ({ usuarioLogado }) => {
         try {
           const response = await post('/auth-funcionario-update-voucher', data);
 
-          const textDados = JSON.stringify(putData)
+          const textDados = JSON.stringify(data)
           let textoFuncao = 'GERENCIA/ATUALIZAR FUNCIONARIO VOUCHER';
           await getIPUsuario();
 
