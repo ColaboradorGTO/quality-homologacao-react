@@ -97,23 +97,6 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
     }
   }) : [];
 
-  const calcularTotalCartao = () => {
-    let total = 0;
-    for (let dado of dadosDescontoVendas) {
-      total += toFloat(dado.VRRECCARTAO)
-    }
-    return total;
-  }
-
-  const calcularTotalDinheiro = () => {
-    let total = 0;
-    for (let dado of dadosDescontoVendas) {
-      total += toFloat(dado.VRRECDINHEIRO)
-    }
-    return total;
-  }
-
-
   const dadosListaDetalhada = Array.isArray(dadosDescontoVendas) ? dadosDescontoVendas.map((item, index) => {
     let contador = index + 1;
 
@@ -190,6 +173,7 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
     return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
   };
 
+ 
   const calcularTotalDinheiroPercentual = () => calcularPercentualFooter('VRRECDINHEIRO', 'Dinheiro');
   const calcularPercentualCartao = () => calcularPercentualFooter('VRRECCARTAO', 'Cartão');
   const calcularPercentualConvenio = () => calcularPercentualFooter('VRRECCONVENIO', 'Convênio');
@@ -200,80 +184,6 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
   const calcularPercentualDescontoFuncionario = () => calcularPercentualFooter('VLTOTALDESCONTOFUNCIONARIO', 'Desconto Func.');
   const calcularPercentualDescontoCliente = () => calcularPercentualFooter('VLTOTALDESCONTOCLIENTE', 'Desconto Cliente');
   const calcularPercentualLiquido = () => calcularPercentualFooter('TOTALLIQUIDO', 'Líquido');
-  // const calcularTotalDinheiroPercentual = () => {
-  //   const totalPagina = calcularTotal('VRRECDINHEIRO');
-  //   const totalDinheiro = calcularTotalDinheiro('VRRECDINHEIRO');
-  //   const totalVendas = calcularTotal('percentualDinheiro' );
-  //   const percentualDinheiroVenda = ((totalDinheiro * 100) / (calcularTotalVendido()));
-  //   return `${formatMoeda(totalPagina)}  (${formatMoeda(totalDinheiro)} - ${percentualDinheiroVenda.toFixed(6)} % do total bruto da venda)`;
-  // };
-  
-  // const calcularPercentualCartao = () => {
-  //   const totalPagina = calcularTotal('VRRECCARTAO');
-  //   const totalCartao = calcularTotalCartao();
-  //   const totalPercentualCartao = calcularTotal('percentualCartao');
-  //   const percentualDinheiroVenda = (totalCartao * 100) / totalCartao;
-  //   return `${formatMoeda(totalCartao)}  (${formatMoeda(totalPagina)} - ${totalPercentualCartao.toFixed(6)} % do total bruto da venda)`;
-  // };
-  
-  // const calcularPercentualConvenio = () => {
-  //   const totalDinheiro = calcularTotal('VRRECCONVENIO');
-  //   const totalVendas = calcularTotal('percentualConvenio');
-  //   const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-  //   return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
-  // };
-  
-  // const calcularPercentualPos = () => {
-  //   const totalDinheiro = calcularTotal('VRRECPOS');
-  //   const totalVendas = calcularTotal('percentualPos');
-  //   const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-  //   return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
-  // };
-    
-    // const calcularPercentualVoucher = (item) => {
-    //   const totalDinheiro = calcularTotal('VRRECVOUCHER');
-    //   const totalVendas = calcularTotal('percentualVoucher');
-    //   const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-    //   return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
-    // }
-      
-    // const calcularPercentualBruto = (item) => {
-    //   const totalDinheiro = calcularTotal('VALORTOTALPRODUTOBRUTO');
-    //   const totalVendas = calcularTotal('percentualBruto');
-    //   const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-    //   return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
-    // }
-      
-    // const calcularPercentualDesconto = (item) => {
-    //   const totalDinheiro = calcularTotal('VRDESCONTO');
-    //   const totalVendas = calcularTotal('percentualDesconto');
-    //   const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-    //   return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
-      
-    // }
-      
-    // const calcularPercentualDescontoFuncionario = (item) => {
-    //   const totalDinheiro = calcularTotal('VLTOTALDESCONTOFUNCIONARIO');
-    //   const totalVendas = calcularTotal('percentualDescontoFuncionario');
-    //   console.log('totalVendas', totalVendas)
-    //   const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-    //   return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
-    // }
-      
-    // const calcularPercentualDescontoCliente = (item) => {
-    //   const totalDinheiro = calcularTotal('VLTOTALDESCONTOCLIENTE');
-    //   const totalVendas = calcularTotal('percentualDescontoCliente');
-    //   const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-    //   return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
-    // }
-      
-    // const calcularPercentualLiquido = (item) => {
-    //   const totalDinheiro = calcularTotal('TOTALLIQUIDO');
-    //   const totalVendas = calcularTotal('percentualLiquido');
-    //   const percentualDinheiroVenda = (totalDinheiro * 100) / totalVendas;
-    //   return `${formatMoeda(totalDinheiro)}  (-${totalVendas.toFixed(6)}%) do total bruto da venda`;
-
-    // }
 
   const colunasDetalhada = [
     {
@@ -409,7 +319,7 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
 
       <Row> 
         
-        {/* <Column footer={calcularTotalDinheiroPercentual()} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }} /> */}
+        {/* <Column footer={calcularTotalVendido()} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }} /> */}
         <Column footer={`Total Venda Bruta do Período ${formatMoeda(calcularTotalVendido())}`} colSpan={6} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', textAlign: 'center' }} />
         <Column footer={calcularTotalDinheiroPercentual()} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }} />
         <Column footer={calcularPercentualCartao()}  footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}/>
