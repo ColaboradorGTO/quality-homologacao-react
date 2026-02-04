@@ -4,8 +4,7 @@ import { get, post } from "../../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import axios from "axios";
 import { getDataAtual, getHoraAtual } from "../../../../../utils/dataAtual";
-
-
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
 export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
   const [dsHistorio, setDSHistorio] = useState('');
@@ -94,14 +93,13 @@ export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogad
       DSPAGOA: dsPagoA,
       TPNOTA: tpNota?.value,
       NUNOTAFISCAL: nuNotaFiscal,
-      VRDESPESA: parseFloat(vrDespesa),
+      VRDESPESA: removerFormatacaoMoeda(vrDespesa),
       STATIVO: 'True',
       STCANCELADO: 'False',
     }
 
     try {
       const response = await post('/cadastrar-despesa-loja', postData)
-      
       
       const textDados = JSON.stringify(postData)
       let textoFuncao = 'GERENCIA/CADASTRO DE DESPESA';
@@ -167,7 +165,6 @@ export const useCadastrarDespesas = ({ handleClose, optionsModulos, usuarioLogad
 
 
   const Options = [
-    { id: 0, value: "Selecione", label: "Selecione" },
     { id: 1, value: "NFCe", label: "NFCe" },
     { id: 2, value: "NFe", label: "NFe" },
   ]
