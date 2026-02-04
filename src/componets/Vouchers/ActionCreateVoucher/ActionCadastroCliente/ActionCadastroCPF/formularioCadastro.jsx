@@ -229,6 +229,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     onChange={(e) => setNomeClienteRazao(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />
@@ -248,6 +249,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     onChange={(e) => setSobrenome(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />
@@ -373,6 +375,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     onChange={(e) => setEndereco(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />
@@ -413,6 +416,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     onChange={(e) => setComplemento(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />

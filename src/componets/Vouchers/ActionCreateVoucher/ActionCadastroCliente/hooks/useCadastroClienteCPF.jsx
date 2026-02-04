@@ -82,7 +82,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         ['cliente-todos', cpf],
         async () => {
             const response = await get(`/cliente-todos?numeroCpfCnpj=${removerMascaraCPF(cpf)}`);
-            console.log("response cliente-todos", response)
+        
             return response.data;
         },
         { enabled: cpf?.length >= 8, staleTime: 5 * 60 * 1000 }
@@ -111,49 +111,22 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             setNumeroComercial(cliente?.NUTELCOMERCIAL || "");
             setTipoIndicacaoIE(cliente?.IDINDICACAOIE || (cliente?.SGUF == "DF" ? 2 : 9));
             
-            setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);
-            // Separar nome e sobrenome para CPF
-            console.log(sobrenome, 'sobrenome fora if dentro useEffect')
-            console.log(cliente?.NUCPFCNPJ?.length, 'cliente?.NUCPFCNPJ?.length')
-            // if (cliente?.NUCPFCNPJ?.length <= 11) {
-            //     let nome = cliente?.DSNOMERAZAOSOCIAL || "";
-            //     let sobrenome = "";
-            //     const partes = nome.split(" ");
-            //     if (partes.length > 1) {
-            //         sobrenome = partes.pop();
-            //         nome = partes.join(" ");
-            //     }
-            //     setNomeClienteRazao(nome);
-            //     // setSobrenome(sobrenome);
-            //     console.log(sobrenome, 'sobrenome if')
-            // } else if(cliente?.NUCPFCNPJ?.length > 11) {
-            //     setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL);
-            //     setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);
-            //     console.log(sobrenome, 'sobrenome else')
-            // }
-
+            // Separar nome e sobrenome para CPF ou usar dados do CNPJ
+            console.log('cliente?.NUCPFCNPJ?.length', cliente?.NUCPFCNPJ?.length)
+            
             if (cliente?.NUCPFCNPJ?.length <= 11) {
-                let nomeCompleto = cliente.DSNOMERAZAOSOCIAL; // Nome completo
-                let nomeCliente = '';
-                let sobrenomeCliente = '';
-
-                if (nomeCompleto) {
-                    let partesNome = nomeCompleto.split(' '); // Separa por espaço
-
-                    if (partesNome.length > 1) {
-                        sobrenomeCliente = partesNome.pop(); // Pega a última palavra
-                        nomeCliente = partesNome.join(' ');  // Junta o resto
-                    } else {
-                        nomeCliente = nomeCompleto; // Se só tem uma palavra
-                        sobrenomeCliente = '';      // Sobrenome fica vazio
-                    }
-                }
-
-                // Agora define os estados
-                setNomeClienteRazao(nomeCliente);
-                setSobrenome(sobrenomeCliente);
+                // Para CPF, os campos já estão separados corretamente no banco
+                setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL); // Nome
+                setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);    // Sobrenome
+                console.log('CPF - Nome:', cliente?.DSNOMERAZAOSOCIAL, 'Sobrenome:', cliente?.DSAPELIDONOMEFANTASIA);
+            } else {
+                // Para CNPJ usa os campos específicos
+                setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL);
+                setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);
+                console.log(cliente?.DSAPELIDONOMEFANTASIA, 'sobrenome CNPJ')
             }
         }
+
     }, [optionsCPF]);
     useEffect(() => {
         if (optionsCPF && optionsCPF.length > 0) {
@@ -171,9 +144,9 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
 
     const optionsIndicacaoIE = [
         { value: 9, label: 'Não Contribuinte Com ou Sem IE' },
+        { value: 1, label: 'Contribuinte ICMS' },
+        { value: 2, label: 'Contribuinte Isento de IE' },
     ]
-        // { value: 1, label: 'Contribuinte ICMS' },
-        // { value: 2, label: 'Contribuinte Isento de IE' },
         
     
     const readOnlyCpf = optionsCPF && optionsCPF.length > 0;
@@ -225,26 +198,26 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             const putData = {
                 ...(isUpdate && { IDCLIENTE: idCliente }),
                 IDEMPRESA: parseInt(usuarioLogado?.IDEMPRESA),
-                DSNOMERAZAOSOCIAL: nomeClienteRazao.toUpperCase(),
-                DSAPELIDONOMEFANTASIA: sobrenome.toUpperCase(),
-                TPCLIENTE: tipo.toUpperCase(),
+                DSNOMERAZAOSOCIAL: nomeClienteRazao,
+                DSAPELIDONOMEFANTASIA: sobrenome,
+                TPCLIENTE: tipo,
                 NUCPFCNPJ: cpfSemMascara,
                 NURGINSCESTADUAL: IE,
                 NUINSCMUNICIPAL: IM,
                 NUCEP: cep.replace(/\D/g, ""),
                 NUIBGE: parseInt(nuIBGE),
-                EENDERECO: endereco.toUpperCase(),
+                EENDERECO: endereco,
                 NUENDERECO: numero,
-                ECOMPLEMENTO: complemento.toUpperCase(),
-                EBAIRRO: bairro.toUpperCase(),
-                ECIDADE: cidade.toUpperCase(),
-                SGUF: estado.toUpperCase(),
-                EEMAIL: email.toUpperCase(),
+                ECOMPLEMENTO: complemento,
+                EBAIRRO: bairro,
+                ECIDADE: cidade,
+                SGUF: estado,
+                EEMAIL: email,
                 NUTELCOMERCIAL: numeroComercial,
                 NUTELCELULAR: telefoneCliente.replace(/\D/g, ""),
                 DTNASCFUNDACAO: dataNascimento,
                 IDINDICACAOIE: Number(tipoIndicacaoIE.value) || 9,
-                DSINDICACAOIE: tipoIndicacaoIE,
+                DSINDICACAOIE: tipoIndicacaoIE == 9 ? 'Não Contribuinte Com ou Sem IE' : tipoIndicacaoIE == 1 ? 'Contribuinte ICMS' : 'Contribuinte Isento de IE',
                 IDFUNCIONARIO: Number(usuarioLogado.id),
             }
 

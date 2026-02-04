@@ -463,104 +463,104 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
             return;
         }
         
-        if(nomeClienteRazao.length < 3) {
-            Swal.fire({
-                title: 'Erro!',
-                text: `O campo Nome/Razão Social deve conter no mínimo 3 caracteres.`,
-                icon: 'error',
-                confirmButtonText: 'Ok',
-                customClass: { container: 'custom-swal' },
-            });
-            return;
-        }
-        if(sobrenome.length < 3) {
-            Swal.fire({
-                title: 'Erro!',
-                text: `O campo Sobrenome/Nome Fantasia deve conter no mínimo 3 caracteres.`,
-                icon: 'error',
-                confirmButtonText: 'Ok',
-                customClass: { container: 'custom-swal' },
-            });
-            return;
-        }
+        // if(nomeClienteRazao.length < 3) {
+        //     Swal.fire({
+        //         title: 'Erro!',
+        //         text: `O campo Nome/Razão Social deve conter no mínimo 3 caracteres.`,
+        //         icon: 'error',
+        //         confirmButtonText: 'Ok',
+        //         customClass: { container: 'custom-swal' },
+        //     });
+        //     return;
+        // }
+        // if(sobrenome.length < 3) {
+        //     Swal.fire({
+        //         title: 'Erro!',
+        //         text: `O campo Sobrenome/Nome Fantasia deve conter no mínimo 3 caracteres.`,
+        //         icon: 'error',
+        //         confirmButtonText: 'Ok',
+        //         customClass: { container: 'custom-swal' },
+        //     });
+        //     return;
+        // }
         
-        if(tipo == 'JURIDICA') {
-            if(!tipoIndicacaoIE) {
-                Swal.fire({
-                    title: 'Atenção!',
-                    text: `Inscrição Estadual Vazia ou Divergente do Tipo de Indicação, favor preencher e tentar novamente! 1`,
-                    icon: 'warning',
-                    confirmButtonText: 'Ok',
-                    customClass: {
-                        container: 'custom-swal',
-                    }
-                })
-                return;
-            }
+        // if(tipo == 'JURIDICA') {
+        //     if(!tipoIndicacaoIE) {
+        //         Swal.fire({
+        //             title: 'Atenção!',
+        //             text: `Inscrição Estadual Vazia ou Divergente do Tipo de Indicação, favor preencher e tentar novamente! 1`,
+        //             icon: 'warning',
+        //             confirmButtonText: 'Ok',
+        //             customClass: {
+        //                 container: 'custom-swal',
+        //             }
+        //         })
+        //         return;
+        //     }
     
-            if(tipoIndicacaoIE == 1) {
-                const ieNumeros = IE?.replace(/\D/g, "");
+        //     if(tipoIndicacaoIE == 1) {
+        //         const ieNumeros = IE?.replace(/\D/g, "");
                 
-                if(!ieNumeros) {
-                    Swal.fire({
-                        title: 'Atenção!',
-                        text: `Inscrição Estadual Vazia ou Divergente do Tipo de Indicação, favor preencher e tentar novamente! 2`,
-                        icon: 'warning',
-                        confirmButtonText: 'Ok',
-                        customClass: {
-                            container: 'custom-swal',
-                        }
-                    })
-                    return;
-                }
+        //         if(!ieNumeros) {
+        //             Swal.fire({
+        //                 title: 'Atenção!',
+        //                 text: `Inscrição Estadual Vazia ou Divergente do Tipo de Indicação, favor preencher e tentar novamente! 2`,
+        //                 icon: 'warning',
+        //                 confirmButtonText: 'Ok',
+        //                 customClass: {
+        //                     container: 'custom-swal',
+        //                 }
+        //             })
+        //             return;
+        //         }
 
-                if(!validarInscricaoEstadual(ieNumeros, estado)) {
-                    Swal.fire({
-                        title: 'Atenção!',
-                        text: `Inscrição Estadual Incorreta, verifique e tente novamente! 3`,
-                        icon: 'warning',
-                        confirmButtonText: 'Ok',
-                        customClass: {
-                            container: 'custom-swal',
-                        }
-                    })
-                    return;
-                }
-            } else if(tipoIndicacaoIE == 2) {
-                if(IE && IE != 'ISENTO') {
-                    Swal.fire({
-                        title: 'Atenção!',
-                        text: `Inscrição Estadual Divergente do Tipo de Indicação, verifique e tente novamente! 4`,
-                        icon: 'warning',
-                        confirmButtonText: 'Ok',
-                        customClass: {
-                            container: 'custom-swal',
-                        }
-                    })
-                    return;
-                }
-            } else {
+        //         if(!validarInscricaoEstadual(ieNumeros, estado)) {
+        //             Swal.fire({
+        //                 title: 'Atenção!',
+        //                 text: `Inscrição Estadual Incorreta, verifique e tente novamente! 3`,
+        //                 icon: 'warning',
+        //                 confirmButtonText: 'Ok',
+        //                 customClass: {
+        //                     container: 'custom-swal',
+        //                 }
+        //             })
+        //             return;
+        //         }
+        //     } else if(tipoIndicacaoIE == 2) {
+        //         if(IE && IE != 'ISENTO') {
+        //             Swal.fire({
+        //                 title: 'Atenção!',
+        //                 text: `Inscrição Estadual Divergente do Tipo de Indicação, verifique e tente novamente! 4`,
+        //                 icon: 'warning',
+        //                 confirmButtonText: 'Ok',
+        //                 customClass: {
+        //                     container: 'custom-swal',
+        //                 }
+        //             })
+        //             return;
+        //         }
+        //     } else {
                 
-                if(IE) {
-                    const ieNumeros = IE?.replace(/\D/g, "");
-                    if(!ieNumeros) {
-                        if(!validarInscricaoEstadual(ieNumeros, estado)) {
-                            Swal.fire({
-                                title: 'Atenção!',
-                                text: `Inscrição Estadual Incorreta, verifique e tente novamente! 5`,
-                                icon: 'warning',
-                                confirmButtonText: 'Ok',
-                                customClass: {
-                                    container: 'custom-swal',
-                                }
-                            })
-                            return;
-                        }
+        //         if(IE) {
+        //             const ieNumeros = IE?.replace(/\D/g, "");
+        //             if(!ieNumeros) {
+        //                 if(!validarInscricaoEstadual(ieNumeros, estado)) {
+        //                     Swal.fire({
+        //                         title: 'Atenção!',
+        //                         text: `Inscrição Estadual Incorreta, verifique e tente novamente! 5`,
+        //                         icon: 'warning',
+        //                         confirmButtonText: 'Ok',
+        //                         customClass: {
+        //                             container: 'custom-swal',
+        //                         }
+        //                     })
+        //                     return;
+        //                 }
 
-                    }
-                }
-            }
-        }
+        //             }
+        //         }
+        //     }
+        // }
 
         try {
 

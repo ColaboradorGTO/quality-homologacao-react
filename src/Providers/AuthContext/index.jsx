@@ -12,15 +12,6 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [loginError, setLoginError] = useState('');
 
-  // Recupera usuário do localStorage ao carregar a aplicação
-  // useEffect(() => {
-  //   const usuarioStorage = localStorage.getItem('usuario');
-  //   if (usuarioStorage) {
-  //     const usuarioObj = JSON.parse(usuarioStorage);
-  //   }
-  //   setLoading(false);
-  // }, []);
-
   const handleSenhaChange = (e) => {
     setSenha(e.target.value);
   };
@@ -56,19 +47,12 @@ export function AuthProvider({ children }) {
       setLoading(true);
       const response = await post('/login', data);
       
-      console.log('Response completa:', response);
-      
-      // Verifica se a resposta tem a estrutura esperada
       if (response && response?.usuario && response?.usuario.token) {
         
         localStorage.removeItem('token');
         localStorage.removeItem('usuario');
         localStorage.setItem('token', response?.usuario.token);
         localStorage.setItem('usuario', JSON.stringify(response?.usuario));
-        
-        console.log('🟢 Login bem-sucedido, redirecionando para /modulo');
-        console.log('Token salvo:', response?.usuario.token);
-        console.log('Usuário salvo:', response?.usuario);
         
         // Força a navegação após um pequeno delay
         setTimeout(() => {
@@ -80,8 +64,6 @@ export function AuthProvider({ children }) {
         setSenha('');
         setLoginError('');
       } else {
-        // Resposta não tem a estrutura esperada
-        console.error('Estrutura de resposta inválida:', response);
         setLoginError('Resposta inválida do servidor');
         Swal.fire({
           icon: 'error',
