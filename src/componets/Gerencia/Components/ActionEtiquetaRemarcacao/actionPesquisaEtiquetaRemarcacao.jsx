@@ -21,6 +21,7 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ ID, optionsEmpresas, usuarioL
   const [dadosAcumuladorEtiquetas, setDadosAcumuladorEtiquetas] = useState([]);
   const [dadosAcumuladorImpressao, setDadosAcumuladorImpressao] = useState([]);
   const [copias, setCopias] = useState(1);
+  const [copiasImprimir, setCopiasImprimir] = useState(1);
 
   const multiplicarObjetos = (dados, copias) => {
     const objetosMultiplicados = [];
@@ -144,7 +145,6 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ ID, optionsEmpresas, usuarioL
     }
   };
 
-
   const handleCancelar = () => {
     setDadosAcumuladorEtiquetas([]);
     setDadosEtiquetas([]);
@@ -202,7 +202,6 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ ID, optionsEmpresas, usuarioL
         onChangeInputField={handlePrecoChange}
         placeHolderInputFieldComponent={"Digite o valor da etiqueta"}
 
-
         InputFieldQuantidadeComponent={dadosAcumuladorEtiquetas.length > 0 ? InputField : null}
         labelInputFieldQuantidade={"QTD CÓPIAS"}
         valueInputQuantidade={copias}
@@ -243,7 +242,7 @@ export const ActionPesquisaEtiquetaRemarcacao = ({ ID, optionsEmpresas, usuarioL
         handleClose={fecharModalImprimir}
         dadosEtiquetas={dadosEtiquetas}
         quantidadeEtiquetas={quantidadeEtiquetas}
-        copias={copias}
+        copias={copiasImprimir}
       />
       <ActionImprimirAcumuladorEtiquetaModal
         show={modalAcumulador}

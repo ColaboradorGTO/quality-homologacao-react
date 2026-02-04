@@ -409,6 +409,7 @@ export const useCriarVoucher = ({
         } catch (error) {
             let textoFuncao = 'VOUCHER /ERRO AO CADASTRAR CLIENTE';
             await getIPUsuario();
+
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,

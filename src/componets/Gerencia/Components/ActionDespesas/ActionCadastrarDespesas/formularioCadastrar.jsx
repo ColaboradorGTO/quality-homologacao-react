@@ -8,6 +8,7 @@ import { useCadastrarDespesas } from "../hooks/useCadastrarDespesas";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schema/useCadastrarSchema";
 import { AlertError } from "../../../../Inputs/alertError";
+import { formatarMoeda, formatMoeda } from "../../../../../utils/formatMoeda";
 
 export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
     const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
@@ -45,6 +46,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                 dsPagoDespesa: dsPagoA,
                 tipoDespesaSelecionada: despesaSelecionada,
                 valorDespesa: vrDespesa,
+                tipoNota: tpNota,
 
             }
 
@@ -202,21 +204,22 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                 classNamePrefix="select"
                                 defaultValue={Options[0]}
                                 value={tpNota}
-                                onChange={(e) => setTpNota(e)}
+                                onChange={(e) => {
+                                    setTpNota(e);
+                                    clearErrors("tipoNota");
+                                }}
                                 name="color"
                                 options={Options}
                             />
-                            {errors.tpNota && (
+                            {errors.tipoNota && (
                                 <AlertError
-                                    error={errors.tpNota}
+                                    error={errors.tipoNota}
                                     onClose={clearErrors}
-                                    fieldName="tpNota"
+                                    fieldName="tipoNota"
                                 />
                             )}
-
                         </div>
                         <div class="col-sm-6 col-xl-6">
-
                             <Controller
                                 name="valorDespesa"
                                 control={control}
@@ -226,7 +229,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                         name="valorDespesa"
                                         type="text"
                                         value={vrDespesa}
-                                        onChange={(e) => setVrDespesa(e.target.value)}
+                                        onChange={(e) => setVrDespesa(formatarMoeda(e.target.value))}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -250,7 +253,6 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                 onClickButtonFechar={handleClose}
                 corFechar="secondary"
             />
-
         </Fragment>
     )
 }
