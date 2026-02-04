@@ -199,6 +199,8 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
       setTabelaVendasPixVisivel(false)
       setPixCompensacaoCapa(false)
       setPixCompensacaoCredito(false)
+      setPixCompensacaoDebito(false)
+
       refetchVendasPixCompensacao()
 
     } else {
@@ -212,6 +214,7 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
       setPixCompensacaoCredito(false)
       setTabelaVendasPixCompensacao(false)
       setTabelaVendasPixVisivel(false)
+      setPixCompensacaoDebito(false)
       refetchVendasPixCompensacao()
 
     } else {
@@ -224,6 +227,7 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
       setPixCompensacaoCapa(false)
       setTabelaVendasPixCompensacao(false)
       setTabelaVendasPixVisivel(false)
+      setPixCompensacaoDebito(false)
       refetchVendasPixCompensacao()
 
     } else {
@@ -237,6 +241,7 @@ export const ActionPesquisaVendasPixDTW = ({ usuarioLogado, ID }) => {
       setPixCompensacaoCapa(false)
       setTabelaVendasPixCompensacao(false)
       setTabelaVendasPixVisivel(false)
+      setPixCompensacaoDebito(true)
       refetchVendasPixCompensacao()
 
     } else {
