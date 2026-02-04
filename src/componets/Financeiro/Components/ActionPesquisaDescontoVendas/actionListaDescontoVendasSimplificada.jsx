@@ -223,101 +223,41 @@ export const ActionListaDescontoVendasSimplificada = ({ dadosDescontoVendasSimpl
     }
   })
   
-  const calcularTotal = (field) => {
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    const dataPaginada = dadosListaDetalhada.slice(firstIndex, lastIndex); 
-    return dataPaginada.reduce((total, item) => total + toFloat(item[field]), 0);
-  };
-
-  const calcularTotalDinheiroPercentual = () => {
-    const totalDinheiroPageAtual = calcularTotal('VRRECDINHEIRO'); // página atual
-    const totalDinheiroGeral = calcularTotalDinheiro(); // total geral
-    const valorTotalVendido = calcularPercentualDinheiro(); // VLTOTALVENDIDO do período
-    const percentualDinheiroVenda = (totalDinheiroGeral * 100) / valorTotalVendido;
-    return `${formatMoeda(totalDinheiroPageAtual)} (${formatMoeda(totalDinheiroGeral)} - ${percentualDinheiroVenda.toFixed(6)} % do total bruto da venda)`;
-  };
-
-  const calcularPercentualCartao = (item) => {
-    const totalCartaoPageAtual = calcularTotal('VRRECCARTAO');
-    const totalCartaoGeral = calcularTotalCartao();
-    const valorTotalVendido = calcularPercentualDinheiro();
-    const percentual = (totalCartaoGeral * 100) / valorTotalVendido;
-    return `${formatMoeda(totalCartaoPageAtual)} (${formatMoeda(totalCartaoGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
-  } 
-
-  const calcularPercentualConvenio = (item) => {
-      const totalConvenioPageAtual = calcularTotal('VRRECCONVENIO');
-      const totalConvenioGeral = calcularTotalConvenio();
-      const valorTotalVendido = calcularPercentualDinheiro();
-      const percentual = (totalConvenioGeral * 100) / valorTotalVendido;
-      return `${formatMoeda(totalConvenioPageAtual)} (${formatMoeda(totalConvenioGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
-  }
-  const calcularPercentualDinheiro = () => {
-    let total = 0;
-    for (let vendas of dadosListaDetalhada) {
-      total += parseFloat(vendas.VLTOTALVENDIDO);
-    }
- 
+  const calcularTotalVendido = () => {
+    let total = dadosDescontoVendasSimplificado[0]?.VLTOTALVENDIDO;
     return total;
   }
 
-  const calcularPercentualPos = () => {
-    const totalPosPageAtual = calcularTotal('VRRECPOS');
-    const totalPosGeral = calcularTotalPos();
-    const valorTotalVendido = calcularPercentualDinheiro();
-    const percentual = (totalPosGeral * 100) / valorTotalVendido;
-    return `${formatMoeda(totalPosPageAtual)} (${formatMoeda(totalPosGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
-};
+  const calcularTotalGeral = (field) => {
+    return dadosListaDetalhada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  };
 
-const calcularPercentualVoucher = () => {
-    const totalVoucherPageAtual = calcularTotal('VRRECVOUCHER');
-    const totalVoucherGeral = calcularTotalVoucher();
-    const valorTotalVendido = calcularPercentualDinheiro();
-    const percentual = (totalVoucherGeral * 100) / valorTotalVendido;
-    return `${formatMoeda(totalVoucherPageAtual)} (${formatMoeda(totalVoucherGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
-};
+  const calcularTotalPagina = (field) => {
+    const firstIndex = first;
+    const lastIndex = first + rows;
+    const dataPaginada = dadosListaDetalhada.slice(firstIndex, lastIndex);
+    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  };
 
-const calcularPercentualBruto = () => {
-    const totalBrutoPageAtual = calcularTotal('VALORTOTALPRODUTOBRUTO');
-    const totalBrutoGeral = calcularTotalBruto();
-    const valorTotalVendido = calcularPercentualDinheiro();
-    const percentual = (totalBrutoGeral * 100) / valorTotalVendido;
-    return `${formatMoeda(totalBrutoPageAtual)} (${formatMoeda(totalBrutoGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
-};
+  const calcularPercentualFooter = (field, label) => {
+    const totalPagina = calcularTotalPagina(field);
+    const totalGeral = calcularTotalGeral(field);
+    const totalVendido = calcularTotalVendido();
+    const percentual = totalVendido > 0 ? (totalGeral * 100) / totalVendido : 0;
+    
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} - ${percentual.toFixed(6)}% do total bruto da venda)`;
+  };
 
-const calcularPercentualDescontoFuncionario = () => {
-    const totalDescontoFuncPageAtual = calcularTotal('VLTOTALDESCONTOFUNCIONARIO');
-    const totalDescontoFuncGeral = calcularTotalDescontoFuncionario();
-    const valorTotalVendido = calcularPercentualDinheiro();
-    const percentual = (totalDescontoFuncGeral * 100) / valorTotalVendido;
-    return `${formatMoeda(totalDescontoFuncPageAtual)} (${formatMoeda(totalDescontoFuncGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
-};
-
-const calcularPercentualDescontoCliente = () => {
-    const totalDescontoCliPageAtual = calcularTotal('VLTOTALDESCONTOCLIENTE');
-    const totalDescontoCliGeral = calcularTotalDescontoCliente();
-    const valorTotalVendido = calcularPercentualDinheiro();
-    const percentual = (totalDescontoCliGeral * 100) / valorTotalVendido;
-    return `${formatMoeda(totalDescontoCliPageAtual)} (${formatMoeda(totalDescontoCliGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
-};
-
-const calcularPercentualDesconto = () => {
-    const totalDescontoPageAtual = calcularTotal('VRDESCONTO');
-    const totalDescontoGeral = calcularTotalDesconto();
-    const valorTotalVendido = calcularPercentualDinheiro();
-    const percentual = (totalDescontoGeral * 100) / valorTotalVendido;
-    return `${formatMoeda(totalDescontoPageAtual)} (${formatMoeda(totalDescontoGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
-};
-
-const calcularPercentualLiquido = () => {
-    const totalLiquidoPageAtual = calcularTotal('TOTALLIQUIDO');
-    const totalLiquidoGeral = calcularTotalLiquido();
-    const valorTotalVendido = calcularPercentualDinheiro();
-    const percentual = (totalLiquidoGeral * 100) / valorTotalVendido;
-    return `${formatMoeda(totalLiquidoPageAtual)} (${formatMoeda(totalLiquidoGeral)} - ${percentual.toFixed(6)} % do total bruto da venda)`;
-};
-
+    const calcularTotalDinheiroPercentual = () => calcularPercentualFooter('VRRECDINHEIRO', 'Dinheiro');
+  const calcularPercentualCartao = () => calcularPercentualFooter('VRRECCARTAO', 'Cartão');
+  const calcularPercentualConvenio = () => calcularPercentualFooter('VRRECCONVENIO', 'Convênio');
+  const calcularPercentualPos = () => calcularPercentualFooter('VRRECPOS', 'POS');
+  const calcularPercentualVoucher = () => calcularPercentualFooter('VRRECVOUCHER', 'Voucher');
+  const calcularPercentualBruto = () => calcularPercentualFooter('VALORTOTALPRODUTOBRUTO', 'Bruto');
+  const calcularPercentualDescontoFuncionario = () => calcularPercentualFooter('VLTOTALDESCONTOFUNCIONARIO', 'Desconto Funcionário');
+  const calcularPercentualDescontoCliente = () => calcularPercentualFooter('VLTOTALDESCONTOCLIENTE', 'Desconto Cliente');
+  const calcularPercentualDesconto = () => calcularPercentualFooter('VRDESCONTO', 'Desconto Total');
+  const calcularPercentualLiquido = () => calcularPercentualFooter('TOTALLIQUIDO', 'Líquido');
   
   const colunasDetalhada = [
     {
@@ -329,13 +269,13 @@ const calcularPercentualLiquido = () => {
     {
       field: 'NOFANTASIA',
       header: 'Loja',
-      body: row => {return <th style={{width: 150, margin: 0}}>{row.NOFANTASIA}</th>},
+      body: row => {return <p style={{width: 200, margin: 0}}>{row.NOFANTASIA}</p>},
       footer: (row) => {
         return (
           <div>
-            <th style={{ fontWeight: 600 }}>Total Venda Bruta do Período</th>
+            <th style={{ fontWeight: 600,color: 'blue'  }}>Total Venda Bruta do Período</th>
             <hr />
-            <th style={{ fontWeight: 600 }}>{formatMoeda(calcularPercentualDinheiro())}</th>
+            <th style={{ fontWeight: 600, color: 'blue' }}>{formatMoeda(calcularTotalVendido())}</th>
           </div>
         )
       },
@@ -344,11 +284,11 @@ const calcularPercentualLiquido = () => {
     {
       field: 'VRRECDINHEIRO',
       header: 'Vl. Dinheiro',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.VRRECDINHEIRO)}</th>},
+      body: row => {return <p style={{width: 100, margin: 0}}>{formatMoeda(row.VRRECDINHEIRO)}</p>},
       footer: (row) => {
         return (
           <div>
-            <p style={{ fontWeight: 600 }}>{calcularPercentualDinheiro()} % do total bruto da venda</p>
+            <p style={{ fontWeight: 600 }}>{calcularTotalDinheiroPercentual()} % do total bruto da venda</p>
           </div>
         )
       },
@@ -357,7 +297,7 @@ const calcularPercentualLiquido = () => {
     {
       field: 'VRRECCARTAO',
       header: 'Vl. Cartão',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.VRRECCARTAO)}</th>},
+      body: row => {return <p style={{width: 100, margin: 0}}>{formatMoeda(row.VRRECCARTAO)}</p>},
       footer: (row) => {
         return (
           <div>
@@ -370,7 +310,7 @@ const calcularPercentualLiquido = () => {
     {
       field: 'VRRECCONVENIO',
       header: 'Vl. Convênio',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.VRRECCONVENIO)}</th>},
+      body: row => {return <p style={{width: 100, margin: 0}}>{formatMoeda(row.VRRECCONVENIO)}</p>},
       footer: (row) => {
         return (
           <div>
@@ -383,7 +323,7 @@ const calcularPercentualLiquido = () => {
     {
       field: 'VRRECPOS',
       header: 'Vl. POS',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.VRRECPOS)}</th>},
+      body: row => {return <p style={{width: 100, margin: 0}}>{formatMoeda(row.VRRECPOS)}</p>},
       footer: (row) => {
         return (
           <div>
@@ -396,7 +336,7 @@ const calcularPercentualLiquido = () => {
     {
       field: 'VRRECVOUCHER',
       header: 'Vl. Voucher',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.VRRECVOUCHER)}</th>},
+      body: row => {return <p style={{width: 100, margin: 0}}>{formatMoeda(row.VRRECVOUCHER)}</p>},
       footer: (row) => {
         return (
           <div>
@@ -409,7 +349,7 @@ const calcularPercentualLiquido = () => {
     {
       field: 'VALORTOTALPRODUTOBRUTO',
       header: 'Vl. Bruto',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.VALORTOTALPRODUTOBRUTO)}</th>},
+      body: row => {return <p style={{width: 100, margin: 0}}>{formatMoeda(row.VALORTOTALPRODUTOBRUTO)}</p>},
       footer: (row) => {
         return (
           <div>
@@ -422,7 +362,7 @@ const calcularPercentualLiquido = () => {
     {
       field: 'VLTOTALDESCONTOFUNCIONARIO',
       header: 'Vl. Desc. Func.',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.VLTOTALDESCONTOFUNCIONARIO)}</th>},
+      body: row => {return <p style={{width: 150, margin: 0}}>{formatMoeda(row.VLTOTALDESCONTOFUNCIONARIO)}</p>},
       footer: (row) => {
         return (
           <div>
@@ -435,7 +375,7 @@ const calcularPercentualLiquido = () => {
     {
       field: 'VLTOTALDESCONTOCLIENTE',
       header: 'Vl. Desc. Cliente',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.VLTOTALDESCONTOCLIENTE)}</th>},
+      body: row => {return <p style={{width: 150, margin: 0}}>{formatMoeda(row.VLTOTALDESCONTOCLIENTE)}</p>},
       footer: (row) => {
         return (
           <div>
@@ -448,7 +388,7 @@ const calcularPercentualLiquido = () => {
     {
       field: 'VRDESCONTO',
       header: 'Vl. Desconto Total',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.VRDESCONTO)}</th>},
+      body: row => {return <p style={{width: 150, margin: 0}}>{formatMoeda(row.VRDESCONTO)}</p>},
       footer: (row) => {
         return (
           <div>
@@ -461,7 +401,7 @@ const calcularPercentualLiquido = () => {
     {
       field: 'TOTALLIQUIDO',
       header: 'Vl. Pago',
-      body: row => {return <th style={{width: 150, margin: 0}}>{formatMoeda(row.TOTALLIQUIDO)}</th>},
+      body: row => {return <p style={{width: 150, margin: 0}}>{formatMoeda(row.TOTALLIQUIDO)}</p>},
       footer: (row) => {
         return (
           <div>
@@ -521,7 +461,7 @@ const calcularPercentualLiquido = () => {
                 sortable={coluna.sortable}
                 headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '0.8rem', fontWeight: '500', border: '1px solid #ccc' }}
 
               />
             ))}

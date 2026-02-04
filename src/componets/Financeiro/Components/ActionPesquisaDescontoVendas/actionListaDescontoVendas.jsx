@@ -80,10 +80,7 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
   };
 
 
-  const calcularTotalVendido = () => {
-    let total = dadosDescontoVendas[0]?.VLTOTALVENDIDO;
-    return total;
-  }
+
 
   const dadosExcel = Array.isArray(dadosDescontoVendas) ? dadosDescontoVendas.map((item, index) => {
     return {
@@ -147,6 +144,11 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
     }
   }) :[];
 
+  const calcularTotalVendido = () => {
+    let total = dadosDescontoVendas[0]?.VLTOTALVENDIDO;
+    return total;
+  }
+
   const calcularTotalGeral = (field) => {
     return dadosListaDetalhada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
   };
@@ -166,12 +168,7 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
     
     return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} - ${percentual.toFixed(6)}% do total bruto da venda)`;
   };
-  const calcularTotal = (field) => {
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    const dataPaginada = dadosListaDetalhada.slice(firstIndex, lastIndex); 
-    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
-  };
+
 
  
   const calcularTotalDinheiroPercentual = () => calcularPercentualFooter('VRRECDINHEIRO', 'Dinheiro');
