@@ -11,6 +11,7 @@ import { InputFieldModal } from "../../../Buttons/InputFieldModal";
 import { useEditarStatusVoucher } from "../hooks/useEditarStatusVoucher";
 import { ActionListaVendaOrigem } from "./actionListaVendaOrigem";
 import { ActionListaVendaDestino } from "./actionListaVendaDestino";
+import { ocultaParteDosDadosVoucher } from "../../../../utils/ocultarParte";
 
 
 export const ActionEditarStatusVoucherModal = ({ show, handleClose, dadosEditarVoucher, usuarioLogado, optionsModulos,refetchListaVouchers }) => {
@@ -58,9 +59,9 @@ export const ActionEditarStatusVoucherModal = ({ show, handleClose, dadosEditarV
                   <p>CPF/CNPJ: {dadosEditarVoucher[0]?.voucher.NUCPFCNPJ} </p>
                 </div>
                 <div>
-                  <p>Voucher: {dadosEditarVoucher[0]?.voucher.NUVOUCHER} </p>
+                  <p>Voucher: {ocultaParteDosDadosVoucher(dadosEditarVoucher[0]?.voucher.NUVOUCHER)} </p>
                   <p>Valor Voucher: {formatMoeda(dadosEditarVoucher[0]?.voucher.VRVOUCHER)} </p>
-                  <p>Venda Origem: {dadosEditarVoucher[0]?.voucher.IDRESUMOVENDAWEB ? 'Não Disponível' : 'Não Disponível'} </p>
+                  <p>Venda Origem: {dadosEditarVoucher[0]?.voucher.IDRESUMOVENDAWEB ? dadosEditarVoucher[0]?.voucher.IDRESUMOVENDAWEB : 'Não Disponível'} </p>
                   <p>Motivo Troca: {dadosEditarVoucher[0]?.voucher.STCANCELADO == 'True' ? 'Motivo do Cancelamento/Negação' : dadosEditarVoucher[0]?.voucher.DSMOTIVOCANCELAMENTO ? '' : dadosEditarVoucher[0]?.voucher.MOTIVOTROCA ? '' : ''} </p>
 
                 </div>

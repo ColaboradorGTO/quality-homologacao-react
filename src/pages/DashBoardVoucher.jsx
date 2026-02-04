@@ -7,7 +7,6 @@ import { MenuButton } from "../componets/Buttons/menuButton";
 import { FooterMain } from "../componets/Footer";
 import { get } from "../api/funcRequest";
 import { useQuery } from "react-query";
-import { useFetchData } from "../hooks/useFetchData";
 
 const ActionPesquisaCreateVoucher = lazy(() => import("../componets/Vouchers/ActionCreateVoucher/actionPesquisaCreateVoucher").then(module => ({default: module.ActionPesquisaCreateVoucher })));
 

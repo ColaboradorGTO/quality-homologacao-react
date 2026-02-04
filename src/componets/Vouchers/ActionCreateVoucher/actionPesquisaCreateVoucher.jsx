@@ -28,9 +28,7 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [marcaSelecionado, setMarcaSelecionado] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
   const [dadosDetalheVoucherSelecionado, setDadosDetalheVoucherSelecionado] = useState([])
-  const [dadosDetalheVoucher, setDadosDetalheVoucher] = useState([])
   const [isQueryData, setIsQueryData] = useState(false);
   const [modalVoucher, setModalVoucher] = useState(true);
 
@@ -158,7 +156,6 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
     setActionSecundaria(false);
     setCurrentPage(prevPage => prevPage + 1);
     refetchListaVouchers()
-
   }
 
   const handleClickCadastro = () => {

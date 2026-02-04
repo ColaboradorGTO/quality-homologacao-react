@@ -124,8 +124,8 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
     {
       field: 'NUVOUCHER',
       header: 'Nº Voucher',
-      // body: row => <th style={{color: 'blue'}}>{ocultaParteDosDadosVoucher(row.NUVOUCHER)}</th>,
-      body: row => <th style={{color: 'blue'}}>{row.NUVOUCHER}</th>,
+      body: row => <th style={{color: 'blue'}}>{ocultaParteDosDadosVoucher(row.NUVOUCHER)}</th>,
+      // body: row => <th style={{color: 'blue'}}>{row.NUVOUCHER}</th>,
       sortable: true,
     },
     {
@@ -149,7 +149,7 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
     {
       field: 'DTINVOUCHER',
       header: 'Data Emissão',
-      body: row => <th style={{color: 'blue'}}>{row.DTINVOUCHER}</th>,
+      body: row => <th style={{color: 'blue'}}>{new Date(row.DTINVOUCHER).toLocaleDateString('pt-BR')}</th>,
       sortable: true,
     },
     {
@@ -211,7 +211,7 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
     {
       header: 'Opções',
       body: (row) => (
-        <div style={{display: "flex", justifyContent: "space-around", width: '200px' }}>
+        <div style={{display: "flex", justifyContent: "space-around", width: '120px' }}>
           <div>
 
             <ButtonTable
@@ -220,9 +220,9 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
               Icon={GrFormView}
               iconColor={"#fff"}
               cor={"success"}
-              iconSize={35}
-              width='35px'
-              height='35px'
+              iconSize={25}
+              width='30px'
+              height='30px'
             />
           </div>
 
@@ -233,9 +233,9 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
               Icon={CiEdit}
               iconColor={"#fff"}
               cor={"primary"}
-              iconSize={35}
+              iconSize={25}
               width='35px'
-              height='35px'
+              height='30px'
             />
           </div>
 
@@ -247,9 +247,9 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
               Icon={MdOutlineLocalPrintshop}
               iconColor={"#fff"}
               cor={"warning"}
-              iconSize={35}
-              width='35px'
-              height='35px'
+              iconSize={25}
+              width='30px'
+              height='30px'
             />
           </div>
 
@@ -432,9 +432,9 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
-                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
-                bodyStyle={{ fontSize: '1rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '0.8rem' }}
 
               />
             ))}

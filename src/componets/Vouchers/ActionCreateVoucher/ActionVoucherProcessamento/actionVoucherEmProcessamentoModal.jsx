@@ -13,6 +13,8 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useReactToPrint } from "react-to-print";
 import HeaderTable from "../../../Tables/headerTable";
+import { Messages } from 'primereact/messages';
+import { Message } from "primereact/message";
 
 export const ActionVoucherEmProcessamentoModal = ({
   show,
@@ -27,6 +29,7 @@ export const ActionVoucherEmProcessamentoModal = ({
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
+  const msgs = useRef(null);
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -216,8 +219,11 @@ export const ActionVoucherEmProcessamentoModal = ({
           />
 
           <Modal.Body>
-
-            <div className="panel">
+          <div className="card flex justify-content-center">
+          
+            <Message severity="warn" text="Trocas em Processamento ou Não Liberadas" />
+          </div>
+            <div className="panel mt-2">
               <div className="panel-hdr">
                 <h2>Vouchers </h2>
               </div>
