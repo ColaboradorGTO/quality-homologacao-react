@@ -44,68 +44,68 @@ export const useEditarStatusVoucher = ({
     const onSubmit = async () => {
         let STATIVO = 'True';
         let STCANCELADO = 'False';
+        
+        if (!usuarioLogado?.IDEMPRESA || !usuarioLogado?.IDGRUPOEMPRESARIAL) {
+            Swal.fire({
+                title: 'Atenção! Dados do usuário não localizados',
+                text: `Faça o logoff, entre novamente e tente atualizar`,
+                icon: 'error',
+            })
+        }
+        if (motivoTroca == '') {
+            Swal.fire({
+                title: 'Atenção! Motivo de Troca Vazio',
+                text: 'O campo Motivo Troca é obrigatório',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                customClass: {
+                    container: 'custom-swal',
+                },
+            })
+            return;
+        } else if (motivoTroca.length < 10) {
+            Swal.fire({
+                title: 'Atenção! Motivo de Troca Deve Conter Pelo Menos 10 Caracteres',
+                text: 'Preencha-o com mais detalhes e tente atualizar novamente',
+                icon: 'warning',
+                confirmButtonText: 'OK',
+                customClass: {
+                    container: 'custom-swal',
+                },
+            })
+            return;
+        }
+
+        if (statusSelecionado == 'NOVO' || statusSelecionado == 'LIBERADO PARA CLIENTE') {
+            STATIVO = 'True';
+            STCANCELADO = 'False';
+        } else if (statusSelecionado == 'CANCELADO' || statusSelecionado == 'NEGADO') {
+            STATIVO = 'False';
+            STCANCELADO = 'True';
+        } else if (statusSelecionado == 'EM ANALISE' || statusSelecionado == 'FINALIZADO') {
+            STATIVO = 'False';
+            STCANCELADO = 'False';
+        }
+
+        const putData = {
+            STATIVO,
+            STCANCELADO,
+            DSMOTIVOTROCASTATUS: motivoTroca,
+            IDFUNCIONARIO: usuarioLogado?.id,
+            STSTATUS: statusSelecionado,
+            STTIPOTROCA: trocaSelecionado,
+            IDVOUCHER: dadosEditarVoucher[0]?.voucher.IDVOUCHER,
+            IDEMPRESALOGADA: usuarioLogado?.IDEMPRESA,
+            IDGRUPOEMPRESARIAL: usuarioLogado?.IDGRUPOEMPRESARIAL,
+        }
         try {
-
-            if (!usuarioLogado?.IDEMPRESA || !usuarioLogado?.IDGRUPOEMPRESARIAL) {
-                Swal.fire({
-                    title: 'Atenção! Dados do usuário não localizados',
-                    text: `Faça o logoff, entre novamente e tente atualizar`,
-                    icon: 'error',
-                })
-            }
-            if (motivoTroca == '') {
-                Swal.fire({
-                    title: 'Atenção! Motivo de Troca Vazio',
-                    text: 'O campo Motivo Troca é obrigatório',
-                    icon: 'warning',
-                    confirmButtonText: 'OK',
-                    customClass: {
-                        container: 'custom-swal',
-                    },
-                })
-                return;
-            } else if (motivoTroca.length < 10) {
-                Swal.fire({
-                    title: 'Atenção! Motivo de Troca Deve Conter Pelo Menos 10 Caracteres',
-                    text: 'Preencha-o com mais detalhes e tente atualizar novamente',
-                    icon: 'warning',
-                    confirmButtonText: 'OK',
-                    customClass: {
-                        container: 'custom-swal',
-                    },
-                })
-                return;
-            }
-
-            if (statusSelecionado == 'NOVO' || statusSelecionado == 'LIBERADO PARA CLIENTE') {
-                STATIVO = 'True';
-                STCANCELADO = 'False';
-            } else if (statusSelecionado == 'CANCELADO' || statusSelecionado == 'NEGADO') {
-                STATIVO = 'False';
-                STCANCELADO = 'True';
-            } else if (statusSelecionado == 'EM ANALISE' || statusSelecionado == 'FINALIZADO') {
-                STATIVO = 'False';
-                STCANCELADO = 'False';
-            }
-
-            const putData = {
-                STATIVO,
-                STCANCELADO,
-                DSMOTIVOTROCASTATUS: motivoTroca,
-                IDFUNCIONARIO: usuarioLogado?.id,
-                STSTATUS: statusSelecionado,
-                STTIPOTROCA: trocaSelecionado,
-                IDVOUCHER: dadosEditarVoucher[0]?.voucher.IDVOUCHER,
-                IDEMPRESALOGADA: usuarioLogado?.IDEMPRESA,
-                IDGRUPOEMPRESARIAL: usuarioLogado?.IDGRUPOEMPRESARIAL,
-            }
 
             const response = await put('/todos-web/:id', putData)
 
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'GERENCIA/ATUALIZAÇÃO DE VOUCHER';
             await getIPUsuario();
-            
+
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado?.id),
                 PATHFUNCAO: textoFuncao,
