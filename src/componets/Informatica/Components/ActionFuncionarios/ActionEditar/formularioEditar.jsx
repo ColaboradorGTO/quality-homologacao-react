@@ -165,7 +165,7 @@ export const FormularioEditar = ({
                 <Select
                   closeMenuOnSelect={false}
                   options={Funcoes.map((item) => ({
-                    value: item.id,
+                    value: item.value,
                     label: item.label
 
                   }))}
