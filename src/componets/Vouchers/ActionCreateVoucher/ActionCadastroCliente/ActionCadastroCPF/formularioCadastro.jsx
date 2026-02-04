@@ -95,7 +95,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
         enderecoCliente: endereco,
         numeroEnderecoCliente: numero,
         complementoCliente: complemento,
-        bairroCliente: bairro,
+        // bairroCliente: bairro,
         nuIBGECliente: nuIBGE,
         cidadeCliente: cidade,
         estadoCliente: estado
@@ -226,7 +226,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     placeholder={"DIGITE O NOME"}
                     type="text"
                     value={nomeClienteRazao}
-                    onChange={(e) => setNomeClienteRazao(e.target.value)}
+                    onChange={(e) => setNomeClienteRazao(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
                   />
@@ -245,12 +245,13 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     placeholder={"DIGITE O SOBRENOME"}
                     type="text"
                     value={sobrenome}
-                    onChange={(e) => setSobrenome(e.target.value)}
+                    onChange={(e) => setSobrenome(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
                   />
                 )}
               />
+              {/* {console.log(sobrenome, 'sobrenome')} */}
             </div>
           </div>
 
@@ -309,7 +310,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="email"
                     id={"email"}
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
                   />
@@ -369,7 +370,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"Endereco"}
                     value={endereco}
-                    onChange={(e) => setEndereco(e.target.value)}
+                    onChange={(e) => setEndereco(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
                   />
@@ -409,7 +410,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"Complemento"}
                     value={complemento}
-                    onChange={(e) => setComplemento(e.target.value)}
+                    onChange={(e) => setComplemento(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
                   />
@@ -432,10 +433,11 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"Bairro"}
                     value={bairro}
-                    onChange={(e) => setBairro(e.target.value)}
+                    onChange={(e) => setBairro(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
                     readOnly={true}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />
@@ -472,10 +474,11 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"Cidade"}
                     value={cidade}
-                    onChange={(e) => setCidade(e.target.value)}
+                    onChange={(e) => setCidade(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
                     readOnly={true}
+                     style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />

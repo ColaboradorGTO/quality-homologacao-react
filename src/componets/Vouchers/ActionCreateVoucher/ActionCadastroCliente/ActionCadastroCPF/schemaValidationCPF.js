@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import { validarCPF } from "../../../../../utils/formatCPF";
 
 export const schema = yup.object({
   cpfCliente: yup.string()
@@ -15,8 +16,8 @@ export const schema = yup.object({
       if (!value) return false;
       return /^[A-Za-zÀ-ÿ\s]+$/.test(value);
     }),
-  dataNascimentoCliente: yup.string()
-    .required("Data de nascimento é obrigatória"),
+  // dataNascimentoCliente: yup.string()
+  //   .required("Data de nascimento é obrigatória"),
   telefoneCliente: yup.string()
     .required('Telefone Obrigatório')
     .matches(/^(\(?\d{2}\)?\s?)?(\d{4,5}\-?\d{4})$/, 'Numero de Telefone Inválido, verifique o TELEFONE e tente novamente!'),
@@ -27,7 +28,7 @@ export const schema = yup.object({
   cepCliente: yup.string()
     .required('CEP Obrigatório')
     .matches(/^[0-9]{5}-?[0-9]{3}$/, 'CEP inválido, verifique o CEP e tente novamente!')
-    .test("cep-valido", "CEP inválido", value => !value || validaCEP(value)),
+    .test("cep-valido", "CEP inválido", value => !value || value),
   enderecoCliente: yup.string()
     .required('Endereço Obrigatório')
     .test('not-ni', 'Campo pode ser vazio ou diferente de "NI"', (value) => {
@@ -73,9 +74,9 @@ export const schema = yup.object({
         if (!value || value.length === 0) return true;
         return isNaN(Number(value));
     }),
-  bairroCliente: yup.string()
-    .required("Bairro é obrigatório")
-    .matches(/^[a-zA-ZÀ-ÿ\s]+$/, "Bairro inválido"),
+  // bairroCliente: yup.string()
+  //   .required("Bairro é obrigatório")
+  //   .matches(/^[a-zA-ZÀ-ÿ\s]+$/, "Bairro inválido"),
   nuIBGECliente: yup.string()
     .required("Nº IBGE é obrigatório"),
   cidadeCliente: yup.string()

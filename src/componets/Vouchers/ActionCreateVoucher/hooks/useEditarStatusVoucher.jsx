@@ -13,20 +13,28 @@ export const useEditarStatusVoucher = ({
     const [trocaSelecionado, setTrocaSelecionado] = useState('')
     const [statusSelecionado, setStatusSelecionado] = useState('')
     const [motivoTroca, setMotivoTroca] = useState('')
+    const [numeroVoucher, setNumeroVoucher] = useState('')
+    const [statusFoiTrocado, setStatusFoiTrocado] = useState(false);
     const [ipUsuario, setIpUsuario] = useState('');
 
     
-    useEffect(() => {
-        getIPUsuario();
-    }, []);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if (response.data) {
-            setIpUsuario(response.data.ip);
+        try {
+            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            let usuarioIP = ipWhoisData?.ip;
+
+            if (!usuarioIP) {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            }
+
+            setIpUsuario(usuarioIP);
+            return usuarioIP;
+        } catch (error) {
+            console.error("Erro ao buscar IP:", error);
+            return null;
         }
-        return response.data;
-    }
+    };
 
     useEffect(() => {
         setStatusSelecionado(dadosEditarVoucher[0]?.voucher.STSTATUS)
@@ -34,7 +42,8 @@ export const useEditarStatusVoucher = ({
     }, [dadosEditarVoucher])
 
     const onSubmit = async () => {
-
+        let STATIVO = 'True';
+        let STCANCELADO = 'False';
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 title: 'Atenção! Ação Não Permitida',
@@ -47,8 +56,6 @@ export const useEditarStatusVoucher = ({
             })
             return;
         }
-        let STATIVO = 'True';
-        let STCANCELADO = 'False';
         try {
             if (motivoTroca == '') {
                 Swal.fire({
@@ -98,7 +105,7 @@ export const useEditarStatusVoucher = ({
             }
             
             const response = await put('/todos-web/:id', putData)
-          
+            const ipUsuario = await getIPUsuario();
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'GERENCIA/ATUALIZAÇÃO DE VOUCHER';
     
@@ -110,7 +117,7 @@ export const useEditarStatusVoucher = ({
                 IP: ipUsuario
             }
     
-            const responsePost = await post('/log-web', postData)
+            await post('/log-web', postData)
     
              
             Swal.fire({
@@ -124,10 +131,10 @@ export const useEditarStatusVoucher = ({
             })
             refetchListaVouchers();
             handleClose();
-            return responsePost.data;
+            return response.data;
 
         } catch (error) {
-    
+            const ipUsuario = await getIPUsuario();
             let textoFuncao = 'GERENCIA/ERRO AO ATUALIZAR  VOUCHER';
     
             const postData = {
@@ -159,6 +166,7 @@ export const useEditarStatusVoucher = ({
 
     const handleChangeStatus = (e) => {
         setStatusSelecionado(e.value)
+        setStatusFoiTrocado(true);
     }
 
     const optionsTroca = [
@@ -197,6 +205,10 @@ export const useEditarStatusVoucher = ({
         trocaSelecionado,
         statusSelecionado,
         motivoTroca,
-        setMotivoTroca
+        setMotivoTroca,
+        numeroVoucher,
+        setNumeroVoucher,
+        statusFoiTrocado,
+        setStatusFoiTrocado
     }
 }

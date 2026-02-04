@@ -110,25 +110,51 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             setEstado(cliente?.SGUF || "");
             setNumeroComercial(cliente?.NUTELCOMERCIAL || "");
             setTipoIndicacaoIE(cliente?.IDINDICACAOIE || (cliente?.SGUF == "DF" ? 2 : 9));
-
+            
+            setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);
             // Separar nome e sobrenome para CPF
+            console.log(sobrenome, 'sobrenome fora if dentro useEffect')
+            console.log(cliente?.NUCPFCNPJ?.length, 'cliente?.NUCPFCNPJ?.length')
+            // if (cliente?.NUCPFCNPJ?.length <= 11) {
+            //     let nome = cliente?.DSNOMERAZAOSOCIAL || "";
+            //     let sobrenome = "";
+            //     const partes = nome.split(" ");
+            //     if (partes.length > 1) {
+            //         sobrenome = partes.pop();
+            //         nome = partes.join(" ");
+            //     }
+            //     setNomeClienteRazao(nome);
+            //     // setSobrenome(sobrenome);
+            //     console.log(sobrenome, 'sobrenome if')
+            // } else if(cliente?.NUCPFCNPJ?.length > 11) {
+            //     setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL);
+            //     setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);
+            //     console.log(sobrenome, 'sobrenome else')
+            // }
+
             if (cliente?.NUCPFCNPJ?.length <= 11) {
-                let nome = cliente?.DSNOMERAZAOSOCIAL || "";
-                let sobrenome = "";
-                const partes = nome.split(" ");
-                if (partes.length > 1) {
-                    sobrenome = partes.pop();
-                    nome = partes.join(" ");
+                let nomeCompleto = cliente.DSNOMERAZAOSOCIAL; // Nome completo
+                let nomeCliente = '';
+                let sobrenomeCliente = '';
+
+                if (nomeCompleto) {
+                    let partesNome = nomeCompleto.split(' '); // Separa por espaço
+
+                    if (partesNome.length > 1) {
+                        sobrenomeCliente = partesNome.pop(); // Pega a última palavra
+                        nomeCliente = partesNome.join(' ');  // Junta o resto
+                    } else {
+                        nomeCliente = nomeCompleto; // Se só tem uma palavra
+                        sobrenomeCliente = '';      // Sobrenome fica vazio
+                    }
                 }
-                setNomeClienteRazao(nome);
-                setSobrenome(sobrenome);
-            } else {
-                setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL || "");
-                setSobrenome(cliente?.DSNOMERAZAOSOCIAL || "");
+
+                // Agora define os estados
+                setNomeClienteRazao(nomeCliente);
+                setSobrenome(sobrenomeCliente);
             }
         }
     }, [optionsCPF]);
-
     useEffect(() => {
         if (optionsCPF && optionsCPF.length > 0) {
             Swal.fire({
@@ -146,11 +172,11 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
     const optionsIndicacaoIE = [
         { value: 9, label: 'Não Contribuinte Com ou Sem IE' },
     ]
-    // { value: 1, label: 'Contribuinte ICMS' },
-    // { value: 2, label: 'Contribuinte Isento de IE' },
-
+        // { value: 1, label: 'Contribuinte ICMS' },
+        // { value: 2, label: 'Contribuinte Isento de IE' },
+        
+    
     const readOnlyCpf = optionsCPF && optionsCPF.length > 0;
-
 
     const onSubmit = async () => {
         try {
@@ -218,7 +244,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 NUTELCELULAR: telefoneCliente.replace(/\D/g, ""),
                 DTNASCFUNDACAO: dataNascimento,
                 IDINDICACAOIE: Number(tipoIndicacaoIE.value) || 9,
-                DSINDICACAOIE: tipoIndicacaoIE?.label,
+                DSINDICACAOIE: tipoIndicacaoIE,
                 IDFUNCIONARIO: Number(usuarioLogado.id),
             }
 
@@ -234,7 +260,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postData)
+            await post('/log-web', postData)
 
 
             Swal.fire({
@@ -252,7 +278,8 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             setCpf('');
             setCep('');
             onCpf()
-            return responsePost.data;
+            console.log(response.data, 'response.data')
+            return response.data;
 
         } catch (error) {
             console.error("Erro ao processar cliente:", error);

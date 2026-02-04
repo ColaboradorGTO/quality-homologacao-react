@@ -80,7 +80,7 @@ export const ActionPesquisaFuncionarios = ({ usuarioLogado, ID }) => {
     ['funcionarios-loja'],
     fetchListaFuncionarios,
     {
-      enabled: false,
+      enabled: true,
       staleTime: 60 * 60 * 1000,
     }
   );

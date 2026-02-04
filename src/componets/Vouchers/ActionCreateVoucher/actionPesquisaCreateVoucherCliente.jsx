@@ -57,10 +57,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
 
   }, []);
 
-  useEffect(() => {
-
-  }, [usuarioLogado]);
-
 
   const fetchListaEmpresasVouchers = async () => {
     try {

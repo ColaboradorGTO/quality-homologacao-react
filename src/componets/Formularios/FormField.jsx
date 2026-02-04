@@ -17,6 +17,7 @@ const FormField = ({
     value,
     onChange,
     onFocus,
+    style,
     mask,
     children,
     validation = {},
@@ -59,6 +60,7 @@ const FormField = ({
                 onChangeModal={onChange}
                 onFocus={onFocus}
                 {...props}
+                styleInputFieldModal={style}
                 // {...register(name, {
                 //     required: required ? `${label} é obrigatório` : false,
                 //     ...validation
