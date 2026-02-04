@@ -4,6 +4,7 @@ import { get, post } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 import { useQuery } from "react-query";
 import { getDataAtual } from "../../../../../utils/dataAtual";
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
 export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, usuarioLogado}) => {
   const [textoMotivo, setTextoMotivo] = useState('')
@@ -74,7 +75,7 @@ export const useCadastrarAdiantamentoSalarial = ({handleClose, optionsModulos, u
       IDFUNCIONARIO: parseInt(usuarioSelecionado),
       DTLANCAMENTO: dataLancamento,
       TXTMOTIVO: textoMotivo,
-      VRVALORDESCONTO: parseFloat(valorDesconto),
+      VRVALORDESCONTO: removerFormatacaoMoeda(valorDesconto),
       STATIVO:  'True',
       IDUSR: parseInt(usuarioLogado?.id),
     }
