@@ -5,6 +5,7 @@ import { useQuery } from "react-query";
 import { getDataAtual, getHoraAtual } from "../../../../../utils/dataAtual";
 import { useEffect, useState } from "react";
 import { set } from "date-fns";
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
 export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, optionsModulos, refetchDadosLoja }) => {
   const [dsHistorio, setDSHistorio] = useState('');
@@ -81,7 +82,7 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
       IDFUNCIONARIO: parseInt(usuarioSelecionado?.value),
       TPNOTA: '',
       NUNOTAFISCAL: '',
-      VRDESPESA: parseFloat(vrDespesa),
+      VRDESPESA: removerFormatacaoMoeda(vrDespesa),
       STATIVO: 'True',
       STCANCELADO: 'False'
     }

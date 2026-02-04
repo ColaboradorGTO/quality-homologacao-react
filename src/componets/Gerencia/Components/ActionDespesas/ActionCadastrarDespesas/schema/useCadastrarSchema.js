@@ -19,4 +19,11 @@ export const schema = yup.object().shape({
     valorDespesa: yup
         .string()
         .required("O campo Valor Despesa é obrigatório."),
+
+    tipoNota: yup
+        .mixed()
+        .nullable()
+        .test("tipoNota", "tipo de nota é obrigatório", (v) => {
+            return !!v && typeof v === "object" && !!v.value;
+        }),
 })

@@ -9,6 +9,7 @@ import FormField from "../../../../Formularios/FormField";
 import { AlertError } from "../../../../Inputs/alertError";
 import { schema } from "./schema/useCadastrarSchema"
 import { set } from "date-fns";
+import { formatarMoeda } from "../../../../../utils/formatMoeda";
 
 export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos, refetchDadosLoja }) => {
     const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
@@ -66,8 +67,6 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
     }
 
     return (
-
-
         <Fragment>
             <form onSubmit={handleSubmit(onSubmit)} >
 
@@ -89,7 +88,6 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
-
                                 )}
                             />
 
@@ -127,7 +125,6 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                                 label="Despesa"
                                 onChangeModal={(e) => setDsPagoA(e.target.value)}
                                 value={"248 - Pgto Vale Transporte"}
-                            // value={`${dadosFuncionarios[0].IDCATEGORIARECDESP} - ${dadosReceitaDespesas[2].DSCATEGORIA}`}
                             />
                         </div>
                     </div>
@@ -157,21 +154,6 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
 
                         <div class="col-sm-6 col-xl-6">
                             <label className="form-label" htmlFor={""}>Funcionário</label>
-                            {/*             <Select
-                                isClearable
-                                label={"Despesa"}
-                                options={[
-                                    ...dadosReceitaDespesa.map((item) => ({
-                                        value: String(item.IDCATEGORIARECDESP),
-                                        label: `${item.IDCATEGORIARECDESP} - ${item.DSCATEGORIA}`,
-                                    }))
-                                ]}
-                                value={despesaSelecionada}
-                                onChange={(e) => {
-                                    setDespesaSelecionada(e);
-                                    clearErrors("tipoDespesaSelecionada");
-                                }}
-                            /> */}
 
                             <Select
                                 isClearable
@@ -216,7 +198,7 @@ export const FormularioCadastrar = ({ handleClose, usuarioLogado, optionsModulos
                                         name="valorDespesa"
                                         type="number"
                                         value={vrDespesa}
-                                        onChange={(e) => setVrDespesa(e.target.value)}
+                                        onChange={(e) => setVrDespesa(formatarMoeda(e.target.value))}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
