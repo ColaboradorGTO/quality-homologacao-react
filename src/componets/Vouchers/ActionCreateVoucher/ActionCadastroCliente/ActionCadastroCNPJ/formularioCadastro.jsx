@@ -395,9 +395,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                 value={optionsIndicacaoIE.find(option => option.value === tipoIndicacaoIE) || null}
                                 onChange={(e) =>  setTipoIndicacaoIE(e?.value || null)}
                             />
-                            {console.log('Tipo Indicação IE selecionado:', tipoIndicacaoIE)}
-                            {console.log('Opções disponíveis para Tipo Indicação IE:', optionsIndicacaoIE)}
-                            {console.log('Value do select:', optionsIndicacaoIE.find(option => option.value === tipoIndicacaoIE))}
+                   
                             {errors.tipoIndicacaoIE && (
                                 <AlertError
                                     error={errors.tipoIndicacaoIE}

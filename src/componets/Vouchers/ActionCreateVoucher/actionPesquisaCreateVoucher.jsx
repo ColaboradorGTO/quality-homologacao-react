@@ -101,7 +101,7 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
   const { data: dadosVoucher = [], error: errorVouchers, isLoading: isLoadingVouchers, refetch: refetchListaVouchers } = useQuery(
     ['detalheVoucherDados'],
     () => fetchListaVouchers(),
-    { enabled: false, }
+    { enabled: false, staleTime: 60 * 60 * 1000, }
   );
 
 
@@ -143,7 +143,7 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
   const { data: dadosVoucherProcessamento = [], error: errorVouchersProcessando, isLoading: isLoadingVouchersProcessando, refetch: refetchListaVouchersProcessando } = useQuery(
     ['detalheVoucherDados'],
     () => fetchListaVouchersProcessando(),
-    { enabled: true, cacheTime: 5 * 60 * 1000, staleTime: 5 * 60 * 1000, }
+    { enabled: true, staleTime: 60 * 60 * 1000, }
   );
 
 
@@ -243,6 +243,8 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
             usuarioLogado={usuarioLogado}
             tabelaVisivelVoucher={tabelaVisivelVoucher}
             setTabelaVisivelVoucher={setTabelaVisivelVoucher}
+            tabelaVisivelVoucherSelecionados={tabelaVisivelVoucherSelecionados}
+            setTabelaVisivelVoucherSelecionados={setTabelaVisivelVoucherSelecionados}
           />
         </div>
       )}

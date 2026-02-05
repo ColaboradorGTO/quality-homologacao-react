@@ -163,8 +163,49 @@ export const useCriarVoucher = ({
             setMotivoTroca(motivo);
 
             const cpf = dadosVisualizarProdutos[0]?.venda.DEST_CPF || dadosVisualizarProdutos[0]?.venda.DEST_CNPJ;
-            if (cpf == '') {
-                await onCpf(callback, row);
+            console.log('CPF obtido dos dados da venda:', dadosVisualizarProdutos[0]);
+            if (!cpf) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Erro',
+                    html: `
+                        <div>
+                            CPF do cliente não encontrado nos dados do produto.<br/><br/>
+                            <button id="btnCadastrarCliente" class="swal2-confirm swal2-styled" style="display:inline-block;">
+                                Cadastrar Cliente
+                            </button>
+                        </div>
+                    `,
+                    showConfirmButton: false,
+                    didOpen: () => {
+                        const btn = document.getElementById('btnCadastrarCliente');
+                        if (btn) {
+                            btn.addEventListener('click', () => {
+                                setModalCadastroClienteCPF(true);
+                                Swal.close();
+                            });
+                        }
+                    }
+                });
+            }
+
+            if (cpf) {
+                try {
+                    const response = await get(`/cliente-todos?numeroCpfCnpj=${cpf}`);
+
+                    setUsuarioAutorizado(prev => ({ ...prev, motivo, cpf }));
+                    setIsLoggedIn(true);
+                    setOptionsCPF(response.data);
+                    await onCpf(response.data);
+
+                } catch (error) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Erro',
+                        text: `Erro ao buscar os dados do cliente: ${error.message}`,
+                    });
+                    // setModalCadastroClienteCPF(true);
+                }
             }
         }
 
@@ -172,8 +213,6 @@ export const useCriarVoucher = ({
 
     const onCpf = async (callback, response) => {
         const cpfVenda = optionsCPF?.[0]?.NUCPFCNPJ || '';
-        console.log('🔍 onCpf iniciado - cpfVenda:', cpfVenda);
-        console.log('🔍 optionsCPF:', optionsCPF);
 
         const { value: cpfConfirmado } = await Swal.fire({
             title: 'Confirmar CPF do Cliente',
@@ -196,8 +235,6 @@ export const useCriarVoucher = ({
             showCancelButton: true,
             confirmButtonText: 'Confirmar',
             cancelButtonText: 'Cancelar',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
             customClass: {
                 container: 'custom-swal',
             },
@@ -211,39 +248,26 @@ export const useCriarVoucher = ({
             },
             preConfirm: () => {
                 const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
-                console.log('🔍 Validação CPF - Valor capturado:', cpf);
-                console.log('🔍 Validação CPF - Tamanho:', cpf.length);
 
                 if (!cpf || cpf.length === 0) {
-                    console.log('❌ Validação falhou: CPF vazio');
                     return Swal.showValidationMessage('CPF é obrigatório');
                 }
 
                 if (!validarCPF(cpf)) {
-                    console.log('❌ Validação falhou: CPF inválido');
                     return Swal.showValidationMessage('CPF inválido, verifique e tente novamente');
                 }
-                
-                console.log('✅ CPF validado com sucesso:', cpf);
                 return cpf;
             },
         });
 
-        console.log('✅ CPF confirmado pelo usuário:', cpfConfirmado);
-
         if (cpfConfirmado) {
             try {
-                console.log('🔄 Buscando cliente na API...');
                 const response = await get(`/cliente-todos?numeroCpfCnpj=${cpfConfirmado}`);
-                console.log('📡 Resposta da API:', response);
              
                 if (response && response.data) {
                     const clienteData = response.data;
-                    console.log('👤 Dados do cliente:', clienteData);
-                    console.log('📊 Tamanho do array clienteData:', clienteData.length);
 
                     if (clienteData && clienteData.length > 0) {
-                        console.log('✅ Cliente encontrado! Preparando para onSubmit...');
                         setUsuarioAutorizado(prev => ({
                             ...prev,
                             cpf: cpfConfirmado,
@@ -251,38 +275,25 @@ export const useCriarVoucher = ({
                         }));
                         setCpfCliente(cpfConfirmado);
                         setOptionsCPF(clienteData);
-                        console.log(cpfConfirmado, 'cpfConfirmado');
-                        console.log(clienteData, 'clienteData');
-                        
-                        console.log('🚀 CHAMANDO onSubmit...');
+
                         await onSubmit();
-                        console.log('✅ onSubmit executado com sucesso!');
                     } else {
-                        console.log('❌ Cliente não encontrado (array vazio) - abrindo modal cadastro');
                         setCpfCliente(cpfConfirmado);
                         setModalCadastroClienteCPF(true);
                     }
                 } else {
-                    console.log('❌ Resposta da API inválida (sem response.data)');
                     throw new Error('Erro ao buscar dados do cliente');
                 }
             } catch (error) {
-                console.log('❌ Erro na busca do cliente:', error);
+                console.log('Erro na busca do cliente:', error);
                 setCpfCliente(cpfConfirmado);
                 setModalCadastroClienteCPF(true);
             }
-        } else {
-            console.log('❌ CPF não confirmado (usuário cancelou ou validação falhou)');
         }
 
     };
 
     const onSubmit = async () => {
-        console.log('🎯 onSubmit INICIADO!');
-        console.log('📋 dadosVisualizarProdutos:', dadosVisualizarProdutos);
-        console.log('📋 optionsCPF:', optionsCPF);
-        console.log('📋 motivoTroca:', motivoTroca);
-        
         // Função para obter quantidade modificada ou original
         const getQuantidadeFinal = (contadorIndex, quantidadeOriginal) => {
             return quantidadesProdutos?.[contadorIndex] || quantidadeOriginal;

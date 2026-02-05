@@ -27,10 +27,14 @@ export const ActionListaVendaCLiente = ({
   quantidade,
   setQuantidade,
   quantidadesProdutos,
-  setQuantidadesProdutos
+  setQuantidadesProdutos,
+  tabelaSecundaria,
+  setTabelaSecundaria,
+  tabelaVenda,
+  setTabelaVenda,
 }) => {
-  const [tabelaVenda, setTabelaVenda] = useState(true);
-  const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
+  // const [tabelaVenda, setTabelaVenda] = useState(true);
+  // const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
   const [rowClick, setRowClick] = useState(true);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
@@ -435,18 +439,18 @@ export const ActionListaVendaCLiente = ({
           </div>
         </div>
       )}
-
+        
       {tabelaSecundaria && (
         <Fragment>
           <div className="panel">
             <div className="panel-hdr">
-              {/* <h2>Lista Vendas </h2> */}
-              {dadosProdutosVenda[0].diferenciaDias > 30 && (
+              <h2>Lista Vendas </h2>
+              {dadosProdutosVenda[0]?.diferenciaDias > 30 && (
                 <h2>
 
-                  Produtos - Vendas {dadosProdutosVenda[0].IDVENDA} &nbsp; - &nbsp;
+                  Produtos - Vendas {dadosProdutosVenda[0]?.IDVENDA} &nbsp; - &nbsp;
                   <span style={{ color: '#fd3995' }}>
-                    Dias Passados Após a Compra <b><u>{dadosProdutosVenda[0].diferenciaDias} DIAS</u></b>
+                    Dias Passados Após a Compra <b><u>{dadosProdutosVenda[0]?.diferenciaDias} DIAS</u></b>
                   </span>
                 </h2>
               )}

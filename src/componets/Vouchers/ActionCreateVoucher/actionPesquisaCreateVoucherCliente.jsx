@@ -25,13 +25,15 @@ export const ActionPesquisaCreateVoucherCliente = ({
   usuarioLogado,
   optionsModulos,
   tabelaVisivelVoucher,
-  setTabelaVisivelVoucher
+  setTabelaVisivelVoucher,
+  tabelaVisivelVoucherSelecionados,
+  setTabelaVisivelVoucherSelecionados
 }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
-  const [tabelaVisivelVoucherSelecionados, setTabelaVisivelVoucherSelecionados] = useState(false);
   const [tabelaVendasClientes, setTabelaVendasClientes] = useState(false);
   const [tabelaVenda, setTabelaVenda] = useState(true);
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
+  
   const [modalCadastroClienteCPF, setModalCadastroClienteCPF] = useState(false);
   const [modalCadastroClienteCNPJ, setModalCadastroClienteCNPJ] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
@@ -102,16 +104,17 @@ export const ActionPesquisaCreateVoucherCliente = ({
     ['empresasVoucher', usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
     () => fetchListaEmpresasVouchers(usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
     {
-      enabled: false,
+      enabled: true,
     }
   );
 
   useEffect(() => {
     refetchListaEmpresaVouchers();
-  }, [usuarioLogado, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize]);
+  }, [usuarioLogado]);
 
   const fetchListaVendasClientes = async () => {
-    const urlBase = `/lista-venda-cliente?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpf}&nnf=${numeroNF}&serie=${serie}`;
+  
+    const urlBase = `/lista-venda-cliente?idEmpresa=${empresaSelecionada}&idSubGrupoEmpresarial=${usuarioLogado?.IDGRUPOEMPRESARIAL}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpf}&nnf=${numeroNF}&serie=${serie}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -203,6 +206,7 @@ export const ActionPesquisaCreateVoucherCliente = ({
 
   const handleClickClientes = () => {
     setTabelaVendasClientes(true);
+    setTabelaSecundaria(false);
     setTabelaVisivel(false);
     setTabelaVisivelVoucherSelecionados(false);
     setTabelaVisivelVoucher(false)
@@ -260,11 +264,14 @@ export const ActionPesquisaCreateVoucherCliente = ({
 
           InputSelectEmpresaComponent={InputSelectAction}
           labelSelectEmpresa={"Empresa"}
-          optionsEmpresas={dadosEmpresasVoucher.map((empresa) => ({
-            value: empresa.IDEMPRESA,
-            label: empresa.NOFANTASIA,
-          }))}
-          valueSelectEmpresa={empresaSelecionada}
+          optionsEmpresas={[
+            {value: '', label: 'Todas as Empresas'},
+            ...dadosEmpresasVoucher.map((empresa) => ({
+              value: empresa.IDEMPRESA,
+              label: empresa.NOFANTASIA,
+            }))
+          ]}
+          valueSelectEmpresa={dadosEmpresasVoucher.find(empresa => empresa.IDEMPRESA == usuarioLogado?.IDEMPRESA) || ''}
           onChangeSelectEmpresa={handleSelectEmpresa}
 
           InputFieldCodBarraComponent={InputField}
@@ -329,6 +336,10 @@ export const ActionPesquisaCreateVoucherCliente = ({
           setQuantidade={setQuantidade}
           quantidadesProdutos={quantidadesProdutos}
           setQuantidadesProdutos={setQuantidadesProdutos}
+          tabelaSecundaria={tabelaSecundaria}
+          setTabelaSecundaria={setTabelaSecundaria}
+          tabelaVenda={tabelaVenda}
+          setTabelaVenda={setTabelaVenda}
         />
       )}
 
