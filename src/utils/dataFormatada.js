@@ -22,25 +22,31 @@ export const formatarDataDTW = (data) => {
 
   // Verifica se a data está no formato ISO 8601
   if (data.includes('T')) {
-      const dataObj = new Date(data);
-      return `${dataObj.getFullYear()}${('0' + (dataObj.getMonth() + 1)).slice(-2)}${('0' + dataObj.getDate()).slice(-2)}`;
+    const dataObj = new Date(data);
+    return `${dataObj.getFullYear()}${('0' + (dataObj.getMonth() + 1)).slice(-2)}${('0' + dataObj.getDate()).slice(-2)}`;
   }
 
   // Verifica se a data está no formato yyyy-mm-dd
   if (data.includes('-')) {
-      return data.replace(/-/g, '');
+    return data.replace(/-/g, '');
   }
 
   // Verifica se a data está no formato dd/mm/yyyy
   if (data.includes('/')) {
-      const partes = data.split(' ')[0].split('/');
-      return `${partes[2]}${partes[1]}${partes[0]}`;
+    const partes = data.split(' ')[0].split('/');
+    return `${partes[2]}${partes[1]}${partes[0]}`;
   }
 
   return '';
 }
 
-export const  formatMesAnoDTW = (date) => {
-  const [day, month, year] = date.split("/"); 
+export const formatMesAnoDTW = (date) => {
+  const [day, month, year] = date.split("/");
   return `${month}/${year}`;
 }
+
+export const formatarDataParaISO = (data) => {
+  if (!data) return '';
+  const [dia, mes, ano] = data.split('/');
+  return `${ano}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+};

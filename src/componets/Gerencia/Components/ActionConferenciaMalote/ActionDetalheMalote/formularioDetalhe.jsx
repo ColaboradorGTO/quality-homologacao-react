@@ -20,7 +20,6 @@ export const FormularioDetalheMalote = ({
     reenviarMalote
   } = useEnviarMalote({salvarDadosMalotes, dadosDetalhesMalote, optionsModulos, usuarioLogado, handleClose, handleClick})
 
-  console.log(salvarDadosMalotes, 'salvarDadosMalotes')
   const {
     NOFANTASIA,
     IDMALOTE,

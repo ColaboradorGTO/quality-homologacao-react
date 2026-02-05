@@ -24,13 +24,11 @@ export const ActionDetalheMaloteModal = ({
             size="xl"
             className="modal fade"
     
-    
             tabIndex={-1}
             role="dialog"
             aria-hidden="true"
     
           >
-    
             <div style={{ padding: "10px" }}>
     
               <HeaderModal
@@ -52,9 +50,6 @@ export const ActionDetalheMaloteModal = ({
                 />
               
               </Modal.Body>
-    
-    
-       
             </div>
           </Modal>
         </Fragment>

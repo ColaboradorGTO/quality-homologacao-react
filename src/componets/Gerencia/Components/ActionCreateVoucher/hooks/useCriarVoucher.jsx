@@ -246,7 +246,6 @@ export const useCriarVoucher = ({
                   container: 'custom-swal',
                 },
                 didOpen: () => {
-                console.log(cpfVenda, 'cpfVenda')
                 const swalContainer = Swal.getPopup();
                 swalContainer.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
@@ -256,7 +255,6 @@ export const useCriarVoucher = ({
             },
             preConfirm: () => {
                 const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
-                console.log(cpf, 'cpf')
                 if (!cpf || cpf.length === 0) {
                     return Swal.showValidationMessage('CPF é obrigatório');
                 }
@@ -270,9 +268,7 @@ export const useCriarVoucher = ({
 
         if (cpfConfirmado) {
             try {
-                console.log(cpfConfirmado, 'cpfConfirmado entrou no if')
                 const response = await get(`/cliente-todos?numeroCpfCnpj=${cpfConfirmado}`);
-                console.log(response, 'response entrou no if')
                 if (response && response.data) {
                     const clienteData = response.data;
 
