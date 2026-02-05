@@ -33,10 +33,9 @@ export const ActionListaVendaCLiente = ({
   tabelaVenda,
   setTabelaVenda,
 }) => {
-  // const [tabelaVenda, setTabelaVenda] = useState(true);
-  // const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
   const [rowClick, setRowClick] = useState(true);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
 
@@ -230,14 +229,14 @@ export const ActionListaVendaCLiente = ({
       allowEscapeKey: false,
 
       preConfirm: () => {
-        // if (row.IDVENDA) {
-        //   handleDetalhar(row.IDVENDA)
-        // }
-
-        const dadosVenda = dadosVendasClientes.find(item => item.venda.IDVENDA === row.IDVENDA);
-        if (dadosVenda) {
-          handleMostrarProdutos(dadosVenda);
+        if (row.IDVENDA) {
+          handleDetalhar(row.IDVENDA)
         }
+
+        // const dadosVenda = dadosVendasClientes.find(item => item.venda.IDVENDA === row.IDVENDA);
+        // if (dadosVenda) {
+        //   handleMostrarProdutos(dadosVenda);
+        // }
       }
     });
 
@@ -385,6 +384,19 @@ export const ActionListaVendaCLiente = ({
     },
   ]
 
+  const isSelectable = (data) => {
+    // Coloque aqui a MESMA condição que você usa no disabled do checkbox
+    // Exemplo: return data.SALDO > 0 && data.STATUS !== 'CANCELADO';
+    return !data.disabled; // ou qualquer condição que você usar
+  };
+
+
+  const isRowSelectable = (event) => (event.data ? isSelectable(event.data) : true);
+
+
+  const rowClassName = (data) => (isSelectable(data) ? '' : 'p-disabled');
+
+
   return (
     <Fragment>
       {tabelaVenda && (
@@ -476,11 +488,17 @@ export const ActionListaVendaCLiente = ({
                 size="small"
                 sortOrder={-1}
                 selectionMode={rowClick ? null : 'checkbox'}
+
+                
+                selection={rowClick}
+                onSelectionChange={(e) => setRowClick(e.value)}
                 paginator={true}
                 rows={10}
                 rowsPerPageOptions={[10, 20, 50, 100, dadosProdutos.length]}
                 showGridlines
                 stripedRows
+                isDataSelectable={isRowSelectable}
+                rowClassName={rowClassName}
                 emptyMessage={<div className="dataTables_empty">Não há Produtos Na Venda</div>}
               >
                 {colunasVouchers2.map(coluna => (
