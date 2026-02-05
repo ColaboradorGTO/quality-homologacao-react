@@ -340,7 +340,7 @@ export const ActionPesquisaCreateVoucherCliente = ({
         optionsCPF={optionsCPF}
         onCpf={onCpf}
       />
-
+  
       <ActionCadastroClienteVoucherCNPJ
         show={modalCadastroClienteCNPJ}
         handleClose={() => setModalCadastroClienteCNPJ(false)}

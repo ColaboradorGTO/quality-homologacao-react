@@ -10,17 +10,23 @@ export const useAuthFuncionarioUpdate = ({usuarioLogado}) => {
   const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
   const [ipUsuario, setIpUsuario] = useState('');
 
-  useEffect(() => {
-    getIPUsuario();
-  }, []);
-
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/')
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    try {
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      let usuarioIP = ipWhoisData?.ip;
+
+    if (!usuarioIP) {
+      const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+      usuarioIP = ipifyData?.ip;
     }
-    return response.data;
-  }
+
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
+    } catch (error) {
+    console.error("Erro ao buscar IP:", error);
+    return null;
+    }
+  };
 
   const openSwal = async (callback, row) => {
     const { value: formValues } = await Swal.fire({

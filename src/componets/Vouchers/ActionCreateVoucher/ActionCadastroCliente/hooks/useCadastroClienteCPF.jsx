@@ -111,19 +111,14 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             setNumeroComercial(cliente?.NUTELCOMERCIAL || "");
             setTipoIndicacaoIE(cliente?.IDINDICACAOIE || (cliente?.SGUF == "DF" ? 2 : 9));
             
-            // Separar nome e sobrenome para CPF ou usar dados do CNPJ
-            console.log('cliente?.NUCPFCNPJ?.length', cliente?.NUCPFCNPJ?.length)
-            
             if (cliente?.NUCPFCNPJ?.length <= 11) {
-                // Para CPF, os campos já estão separados corretamente no banco
-                setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL); // Nome
-                setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);    // Sobrenome
-                console.log('CPF - Nome:', cliente?.DSNOMERAZAOSOCIAL, 'Sobrenome:', cliente?.DSAPELIDONOMEFANTASIA);
+          
+                setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL); 
+                setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);    
             } else {
                 // Para CNPJ usa os campos específicos
                 setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL);
                 setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);
-                console.log(cliente?.DSAPELIDONOMEFANTASIA, 'sobrenome CNPJ')
             }
         }
 
@@ -153,44 +148,8 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
 
     const onSubmit = async () => {
         try {
-            if (nomeClienteRazao == '') {
-                Swal.fire({
-                    title: 'Atenção',
-                    text: 'O campo Nome é obrigatório.',
-                    icon: 'warning',
-                    customClass: {
-                        container: 'custom-swal',
-                    }
-                });
-                return;
-            }
-
-            if (sobrenome == '') {
-                Swal.fire({
-                    title: 'Atenção',
-                    text: 'O campo Sobrenome é obrigatório.',
-                    icon: 'warning',
-                    customClass: {
-                        container: 'custom-swal',
-                    }
-                });
-                return;
-            }
-
-            if (cpf == '') {
-                Swal.fire({
-                    title: 'Atenção',
-                    text: 'O campo CPF é obrigatório.',
-                    icon: 'warning',
-                    customClass: {
-                        container: 'custom-swal',
-                    }
-                });
-                return;
-            }
 
             const cpfSemMascara = removerMascaraCPF(cpf);
-            let IE = tipoIndicacaoIE == 2 ? 'ISENTO' : (tipoIndicacaoIE || 'ISENTO');
             let IM = '';
 
             const isUpdate = optionsCPF.length > 0 && idCliente;
@@ -202,7 +161,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 DSAPELIDONOMEFANTASIA: sobrenome,
                 TPCLIENTE: tipo,
                 NUCPFCNPJ: cpfSemMascara,
-                NURGINSCESTADUAL: IE,
+                NURGINSCESTADUAL: tipoIndicacaoIE == 2 ? 'ISENTO' : (tipoIndicacaoIE || 'ISENTO') || tipoIndicacaoIE == 9 ? 'FISICA' : 'FISICA',
                 NUINSCMUNICIPAL: IM,
                 NUCEP: cep.replace(/\D/g, ""),
                 NUIBGE: parseInt(nuIBGE),
@@ -250,8 +209,8 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             handleClose();
             setCpf('');
             setCep('');
-            onCpf()
-            console.log(response.data, 'response.data')
+            // onCpf()
+            
             return response.data;
 
         } catch (error) {
