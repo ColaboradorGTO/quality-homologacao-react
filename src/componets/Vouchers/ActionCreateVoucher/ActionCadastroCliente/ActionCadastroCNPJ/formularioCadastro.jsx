@@ -304,7 +304,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={nomeClienteRazao}
-                                        onChange={(e) => setNomeClienteRazao(e.target.value)}
+                                        onChange={(e) => setNomeClienteRazao(e.target.value.toUpperCase())}
                                     />
                                 )}
                             />
@@ -321,7 +321,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={sobrenome}
-                                        onChange={(e) => setSobrenome(e.target.value)}
+                                        onChange={(e) => setSobrenome(e.target.value.toUpperCase())}
                                     />
                                 )}
                             />
@@ -379,7 +379,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
+                                        onChange={(e) => setEmail(e.target.value.toUpperCase())}
                                     />
                                 )}
                             />
@@ -387,16 +387,17 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                         <div className="col-sm-5 col-md-3 col-xl-4">
                             <label className="form-label" htmlFor={""}>Tipo Indicação IE</label>
                              <Select
-
                                 label={"Despesa"}
                                 options={optionsIndicacaoIE.map((item) => ({
                                     value: item.value,
                                     label: item.label
                                 }))}
-                                value={tipoIndicacaoIE}
-                                onChange={(e) =>  setTipoIndicacaoIE(e)}
-
+                                value={optionsIndicacaoIE.find(option => option.value === tipoIndicacaoIE) || null}
+                                onChange={(e) =>  setTipoIndicacaoIE(e?.value || null)}
                             />
+                            {console.log('Tipo Indicação IE selecionado:', tipoIndicacaoIE)}
+                            {console.log('Opções disponíveis para Tipo Indicação IE:', optionsIndicacaoIE)}
+                            {console.log('Value do select:', optionsIndicacaoIE.find(option => option.value === tipoIndicacaoIE))}
                             {errors.tipoIndicacaoIE && (
                                 <AlertError
                                     error={errors.tipoIndicacaoIE}
@@ -440,7 +441,8 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={endereco}
-                                        onChange={(e) => setEndereco(e.target.value)}
+                                        onChange={(e) => setEndereco(e.target.value.toUpperCase())}
+                                        style={{ textTransform: 'uppercase' }}
                                     />
                                 )}
                             />
@@ -475,7 +477,8 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={complemento}
-                                        onChange={(e) => setComplemento(e.target.value)}
+                                        onChange={(e) => setComplemento(e.target.value.toUpperCase())}
+                                        style={{ textTransform: 'uppercase' }}
                                     />
                                 )}
                             />
@@ -495,7 +498,8 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={bairro}
-                                        onChange={(e) => setBairro(e.target.value)}
+                                        onChange={(e) => setBairro(e.target.value.toUpperCase())}
+                                        style={{ textTransform: 'uppercase' }}
                                     />
                                 )}
                             />
@@ -529,7 +533,8 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={cidade}
-                                        onChange={(e) => setCidade(e.target.value)}
+                                        onChange={(e) => setCidade(e.target.value.toUpperCase())}
+                                        style={{ textTransform: 'uppercase' }}
                                     />
                                 )}
                             />
@@ -546,7 +551,8 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={estado}
-                                        onChange={(e) => setEstado(e.target.value)}
+                                        onChange={(e) => setEstado(e.target.value.toUpperCase())}
+                                        style={{ textTransform: 'uppercase' }}
                                     />
                                 )}
                             />
