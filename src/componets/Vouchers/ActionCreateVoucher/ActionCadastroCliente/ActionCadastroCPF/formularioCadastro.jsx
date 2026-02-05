@@ -52,7 +52,8 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
     estado,
     setEstado,
     onSubmit,
-    readOnlyCpf
+    readOnlyCpf,
+    setCepDigitado
   } = useCadastrarClienteCPF({ usuarioLogado, optionsModulos, handleClose, onCpf });
 
     const fecharModal = () => {
@@ -346,7 +347,10 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"NuCEP"}
                     value={cep}
-                    onChange={(e) => setCep(e.target.value)}
+                    onChange={(e) => { 
+                      setCepDigitado(true);
+                      setCep(e.target.value)
+                    }}
                     errors={errors}
                     clearErrors={clearErrors}
                   />

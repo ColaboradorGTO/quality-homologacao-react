@@ -30,6 +30,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
     const [cpfFuncionario, setCpfFuncionario] = useState('');
     const [empresa, setEmpresa] = useState('');
     const [ipUsuario, setIpUsuario] = useState('');
+    const [cepDigitado, setCepDigitado] = useState(false);
 
 
     useEffect(() => {
@@ -57,11 +58,12 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
     };
 
     useEffect(() => {
-        if (cep.length === 8) {
+        if (cep.length === 8 && !cepDigitado) {
             getCEP();
         }
 
-    }, [cep]);
+        console.log(cepDigitado, 'cep')
+    }, [cep, cepDigitado]);
 
     const getCEP = async () => {
         const response = await axios.get(`https://viacep.com.br/ws/${cep}/json`);
@@ -103,7 +105,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             setCep(cliente?.NUCEP || "");
             setEndereco(cliente?.EENDERECO || "");
             setNumero(cliente?.NUENDERECO || "");
-            setComplemento(cliente?.ECOMPLEMENTO || "");
+            setComplemento(cliente?.ECOMPLEMENTO);
             setBairro(cliente?.EBAIRRO || "");
             setNuIBGE(cliente?.NUIBGE || "");
             setCidade(cliente?.ECIDADE || "");
@@ -176,7 +178,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 NUTELCELULAR: telefoneCliente.replace(/\D/g, ""),
                 DTNASCFUNDACAO: dataNascimento,
                 IDINDICACAOIE: Number(tipoIndicacaoIE.value) || 9,
-                DSINDICACAOIE: tipoIndicacaoIE == 9 ? 'Não Contribuinte Com ou Sem IE' : tipoIndicacaoIE == 1 ? 'Contribuinte ICMS' : 'Contribuinte Isento de IE',
+                DSINDICACAOIE: tipoIndicacaoIE == 9 ? 'NÃO CONTRIBUINTE COM OU SEM IE' : tipoIndicacaoIE == 1 ? 'CONTRIBUINTE ICMS' : 'CONTRIBUINTE ISENTO DE IE',
                 IDFUNCIONARIO: Number(usuarioLogado.id),
             }
 
@@ -284,6 +286,8 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         empresa,
         optionsIndicacaoIE,
         onSubmit,
-        readOnlyCpf
+        readOnlyCpf,
+        setCepDigitado
+
     }
 }
