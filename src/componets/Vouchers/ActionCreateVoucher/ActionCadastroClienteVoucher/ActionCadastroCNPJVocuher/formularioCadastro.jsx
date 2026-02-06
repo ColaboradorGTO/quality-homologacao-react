@@ -9,7 +9,7 @@ import FormField from "../../../../Formularios/FormField"
 import { AlertError } from "../../../../Inputs/alertError"
 import { useCadastrarClienteCNPJVoucher } from "../hooks/useCadastroClienteCNPJVoucher"
 
-export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos }) => {
+export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, onCpf }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
         mode: "onChange" 
     });
@@ -63,7 +63,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
         setTelefoneComercial,
         optionsIndicacaoIE,
         onSubmit
-    } = useCadastrarClienteCNPJVoucher({ usuarioLogado, optionsModulos, handleClose });
+    } = useCadastrarClienteCNPJVoucher({ usuarioLogado, optionsModulos, handleClose, onCpf });
 
 
     const handleValidatedSubmit = async () => {

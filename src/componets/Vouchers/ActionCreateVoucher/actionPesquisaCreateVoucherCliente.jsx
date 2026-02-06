@@ -368,6 +368,7 @@ export const ActionPesquisaCreateVoucherCliente = ({
         handleClose={() => setModalCadastroClienteCNPJVoucher(false)}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+        onCpf={onCpf}
         
       />
 

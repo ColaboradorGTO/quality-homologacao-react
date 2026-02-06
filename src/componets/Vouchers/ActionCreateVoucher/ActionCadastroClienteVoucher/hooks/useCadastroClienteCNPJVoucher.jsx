@@ -74,7 +74,7 @@ async function getDadosEnderecoViaCep_API_redundancia(cep) {
     }
 }
 
-export const useCadastrarClienteCNPJVoucher = ({ usuarioLogado, optionsModulos, handleClose }) => {
+export const useCadastrarClienteCNPJVoucher = ({ usuarioLogado, optionsModulos, handleClose, onCpf }) => {
     const [idCliente, setIdCliente] = useState('');
     const [tipo, setTipo] = useState('JURIDICA');
     const [dataCadastro, setDataCadastro] = useState('');
@@ -509,7 +509,7 @@ export const useCadastrarClienteCNPJVoucher = ({ usuarioLogado, optionsModulos, 
             const textDados = JSON.stringify(postData)
             let textoFuncao = isUpdate ? 'GERENCIA/ATUALIZACAO DE CLIENTE' : 'GERENCIA/CADASTRO DE CLIENTE';
 
-            await getIPUsuario();
+            const ipUsuario = await getIPUsuario();
             const postDataLog = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
@@ -517,7 +517,7 @@ export const useCadastrarClienteCNPJVoucher = ({ usuarioLogado, optionsModulos, 
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postDataLog)
+            await post('/log-web', postDataLog)
 
 
             Swal.fire({
@@ -532,9 +532,12 @@ export const useCadastrarClienteCNPJVoucher = ({ usuarioLogado, optionsModulos, 
             })
 
             handleClose();
-            return responsePost.data;
+
+            await onCpf();
+            return response.data;
         } catch (error) {
             console.error('Erro ao cadastrar cliente:', error);
+            const ipUsuario = await getIPUsuario();
             const isUpdate = optionsCNPJ.length > 0 && idCliente;
             let textoFuncao = isUpdate 
                 ? 'GERENCIA/ATUALIZACAO DE CLIENTE' 
