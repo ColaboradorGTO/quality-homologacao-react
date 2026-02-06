@@ -2,11 +2,11 @@ import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { useForm, Controller } from "react-hook-form"
-import { useCadastrarClienteCPF } from "../hooks/useCadastroClienteCPF"
 import { mascaraCPF } from "../../../../../utils/formatCPF"
 import { mascaraTelefone, removerMascaraTelefone } from "../../../../../utils/mascaraTelefone"
 import FormField from "../../../../Formularios/FormField"
 import { schema } from "./schemaValidationCPF"
+import { useCadastrarClienteCPFVoucher } from "../hooks/useCadastroClienteCPFVoucher"
 
 
 export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf }) => {
@@ -54,7 +54,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
     onSubmit,
     readOnlyCpf,
     setCepDigitado
-  } = useCadastrarClienteCPF({ usuarioLogado, optionsModulos, handleClose, onCpf });
+  } = useCadastrarClienteCPFVoucher({ usuarioLogado, optionsModulos, handleClose, onCpf });
 
     const fecharModal = () => {
     handleClose();

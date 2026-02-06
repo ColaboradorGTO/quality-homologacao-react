@@ -20,8 +20,8 @@ export const ActionCadastroClienteVoucherCPF = ({ show, handleClose, usuarioLoga
         aria-hidden="true"
       >
         <HeaderModal
-          title={"Cadastro do Cliente"}
-          subTitle={"Cadastro e atualização de dados do Cliente"}
+          title={"Cadastro do Cliente Voucher"}
+          subTitle={"Cadastro e atualização de dados do Cliente" }
           handleClose={handleClose}
         />
 

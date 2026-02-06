@@ -13,8 +13,8 @@ export const useCriarVoucher = ({
     dadosVisualizarProdutos, 
     quantidade,
     quantidadesProdutos,
-    modalCadastroClienteCPF, 
-    setModalCadastroClienteCPF,
+    setModalCadastroClienteCPFVoucher,
+    setModalCadastroClienteCNPJVoucher,
     handleClick
 }) => {
     const [ipUsuario, setIpUsuario] = useState('');
@@ -173,20 +173,20 @@ export const useCriarVoucher = ({
     const onCpf = async (callback, response) => {
         const cpfVenda = optionsCPF?.[0]?.NUCPFCNPJ || '';
         const { value: cpfConfirmado } = await Swal.fire({
-            title: 'Confirmar CPF do Cliente',
-            html: `
-              <div>
-                <input 
-                  type="text" 
-                  id="cpf" 
-                  class="swal2-input" 
-                  placeholder="Digite o CPF para confirmar"  
-                  style="text-align: center;"
-                  value="${cpfVenda || ''}"
-                  maxlength="11"
-                >
-                <small class="fw-700 text-muted">${cpfVenda ? `CPF da venda: ${mascaraCPF(cpfVenda)}` : 'Digite o CPF do cliente'}</small>
-              </div>      
+            title: 'Insira o CPF  ou CNPJ do Cliente',
+            html: `          
+                <div>
+                    <input 
+                        type="text" 
+                        id="cpf" 
+                        class="swal2-input " 
+                        placeholder="Digite o CPF/CNPJ"  
+                        style="text-align: center;"
+                        value="${cpfVenda || ''}"
+                        maxlength="18"
+                    >
+                    <small class="fw-700 text-muted">${cpfVenda ? `CPF da venda: ${mascaraCPF(cpfVenda)}` : 'Digite o CPF do cliente'}</small>
+                </div>    
             `,
             width: '25rem',
             focusConfirm: false,
@@ -209,10 +209,10 @@ export const useCriarVoucher = ({
                 
                 // Aplicar máscara de CPF em tempo real E verificar cliente automaticamente
                 cpfInput.addEventListener('input', async (e) => {
-                    e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 11);
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 18);
                     
                     const cpfDigitado = e.target.value;
-                    if (cpfDigitado.length === 11) {
+                    if (cpfDigitado.length == 11 || cpfDigitado.length == 14) {
                         try {
                             const response = await get(`/cliente-todos?numeroCpfCnpj=${cpfDigitado}`)
                             
@@ -224,20 +224,54 @@ export const useCriarVoucher = ({
                                     confirmButton.textContent = 'Cliente Encontrado - Confirmar';
                                 }
                             } else {
-                                // Cliente não existe - vai para modal de cadastro
-                                const confirmButton = swalContainer.querySelector('.swal2-confirm');
-                                if (confirmButton) {
-                                    confirmButton.style.backgroundColor = '#ffc107'; // Amarelo
-                                    confirmButton.textContent = 'Cliente Não Encontrado - Cadastrar';
+                                // Cliente não existe - fechar SweetAlert e abrir modal automaticamente
+                                Swal.close();
+                                
+                                // Mostrar mensagem de cliente não encontrado
+                                await Swal.fire({
+                                    title: 'Cliente não encontrado',
+                                    text: `O ${cpfDigitado.length === 11 ? 'CPF' : 'CNPJ'} digitado não está cadastrado. Redirecionando para cadastro...`,
+                                    icon: 'info',
+                                    timer: 2000,
+                                    timerProgressBar: true,
+                                    showConfirmButton: false,
+                                    customClass: {
+                                        container: 'custom-swal',
+                                    }
+                                });
+                                
+                                setCpfCliente(cpfDigitado);
+                                if (cpfDigitado.length >= 14) {
+                                    setModalCadastroClienteCNPJVoucher(true);
+                                } else if (cpfDigitado.length == 11) {
+                                    setModalCadastroClienteCPFVoucher(true);
                                 }
+                                return;
                             }
                         } catch (error) {
-         
-                            const confirmButton = swalContainer.querySelector('.swal2-confirm');
-                            if (confirmButton) {
-                                confirmButton.style.backgroundColor = '#dc3545'; // Vermelho
-                                confirmButton.textContent = 'Erro na Consulta - Tentar Novamente';
+                            // Em caso de erro, também redirecionar automaticamente
+                            Swal.close();
+                            
+                            // Mostrar mensagem de cliente não encontrado
+                            await Swal.fire({
+                                title: 'Cliente não encontrado',
+                                text: `O ${cpfDigitado.length === 11 ? 'CPF' : 'CNPJ'} digitado não está cadastrado. Redirecionando para cadastro...`,
+                                icon: 'info',
+                                timer: 2000,
+                                timerProgressBar: true,
+                                showConfirmButton: false,
+                                customClass: {
+                                    container: 'custom-swal',
+                                }
+                            });
+                            
+                            setCpfCliente(cpfDigitado);
+                            if (cpfDigitado.length >= 14) {
+                                setModalCadastroClienteCNPJVoucher(true);
+                            } else if (cpfDigitado.length == 11) {
+                                setModalCadastroClienteCPFVoucher(true);
                             }
+                            return;
                         }
                     } else {
                         // CPF incompleto - resetar botão
@@ -261,11 +295,11 @@ export const useCriarVoucher = ({
                 const cpf = valorOriginal.replace(/\D/g, '');
                 
                 if (!cpf || cpf.length === 0) {
-                    return Swal.showValidationMessage('CPF é obrigatório');
+                    return Swal.showValidationMessage('CPF/CNPJ é obrigatório');
                 }
                 
-                if (cpf.length !== 11) {
-                    return Swal.showValidationMessage('CPF deve ter 11 dígitos');
+                if (cpf.length !== 11 && cpf.length !== 14) {
+                    return Swal.showValidationMessage('CPF deve ter 11 dígitos ou CNPJ deve ter 14 dígitos');
                 }
 
                 return cpf;
@@ -291,19 +325,51 @@ export const useCriarVoucher = ({
                         setOptionsCPF(clienteData); // Atualiza optionsCPF com os dados da API
                         await onSubmitVoucher(dadosCliente); // Passa os dados diretamente
                  
-                    } else {
-                        console.log('❌ Cliente não encontrado (array vazio) - abrindo modal cadastro');
+                    } else {                        
+                        // Mostrar mensagem de cliente não encontrado
+                        await Swal.fire({
+                            title: 'Cliente não encontrado',
+                            text: `O ${cpfConfirmado.length === 11 ? 'CPF' : 'CNPJ'} digitado não está cadastrado. Redirecionando para cadastro...`,
+                            icon: 'info',
+                            timer: 2000,
+                            timerProgressBar: true,
+                            showConfirmButton: false,
+                            customClass: {
+                                container: 'custom-swal',
+                            }
+                        });
+                        
                         setCpfCliente(cpfConfirmado);
-                        setModalCadastroClienteCPF(true);
+                        if (cpfConfirmado.length >= 14) {
+                            setModalCadastroClienteCNPJVoucher(true);
+                        } else if (cpfConfirmado.length == 11) {
+                            setModalCadastroClienteCPFVoucher(true);
+                        }
                     }
                 } else {
                     console.log('❌ Resposta da API inválida (sem response.data)');
                     throw new Error('Erro ao buscar dados do cliente');
                 }
-            } catch (error) {
-                console.log('❌ Erro na busca do cliente:', error);
+            } catch (error) {                
+                // Mostrar mensagem de cliente não encontrado
+                await Swal.fire({
+                    title: 'Cliente não encontrado',
+                    text: `O ${cpfConfirmado.length === 11 ? 'CPF' : 'CNPJ'} digitado não está cadastrado. Redirecionando para cadastro...`,
+                    icon: 'info',
+                    timer: 2000,
+                    timerProgressBar: true,
+                    showConfirmButton: false,
+                    customClass: {
+                        container: 'custom-swal',
+                    }
+                });
+                
                 setCpfCliente(cpfConfirmado);
-                setModalCadastroClienteCPF(true);
+                if (cpfConfirmado.length >= 14) {
+                    setModalCadastroClienteCNPJVoucher(true);
+                } else if (cpfConfirmado.length == 11) {
+                    setModalCadastroClienteCPFVoucher(true);
+                }
             }
         } else {
             console.log('❌ CPF não confirmado (usuário cancelou ou validação falhou)');

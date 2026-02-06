@@ -2,12 +2,12 @@ import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { Controller, useForm } from "react-hook-form"
-import { useCadastrarClienteCNPJ } from "../hooks/useCadastroClienteCNPJ"
 import { mascaraTelefone } from "../../../../../utils/mascaraTelefone"
 import Select from "react-select"
 import { schema } from "./schemaValidationCNPJ"
 import FormField from "../../../../Formularios/FormField"
 import { AlertError } from "../../../../Inputs/alertError"
+import { useCadastrarClienteCNPJVoucher } from "../hooks/useCadastroClienteCNPJVoucher"
 
 export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
@@ -63,7 +63,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
         setTelefoneComercial,
         optionsIndicacaoIE,
         onSubmit
-    } = useCadastrarClienteCNPJ({ usuarioLogado, optionsModulos, handleClose });
+    } = useCadastrarClienteCNPJVoucher({ usuarioLogado, optionsModulos, handleClose });
 
 
     const handleValidatedSubmit = async () => {

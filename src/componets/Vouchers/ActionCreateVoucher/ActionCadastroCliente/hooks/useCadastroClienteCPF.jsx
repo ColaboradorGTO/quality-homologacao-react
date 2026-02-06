@@ -71,7 +71,7 @@ async function getDadosEnderecoViaCep_API_redundancia(cep) {
 }
 
 
-export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose, onCpf }) => {
+export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose }) => {
     const [idCliente, setIdCliente] = useState('');
     const [tipo, setTipo] = useState('');
     const [dataCadastro, setDataCadastro] = useState('');
@@ -326,12 +326,8 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             handleClose();
             setCpf('');
             setCep('');
-           
-            await onCpf();
-        
             
             return response.data;
-
         } catch (error) {
             console.error("Erro ao processar cliente:", error);
 

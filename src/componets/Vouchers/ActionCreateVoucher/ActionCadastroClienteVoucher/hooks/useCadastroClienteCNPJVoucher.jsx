@@ -74,7 +74,7 @@ async function getDadosEnderecoViaCep_API_redundancia(cep) {
     }
 }
 
-export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleClose }) => {
+export const useCadastrarClienteCNPJVoucher = ({ usuarioLogado, optionsModulos, handleClose }) => {
     const [idCliente, setIdCliente] = useState('');
     const [tipo, setTipo] = useState('JURIDICA');
     const [dataCadastro, setDataCadastro] = useState('');
