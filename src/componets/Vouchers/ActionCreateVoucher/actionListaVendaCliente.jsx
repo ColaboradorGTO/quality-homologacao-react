@@ -456,7 +456,8 @@ export const ActionListaVendaCLiente = ({
         <Fragment>
           <div className="panel">
             <div className="panel-hdr">
-              <h2>Lista Vendas </h2>
+              <h2>Produtos Vendas </h2>
+              {console.log(dadosProdutosVenda[0])}
               {dadosProdutosVenda[0]?.diferenciaDias > 30 && (
                 <h2>
 

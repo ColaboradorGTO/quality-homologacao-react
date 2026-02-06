@@ -13,7 +13,7 @@ import { get } from '../../../../api/funcRequest';
 import { retornaDiasEntreDatas } from '../../../../utils/retornoEntreDias';
 import { Checkbox } from "primereact/checkbox";
 
-export const ActionListaVendaProduto = ({ dadosVoucher }) => {
+export const ActionListaVendaProduto = ({ dadosVoucher, tipoTroca = 'CORTESIA' }) => {
   const [dadosVisualizarProdutos, setDadosVisualizarProdutos] = useState([])
   const [tabelaPrincipal, setTabelaPrincipal] = useState(true);
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
@@ -24,7 +24,7 @@ export const ActionListaVendaProduto = ({ dadosVoucher }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
   
-
+  const DATAAUTORIZADA = tipoTroca === 'CORTESIA' ? 32 : 90;
 
   const onRowSelect = (row, checked) => {
     if (checked) {
@@ -196,41 +196,67 @@ export const ActionListaVendaProduto = ({ dadosVoucher }) => {
   }
   
 
-  const dadosProdutos = dadosVisualizarProdutos.flatMap((item) => {
+    const dadosProdutos = dadosVisualizarProdutos.flatMap((item) => {
     const { venda, detalhe } = item;
     
-    return detalhe.map((detalheItem, index) => {
-      const contadorIndex = index + 1;
-      return {
-
-        CPROD: detalheItem.det.CPROD,
-        IDVENDADETALHE: detalheItem.det.IDVENDADETALHE,
-        XPROD: detalheItem.det.XPROD,
-        NUCODBARRAS: detalheItem.det.NUCODBARRAS,
-        QTD: detalheItem.det.QTD,
-        VRTOTALLIQUIDO: detalheItem.det.VRTOTALLIQUIDO,
-        VUNTRIB: detalheItem.det.VUNTRIB,
-        VPROD: detalheItem.det.VPROD,
-        STTROCA: detalheItem.det.STTROCA,
-        VENDEDOR_MATRICULA: detalheItem.det.VENDEDOR_MATRICULA,
-        STCANCELADO: detalheItem.det.STCANCELADO,
-        contadorIndex: contadorIndex,
-
-      };
-    });
+    return detalhe
+      .filter(detalheItem => detalheItem.det.STCANCELADO === 'False') // ✅ Filtro produtos cancelados
+      .map((detalheItem, index) => {
+        const contadorIndex = index + 1;
+        const quantidade = Number(detalheItem.det.QTD);
+        const valorProd = Number(detalheItem.det.VRTOTALLIQUIDO);
+        const valorProdUnit = Number(detalheItem.det.VUNTRIB);
+        const valorTotalProdBruto = Number(detalheItem.det.VPROD);
+        const descontoProduto = valorProdUnit - valorProd;
+        
+        return {
+          CPROD: detalheItem.det.CPROD,
+          IDVENDADETALHE: detalheItem.det.IDVENDADETALHE,
+          XPROD: detalheItem.det.XPROD,
+          NUCODBARRAS: detalheItem.det.NUCODBARRAS,
+          QTD: quantidade,
+          VRTOTALLIQUIDO: valorProd,
+          VUNTRIB: valorProdUnit,
+          VPROD: valorTotalProdBruto,
+          STTROCA: detalheItem.det.STTROCA,
+          VENDEDOR_MATRICULA: detalheItem.det.VENDEDOR_MATRICULA,
+          STCANCELADO: detalheItem.det.STCANCELADO,
+          contadorIndex: contadorIndex,
+          // ✅ Campos adicionais para lógica de voucher
+          descontoProduto: descontoProduto,
+          idVenda: venda.IDVENDA,
+          cpfCnpjCliente: venda.DEST_CPF || venda.DEST_CNPJ || "",
+        };
+      });
   });
 
-  const dadosProdutosVenda = dadosVisualizarProdutos.flatMap((item) => {
-    let diferenciaDias;
-    return {
-      IDVENDA: item.venda.IDVENDA,
-      DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
-      diferenciaDias: diferenciaDias = retornaDiasEntreDatas(item.venda.DTHORAFECHAMENTOFORMATEUA),
-    };
+   const dadosProdutosVenda = dadosVisualizarProdutos.length > 0 ? {
+    IDVENDA: dadosVisualizarProdutos[0].venda.IDVENDA,
+    DTHORAFECHAMENTO: dadosVisualizarProdutos[0].venda.DTHORAFECHAMENTO,
+    diferenciaDias: retornaDiasEntreDatas(dadosVisualizarProdutos[0].venda.DTHORAFECHAMENTOFORMATEUA || dadosVisualizarProdutos[0].venda.DTHORAFECHAMENTO),
+  } : {};
 
-  });
+  const isProdutoForaDoPrazo = dadosProdutosVenda.diferenciaDias > DATAAUTORIZADA;
 
-
+  const validaQtdDigitada = (row, novaQuantidade) => {
+    const qtdOriginal = row.QTD;
+    const qtdDigitada = Number(novaQuantidade) || 0;
+    
+    if (qtdDigitada > 0 && qtdDigitada <= qtdOriginal) {
+      setQuantidade(prev => ({
+        ...prev,
+        [row.IDVENDADETALHE]: qtdDigitada
+      }));
+      return true;
+    } else {
+      alert(`Quantidade Inválida! Quantidade disponível: ${qtdOriginal}`);
+      setQuantidade(prev => ({
+        ...prev,
+        [row.IDVENDADETALHE]: qtdOriginal
+      }));
+      return false;
+    }
+  };
 
   const colunasVouchers2 = [
     {
@@ -240,15 +266,27 @@ export const ActionListaVendaProduto = ({ dadosVoucher }) => {
       sortable: true,
     },
     {
-      field: 'contadorIndex',
+      field: 'IDVENDADETALHE',
       header: 'Selecione',
-      body: row => (
-        <Checkbox 
-          onChange={e => onRowSelect(row, e.checked)} 
-          checked={selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex)} 
-          disabled={row.QTD <= 1}
-        />
-      ),
+      body: row => {
+        // ✅ CORREÇÃO: Lógica completa de disable do checkbox
+        const isJaTrocado = row.STTROCA === "True";
+        const isForaDoPrazo = isProdutoForaDoPrazo;
+        const isQuantidadeBaixa = row.QTD <= 1;
+        
+        return (
+          <Checkbox 
+            onChange={e => onRowSelect(row, e.checked)} 
+            checked={selectedRows.some(selectedRow => selectedRow.IDVENDADETALHE === row.IDVENDADETALHE)}
+            disabled={isJaTrocado || isForaDoPrazo}
+            title={
+              isJaTrocado ? "PRODUTO JÁ TROCADO" :
+              isForaDoPrazo ? `FORA DO PRAZO DE ${DATAAUTORIZADA} DIAS` :
+              ""
+            }
+          />
+        );
+      },
       sortable: true,
     },
     {
@@ -273,23 +311,24 @@ export const ActionListaVendaProduto = ({ dadosVoucher }) => {
       field: 'QTD',
       header: 'Quantidade',
       body: row => {
-        const isCheckboxChecked = selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex);
-         const isDisabled = !isCheckboxChecked || row.QTD > 1; 
+        const isCheckboxChecked = selectedRows.some(selectedRow => selectedRow.IDVENDADETALHE === row.IDVENDADETALHE);
+        const isDisabled = !isCheckboxChecked || row.QTD <= 1 || row.STTROCA === "True" || isProdutoForaDoPrazo;
+        const currentQtd = quantidade[row.IDVENDADETALHE] || row.QTD;
          
         return (
-
-          <div className="">
+          <div>
             <input 
               type="number" 
-              name="quantidadeProduto" 
-              value={row.QTD} 
-              style={{ width: '100px', textAlign: 'center' }} 
-              onChange={(e) => setQuantidade(e.target.value)} 
+              name="quantidadeProduto"
+              min="1"
+              max={row.QTD}
+              value={currentQtd}
+              style={{ width: '80px', textAlign: 'center' }} 
+              onChange={(e) => validaQtdDigitada(row, e.target.value)}
               disabled={isDisabled}
             />
-
           </div>
-        )
+        );
       },
       sortable: true,
     },
@@ -300,6 +339,8 @@ export const ActionListaVendaProduto = ({ dadosVoucher }) => {
       sortable: true,
     },
   ]
+
+
 
   return (
     <Fragment>
@@ -352,21 +393,30 @@ export const ActionListaVendaProduto = ({ dadosVoucher }) => {
         </div>
       )}
 
-      {tabelaSecundaria && (
+       {tabelaSecundaria && (
         <Fragment>
           <div className="panel">
             <div className="panel-hdr">
-              {dadosProdutosVenda[0].diferenciaDias > 30 && (
+              {/* ✅ CORREÇÃO: Mensagem completa de prazo */}
+              {isProdutoForaDoPrazo ? (
                 <h2>
-
-                  Produtos - Vendas {dadosProdutosVenda[0].IDVENDA} &nbsp; - &nbsp;
-                  <span style={{ color: '#fd3995' }}>
-                    Dias Passados Após a Compra <b><u>{dadosProdutosVenda[0].diferenciaDias} DIAS</u></b>
+                  <span className="fw-500">
+                    <i>Produtos - Venda: {dadosProdutosVenda.IDVENDA}</i>&nbsp;&nbsp;
+                    <i className="text-danger h4">
+                      Venda Fora do Prazo de <u><b>{DATAAUTORIZADA} DIAS</b></u> Para Troca do Tipo <u><b>{tipoTroca}</b></u>. 
+                      Dias Passados Após a Compra: <u><b>{dadosProdutosVenda.diferenciaDias} DIAS</b></u>
+                    </i>
+                  </span>
+                </h2>
+              ) : (
+                <h2>
+                  <span className="fw-500">
+                    <i>Produtos - Venda: {dadosProdutosVenda.IDVENDA}</i>
                   </span>
                 </h2>
               )}
-
             </div>
+            
             <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
               <HeaderTable
                 globalFilterValue={globalFilterValue}
@@ -375,37 +425,33 @@ export const ActionListaVendaProduto = ({ dadosVoucher }) => {
                 exportToExcel={exportToExcel}
                 exportToPDF={exportToPDF}
               />
-
             </div>
+            
             <div className="card">
-
               <DataTable
-                title="Vendas Voucher por Loja"
+                title="Produtos da Venda"
                 value={dadosProdutos}
                 globalFilter={globalFilterValue}
                 size={size}
                 sortOrder={-1}
-                selectionMode={rowClick ? null : 'checkbox'}
                 paginator={true}
                 rows={10}
                 rowsPerPageOptions={[10, 20, 50, 100, dadosProdutos.length]}
                 showGridlines
                 stripedRows
-                emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
+                emptyMessage={<div className="dataTables_empty">Não há Produtos Na Venda</div>}
               >
                 {colunasVouchers2.map(coluna => (
                   <Column
                     key={coluna.field}
                     field={coluna.field}
                     header={coluna.header}
-
                     body={coluna.body}
                     footer={coluna.footer}
                     sortable={coluna.sortable}
                     headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
                     footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
                     bodyStyle={{ fontSize: '0.8rem' }}
-
                   />
                 ))}
               </DataTable>
