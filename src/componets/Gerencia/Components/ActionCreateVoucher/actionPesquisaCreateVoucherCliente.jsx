@@ -341,6 +341,7 @@ export const ActionPesquisaCreateVoucherCliente = ({
         optionsModulos={optionsModulos}
         optionsCPF={optionsCPF}
         onCpf={onCpf}
+        isVoucherContext={true}
         refetchListaVouchers={refetchListaVouchers}
       />
 

@@ -101,16 +101,12 @@ export const ActionPesquisaCreateVoucherCliente = ({
   };
 
   const { data: dadosEmpresasVoucher = [], refetch: refetchListaEmpresaVouchers } = useQuery(
-    ['empresasVoucher', usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
-    () => fetchListaEmpresasVouchers(usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
-    {
-      enabled: true,
-    }
+    ['empresasVoucher',],
+    () => fetchListaEmpresasVouchers(),
+    { enabled: Boolean(usuarioLogado?.IDGRUPOEMPRESARIAL), staleTime: 60 * 60 * 1000 }
   );
 
-  useEffect(() => {
-    refetchListaEmpresaVouchers();
-  }, [usuarioLogado]);
+
 
   const fetchListaVendasClientes = async () => {
   
@@ -216,7 +212,8 @@ export const ActionPesquisaCreateVoucherCliente = ({
   const {
     optionsCPF,
     onCpf,
-    onAuthFuncionario,
+    onSubmitVoucher,
+    onAuthFuncionario
   } = useCriarVoucher({
     usuarioLogado,
     selectedRows,
@@ -350,6 +347,7 @@ export const ActionPesquisaCreateVoucherCliente = ({
         optionsModulos={optionsModulos}
         optionsCPF={optionsCPF}
         onCpf={onCpf}
+        isVoucherContext={true}
       />
   
       <ActionCadastroClienteVoucherCNPJ

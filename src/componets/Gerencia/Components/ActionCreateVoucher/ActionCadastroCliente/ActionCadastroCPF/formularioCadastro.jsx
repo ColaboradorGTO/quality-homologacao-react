@@ -10,7 +10,7 @@ import FormField from "../../../../../Formularios/FormField"
 import { schema } from "./schemaValidationCPF"
 
 
-export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf }) => {
+export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf, isVoucherContext = false }) => {
   const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
     mode: "onChange"
   });
@@ -54,7 +54,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
     setEstado,
     onSubmit,
     readOnlyCpf
-  } = useCadastrarClienteCPF({ usuarioLogado, optionsModulos, handleClose, onCpf });
+  } = useCadastrarClienteCPF({ usuarioLogado, optionsModulos, handleClose, onCpf, isVoucherContext });
 
   const fecharModal = () => {
     handleClose();

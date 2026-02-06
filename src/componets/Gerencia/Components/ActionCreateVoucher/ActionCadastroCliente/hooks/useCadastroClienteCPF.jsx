@@ -7,7 +7,7 @@ import axios from "axios";
 import { getDataAtual } from "../../../../../../utils/dataAtual";
 
 
-export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose, onCpf }) => {
+export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose, onCpf, isVoucherContext = false }) => {
     const [idCliente, setIdCliente] = useState('');
     const [tipo, setTipo] = useState('');
     const [dataCadastro, setDataCadastro] = useState('');
@@ -251,7 +251,9 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             handleClose();
             setCpf('');
             setCep('');
-            onCpf()
+            if (!isVoucherContext && onCpf && typeof onCpf === 'function') {
+                await onCpf();
+            }
             return responsePost.data;
 
         } catch (error) {

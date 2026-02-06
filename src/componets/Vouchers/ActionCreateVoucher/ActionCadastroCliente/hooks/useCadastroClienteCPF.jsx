@@ -71,7 +71,7 @@ async function getDadosEnderecoViaCep_API_redundancia(cep) {
 }
 
 
-export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose, onCpf }) => {
+export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose, onCpf, isVoucherContext = false }) => {
     const [idCliente, setIdCliente] = useState('');
     const [tipo, setTipo] = useState('');
     const [dataCadastro, setDataCadastro] = useState('');
@@ -239,7 +239,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             setCepDigitado(false); 
         }
     }, [optionsCPF]);
-    
+
     useEffect(() => {
         if (optionsCPF && optionsCPF.length > 0) {
             Swal.fire({
@@ -276,7 +276,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 IDEMPRESA: parseInt(usuarioLogado?.IDEMPRESA),
                 DSNOMERAZAOSOCIAL: nomeClienteRazao,
                 DSAPELIDONOMEFANTASIA: sobrenome,
-                TPCLIENTE: tipo,
+                TPCLIENTE: 'FISICA',
                 NUCPFCNPJ: cpfSemMascara,
                 NURGINSCESTADUAL: tipoIndicacaoIE == 2 ? 'ISENTO' : (tipoIndicacaoIE || 'ISENTO') || tipoIndicacaoIE == 9 ? 'FISICA' : 'FISICA',
                 NUINSCMUNICIPAL: IM,
@@ -326,7 +326,9 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             handleClose();
             setCpf('');
             setCep('');
-            // onCpf()
+            if (!isVoucherContext && onCpf && typeof onCpf === 'function') {
+                await onCpf();
+            }
             
             return response.data;
 

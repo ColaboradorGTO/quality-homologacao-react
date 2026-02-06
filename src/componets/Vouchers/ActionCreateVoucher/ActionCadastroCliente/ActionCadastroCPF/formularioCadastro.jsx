@@ -4,12 +4,12 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { useForm, Controller } from "react-hook-form"
 import { useCadastrarClienteCPF } from "../hooks/useCadastroClienteCPF"
 import { mascaraCPF } from "../../../../../utils/formatCPF"
-import { mascaraTelefone } from "../../../../../utils/mascaraTelefone"
+import { mascaraTelefone, removerMascaraTelefone } from "../../../../../utils/mascaraTelefone"
 import FormField from "../../../../Formularios/FormField"
 import { schema } from "./schemaValidationCPF"
 
 
-export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf }) => {
+export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf, isVoucherContext = false }) => {
   const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
     mode: "onChange"
   });
@@ -54,7 +54,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
     onSubmit,
     readOnlyCpf,
     setCepDigitado
-  } = useCadastrarClienteCPF({ usuarioLogado, optionsModulos, handleClose, onCpf });
+  } = useCadastrarClienteCPF({ usuarioLogado, optionsModulos, handleClose, onCpf, isVoucherContext });
 
     const fecharModal = () => {
     handleClose();
@@ -84,7 +84,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
         nomeCliente: nomeClienteRazao,
         sobrenomeCliente: sobrenome,
         dataNascimentoCliente: dataNascimento,
-        telefoneCliente: telefoneCliente,
+        telefoneDoCliente: removerMascaraTelefone(telefoneCliente),
         emailCliente: email,
         cepCliente: cep,
         enderecoCliente: endereco,
@@ -280,11 +280,11 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                 control={control}
                 render={({ field }) => (
                   <FormField
-                    name="TelefoneCliente"
+                    name="TelefoneDoCliente"
                     label={"Telefone"}
                     placeholder={"DIGITE O TELEFONE"}
                     type="text"
-                    id={"TelefoneCliente"}
+                    id={"TelefoneDoCliente"}
                     value={mascaraTelefone(telefoneCliente)}
                     onChange={(e) => setTelefoneCliente(e.target.value)}
                     errors={errors}

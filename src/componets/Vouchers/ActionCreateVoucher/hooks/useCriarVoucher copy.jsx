@@ -24,7 +24,7 @@ export const useCriarVoucher = ({
     const [motivoTroca, setMotivoTroca] = useState();
     const [modalCliente, setModalCliente] = useState(false);
     const [optionsCPF, setOptionsCPF] = useState([]);
-   
+   const [validaDados, setValidaDados] = useState([]);
 
     const getIPUsuario = async () => {
         try {
@@ -163,49 +163,8 @@ export const useCriarVoucher = ({
             setMotivoTroca(motivo);
 
             const cpf = dadosVisualizarProdutos[0]?.venda.DEST_CPF || dadosVisualizarProdutos[0]?.venda.DEST_CNPJ;
-            console.log('CPF obtido dos dados da venda:', dadosVisualizarProdutos[0]);
-            if (!cpf) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Erro',
-                    html: `
-                        <div>
-                            CPF do cliente não encontrado nos dados do produto.<br/><br/>
-                            <button id="btnCadastrarCliente" class="swal2-confirm swal2-styled" style="display:inline-block;">
-                                Cadastrar Cliente
-                            </button>
-                        </div>
-                    `,
-                    showConfirmButton: false,
-                    didOpen: () => {
-                        const btn = document.getElementById('btnCadastrarCliente');
-                        if (btn) {
-                            btn.addEventListener('click', () => {
-                                setModalCadastroClienteCPF(true);
-                                Swal.close();
-                            });
-                        }
-                    }
-                });
-            }
-
-            if (cpf) {
-                try {
-                    const response = await get(`/cliente-todos?numeroCpfCnpj=${cpf}`);
-
-                    setUsuarioAutorizado(prev => ({ ...prev, motivo, cpf }));
-                    setIsLoggedIn(true);
-                    setOptionsCPF(response.data);
-                    await onCpf(response.data);
-
-                } catch (error) {
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erro',
-                        text: `Erro ao buscar os dados do cliente: ${error.message}`,
-                    });
-                    // setModalCadastroClienteCPF(true);
-                }
+            if (cpf == '') {
+                await onCpf(callback, row);
             }
         }
 
@@ -213,7 +172,6 @@ export const useCriarVoucher = ({
 
     const onCpf = async (callback, response) => {
         const cpfVenda = optionsCPF?.[0]?.NUCPFCNPJ || '';
-
         const { value: cpfConfirmado } = await Swal.fire({
             title: 'Confirmar CPF do Cliente',
             html: `
@@ -224,10 +182,10 @@ export const useCriarVoucher = ({
                   class="swal2-input" 
                   placeholder="Digite o CPF para confirmar"  
                   style="text-align: center;"
-                  value="${mascaraCPF(cpfVenda)}"
-                  oninput="this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11)"
+                  value="${cpfVenda || ''}"
+                  maxlength="11"
                 >
-                <small class="fw-700 text-muted">CPF da venda: ${mascaraCPF(cpfVenda)}</small>
+                <small class="fw-700 text-muted">${cpfVenda ? `CPF da venda: ${mascaraCPF(cpfVenda)}` : 'Digite o CPF do cliente'}</small>
               </div>      
             `,
             width: '25rem',
@@ -235,11 +193,62 @@ export const useCriarVoucher = ({
             showCancelButton: true,
             confirmButtonText: 'Confirmar',
             cancelButtonText: 'Cancelar',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
             customClass: {
                 container: 'custom-swal',
             },
             didOpen: () => {
                 const swalContainer = Swal.getPopup();
+                const cpfInput = document.getElementById('cpf');
+                
+                // Se CPF estiver vazio, focar no input para facilitar digitação
+                if (!cpfVenda || cpfVenda === '') {
+                    cpfInput.focus();
+                }
+                
+                // Aplicar máscara de CPF em tempo real E verificar cliente automaticamente
+                cpfInput.addEventListener('input', async (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '').substring(0, 11);
+                    
+                    const cpfDigitado = e.target.value;
+                    if (cpfDigitado.length === 11) {
+                        try {
+                            const response = await get(`/cliente-todos?numeroCpfCnpj=${cpfDigitado}`)
+                            
+                            if (response && response.data && response.data.length > 0) {
+                                // Cliente existe - pode prosseguir
+                                const confirmButton = swalContainer.querySelector('.swal2-confirm');
+                                if (confirmButton) {
+                                    confirmButton.style.backgroundColor = '#28a745'; // Verde
+                                    confirmButton.textContent = 'Cliente Encontrado - Confirmar';
+                                }
+                            } else {
+                                // Cliente não existe - vai para modal de cadastro
+                                const confirmButton = swalContainer.querySelector('.swal2-confirm');
+                                if (confirmButton) {
+                                    confirmButton.style.backgroundColor = '#ffc107'; // Amarelo
+                                    confirmButton.textContent = 'Cliente Não Encontrado - Cadastrar';
+                                }
+                            }
+                        } catch (error) {
+         
+                            const confirmButton = swalContainer.querySelector('.swal2-confirm');
+                            if (confirmButton) {
+                                confirmButton.style.backgroundColor = '#dc3545'; // Vermelho
+                                confirmButton.textContent = 'Erro na Consulta - Tentar Novamente';
+                            }
+                        }
+                    } else {
+                        // CPF incompleto - resetar botão
+                        const confirmButton = swalContainer.querySelector('.swal2-confirm');
+                        if (confirmButton) {
+                            confirmButton.style.backgroundColor = '';
+                            confirmButton.textContent = 'Confirmar';
+                        }
+                    }
+                });
+                
                 swalContainer.addEventListener('keydown', (e) => {
                     if (e.key === 'Enter') {
                         Swal.clickConfirm();
@@ -247,15 +256,18 @@ export const useCriarVoucher = ({
                 });
             },
             preConfirm: () => {
-                const cpf = document.getElementById('cpf').value.replace(/\D/g, '');
+                const valorOriginal = document.getElementById('cpf').value;
 
+                const cpf = valorOriginal.replace(/\D/g, '');
+                
                 if (!cpf || cpf.length === 0) {
                     return Swal.showValidationMessage('CPF é obrigatório');
                 }
-
-                if (!validarCPF(cpf)) {
-                    return Swal.showValidationMessage('CPF inválido, verifique e tente novamente');
+                
+                if (cpf.length !== 11) {
+                    return Swal.showValidationMessage('CPF deve ter 11 dígitos');
                 }
+
                 return cpf;
             },
         });
@@ -263,37 +275,50 @@ export const useCriarVoucher = ({
         if (cpfConfirmado) {
             try {
                 const response = await get(`/cliente-todos?numeroCpfCnpj=${cpfConfirmado}`);
-             
+
                 if (response && response.data) {
                     const clienteData = response.data;
-
                     if (clienteData && clienteData.length > 0) {
+                        // Unificar dados do cliente em uma única fonte
+                        const dadosCliente = clienteData[0];
+                        
                         setUsuarioAutorizado(prev => ({
                             ...prev,
                             cpf: cpfConfirmado,
-                            clienteData: clienteData[0]
+                            clienteData: dadosCliente
                         }));
                         setCpfCliente(cpfConfirmado);
-                        setOptionsCPF(clienteData);
-
-                        await onSubmit();
+                        setOptionsCPF(clienteData); // Atualiza optionsCPF com os dados da API
+                        await onSubmitVoucher(dadosCliente); // Passa os dados diretamente
+                 
                     } else {
+                        console.log('❌ Cliente não encontrado (array vazio) - abrindo modal cadastro');
                         setCpfCliente(cpfConfirmado);
                         setModalCadastroClienteCPF(true);
                     }
                 } else {
+                    console.log('❌ Resposta da API inválida (sem response.data)');
                     throw new Error('Erro ao buscar dados do cliente');
                 }
             } catch (error) {
-                console.log('Erro na busca do cliente:', error);
+                console.log('❌ Erro na busca do cliente:', error);
                 setCpfCliente(cpfConfirmado);
                 setModalCadastroClienteCPF(true);
             }
+        } else {
+            console.log('❌ CPF não confirmado (usuário cancelou ou validação falhou)');
         }
 
     };
 
-    const onSubmit = async () => {
+    const onSubmitVoucher = async (dadosClienteParam = null) => {
+        // Determinar fonte dos dados do cliente (priorizar parâmetro, depois optionsCPF)
+        const dadosCliente = dadosClienteParam || optionsCPF?.[0];
+        setValidaDados(dadosCliente);
+        if (!dadosCliente) {
+            throw new Error('Dados do cliente não encontrados');
+        }
+        
         // Função para obter quantidade modificada ou original
         const getQuantidadeFinal = (contadorIndex, quantidadeOriginal) => {
             return quantidadesProdutos?.[contadorIndex] || quantidadeOriginal;
@@ -344,8 +369,8 @@ export const useCriarVoucher = ({
             IDNFEDEVOLUCAO: 0,
             IDUSRINVOUCHER: usuarioLogado?.id,
             IDVENDEDOR: dadosVisualizarProdutos[0]?.detalhe[0].det.VENDEDOR_MATRICULA,
-            IDCLIENTE: optionsCPF[0]?.IDCLIENTE,
-            NUCPF: optionsCPF[0]?.NUCPFCNPJ,
+            IDCLIENTE: dadosCliente?.IDCLIENTE,
+            NUCPF: dadosCliente?.NUCPFCNPJ,
             VRVOUCHER: Number(parseFloat(valorTotalVoucher).toFixed(2)),
             IDRESUMOVENDAWEB: dadosVisualizarProdutos[0]?.venda.IDVENDA,
             STTIPOTROCA: '',
@@ -356,49 +381,47 @@ export const useCriarVoucher = ({
 
         }
         try {
-
             if (!putData.IDCLIENTE) {
-                console.error('ERRO: IDCLIENTE não encontrado');
                 throw new Error('ID do cliente não foi encontrado');
             }
             
             if (!putData.NUCPF) {
-                console.error('ERRO: NUCPF não encontrado');
                 throw new Error('CPF do cliente não foi encontrado');
             }
             
             if (!putData.MOTIVOTROCA) {
-                console.error('ERRO: MOTIVOTROCA não encontrado');
                 throw new Error('Motivo da troca não foi informado');
             }
-        
-                const response = await post('/todos-web', putData)
-                
-                const textDados = JSON.stringify(putData)
-                let textoFuncao = 'VOUCHER /CADASTRO DE CLIENTE';
 
-                console.log('Preparando log da operação...');
-                const postData = {
-                    IDFUNCIONARIO: String(usuarioLogado.id),
-                    PATHFUNCAO: textoFuncao,
-                    DADOS: textDados,
-                    IP: ipUsuario
+
+            const response = await post('/todos-web', putData);
+            const textDados = JSON.stringify(putData)
+            let textoFuncao = 'VOUCHER /CADASTRO DE CLIENTE';
+            const ipUsuario = await getIPUsuario();
+            
+            const postData = {
+                IDFUNCIONARIO: String(usuarioLogado.id),
+                PATHFUNCAO: textoFuncao,
+                DADOS: textDados,
+                IP: ipUsuario
+            }
+
+            await post('/log-web', postData)
+            Swal.fire({
+                title: 'Cadastro',
+                text: 'Depósito cadastrado com Sucesso',
+                icon: 'success',
+                customClass: {
+                    container: 'custom-swal',
                 }
-
-                const responsePost = await post('/log-web', postData)
-                Swal.fire({
-                    title: 'Cadastro',
-                    text: 'Depósito cadastrado com Sucesso',
-                    icon: 'success',
-                    customClass: {
-                        container: 'custom-swal',
-                    }
-                })
-                handleClick()
-                return responsePost.data;
+            })
+            handleClick()
+            return response.data;
 
         } catch (error) {
-            let textoFuncao = 'VOUCHER /ERRO AO CADASTRAR CLIENTE';
+            
+            let textoFuncao = 'VOUCHER /ERRO AO CRIAR VOUCHER';
+            const ipUsuario = await getIPUsuario();
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
@@ -409,7 +432,7 @@ export const useCriarVoucher = ({
 
             Swal.fire({
                 title: 'Erro',
-                text: `Ocorreu um erro ao cadastrar o cliente: ${error.message}. Tente novamente.`,
+                text: `Ocorreu um erro ao criar o voucher: ${error.message}. Tente novamente.`,
                 icon: 'error',
                 customClass: {
                     container: 'custom-swal',
@@ -421,7 +444,7 @@ export const useCriarVoucher = ({
 
 
     return {
-        onSubmit,
+        onSubmitVoucher,
         onAuthFuncionario,
         optionsCPF,
         modalCliente,
@@ -431,16 +454,3 @@ export const useCriarVoucher = ({
         onCpf
     }
 }
-
-
-
-
-   /* 
-        1. na hora de criar um voucher,
-        2. selecionar o tipo de troca,
-        3. depois verificar se o cpf do usuario existe na api
-        4. senão abrir a modal de editar o cliente cpf ou cnpj
-        5. atualizar o cliente
-        6. depois de atualizar voltar para o swal do cpf ou cnpj para confirmar a criação do voucher
-    
-        */

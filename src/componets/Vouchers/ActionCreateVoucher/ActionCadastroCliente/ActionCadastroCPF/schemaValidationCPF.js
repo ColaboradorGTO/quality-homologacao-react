@@ -18,9 +18,9 @@ export const schema = yup.object({
     }),
   // dataNascimentoCliente: yup.string()
   //   .required("Data de nascimento é obrigatória"),
-  telefoneCliente: yup.string()
+  telefoneDoCliente: yup.string()
     .required('Telefone Obrigatório')
-    .matches(/^(\(?\d{2}\)?\s?)?(\d{4,5}\-?\d{4})$/, 'Numero de Telefone Inválido, verifique o TELEFONE e tente novamente!'),
+    .matches(/^(\(?\d{2}\)?\s?)?(\d{1}\s?\d{4}\-?\d{4}|\d{4,5}\-?\d{4})$/, 'Numero de Telefone Inválido, verifique o TELEFONE e tente novamente!'),
   emailCliente: yup.string()
     .email('Email inválido')
     .required('Email Obrigatório')
@@ -51,7 +51,7 @@ export const schema = yup.object({
       return value && value.length > 0;
     })
     .test('valid-format', 'Número deve começar com dígitos seguidos de letras ou símbolos', (value) => {
-      if (!value || value === 'SN') return true;
+      if (!value || value === 'SN' || value == 'sn') return true;
 
       return /^\d+[A-Za-z\-\/]*$/.test(value);
     })
