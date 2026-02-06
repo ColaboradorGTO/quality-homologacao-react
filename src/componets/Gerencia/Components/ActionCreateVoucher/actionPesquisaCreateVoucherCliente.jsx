@@ -216,6 +216,9 @@ export const ActionPesquisaCreateVoucherCliente = ({
     optionsCPF,
     onCpf,
     onAuthFuncionario,
+    onSubmitVoucher,
+    cpfCliente,
+    setCpfCliente
   } = useCriarVoucher({
     usuarioLogado,
     selectedRows,
@@ -340,8 +343,28 @@ export const ActionPesquisaCreateVoucherCliente = ({
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
         optionsCPF={optionsCPF}
-        onCpf={onCpf}
-        isVoucherContext={true}
+        onVoucherSuccess={async () => {
+          // Buscar dados atualizados do cliente após cadastro
+          try {
+            // Tenta pegar o CPF de diferentes fontes
+            const cpfParaBuscar = cpfCliente || 
+                                dadosVisualizarProdutos[0]?.venda?.DEST_CPF || 
+                                dadosVisualizarProdutos[0]?.venda?.DEST_CNPJ ||
+                                optionsCPF[0]?.NUCPFCNPJ;
+            
+            if (cpfParaBuscar) {
+              const response = await get(`/cliente-todos?numeroCpfCnpj=${cpfParaBuscar}`);
+              if (response && response.data && response.data.length > 0) {
+                // Continua o fluxo do voucher com os dados atualizados
+                await onSubmitVoucher(response.data[0]);
+              }
+            } else {
+              console.warn('CPF não encontrado para buscar dados do cliente');
+            }
+          } catch (error) {
+            console.error('Erro ao buscar cliente cadastrado:', error);
+          }
+        }}
         refetchListaVouchers={refetchListaVouchers}
       />
 

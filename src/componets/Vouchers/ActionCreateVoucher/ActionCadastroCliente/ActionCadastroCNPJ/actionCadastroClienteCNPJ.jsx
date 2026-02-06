@@ -1,11 +1,9 @@
-import { Fragment } from "react";
+import React, { Fragment } from "react";
 import Modal from 'react-bootstrap/Modal';
-import { HeaderModal } from "../../../../../Modais/HeaderModal/HeaderModal";
+import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { FormularioCadastro } from "./formularioCadastro";
 
-
-export const ActionCadastroClienteVoucherCPF = ({ show, handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf, onVoucherSuccess }) => {
-
+export const ActionCadastroClienteCNPJ = ({ show, handleClose, usuarioLogado, optionsModulos, }) => {
   return (
 
     <Fragment>
@@ -20,25 +18,20 @@ export const ActionCadastroClienteVoucherCPF = ({ show, handleClose, usuarioLoga
         aria-hidden="true"
       >
         <HeaderModal
-          title={"Cadastro do Cliente"}
+          title={"Cadastro do Cliente Jurídico"}
           subTitle={"Cadastro e atualização de dados do Cliente"}
           handleClose={handleClose}
         />
 
         <Modal.Body>
-
           <FormularioCadastro
             handleClose={handleClose}
             usuarioLogado={usuarioLogado}
             optionsModulos={optionsModulos}
-            optionsCPF={optionsCPF}
-            onCpf={onCpf}
-            onVoucherSuccess={onVoucherSuccess}
           />
-
         </Modal.Body>
-
       </Modal>
     </Fragment>
   )
+
 }

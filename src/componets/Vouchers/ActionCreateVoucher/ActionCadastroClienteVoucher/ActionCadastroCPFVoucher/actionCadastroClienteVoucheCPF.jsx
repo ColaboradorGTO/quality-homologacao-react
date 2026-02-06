@@ -1,10 +1,10 @@
-import { Fragment } from "react";
+import React, { Fragment } from "react";
 import Modal from 'react-bootstrap/Modal';
-import { HeaderModal } from "../../../../../Modais/HeaderModal/HeaderModal";
+import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { FormularioCadastro } from "./formularioCadastro";
 
 
-export const ActionCadastroClienteVoucherCPF = ({ show, handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf, onVoucherSuccess }) => {
+export const ActionCadastroClienteVoucherCPF = ({ show, handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf }) => {
 
   return (
 
@@ -33,7 +33,6 @@ export const ActionCadastroClienteVoucherCPF = ({ show, handleClose, usuarioLoga
             optionsModulos={optionsModulos}
             optionsCPF={optionsCPF}
             onCpf={onCpf}
-            onVoucherSuccess={onVoucherSuccess}
           />
 
         </Modal.Body>

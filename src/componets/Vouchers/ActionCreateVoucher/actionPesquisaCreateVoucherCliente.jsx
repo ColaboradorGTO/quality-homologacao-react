@@ -11,10 +11,11 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../utils/animationCarregamento";
 import { InputSelectAction } from "../../Inputs/InputSelectAction";
 import { ActionListaVendaCLiente } from "./actionListaVendaCliente";
-import { ActionCadastroClienteVoucherCPF } from "./ActionCadastroCliente/ActionCadastroCPF/actionCadastroClienteVoucheCPF";
-import { ActionCadastroClienteVoucherCNPJ } from "./ActionCadastroCliente/ActionCadastroCNPJ/actionCadastroClienteVoucheCNPJ";
+import { ActionCadastroClienteCPF } from "./ActionCadastroCliente/ActionCadastroCPF/actionCadastroClienteCPF";
+import { ActionCadastroClienteCNPJ } from "./ActionCadastroCliente/ActionCadastroCNPJ/actionCadastroClienteCNPJ";
+
 import Swal from "sweetalert2";
-import { useAuthFuncionarioCreate } from "../Hooks/useAuthFuncionarioCreate";
+// import { useAuthFuncionarioCreate } from "../Hooks/useAuthFuncionarioCreate";
 import { useCriarVoucher } from "./hooks/useCriarVoucher";
 
 export const ActionPesquisaCreateVoucherCliente = ({
@@ -35,6 +36,7 @@ export const ActionPesquisaCreateVoucherCliente = ({
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
   
   const [modalCadastroClienteCPF, setModalCadastroClienteCPF] = useState(false);
+  const [modalCadastroClienteCPFVoucher, setModalCadastroClienteCPFVoucher] = useState(false);
   const [modalCadastroClienteCNPJ, setModalCadastroClienteCNPJ] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
@@ -213,7 +215,8 @@ export const ActionPesquisaCreateVoucherCliente = ({
     optionsCPF,
     onCpf,
     onSubmitVoucher,
-    onAuthFuncionario
+    onAuthFuncionario,
+    
   } = useCriarVoucher({
     usuarioLogado,
     selectedRows,
@@ -340,17 +343,17 @@ export const ActionPesquisaCreateVoucherCliente = ({
         />
       )}
 
-      <ActionCadastroClienteVoucherCPF
+      <ActionCadastroClienteCPF
         show={modalCadastroClienteCPF}
         handleClose={() => setModalCadastroClienteCPF(false)}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
         optionsCPF={optionsCPF}
         onCpf={onCpf}
-        isVoucherContext={true}
+    
       />
   
-      <ActionCadastroClienteVoucherCNPJ
+      <ActionCadastroClienteCNPJ
         show={modalCadastroClienteCNPJ}
         handleClose={() => setModalCadastroClienteCNPJ(false)}
         usuarioLogado={usuarioLogado}
