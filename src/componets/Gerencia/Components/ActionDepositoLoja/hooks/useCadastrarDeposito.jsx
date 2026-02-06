@@ -4,6 +4,7 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { getDataAtual, getHoraAtual } from "../../../../../utils/dataAtual";
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
 
 export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
@@ -144,7 +145,7 @@ export const useCadastroDeposito = ({ handleClose, optionsModulos, usuarioLogado
       DTMOVIMENTOCAIXA: dataMovCaixa + " " + horarioAtual,
       DSHISTORIO: dsHistorio,
       NUDOCDEPOSITO: numeroDocDeposito,
-      VRDEPOSITO: parseFloat(valorDeposito),
+      VRDEPOSITO: removerFormatacaoMoeda(valorDeposito),
       STATIVO: 'True',
       STCANCELADO: 'False',
     }

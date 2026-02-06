@@ -72,7 +72,7 @@ export const ActionPesquisaConferenciaMalote = ({ usuarioLogado, ID }) => {
         }
     };
 
-    const { data: dadosMalotes = [], error: errorMalotes, isLoading: isLoadingMalotes, refetch } = useQuery(
+    const { data: dadosMalotes = [], error: errorMalotes, isLoading: isLoadingMalotes, refetch: refetch } = useQuery(
         ['malotes-por-loja', ],
         () => fetchListaMalotes(),
         { enabled: false, staleTime: 5 * 60 * 1000, }
@@ -91,7 +91,7 @@ export const ActionPesquisaConferenciaMalote = ({ usuarioLogado, ID }) => {
     ]
 
     const optionsStatus = [
-        { value: '0', label: 'Selecione um Status' },
+        { value: '', label: 'Selecione um Status' },
         { value: 'Pendente de Envio', label: 'Pendente de Envio' },
         { value: 'Enviado', label: 'Enviado' },
         { value: 'Recepcionado', label: 'Recepcionado' },
@@ -123,7 +123,7 @@ export const ActionPesquisaConferenciaMalote = ({ usuarioLogado, ID }) => {
                 InputSelectEmpresaComponent={InputSelectAction}
                 labelSelectEmpresa={"Status"}
                 optionsEmpresas={[
-                    { value: '0', label: 'Selecione...' },
+                    //{ value: '0', label: 'Selecione...' },
                     ...optionsStatus.map((item) => ({
                         value: item.value,
                         label: item.label,
@@ -146,7 +146,8 @@ export const ActionPesquisaConferenciaMalote = ({ usuarioLogado, ID }) => {
                     dadosMalotes={dadosMalotes} 
                     handleClick={handleClick}
                     usuarioLogado={usuarioLogado}
-                    optionsModulos={optionsModulos}    
+                    optionsModulos={optionsModulos}  
+                    refetch={refetch}  
                 />
             )}
         </Fragment>

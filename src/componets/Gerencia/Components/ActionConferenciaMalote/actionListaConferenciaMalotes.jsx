@@ -18,7 +18,7 @@ import { ActionDetalheMaloteModal } from "./ActionDetalheMalote/actionDetalheMal
 import { FaUpload } from "react-icons/fa";
 
 
-export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, usuarioLogado, optionsModulos }) => {
+export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, usuarioLogado, optionsModulos, refetch }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [salvarDadosMalotes, setSalvarDadosMalotes] = useState([]);
   const [dadosDetalhesMalote, setDadosDetalhesMalote] = useState([]);
@@ -28,7 +28,7 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, usuar
   const dataTableRef = useRef();
   const {
     onSalvarMalote
-  } = useEnviarMalote({ salvarDadosMalotes, handleClick, usuarioLogado, optionsModulos });
+  } = useEnviarMalote({ salvarDadosMalotes, handleClick, usuarioLogado, optionsModulos, refetch });
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -141,9 +141,6 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, usuar
       contador
     }
   });
-  
-  
-  // console.log(dados)
 
   const colunasMovimentoCixa = [
     {
@@ -305,11 +302,11 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, usuar
     },
   ]
 
-  const handleEnviarMalote = async (row) => {
+  const handleEnviarMalote =  (row) => {
     if (optionsModulos[0]?.CRIAR == 'True') {
       if (row) {
         setSalvarDadosMalotes(row);
-        await onSalvarMalote(salvarDadosMalotes);
+         onSalvarMalote(row);
       }
     } else {
       Swal.fire({

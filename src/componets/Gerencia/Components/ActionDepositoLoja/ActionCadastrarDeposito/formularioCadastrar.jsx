@@ -8,6 +8,7 @@ import { useCadastroDeposito } from "../hooks/useCadastrarDeposito";
 import FormField from "../../../../Formularios/FormField";
 import { AlertError } from "../../../../Inputs/alertError";
 import { schema } from "./schemaValidacaocadastroDeposito";
+import { formatarMoeda } from "../../../../../utils/formatMoeda";
 
 export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado, handleClick }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError } = useForm({
@@ -197,7 +198,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                         type="number"
                                         readOnly={false}
                                         value={valorDeposito}
-                                        onChange={(e) => setValorDeposito(e.target.value)}
+                                        onChange={(e) => setValorDeposito(formatarMoeda(e.target.value))}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />

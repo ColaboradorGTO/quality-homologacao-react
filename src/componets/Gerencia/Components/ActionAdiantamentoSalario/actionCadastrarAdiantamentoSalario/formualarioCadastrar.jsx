@@ -9,6 +9,7 @@ import FormField from "../../../../Formularios/FormField";
 import { AlertError } from "../../../../Inputs/alertError";
 import { schema } from "./schemaActionsCadastrarAdiantamento";
 import { mascaraValor } from "../../../../../utils/mascaraValor";
+import { formatarMoeda } from "../../../../../utils/formatMoeda";
 
 export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError } = useForm({
@@ -181,7 +182,7 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                                             readOnly={false}
                                             value={valorDesconto}
                                             placeholder="R$ 0,00"
-                                            onChange={(e) => setValorDesconto(e.target.value)}
+                                            onChange={(e) => setValorDesconto(formatarMoeda(e.target.value))}
                                             errors={errors}
                                             clearErrors={clearErrors}
                                         />
