@@ -85,7 +85,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
         sobrenomeCliente: sobrenome,
         dataNascimentoCliente: dataNascimento,
         telefoneDoCliente: removerMascaraTelefone(telefoneCliente),
-        // emailCliente: email,
+        emailCliente: email,
         cepCliente: cep,
         enderecoCliente: endereco,
         numeroEnderecoCliente: numero,
@@ -307,7 +307,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="email"
                     id={"email"}
                     value={email}
-                    onChange={(e) => setEmail(e.target.value.toUpperCase())}
+                    onChange={(e) => setEmail(e.target.value)} 
                     errors={errors}
                     clearErrors={clearErrors}
                   />

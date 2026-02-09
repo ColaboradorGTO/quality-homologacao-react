@@ -1,5 +1,6 @@
 import * as yup from "yup";
 import { validarCPF } from "../../../../../utils/formatCPF";
+import { validaEmail } from "../../../../../utils/validaEmail"; // Importar sua função
 
 export const schema = yup.object({
   cpfCliente: yup.string()
@@ -27,7 +28,10 @@ export const schema = yup.object({
     .required('Telefone Obrigatório')
     .matches(/^(\(?\d{2}\)?\s?)?(\d{1}\s?\d{4}\-?\d{4}|\d{4,5}\-?\d{4})$/, 'Numero de Telefone Inválido, verifique o TELEFONE e tente novamente!'),
   emailCliente: yup.string()
-  .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'E-mail Inválido, verifique o E-MAIL e tente novamente!'),
+    .test('email-valido', 'E-mail Inválido, verifique o E-MAIL e tente novamente!', (value) => {
+      if (!value || value.length === 0) return true; // Email opcional
+      return validaEmail(value);
+    }),
   // .email('Email inválido')
     // .required('Email Obrigatório')
   cepCliente: yup.string()

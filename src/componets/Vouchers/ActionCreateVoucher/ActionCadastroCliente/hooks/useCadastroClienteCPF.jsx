@@ -136,9 +136,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         if (cep.length >= 7 && cepDigitado && optionsCPF.length >= 0) {
             getCEP();
         }
-        console.log(cep, 'cep use')
-        console.log(cepDigitado, 'cepDigitado use')
-        console.log('optionsCPF.length:', optionsCPF.length, 'optionsCPF:', optionsCPF);
+
     }, [cep, cepDigitado, optionsCPF]);
 
     const getCEP = async () => {
@@ -159,7 +157,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
 
            
             let response = await getDadosEnderecoViaCep_API_externa(cep);
-            console.log(response, 'response cep')
+           
          
             if (response.status !== 200) {
                 console.log('API principal falhou, tentando API de redundância...');
