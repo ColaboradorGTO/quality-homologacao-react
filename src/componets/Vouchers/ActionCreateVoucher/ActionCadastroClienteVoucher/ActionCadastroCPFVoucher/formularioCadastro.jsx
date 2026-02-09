@@ -356,6 +356,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                   />
                 )}
               />
+            
             </div>
             <div className="col-sm-4 cold-md-4 col-xl-4">
 

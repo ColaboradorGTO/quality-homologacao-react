@@ -133,9 +133,12 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
 
     useEffect(() => {
         // Só busca CEP se o usuário não existir no banco e CEP foi digitado manualmente
-        if (cep.length === 8 && cepDigitado && optionsCPF.length === 0) {
+        if (cep.length >= 7 && cepDigitado && optionsCPF.length >= 0) {
             getCEP();
         }
+        console.log(cep, 'cep use')
+        console.log(cepDigitado, 'cepDigitado use')
+        console.log('optionsCPF.length:', optionsCPF.length, 'optionsCPF:', optionsCPF);
     }, [cep, cepDigitado, optionsCPF]);
 
     const getCEP = async () => {
@@ -156,7 +159,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
 
            
             let response = await getDadosEnderecoViaCep_API_externa(cep);
-            
+            console.log(response, 'response cep')
          
             if (response.status !== 200) {
                 console.log('API principal falhou, tentando API de redundância...');
@@ -278,7 +281,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 DSAPELIDONOMEFANTASIA: sobrenome,
                 TPCLIENTE: 'FISICA',
                 NUCPFCNPJ: cpfSemMascara,
-                NURGINSCESTADUAL: tipoIndicacaoIE == 2 ? 'ISENTO' : (tipoIndicacaoIE || 'ISENTO') || tipoIndicacaoIE == 9 ? 'FISICA' : 'FISICA',
+                NURGINSCESTADUAL: tipoIndicacaoIE == 2 ? 'ISENTO' : (tipoIndicacaoIE || 'ISENTO') || tipoIndicacaoIE == 9 ? 'ISENTO' : 'ISENTO',
                 NUINSCMUNICIPAL: IM,
                 NUCEP: cep.replace(/\D/g, ""),
                 NUIBGE: parseInt(nuIBGE),

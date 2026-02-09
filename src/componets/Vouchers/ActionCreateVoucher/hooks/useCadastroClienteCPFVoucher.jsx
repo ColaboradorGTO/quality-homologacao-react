@@ -136,6 +136,7 @@ export const useCadastrarClienteCPFVoucher = ({ usuarioLogado, optionsModulos, h
         if (cep.length === 8 && cepDigitado && optionsCPF.length === 0) {
             getCEP();
         }
+      
     }, [cep, cepDigitado, optionsCPF]);
 
     const getCEP = async () => {
