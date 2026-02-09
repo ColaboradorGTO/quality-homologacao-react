@@ -346,7 +346,7 @@ export const ActionListaVendaCLiente = ({
       header: 'Quantidade',
       body: row => {
         const isCheckboxChecked = selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex);
-        const isDisabled = isCheckboxChecked;
+        const isDisabled = row.STTROCA == "True" || row.QTD <= 1 || isCheckboxChecked;
         const quantidadeAtual = getQuantidadeProduto(row.contadorIndex, row.QTD);
 
         return (
