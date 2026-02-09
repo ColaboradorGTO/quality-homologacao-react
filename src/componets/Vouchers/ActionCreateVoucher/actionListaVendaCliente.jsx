@@ -249,7 +249,7 @@ export const ActionListaVendaCLiente = ({
   }
 
   const handleMostrarProdutos = (dadosVenda) => {
-    setDadosVisualizarProdutos([dadosVenda]); 
+    setDadosVisualizarProdutos([dadosVenda]);
     setTabelaVenda(false);
     setTabelaSecundaria(true);
   };
@@ -376,8 +376,9 @@ export const ActionListaVendaCLiente = ({
   ]
 
   const isSelectable = (data) => {
-    return !data.disabled; 
+    return !data.disabled;
   };
+
   const isRowSelectable = (event) => (event.data ? isSelectable(event.data) : true);
   const rowClassName = (data) => (isSelectable(data) ? '' : 'p-disabled');
 
@@ -391,7 +392,15 @@ export const ActionListaVendaCLiente = ({
       todosTrocados: produtosAtivos.length > 0 && produtosTrocados.length === produtosAtivos.length
     };
   };
+
   const produtosInfo = calcularProdutosTrocados(dadosProdutos);
+
+  const calcularDataAutorizada = (tipoTroca) => {
+    return tipoTroca === 'CORTESIA' ? 32 : 90;
+  };
+
+  const dataAutorizada = calcularDataAutorizada(tipoTrocaSelecionada || 'DEFEITO');
+
 
   return (
     <Fragment>
@@ -459,17 +468,19 @@ export const ActionListaVendaCLiente = ({
                     <i className="text-danger h4">Todos os Produtos Desta Venda Já Foram Trocados</i>
                   </span>
                 </h2>
-              ) : (
-                <h2>Produtos Vendas</h2>
-              )}
-
-              {dadosProdutosVenda[0]?.diferenciaDias > 30 && !produtosInfo.todosTrocados && (
+              ) : dadosProdutosVenda[0]?.diferenciaDias > calcularDataAutorizada(tipoTrocaSelecionada || 'DEFEITO') ? (
                 <h2>
-                  Produtos - Vendas {dadosProdutosVenda[0]?.IDVENDA} &nbsp; - &nbsp;
-                  <span style={{ color: '#fd3995' }}>
-                    Dias Passados Após a Compra <b><u>{dadosProdutosVenda[0]?.diferenciaDias} DIAS</u></b>
+                  <span className="fw-500">
+                    <i>Produtos - Venda: {dadosProdutosVenda[0]?.IDVENDA}</i>
+                    &nbsp;&nbsp;
+                    <i className="text-danger h4">
+                      Venda Fora do Prazo de <u><b>{calcularDataAutorizada(tipoTrocaSelecionada || 'DEFEITO')} DIAS</b></u> Para Troca do Tipo <u><b>{tipoTrocaSelecionada || 'DEFEITO'}</b></u>.
+                      Dias Passados Após a Compra: <u><b>{dadosProdutosVenda[0]?.diferenciaDias} DIAS</b></u>
+                    </i>
                   </span>
                 </h2>
+              ) : (
+                <h2>Produtos Vendas</h2>
               )}
             </div>
 
