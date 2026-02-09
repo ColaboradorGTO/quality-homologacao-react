@@ -25,9 +25,11 @@ export const schema = yup.object().shape({
             return /^[A-Za-zÀ-ÿ\s]+$/.test(value);
         }),
     emailCliente: yup.string()
-        .email('Email inválido')
-        .required('Email Obrigatório')
-        .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'E-mail Inválido, verifique o E-MAIL e tente novamente!'),
+        .test('email-valido', 'E-mail Inválido', (value) => {
+        if (!value || value.length === 0) return true;
+            return validaEmail(value);
+        }),
+    
     telefone: yup.string()
         .required('Telefone Obrigatório')
         .matches(/^(\(?\d{2}\)?\s?)?(\d{4,5}\-?\d{4})$/, 'Numero de Telefone Inválido, verifique o TELEFONE e tente novamente!'),
