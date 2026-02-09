@@ -261,7 +261,7 @@ export const ActionListaVendaCLiente = ({
     setDadosVisualizarProdutos([dadosVenda]); // Mantém como array para compatibilidade
     setTabelaVenda(false);
     setTabelaSecundaria(true);
-};
+  };
 
   const handleDetalhar = async (IDVENDA) => {
     try {
@@ -396,7 +396,18 @@ export const ActionListaVendaCLiente = ({
 
   const rowClassName = (data) => (isSelectable(data) ? '' : 'p-disabled');
 
+  const calcularProdutosTrocados = (dadosProdutos) => {
+    const produtosAtivos = dadosProdutos.filter(produto => produto.STCANCELADO === 'False');
+    const produtosTrocados = produtosAtivos.filter(produto => produto.STTROCA === 'True');
 
+    return {
+      qtdTotalProdutos: produtosAtivos.length,
+      qtdItensTrocados: produtosTrocados.length,
+      todosTrocados: produtosAtivos.length > 0 && produtosTrocados.length === produtosAtivos.length
+    };
+  };
+
+  const produtosInfo = calcularProdutosTrocados(dadosProdutos);
   return (
     <Fragment>
       {tabelaVenda && (
@@ -451,23 +462,31 @@ export const ActionListaVendaCLiente = ({
           </div>
         </div>
       )}
-        
+
       {tabelaSecundaria && (
         <Fragment>
           <div className="panel">
             <div className="panel-hdr">
-              <h2>Produtos Vendas </h2>
-              {console.log(dadosProdutosVenda[0])}
-              {dadosProdutosVenda[0]?.diferenciaDias > 30 && (
+              {produtosInfo.todosTrocados ? (
                 <h2>
+                  <span className="fw-500 todosTrocados">
+                    <i>Produtos _ Venda: {dadosProdutosVenda[0]?.IDVENDA}</i>
+                    &nbsp;&nbsp;
+                    <i className="text-danger h4">Todos os Produtos Desta Venda Já Foram Trocados</i>
+                  </span>
+                </h2>
+              ) : (
+                <h2>Produtos Vendas</h2>
+              )}
 
+              {dadosProdutosVenda[0]?.diferenciaDias > 30 && !produtosInfo.todosTrocados && (
+                <h2>
                   Produtos - Vendas {dadosProdutosVenda[0]?.IDVENDA} &nbsp; - &nbsp;
                   <span style={{ color: '#fd3995' }}>
                     Dias Passados Após a Compra <b><u>{dadosProdutosVenda[0]?.diferenciaDias} DIAS</u></b>
                   </span>
                 </h2>
               )}
-
             </div>
             <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
               <HeaderTable
@@ -490,7 +509,7 @@ export const ActionListaVendaCLiente = ({
                 sortOrder={-1}
                 selectionMode={rowClick ? null : 'checkbox'}
 
-                
+
                 selection={rowClick}
                 onSelectionChange={(e) => setRowClick(e.value)}
                 paginator={true}
