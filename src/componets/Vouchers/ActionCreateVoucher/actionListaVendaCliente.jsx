@@ -144,7 +144,6 @@ export const ActionListaVendaCLiente = ({
     {
       field: 'IDVENDA',
       header: 'Nº Venda',
-      // body: row => <th style={{color: 'blue'}}>{ocultaParteDosDadosVoucher(row.NUVOUCHER)}</th>,
       body: row => <th style={{ color: 'blue' }}>{row.IDVENDA}</th>,
       sortable: true,
     },
@@ -232,11 +231,6 @@ export const ActionListaVendaCLiente = ({
         if (row.IDVENDA) {
           handleDetalhar(row.IDVENDA)
         }
-
-        // const dadosVenda = dadosVendasClientes.find(item => item.venda.IDVENDA === row.IDVENDA);
-        // if (dadosVenda) {
-        //   handleMostrarProdutos(dadosVenda);
-        // }
       }
     });
 
@@ -255,10 +249,7 @@ export const ActionListaVendaCLiente = ({
   }
 
   const handleMostrarProdutos = (dadosVenda) => {
-    // Usar os dados já disponíveis em vez de fazer GET
-    console.log(dadosVenda);
-
-    setDadosVisualizarProdutos([dadosVenda]); // Mantém como array para compatibilidade
+    setDadosVisualizarProdutos([dadosVenda]); 
     setTabelaVenda(false);
     setTabelaSecundaria(true);
   };
@@ -385,15 +376,9 @@ export const ActionListaVendaCLiente = ({
   ]
 
   const isSelectable = (data) => {
-    // Coloque aqui a MESMA condição que você usa no disabled do checkbox
-    // Exemplo: return data.SALDO > 0 && data.STATUS !== 'CANCELADO';
-    return !data.disabled; // ou qualquer condição que você usar
+    return !data.disabled; 
   };
-
-
   const isRowSelectable = (event) => (event.data ? isSelectable(event.data) : true);
-
-
   const rowClassName = (data) => (isSelectable(data) ? '' : 'p-disabled');
 
   const calcularProdutosTrocados = (dadosProdutos) => {
@@ -406,8 +391,8 @@ export const ActionListaVendaCLiente = ({
       todosTrocados: produtosAtivos.length > 0 && produtosTrocados.length === produtosAtivos.length
     };
   };
-
   const produtosInfo = calcularProdutosTrocados(dadosProdutos);
+
   return (
     <Fragment>
       {tabelaVenda && (
@@ -423,8 +408,8 @@ export const ActionListaVendaCLiente = ({
               exportToExcel={exportToExcel}
               exportToPDF={exportToPDF}
             />
-
           </div>
+
           <div className="card" ref={dataTableRef}>
             <DataTable
               title="Vouchers "
@@ -447,7 +432,6 @@ export const ActionListaVendaCLiente = ({
                   key={coluna.field}
                   field={coluna.field}
                   header={coluna.header}
-
                   body={coluna.body}
                   footer={coluna.footer}
                   sortable={coluna.sortable}
@@ -488,6 +472,7 @@ export const ActionListaVendaCLiente = ({
                 </h2>
               )}
             </div>
+
             <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
               <HeaderTable
                 globalFilterValue={globalFilterValue}
@@ -496,10 +481,9 @@ export const ActionListaVendaCLiente = ({
                 exportToExcel={exportToExcel}
                 exportToPDF={exportToPDF}
               />
-
             </div>
-            <div className="card" ref={dataTableRef}>
 
+            <div className="card" ref={dataTableRef}>
               <DataTable
                 key={"IDVENDA"}
                 title="Vendas Voucher por Loja"
@@ -508,8 +492,6 @@ export const ActionListaVendaCLiente = ({
                 size="small"
                 sortOrder={-1}
                 selectionMode={rowClick ? null : 'checkbox'}
-
-
                 selection={rowClick}
                 onSelectionChange={(e) => setRowClick(e.value)}
                 paginator={true}
@@ -526,7 +508,6 @@ export const ActionListaVendaCLiente = ({
                     key={coluna.field}
                     field={coluna.field}
                     header={coluna.header}
-
                     body={coluna.body}
                     footer={coluna.footer}
                     sortable={coluna.sortable}
