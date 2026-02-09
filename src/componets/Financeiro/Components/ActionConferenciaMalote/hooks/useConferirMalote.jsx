@@ -112,10 +112,64 @@ export const useConferirMalote = ({
             container: 'custom-swal',
           },
         });
+        /* 
+          nescessário voltar daqui e entender o
+          por que deste campo OBSERVACAOLOJA está sendo enviar já que em homologacao não está sendo enviado assim como exemplo abaixo
+
+          [
+            {
+                "IDMALOTE": 31,
+                "STATUS": "Conferido",
+                "OBSERVACAOADMINISTRATIVO": "TESTE MYLTIANE HML",
+                "PENDENCIAS": [
+                    {
+                        "IDPENDENCIA": 6
+                    },
+                    {
+                        "IDPENDENCIA": 7
+                    }
+                ],
+                "IDUSERULTIMAALTERACAO": 30514
+            }
+          ]
+
+          e assim está sendo enviado atualmente: no react
+          {
+    "IDMALOTE": 31,
+    "STATUS": "Conferência",
+    "OBSERVACAOADMINISTRATIVO": "myltiane teste ",
+    "PENDENCIAS": [
+        {
+            "IDPENDENCIA": 6
+        },
+        {
+            "IDPENDENCIA": 7
+        }
+    ],
+    "IDUSERULTIMAALTERACAO": 30514,
+    "OBSERVACAOLOJA": true
+}
+ este segundo aqui deu certo depois que no envio da api coloquei entre []
+{
+    "IDMALOTE": 31,
+    "STATUS": "Conferência",
+    "OBSERVACAOADMINISTRATIVO": "myltiane teste react",
+    "PENDENCIAS": [
+        {
+            "IDPENDENCIA": 6
+        },
+        {
+            "IDPENDENCIA": 7
+        }
+    ],
+    "IDUSERULTIMAALTERACAO": 30514,
+    "OBSERVACAOLOJA": true
+}
+        */
         
         if (observacao) {
           putData.OBSERVACAOLOJA = observacao; 
-          
+        
           try {
             const response = await put(`/malotes-loja/:id`, putData);
   
