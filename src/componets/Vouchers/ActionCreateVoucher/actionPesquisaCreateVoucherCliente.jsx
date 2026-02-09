@@ -193,20 +193,17 @@ export const ActionPesquisaCreateVoucherCliente = ({
 
 
   const handleClick = () => {
-
-    setCurrentPage(+1);
-    // refetchListaVouchers()
     setTabelaVisivel(true);
     setTabelaVendasClientes(false);
     setTabelaVisivelVoucherSelecionados(false);
     setActionPrincipal(true);
-    setActionSecundaria(false);
-
+    setActionSecundaria(false); 
   }
-
-
+  
+  
   const handleClickClientes = () => {
     setTabelaVendasClientes(true);
+    setTabelaVenda(true);
     setTabelaSecundaria(false);
     setTabelaVisivel(false);
     setTabelaVisivelVoucherSelecionados(false);
@@ -346,7 +343,7 @@ export const ActionPesquisaCreateVoucherCliente = ({
           setTabelaVenda={setTabelaVenda}
         />
       )}
-
+      {console.log(tabelaVendasClientes, 'tabelaVendasClientes render'  )}
       <ActionCadastroClienteCPF
         show={modalCadastroClienteCPF}
         handleClose={() => setModalCadastroClienteCPF(false)}
