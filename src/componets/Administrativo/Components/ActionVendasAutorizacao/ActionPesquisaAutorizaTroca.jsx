@@ -6,10 +6,10 @@ import { ButtonType } from "../../../Buttons/ButtonType";
 import { AiOutlineSearch } from "react-icons/ai";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
-// import { ActionListaVendasVouchers } from "./actionListaVendasVouchers";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
+import { ActionListaVendasAutorizarTroca } from "./actionListaVendasAutorizarTroca";
 
 
 export const ActionPesquisaAutorizaTroca = () => {
@@ -61,9 +61,9 @@ export const ActionPesquisaAutorizaTroca = () => {
   }, [marcaSelecionada, refetchEmpresas]);
 
 
-  const fetchListaVendasVendedor = async ( ) => {
+  const fetchListaVendasPrazoExcedido = async ( ) => {
     
-    const urlBase = `/lista-venda-cliente?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpfNumeroVenda}&nff=${numeroNFCE}&serie=${numeroSerie}&idSubGrupoEmpresarial=${marcaSelecionada}&idEmpresa=${empresaSelecionada}`;    
+    const urlBase = `/vendas-prazo-excedido?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpfNumeroVenda}&nff=${numeroNFCE}&serie=${numeroSerie}&idSubGrupoEmpresarial=${marcaSelecionada}&idEmpresa=${empresaSelecionada}`;    
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -96,10 +96,10 @@ export const ActionPesquisaAutorizaTroca = () => {
   };
    
 
-  const { data: dadosVendasClientes = [], error: errorVendasVendedor, isLoading: isLoadingVendasVendedor, refetch: refetchListaVendasVendedor } = useQuery(
-    ['lista-venda-cliente', ],
-    () => fetchListaVendasVendedor(),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 30 * 60 * 1000 }
+  const { data: dadosVendasPrazoExcedido = [], error: errorVendasPrazoExcedido, isLoading: isLoadingVendasPrazoExcedido, refetch: refetchListaVendasPrazoExcedido } = useQuery(
+    ['vendas-prazo-excedido', ],
+    () => fetchListaVendasPrazoExcedido(),
+    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   )
 
   const handleSelectGrupo = (e) => {
@@ -204,15 +204,15 @@ export const ActionPesquisaAutorizaTroca = () => {
 
       />
 
-      {/* <ActionListaVendasVouchers 
-        dadosVendasClientes={dadosVendasClientes} 
+      <ActionListaVendasAutorizarTroca 
+        dadosVendasPrazoExcedido={dadosVendasPrazoExcedido} 
         setTabelaPrincipal={setTabelaPrincipal}
         setTabelaSecundaria={setTabelaSecundaria}  
         tabelaPrincipal={tabelaPrincipal}
         tabelaSecundaria={tabelaSecundaria}
         setBtnVisivel={setBtnVisivel}
 
-      /> */}
+      />
     
       
     </Fragment>

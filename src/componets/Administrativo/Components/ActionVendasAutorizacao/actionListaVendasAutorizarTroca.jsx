@@ -14,7 +14,7 @@ import * as XLSX from 'xlsx';
 import { retornaDiasEntreDatas } from "../../../../utils/retornoEntreDias";
 
 export const ActionListaVendasAutorizarTroca = ({ 
-  dadosVendasClientes, 
+  dadosVendasPrazoExcedido, 
   tabelaPrincipal,
   setTabelaPrincipal,
   tabelaSecundaria,
@@ -80,7 +80,7 @@ export const ActionListaVendasAutorizarTroca = ({
 
 
 
-  const dados = dadosVendasClientes.map((item, index) => {
+  const dados = dadosVendasPrazoExcedido.map((item, index) => {
     let contador = index + 1;
     let diasAposCompra;
     let stCortesia;
