@@ -33,6 +33,7 @@ const ActionPesquisaVendas = lazy(() => import("../componets/Administrativo/Comp
 const ActionPesquisaVendasVouchers = lazy(() => import("../componets/Administrativo/Components/ActionVendasVouchers/actionPesquisaVendasVouchers").then(module => ({ default: module.ActionPesquisaVendasVouchers })));
 const ActionPesquisaConsultaVouchers = lazy(() => import("../componets/Administrativo/Components/ActionConsultaVoucher/actionPesquisaConsultaVouchers").then(module => ({ default: module.ActionPesquisaConsultaVouchers })));
 const ActionPesquisaVoucherResumido = lazy(() => import("../componets/Administrativo/Components/ActionVoucherResumido/actionPesquisaVoucherResumido").then(module => ({ default: module.ActionPesquisaVoucherResumido })));
+const ActionPesquisaAutorizaTroca = lazy(() => import("../componets/Administrativo/Components/ActionVendasAutorizacao/ActionPesquisaAutorizaTroca").then(module => ({ default: module.ActionPesquisaAutorizaTroca })));
 
 export const DashBoardAdministrativo = () => {
   const [resumoVisivel, setResumoVisivel] = useState(true);
@@ -152,6 +153,12 @@ export const DashBoardAdministrativo = () => {
       break;
     case "/administrativo/ActionPesquisaVendasVouchers":
       component = <ActionPesquisaVendasVouchers />;
+      break;
+    case "/administrativo/ActionPesquisaVendasVouchers":
+      component = <ActionPesquisaVendasVouchers />;
+      break;
+    case "/administrativo/ActionPesquisaAutorizaTroca":
+      component = <ActionPesquisaAutorizaTroca />;
       break;
     default:
       component = null;

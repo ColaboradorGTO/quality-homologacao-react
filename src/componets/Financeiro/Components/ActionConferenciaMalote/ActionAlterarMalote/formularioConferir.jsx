@@ -7,6 +7,8 @@ import { FooterModal } from '../../../../Modais/FooterModal/footerModal';
 import { ButtonTypeModal } from '../../../../Buttons/ButtonTypeModal';
 import '../ActionDetalheMalote/styles.css';
 import { useConferirMalote } from '../hooks/useConferirMalote';
+import { MdOutlineLocalPrintshop, MdOutlineClose } from 'react-icons/md';
+import { FaCheck, FaUpload  } from "react-icons/fa";
 
 export const FormularioConferirMalote = ({ 
   dadosConferirMalote, 
@@ -58,7 +60,7 @@ export const FormularioConferirMalote = ({
     PENDENCIAS
   } = dadosConferirMalote[0] || {};
 
-  
+  console.log('Dados Conferir Malote:', dadosConferirMalote[0]);
 
   let classStatus = 'text-danger';
   let msgStatus = STATUSMALOTE || '';
@@ -237,21 +239,25 @@ export const FormularioConferirMalote = ({
             textButtonCadastrar={"Imprimir"}
             onClickButtonCadastrar={handlePrint}
             corCadastrar="primary"
+            iconCadastrar={MdOutlineLocalPrintshop}
             
             ButtonTypeFechar={ButtonTypeModal}
             textButtonFechar={"Finalizar"}
             onClickButtonFechar={() => onSalvarMalote('Conferência')}
             corFechar="success"
+            iconFechar={FaCheck}
             
             ButtonTypeConfirmar={ButtonTypeModal}
             textButtonConfirmar={"Devolver"}
             onClickButtonConfirmar={() => onSalvarMalote('Devolução')}
             corConfirmar="danger"
+            iconConfirmar={FaUpload}
 
             ButtonTypeCancelar={ButtonTypeModal}
             textButtonCancelar={"Fechar"}
             onClickButtonCancelar={handleClose}
             corCancelar="secondary"
+            iconCancelar={MdOutlineClose}
           />
         )}
       </form>

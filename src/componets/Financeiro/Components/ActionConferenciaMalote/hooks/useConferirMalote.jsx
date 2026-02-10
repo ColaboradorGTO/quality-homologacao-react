@@ -99,140 +99,59 @@ export const useConferirMalote = ({
 
     }).then(async (result) => {
       if (result.isConfirmed) {
-        // Abrir uma textarea para o usuário inserir a observação
-        const { value: observacao } = await Swal.fire({
-          title: 'Observação',
+        try {
+          const response = await put(`/malotes-loja/:id`, putData);
 
-          showCancelButton: true,
-          cancelButtonColor: '#FD1381',
-          confirmButtonColor: '#7352A5',
-          confirmButtonText: 'Salvar',
-          cancelButtonText: 'Cancelar',
-          customClass: {
-            container: 'custom-swal',
-          },
-        });
-        /* 
-          nescessário voltar daqui e entender o
-          por que deste campo OBSERVACAOLOJA está sendo enviar já que em homologacao não está sendo enviado assim como exemplo abaixo
+          const textDados = JSON.stringify(putData);
+          let textoFuncao = 'FINANCEIRO / CONFERÊNCIA DE MALOTE';
+          const ipUsuario = await getIPUsuario();
+          const createData = {
+            IDFUNCIONARIO: String(usuarioLogado.id),
+            PATHFUNCAO: textoFuncao,
+            DADOS: textDados,
+            IP: ipUsuario,
+          };
 
-          [
-            {
-                "IDMALOTE": 31,
-                "STATUS": "Conferido",
-                "OBSERVACAOADMINISTRATIVO": "TESTE MYLTIANE HML",
-                "PENDENCIAS": [
-                    {
-                        "IDPENDENCIA": 6
-                    },
-                    {
-                        "IDPENDENCIA": 7
-                    }
-                ],
-                "IDUSERULTIMAALTERACAO": 30514
-            }
-          ]
+          await post('/log-web', createData);
 
-          e assim está sendo enviado atualmente: no react
-          {
-    "IDMALOTE": 31,
-    "STATUS": "Conferência",
-    "OBSERVACAOADMINISTRATIVO": "myltiane teste ",
-    "PENDENCIAS": [
-        {
-            "IDPENDENCIA": 6
-        },
-        {
-            "IDPENDENCIA": 7
-        }
-    ],
-    "IDUSERULTIMAALTERACAO": 30514,
-    "OBSERVACAOLOJA": true
-}
- este segundo aqui deu certo depois que no envio da api coloquei entre []
-{
-    "IDMALOTE": 31,
-    "STATUS": "Conferência",
-    "OBSERVACAOADMINISTRATIVO": "myltiane teste react",
-    "PENDENCIAS": [
-        {
-            "IDPENDENCIA": 6
-        },
-        {
-            "IDPENDENCIA": 7
-        }
-    ],
-    "IDUSERULTIMAALTERACAO": 30514,
-    "OBSERVACAOLOJA": true
-}
-        */
-        
-        if (observacao) {
-          putData.OBSERVACAOLOJA = observacao; 
-        
-          try {
-            const response = await put(`/malotes-loja/:id`, putData);
-  
-            const textDados = JSON.stringify(putData);
-            let textoFuncao = 'FINANCEIRO / CONFERÊNCIA DE MALOTE';
-            const ipUsuario = await getIPUsuario();
-            const createData = {
-              IDFUNCIONARIO: String(usuarioLogado.id),
-              PATHFUNCAO: textoFuncao,
-              DADOS: textDados,
-              IP: ipUsuario,
-            };
-  
-            await post('/log-web', createData);
-  
-            Swal.fire({
-              title: 'Sucesso!',
-              html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Malote Recebido com Sucesso!`,
-              icon: 'success',
-              customClass: {
-                container: 'custom-swal',
-              },
-              timer: 5000,
-            });
-  
-            handleClick();
-            handleClose();
-            return response.data;
-          } catch (error) {
+          Swal.fire({
+            title: 'Sucesso!',
+            html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Malote Recebido com Sucesso!`,
+            icon: 'success',
+            customClass: {
+              container: 'custom-swal',
+            },
+            timer: 5000,
+          });
 
-            const textDados = JSON.stringify(putData);
-            let textoFuncao = 'FINANCEIRO / ERRO AO ENVIAR MALOTE';
-            const ipUsuario = await getIPUsuario();
-            const createData = {
-              IDFUNCIONARIO: String(usuarioLogado.id),
-              PATHFUNCAO: textoFuncao,
-              DADOS: textDados,
-              IP: ipUsuario,
-            };
-  
-            const responsePost = await post('/log-web', createData);
-  
-            Swal.fire({
-              title: 'Erro!',
-              html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Erro ao Enviar Malote!`,
-              icon: 'error',
-              customClass: {
-                container: 'custom-swal',
-              },
-            });
+          handleClick();
+          handleClose();
+          return response.data;
+        } catch (error) {
 
+          const textDados = JSON.stringify(putData);
+          let textoFuncao = 'FINANCEIRO / ERRO AO ENVIAR MALOTE';
+          const ipUsuario = await getIPUsuario();
+          const createData = {
+            IDFUNCIONARIO: String(usuarioLogado.id),
+            PATHFUNCAO: textoFuncao,
+            DADOS: textDados,
+            IP: ipUsuario,
+          };
 
-            return responsePost.data;
-          }
-        } else {
+          const responsePost = await post('/log-web', createData);
+
           Swal.fire({
             title: 'Erro!',
-            html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Necessário preencher a Observação!`,
+            html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Erro ao Enviar Malote!`,
             icon: 'error',
             customClass: {
               container: 'custom-swal',
             },
           });
+
+
+          return responsePost.data;
         }
       }
     });
