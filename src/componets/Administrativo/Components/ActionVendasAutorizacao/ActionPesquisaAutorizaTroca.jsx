@@ -82,7 +82,7 @@ export const ActionPesquisaAutorizaTroca = () => {
   const { data: dadosVendasPrazoExcedido = [], error: errorVendasPrazoExcedido, isLoading: isLoadingVendasPrazoExcedido, refetch: refetchListaVendasPrazoExcedido } = useQuery(
     ['vendas-prazo-excedido', ],
     () => fetchListaVendasPrazoExcedido(),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   )
 
   const handleSelectEmpresa = (e) => {

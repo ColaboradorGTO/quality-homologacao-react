@@ -85,7 +85,13 @@ export const ActionListaVendasAutorizarTroca = ({
     let diasAposCompra;
     let stCortesia;
     let stDefeito;
+    let nomeCliente = item.venda.DEST_CPF ? item.venda.DSNOMERAZAOSOCIAL + " " + item.venda.DSAPELIDONOMEFANTASIA : item.venda.DSNOMERAZAOSOCIAL;
+    let cpfCnpjCliente = !item.venda.DEST_CNPJ ? item.venda.DEST_CPF : item.venda.DEST_CNPJ;
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6,10), (item.venda.DTHORAFECHAMENTO.slice(3,5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3,5)-1 : item.venda.DTHORAFECHAMENTO.slice(3,5)), item.venda.DTHORAFECHAMENTO.slice(0,2));
+    const DATAHORAATUAL = new Date();
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime())/(1000*60*60*24));
 
+    console.log(nomeCliente, 'nome cliente')
     return {
       contador,
       IDVENDA: item.venda.IDVENDA,
@@ -97,10 +103,13 @@ export const ActionListaVendasAutorizarTroca = ({
       VRTOTALPAGO: item.venda.VRTOTALPAGO,
       DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
       STCANCELADO: item.venda.STCANCELADO,
-      DTHORAFECHAMENTOFORMATEUA: item.venda.DTHORAFECHAMENTOFORMATEUA,
-      diasAposCompra: diasAposCompra = retornaDiasEntreDatas(item.venda.DTHORAFECHAMENTOFORMATEUA),
-      stCortesia: stCortesia,
-      stDefeito: stDefeito = diasAposCompra <= 90 ? 'Válida' : 'Inválida'
+      DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
+      diasAposCompra: diasAposCompra = retornaDiasEntreDatas(item.venda.DTHORAFECHAMENTO),
+      DIFERENCAEMDIAS:  DIFERENCAEMDIAS,
+      stCortesia: stCortesia = DIFERENCAEMDIAS <= 32 ? 'Ativa' : 'Inativa',
+      stDefeito: stDefeito = DIFERENCAEMDIAS <= 90 ? 'Ativa' : 'Inativa',
+      nomeCliente,
+      cpfCnpjCliente
     }
   });
 
@@ -112,46 +121,64 @@ export const ActionListaVendasAutorizarTroca = ({
       sortable: true,
     },
     {
-      field: 'NOFANTASIA',
-      header: 'Loja',
-      body: row => <th >{row.NOFANTASIA}</th>,
-      sortable: true,
-    },
-    {
       field: 'IDVENDA',
       header: 'Nº Venda',
       body: row => <th >{row.IDVENDA}</th>,
       sortable: true,
     },
     {
-      field: 'DTHORAFECHAMENTO',
-      header: 'Data',
-      body: row => <th >{row.DTHORAFECHAMENTO}</th>,
+      field: 'nomeCliente',
+      header: 'Cliente',
+      body: row => <th >{row.nomeCliente}</th>,
+      sortable: true,
+    },
+    {
+      field: 'cpfCnpjCliente',
+      header: 'CPF/CNPJ',
+      body: row => <th >{row.cpfCnpjCliente}</th>,
+      sortable: true,
+    },
+    {
+      field: 'NOFANTASIA',
+      header: 'Loja',
+      body: row => <p style={{width: '200px', fontWeight: 600}} >{row.NOFANTASIA}</p>,
       sortable: true,
     },
     {
       field: 'VRTOTALPAGO',
-      header: 'Valor Pago',
+      header: 'Vr. Pago',
       body: row => <th >{formatMoeda(row.VRTOTALPAGO)}</th>,
+      sortable: true,
+    },
+    {
+      field: 'DTHORAFECHAMENTO',
+      header: 'Dt. Venda',
+      body: row => <th >{row.DTHORAFECHAMENTO}</th>,
+      sortable: true,
+    },
+    {
+      field: 'STCANCELADO',
+      header: 'Status',
+      body: row => <th style={{ color: row.STCANCELADO == 'False' ? '#2196F3' || row.STCANCELADO == 'True' : '#fd3995 ', fontWeight: 900 }} >{row.STCANCELADO == 'False' ? 'Ativa' : 'Cancelada'} </th>,
       sortable: true,
     },
     {
       field: 'stCortesia',
       header: 'St.Cortesia',
-      body: row => <th style={{ color: row.stCortesia == 'Válida' ? '#1dc9b7' || row.stCortesia == 'Inválida' : '#fd3995 ', fontWeight: 900 }} >{row.stCortesia = row.diasAposCompra <= 32 ? 'Válida' : 'Inválida'} </th>,
+      body: row => <th style={{ color: row.stCortesia == 'Ativa' ? '#2196F3' || row.stCortesia == 'Inativa' : '#fd3995 ', fontWeight: 900 }} >{row.stCortesia} </th>,
       sortable: true,
     },
     {
       field: 'stDefeito',
       header: 'St.Defeito',
-      body: row => <th style={{ color: row.stDefeito == 'Válida' ? '#1dc9b7' || row.stDefeito == 'Inválida' : '#fd3995 ', fontWeight: 900 }} >{row.stDefeito} </th>,
+      body: row => <th style={{ color: row.stDefeito == 'Ativa' ? '#2196F3' || row.stDefeito == 'Inativa' : '#fd3995 ', fontWeight: 900 }} >{row.stDefeito} </th>,
       sortable: true,
     },
 
     {
-      field: 'diasAposCompra',
+      field: 'DIFERENCAEMDIAS',
       header: 'Dias Passados',
-      body: row => <th style={{}}>{row.diasAposCompra}</th>,
+      body: row => <th style={{color: row.DIFERENCAEMDIAS <= 32 ? '#fd3995' : '#2196F3', fontWeight: 900}}>{row.DIFERENCAEMDIAS}</th>,
       sortable: true,
     },
     {
