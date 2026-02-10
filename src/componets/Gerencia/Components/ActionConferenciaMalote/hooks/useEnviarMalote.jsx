@@ -5,11 +5,9 @@ import { post, put } from "../../../../../api/funcRequest";
 import { formataStringComEspaco } from "../../../../../utils/formataStringComEspaco";
 import { formatarDataParaISO } from "../../../../../utils/dataFormatada";
 
-
 export const useEnviarMalote = ({ salvarDadosMalotes, dadosDetalhesMalote, handleClick, handleClose, optionsModulos, usuarioLogado, refetch }) => {
   const [ipUsuario, setIpUsuario] = useState('');
   const [observacaoLoja, setObservacaoLoja] = useState('');
-
 
   const getIPUsuario = async () => {
     let usuarioIP = null;

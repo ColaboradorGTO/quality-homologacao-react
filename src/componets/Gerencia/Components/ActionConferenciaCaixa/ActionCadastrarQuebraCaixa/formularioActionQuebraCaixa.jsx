@@ -6,8 +6,9 @@ import { Controller, useForm } from "react-hook-form";
 import { useCadastroQuebraCaixa } from "../hook/actionCadastrarQuebraCaixa";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schemaCadastrarQuebraCaixa";
+import { formatarMoeda } from "../../../../../utils/formatMoeda";
 
-export const FormularioCadastrarQuebraCaixa = ({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos }) => {
+export const FormularioCadastrarQuebraCaixa = ({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, register } = useForm({
         mode: "onChange"
     });
@@ -35,7 +36,7 @@ export const FormularioCadastrarQuebraCaixa = ({ show, handleClose, dadosDetelhe
         setOperador,
         setDataLancamento,
         dataTableRef
-    } = useCadastroQuebraCaixa({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos });
+    } = useCadastroQuebraCaixa({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchCaixaMovimento });
 
     const handleValidatedSubmit = async () => {
         try {
@@ -46,7 +47,7 @@ export const FormularioCadastrarQuebraCaixa = ({ show, handleClose, dadosDetelhe
                 historicoDigitado: motivoAjuste,
                 dataLancamento: dados?.[0]?.DTHORAFECHAMENTOCAIXA,
                 dinheiroInformado: dadosDetelheCaixa?.[0]?.TOTALFECHAMENTOVRQUEBRACAIXA,
-                dinheiroAjuste: dadosDetelheCaixa?.[0]?.TOTALFECHAMENTOVRQUEBRACAIXA
+                dinheiroAjuste: dinheiroAjuste
             };
 
             await schema.validate(dadosParaValidar, { abortEarly: false });
@@ -190,9 +191,9 @@ export const FormularioCadastrarQuebraCaixa = ({ show, handleClose, dadosDetelhe
                                             label={"Valor Quebra Ajustado"}
                                             name="dinheiroAjuste"
                                             type="text"
-                                            readOnly={true}
-                                            value={dados[0]?.VrQuebraSistema}
-                                            onChange={(e) => setDinheiroAjuste(e.target.value)}
+                                            readOnly={false}
+                                            value={dinheiroAjuste}
+                                            onChange={(e) => setDinheiroAjuste(formatarMoeda(e.target.value))}
                                             errors={errors}
                                             clearErrors={clearErrors}
                                         />
