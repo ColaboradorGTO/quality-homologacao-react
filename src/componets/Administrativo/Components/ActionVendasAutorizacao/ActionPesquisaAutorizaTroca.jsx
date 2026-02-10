@@ -11,9 +11,10 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { ActionListaVendasAutorizarTroca } from "./actionListaVendasAutorizarTroca";
 import { CiEdit } from "react-icons/ci";
+import { useAutorizarTroca } from "./hooks/useAutorizarTroca";
 
 
-export const ActionPesquisaAutorizaTroca = () => {
+export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
   const [tabelaPrincipal, setTabelaPrincipal] = useState(true);
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
@@ -26,6 +27,7 @@ export const ActionPesquisaAutorizaTroca = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [btnVisivel, setBtnVisivel] = useState(false);
   const [btnAlterarVisivel, setBtnAlterarVisivel] = useState(false);
+  const [selectedRows, setSelectedRows] = useState([]);
 
   useEffect(() => {
     const dataInicial = getDataAtual()
@@ -35,7 +37,16 @@ export const ActionPesquisaAutorizaTroca = () => {
 
   }, []);
 
-  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario-excecao',
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
+  );
+
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
     'empresas',
     async () => {
@@ -103,6 +114,13 @@ export const ActionPesquisaAutorizaTroca = () => {
     setBtnVisivel(false)
   }
 
+  const {} = useAutorizarTroca({
+    usuarioLogado,
+    optionsModulos,
+    selectedRows,
+    setSelectedRows,
+    handleClick
+})
   return (
 
     <Fragment>
@@ -184,6 +202,8 @@ export const ActionPesquisaAutorizaTroca = () => {
         tabelaSecundaria={tabelaSecundaria}
         setBtnVisivel={setBtnVisivel}
         setBtnAlterarVisivel={setBtnAlterarVisivel}
+        selectedRows={selectedRows}
+        setSelectedRows={setSelectedRows}
       />
     
       

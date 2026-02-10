@@ -22,12 +22,13 @@ export const ActionListaVendasAutorizarTroca = ({
   tabelaSecundaria,
   setTabelaSecundaria,
   setBtnVisivel,
-  setBtnAlterarVisivel
+  setBtnAlterarVisivel,
+  selectedRows,
+  setSelectedRows
  }) => {
   const [dadosVisualizarProdutos, setDadosVisualizarProdutos] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
-  const [selectedRows, setSelectedRows] = useState([]);
   const [rowClick, setRowClick] = useState(true);
   const [quantidadesProdutos, setQuantidadesProdutos] = useState({});
   const dataTableRef = useRef();

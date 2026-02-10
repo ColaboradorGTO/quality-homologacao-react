@@ -1,15 +1,14 @@
 import { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { get, post } from "../../../../api/funcRequest";
-import { mascaraCPF, validarCPF } from "../../../../utils/formatCPF";
+import { get, post } from "../../../../../api/funcRequest";
+
 
 export const useAutorizarTroca = ({
     usuarioLogado,
     optionsModulos,
     selectedRows,
-    dadosVisualizarProdutos, 
-    quantidadesProdutos,
+    setSelectedRows,
     handleClick
 }) => {
     const [ipUsuario, setIpUsuario] = useState('');
@@ -150,14 +149,7 @@ export const useAutorizarTroca = ({
             },
         });
 
-        if (motivo) {
-            setMotivoTroca(motivo);
-
-            const cpf = dadosVisualizarProdutos[0]?.venda.DEST_CPF || dadosVisualizarProdutos[0]?.venda.DEST_CNPJ;
-            if (cpf == '') {
-                await onCpf(callback, row);
-            }
-        }
+     
 
     };
 
@@ -176,7 +168,7 @@ export const useAutorizarTroca = ({
                         value="${cpfVenda || ''}"
                         maxlength="18"
                     >
-                    <small class="fw-700 text-muted">${cpfVenda ? `CPF da venda: ${mascaraCPF(cpfVenda)}` : 'Digite o CPF do cliente'}</small>
+                    <small class="fw-700 text-muted">${cpfVenda ? `CPF da venda: ${cpfVenda}` : 'Digite o CPF do cliente'}</small>
                 </div>    
             `,
             width: '25rem',
@@ -358,47 +350,10 @@ export const useAutorizarTroca = ({
         }
         
         // Função para obter quantidade modificada ou original
-        const getQuantidadeFinal = (contadorIndex, quantidadeOriginal) => {
-            return quantidadesProdutos?.[contadorIndex] || quantidadeOriginal;
-        };
-
+  
         // Calcular VRVOUCHER total baseado nas quantidades modificadas
         let valorTotalVoucher = 0;
-        const detVoucherCalculado = dadosVisualizarProdutos[0]?.detalhe.map((item, index) => {
-            const contadorIndex = index + 1;
-            const quantidadeFinal = getQuantidadeFinal(contadorIndex, item.det.QTD);
-            const valorUnitario = Number(parseFloat(item.det.VUNTRIB).toFixed(2));
-            const valorTotalItem = valorUnitario * quantidadeFinal;
-            
-            valorTotalVoucher += valorTotalItem;
-
-            return {
-                IDPRODUTO: item.det.CPROD,
-                QTD: Number(quantidadeFinal),
-                VRUNIT: valorUnitario,
-                VRTOTALBRUTO: Number(parseFloat(valorTotalItem).toFixed(2)),
-                VRDESCONTO: Number(parseFloat(item.det.VPROD - item.det.VRTOTALLIQUIDO).toFixed(2)),
-                VRTOTALLIQUIDO: Number(parseFloat(valorTotalItem).toFixed(2)),
-                STATIVO: 'True',
-                STCANCELADO: 'False',
-            };
-        }) || [];
-
-        const produtosVoucherCalculado = dadosVisualizarProdutos[0]?.detalhe.map((item, index) => {
-            const contadorIndex = index + 1;
-            const quantidadeFinal = getQuantidadeFinal(contadorIndex, item.det.QTD);
-            const valorUnitario = Number(parseFloat(item.det.VUNTRIB).toFixed(2));
-            const valorTotalItem = valorUnitario * quantidadeFinal;
-
-            return {
-                IDVENDADETALHE: item.det.IDVENDADETALHE,
-                STTROCA: 'True',
-                QTD: Number(quantidadeFinal),
-                VRTOTALBRUTO: Number(parseFloat(valorTotalItem).toFixed(2)),
-                VDESC: Number(parseFloat(item.det.VPROD - item.det.VRTOTALLIQUIDO).toFixed(2)),
-                VRTOTALLIQUIDO: Number(parseFloat(valorTotalItem).toFixed(2)),
-            };
-        }) || [];
+     
 
         let putData = {
             IDGRUPOEMPRESARIAL: usuarioLogado?.IDGRUPOEMPRESARIAL,
@@ -406,11 +361,9 @@ export const useAutorizarTroca = ({
             IDCAIXAORIGEM: parseInt(99999),
             IDNFEDEVOLUCAO: 0,
             IDUSRINVOUCHER: usuarioLogado?.id,
-            IDVENDEDOR: dadosVisualizarProdutos[0]?.detalhe[0].det.VENDEDOR_MATRICULA,
             IDCLIENTE: dadosCliente?.IDCLIENTE,
             NUCPF: dadosCliente?.NUCPFCNPJ,
             VRVOUCHER: Number(parseFloat(valorTotalVoucher).toFixed(2)),
-            IDRESUMOVENDAWEB: dadosVisualizarProdutos[0]?.venda.IDVENDA,
             STTIPOTROCA: '',
             MOTIVOTROCA: motivoTroca,
             IDUSRLIBERACAOCRIACAO: usuarioLogado?.id,
