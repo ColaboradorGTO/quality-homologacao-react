@@ -35,7 +35,6 @@ export const ActionListaVendaCLiente = ({
 }) => {
   const [rowClick, setRowClick] = useState(true);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
 
