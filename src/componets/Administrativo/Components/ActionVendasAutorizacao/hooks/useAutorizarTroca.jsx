@@ -43,7 +43,7 @@ export const useAutorizarTroca = ({
         const { value: formValues } = await Swal.fire({
             title: 'Autorização',
             html: `
-              <div class="text-dark fw-900">
+              <div class="d-block m-auto w-75">
                 <label class="form-label" for="matricula">Matrícula</label>
                 <div class="input-group">
     
@@ -106,51 +106,24 @@ export const useAutorizarTroca = ({
     }
 
     const onMotivo = async (callback, row) => {
-
-        const { value: motivo } = await Swal.fire({
-            title: 'Motivo da troca?',
-            html: `
-              <div>
-                <input 
-                  type="text" 
-                  id="motivo" 
-                  class="swal2-input" 
-                  placeholder="Digite o Motivo"  
-                  style="text-transform: uppercase"
-                >
-                <small class="fw-700">*Mínimo 10 caracteres</small>
-              </div>      
-            `,
-            width: '25rem',
-            focusConfirm: false,
+        const { value: tipoPesquisa } = await Swal.fire({
+            title: 'Como deseja pesquisar o produto?',
+            input: 'select',
+            inputOptions: {
+                idProduto: 'Selecione',
+                cortesia: 'CORTESIA',
+                dsProduto: 'DEFEITO'
+            },
+            inputValidator: (value) => {
+                if (!value) {
+                return 'Selecione uma opção!';
+                }
+            },
+            confirmButtonText: 'Pesquisar',
             showCancelButton: true,
-            confirmButtonText: 'Confirmar',
-            cancelButtonText: 'Sair',
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            didOpen: () => {
-                const swalContainer = Swal.getPopup();
-                swalContainer.addEventListener('keydown', (e) => {
-                    if (e.key === 'Enter') {
-                        Swal.clickConfirm();
-                    }
-                });
-            },
-            preConfirm: () => {
-                const motivo = document.getElementById('motivo').value.replace(/[^a-zA-Z0-9 ]/g, '').replace(/\s{2,}/g, ' ');
-                if (!motivo || motivo.length < 10) {
-                    return Swal.showValidationMessage('O motivo deve ter no mínimo 10 caracteres');
-                }
-
-                if (motivo.length > 200) {
-                    return Swal.showValidationMessage('Motivo da Troca Está Muito Grande, Abrevie!');
-                }
-                return motivo;
-            },
+            customClass: { container: 'custom-swal' }
         });
-
      
-
     };
 
     const onCpf = async (callback, response) => {

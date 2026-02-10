@@ -114,7 +114,9 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
     setBtnVisivel(false)
   }
 
-  const {} = useAutorizarTroca({
+  const {
+    onAuthFuncionario
+  } = useAutorizarTroca({
     usuarioLogado,
     optionsModulos,
     selectedRows,
@@ -188,7 +190,7 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
         ButtonTypeVendasEstrutura={ButtonType}
         linkNomeVendasEstrutura={"Autorizar Exceção"}
         corVendasEstrutura={"info"}
-        onButtonClickVendasEstrutura
+        onButtonClickVendasEstrutura={onAuthFuncionario}
         iconVendasEstrutura={CiEdit}
         styleVendasEstrutura={btnAlterarVisivel ? { display: 'block' } : { display: 'none' }}
 
