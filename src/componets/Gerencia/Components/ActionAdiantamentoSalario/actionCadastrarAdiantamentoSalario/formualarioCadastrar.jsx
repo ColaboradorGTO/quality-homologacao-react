@@ -189,7 +189,6 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
 
                                     )}
                                 />
-                                {console.log(valorDesconto)}
                             </div>
                         </div>
                     </div>

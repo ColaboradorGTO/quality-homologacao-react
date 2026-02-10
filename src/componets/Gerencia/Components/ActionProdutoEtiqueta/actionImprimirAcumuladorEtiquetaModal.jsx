@@ -35,7 +35,6 @@ export const ActionImprimirAcumuladorEtiquetaModal = ({ show, handleClose,  dado
     valor: item.valor,
   }));
 
-  console.log(etiquetas, 'etiquetas')
   const quantidadeTotalEtiquetas = etiquetas.reduce((total, etiqueta) => total + etiqueta.quantidade, 0);
   const etiquetasPorPagina = chunkArray(etiquetas, 4);
   const totalPaginas = etiquetasPorPagina.length * copias;
