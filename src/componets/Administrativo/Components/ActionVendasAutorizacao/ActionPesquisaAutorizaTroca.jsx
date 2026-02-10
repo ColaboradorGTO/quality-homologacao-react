@@ -10,6 +10,7 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { ActionListaVendasAutorizarTroca } from "./actionListaVendasAutorizarTroca";
+import { CiEdit } from "react-icons/ci";
 
 
 export const ActionPesquisaAutorizaTroca = () => {
@@ -24,6 +25,7 @@ export const ActionPesquisaAutorizaTroca = () => {
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
   const [btnVisivel, setBtnVisivel] = useState(false);
+  const [btnAlterarVisivel, setBtnAlterarVisivel] = useState(false);
 
   useEffect(() => {
     const dataInicial = getDataAtual()
@@ -165,6 +167,13 @@ export const ActionPesquisaAutorizaTroca = () => {
         // IconCadastro={LuArrowBigLeft}
         styleCadastro={btnVisivel ? { display: 'block' } : { display: 'none' }}
 
+        ButtonTypeVendasEstrutura={ButtonType}
+        linkNomeVendasEstrutura={"Autorizar Exceção"}
+        corVendasEstrutura={"info"}
+        onButtonClickVendasEstrutura
+        iconVendasEstrutura={CiEdit}
+        styleVendasEstrutura={btnAlterarVisivel ? { display: 'block' } : { display: 'none' }}
+
       />
 
       <ActionListaVendasAutorizarTroca 
@@ -174,6 +183,7 @@ export const ActionPesquisaAutorizaTroca = () => {
         tabelaPrincipal={tabelaPrincipal}
         tabelaSecundaria={tabelaSecundaria}
         setBtnVisivel={setBtnVisivel}
+        setBtnAlterarVisivel={setBtnAlterarVisivel}
       />
     
       

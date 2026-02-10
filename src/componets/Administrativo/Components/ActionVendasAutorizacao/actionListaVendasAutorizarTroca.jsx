@@ -21,7 +21,8 @@ export const ActionListaVendasAutorizarTroca = ({
   setTabelaPrincipal,
   tabelaSecundaria,
   setTabelaSecundaria,
-  setBtnVisivel
+  setBtnVisivel,
+  setBtnAlterarVisivel
  }) => {
   const [dadosVisualizarProdutos, setDadosVisualizarProdutos] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -35,8 +36,9 @@ export const ActionListaVendasAutorizarTroca = ({
     if (checked) {
       const newSelectedRows = [...selectedRows, row];
       setSelectedRows(newSelectedRows);
+      setBtnAlterarVisivel(true)
     } else {
-
+      setBtnAlterarVisivel(false);
       const newSelectedRows = selectedRows.filter(selectedRow => {
         if (row.contadorIndex !== undefined && selectedRow.contadorIndex !== undefined) {
           return selectedRow.contadorIndex !== row.contadorIndex;
@@ -395,6 +397,7 @@ export const ActionListaVendasAutorizarTroca = ({
         <Checkbox
           onChange={e => {
             onRowSelect(row, e.checked);
+            
           }}
           checked={row.isChecked || selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex)}
           disabled={row.isDisabled}
