@@ -33,33 +33,16 @@ export const ActionPesquisaAutorizaTroca = () => {
 
   }, []);
 
-
-  const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
-    'marcasLista',
-    async () => {
-      const response = await get(`/marcasLista`);
-      return response.data;
-    },
-    {enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 30 * 60 * 1000  }
-  );
   
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
-    'listaEmpresaComercial',
+    'empresas',
     async () => {
-      const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
+      const response = await get(`/empresas`);
       
       return response.data;
     },
-    {enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 30 * 60 * 1000 }
+    {enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 30 * 60 * 1000 }
   );
-
-  useEffect(() => {
-    if (marcaSelecionada) {
-      refetchEmpresas();
-    }
-    refetchMarcas()
-  }, [marcaSelecionada, refetchEmpresas]);
-
 
   const fetchListaVendasPrazoExcedido = async ( ) => {
     
@@ -102,17 +85,12 @@ export const ActionPesquisaAutorizaTroca = () => {
     { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   )
 
-  const handleSelectGrupo = (e) => {
-    setMarcaSelecionada(e.value);
-  };
-
   const handleSelectEmpresa = (e) => {
     setEmpresaSelecionada(e.value)
   }
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1)
-    refetchListaVendasVendedor()  
+    refetchListaVendasPrazoExcedido()  
     // setTabelaVisivel(true)
     setTabelaPrincipal(true)
   }
@@ -142,21 +120,6 @@ export const ActionPesquisaAutorizaTroca = () => {
         labelInputFieldDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={(e) => setDataPesquisaFim(e.target.value)}
-
-        InputSelectMarcasComponent={InputSelectAction}
-        labelSelectMarcas={"Grupos"}
-        optionsMarcas={[
-          { value: '0', label: 'Selecionar Marca' },
-            ...optionsMarcas.map((marca) => {
-            return {
-              
-              value: marca.IDGRUPOEMPRESARIAL,
-              label: marca.DSGRUPOEMPRESARIAL,
-            }
-          })
-        ]}
-        valueSelectMarca={marcaSelecionada}
-        onChangeSelectMarcas={handleSelectGrupo}
    
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Lojas"}
@@ -211,7 +174,6 @@ export const ActionPesquisaAutorizaTroca = () => {
         tabelaPrincipal={tabelaPrincipal}
         tabelaSecundaria={tabelaSecundaria}
         setBtnVisivel={setBtnVisivel}
-
       />
     
       
