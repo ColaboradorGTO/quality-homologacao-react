@@ -13,7 +13,7 @@ import { ActionListaVendasAutorizarTroca } from "./actionListaVendasAutorizarTro
 import { CiEdit } from "react-icons/ci";
 import { useAutorizarTroca } from "./hooks/useAutorizarTroca";
 import Swal from "sweetalert2";
-import { on } from "events";
+
 
 
 export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
@@ -26,7 +26,6 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
   const [cpfNumeroVenda, setCPFNumeroVenda] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
-  const [currentPage, setCurrentPage] = useState(1);
   const [btnVisivel, setBtnVisivel] = useState(false);
   const [btnAlterarVisivel, setBtnAlterarVisivel] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
@@ -106,8 +105,8 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
 
   const handleClick = () => {
     refetchListaVendasPrazoExcedido()  
-    // setTabelaVisivel(true)
     setTabelaPrincipal(true)
+    setTabelaSecundaria(false)
   }
 
   const handleClickReturn = () => {
@@ -118,7 +117,7 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
 
   const handleAutorizarExcecao = () => {
 
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if(optionsModulos[0]?.ALTERAR == 'False') {
         Swal.fire({
         icon: 'warning',
         title: 'Acesso Negado!',
@@ -136,8 +135,6 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
   const {
     onAuthFuncionario
   } = useAutorizarTroca({
-    usuarioLogado,
-    optionsModulos,
     selectedRows,
     setSelectedRows,
     handleClick

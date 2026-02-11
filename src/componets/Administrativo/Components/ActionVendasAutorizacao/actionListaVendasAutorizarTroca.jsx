@@ -65,57 +65,59 @@ export const ActionListaVendasAutorizarTroca = ({
 
   const handlePrint = useReactToPrint({
     content: () => dataTableRef.current,
-    documentTitle: 'Vouchers Emitidos',
+    documentTitle: 'Vendas Prazo Excedido',
   });
 
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Valor Pago', 'Data', 'Situação']],
+      head: [['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Vr. Pago', 'Dt. Venda', 'Status', 'St.Cortesia', 'St.Defeito', 'Dias Passados']],
       body: dados.map(item => [
-        item.NUVOUCHER,
-        item.EMPORIGEM,
-        item.DSCAIXAORIGEM,
-        dataFormatada(item.DTINVOUCHER),
-        formatMoeda(item.VRVOUCHER),
-        item.EMPDESTINO,
-        item.DSCAIXADESTINO,
-        dataFormatada(item.DTOUTVOUCHER),
-        item.STATIVO == 'True' ? 'ATIVO' : 'USADO'
-
+        item.contador,
+        item.IDVENDA,
+        item.nomeCliente,
+        item.cpfCnpjCliente,
+        item.NOFANTASIA,
+        formatMoeda(item.VRTOTALPAGO),
+        item.DTHORAFECHAMENTO,
+        item.STCANCELADO == 'False' ? 'Ativa' : 'Cancelada',
+        item.stCortesia,
+        item.stDefeito,
+        item.DIFERENCAEMDIAS
       ]),
       horizontalPageBreak: true,
       horizontalPageBreakBehaviour: 'immediately'
     });
-    doc.save('voucher_emitidos.pdf');
+    doc.save('vendas_prazo_excedido.pdf');
   };
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
-    const header = ['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Valor Pago', 'Data', 'Situação'];
+    const header = ['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Vr. Pago', 'Dt. Venda', 'Status', 'St.Cortesia', 'St.Defeito', 'Dias Passados'];
     worksheet['!cols'] = [
-      { wpx: 100, caption: 'Nº Voucher' },
-      { wpx: 200, caption: 'Loja Emissor' },
-      { wpx: 200, caption: 'Caixa Emissor' },
-      { wpx: 200, caption: 'Data Emissão' },
-      { wpx: 100, caption: 'Valor' },
-      { wpx: 200, caption: 'Loja Recebido' },
-      { wpx: 200, caption: 'Caixa Recebido' },
-      { wpx: 200, caption: 'Data Recebida' },
-      { wpx: 100, caption: 'Situação' }
+      { wpx: 50, caption: 'Nº' },
+      { wpx: 100, caption: 'Nº Venda' },
+      { wpx: 200, caption: 'Cliente' },
+      { wpx: 100, caption: 'CPF/CNPJ' },
+      { wpx: 150, caption: 'Loja' },
+      { wpx: 100, caption: 'Vr. Pago' },
+      { wpx: 100, caption: 'Dt. Venda' },
+      { wpx: 100, caption: 'Status' },
+      { wpx: 100, caption: 'St.Cortesia' },
+      { wpx: 100, caption: 'St.Defeito' },
+      { wpx: 100, caption: 'Dias Passados' }
 
     ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vendas por Vendedor');
-    XLSX.writeFile(workbook, 'voucher_emitidos.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vendas prazo excedido');
+    XLSX.writeFile(workbook, 'vendas_prazo_excedido.xlsx');
   };
 
 
 
   const dados = dadosVendasPrazoExcedido.map((item, index) => {
     let contador = index + 1;
-    let diasAposCompra;
     let stCortesia;
     let stDefeito;
     let nomeCliente = item.venda.DEST_CPF ? item.venda.DSNOMERAZAOSOCIAL + " " + item.venda.DSAPELIDONOMEFANTASIA : item.venda.DSNOMERAZAOSOCIAL;
@@ -124,25 +126,18 @@ export const ActionListaVendasAutorizarTroca = ({
     const DATAHORAATUAL = new Date();
     const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
 
-
     return {
       contador,
       IDVENDA: item.venda.IDVENDA,
-      DSNOMERAZAOSOCIAL: item.venda.DSNOMERAZAOSOCIAL,
-      DSAPELIDONOMEFANTASIA: item.venda.DSAPELIDONOMEFANTASIA,
-      DEST_CPF: item.venda.DEST_CPF,
-      DEST_CNPJ: item.venda.DEST_CNPJ,
+      nomeCliente,
+      cpfCnpjCliente,
       NOFANTASIA: item.venda.NOFANTASIA,
       VRTOTALPAGO: item.venda.VRTOTALPAGO,
       DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
-      STCANCELADO: item.venda.STCANCELADO,
-      DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
-      diasAposCompra: diasAposCompra = retornaDiasEntreDatas(item.venda.DTHORAFECHAMENTO),
-      DIFERENCAEMDIAS: DIFERENCAEMDIAS,
+      STCANCELADO: item.venda.STCANCELADO == 'False' ? 'Ativa' : 'Cancelada',
       stCortesia: stCortesia = DIFERENCAEMDIAS <= 32 ? 'Ativa' : 'Inativa',
       stDefeito: stDefeito = DIFERENCAEMDIAS <= 90 ? 'Ativa' : 'Inativa',
-      nomeCliente,
-      cpfCnpjCliente
+      DIFERENCAEMDIAS: DIFERENCAEMDIAS,
     }
   });
 
@@ -192,7 +187,7 @@ export const ActionListaVendasAutorizarTroca = ({
     {
       field: 'STCANCELADO',
       header: 'Status',
-      body: row => <th style={{ color: row.STCANCELADO == 'False' ? '#2196F3' || row.STCANCELADO == 'True' : '#fd3995 ', fontWeight: 900 }} >{row.STCANCELADO == 'False' ? 'Ativa' : 'Cancelada'} </th>,
+      body: row => <th style={{ color: row.STCANCELADO == 'Ativa' ? '#2196F3' : '#fd3995', fontWeight: 900 }} >{row.STCANCELADO} </th>,
       sortable: true,
     },
     {
@@ -510,7 +505,6 @@ export const ActionListaVendasAutorizarTroca = ({
                     key={coluna.field}
                     field={coluna.field}
                     header={coluna.header}
-
                     body={coluna.body}
                     footer={coluna.footer}
                     sortable={coluna.sortable}
@@ -568,7 +562,6 @@ export const ActionListaVendasAutorizarTroca = ({
                     key={coluna.field}
                     field={coluna.field}
                     header={coluna.header}
-
                     body={coluna.body}
                     footer={coluna.footer}
                     sortable={coluna.sortable}

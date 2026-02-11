@@ -3,12 +3,7 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { post } from "../../../../../api/funcRequest";
 
-
-
-
 export const useAutorizarTroca = ({
-    usuarioLogado,
-    optionsModulos,
     selectedRows,
     setSelectedRows,
     handleClick
@@ -16,7 +11,6 @@ export const useAutorizarTroca = ({
     const [ipUsuario, setIpUsuario] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
-    const [motivoTroca, setMotivoTroca] = useState();
 
     const getIPUsuario = async () => {
         let usuarioIP = null;
