@@ -106,24 +106,87 @@ export const useAutorizarTroca = ({
     }
 
     const onMotivo = async (callback, row) => {
-        const { value: tipoPesquisa } = await Swal.fire({
-            title: 'Como deseja pesquisar o produto?',
-            input: 'select',
-            inputOptions: {
-                idProduto: 'Selecione',
-                cortesia: 'CORTESIA',
-                dsProduto: 'DEFEITO'
+        // Calcular stCortesia e stDefeito baseado nos dias passados
+        const stCortesia = row.some(item => item.DIFERENCAEMDIAS < 33);
+        const stDefeito = row.some(item => item.DIFERENCAEMDIAS < 91);
+        
+        const resultado = await Swal.fire({
+            title: 'Tipo da troca e motivo da Exceção?',
+            html: `
+                <div class="d-block m-auto" style="width: 50%;">
+                    <label class="form-label text-dark" for="tipoTroca">Tipo</label>
+                    <div class="pb-2">
+                        <select id="tipoTroca" class="form-control">
+                            <option value=''>Selecione</option>
+                            <option value='CORTESIA' ${stCortesia ? "disabled title='ESTA VENDA ESTÁ DENTRO DO PRAZO PARA ESTE TIPO'" : ""}>CORTESIA</option>
+                            <option value='DEFEITO' ${stDefeito ? "disabled title='ESTA VENDA ESTÁ DENTRO DO PRAZO PARA ESTE TIPO'" : ""}>DEFEITO</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-block m-auto" style="width: 100%;">
+                    <label class="form-label text-dark mt-2" for="mtExcecao">Motivo Exceção</label>
+                    <div class="input-group">
+                        <input type="text" id="mtExcecao" class="swal2-input m-1" placeholder="Digite o motivo da Exceção" style="text-align: left; text-transform: uppercase;">
+                        <small class="form-label font-weight-bold text-dark">*Mínimo 10 caracteres</small>
+                    </div>
+                </div>
+            `,
+            width: '25rem',
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Sair',
+            cancelButtonColor: '#3085d6',
+            showLoaderOnConfirm: true,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            backdrop: true,
+            customClass: {
+                container: 'custom-swal',
             },
-            inputValidator: (value) => {
-                if (!value) {
-                return 'Selecione uma opção!';
+            didOpen: () => {
+                const tipoSelect = document.getElementById('tipoTroca');
+                const motivoInput = document.getElementById('mtExcecao');
+                
+                if (tipoSelect) {
+                    tipoSelect.focus();
                 }
             },
-            confirmButtonText: 'Pesquisar',
-            showCancelButton: true,
-            customClass: { container: 'custom-swal' }
+            preConfirm: async () => {
+                const tipoTroca = document.getElementById('tipoTroca')?.value;
+                const mtExcecao = document.getElementById('mtExcecao')?.value?.replace(/\s+/g, ' ').trim();
+
+                if (!tipoTroca) {
+                    Swal.showValidationMessage('Selecione o Tipo da Troca Antes de Prosseguir!');
+                    return false;
+                }
+
+                if (!mtExcecao) {
+                    Swal.showValidationMessage('Campo de motivo vazio, digite o motivo para prosseguir!');
+                    return false;
+                } else if (mtExcecao.replace(/\s+/g, '').length < 10) {
+                    Swal.showValidationMessage(`Campo de motivo menor que 10 caracteres, Faltam: ${10 - mtExcecao.replace(/\s+/g, '').trim().length} caracteres!`);
+                    return false;
+                }
+
+                return {
+                    idFuncionario: usuarioLogado?.id,
+                    tipoTroca,
+                    mtExcecao
+                };
+            }
         });
-     
+
+        if (resultado.isConfirmed && resultado.value) {
+            setMotivoTroca(resultado.value);
+            // Chamar próxima função do callback se existir
+            if (callback) {
+                await callback(resultado.value, row);
+            }
+            return resultado.value;
+        }
+
+        return false;
     };
 
     const onCpf = async (callback, response) => {
