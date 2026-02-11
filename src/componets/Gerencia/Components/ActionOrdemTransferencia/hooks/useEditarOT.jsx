@@ -131,7 +131,6 @@ export const useEditarOT = ({
     }
   }, [produto, empresaDestino]);
 
-  console.log(produto, "produto")
 
   const onSubmit = async () => {
     if (dadosProdutos.length > 200) {

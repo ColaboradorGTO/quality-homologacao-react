@@ -60,7 +60,6 @@ export const ActionListaVendaOrigem = ({ dadosDetalheVoucher, usuarioLogado }) =
     XLSX.writeFile(workbook, 'venda_origem.xlsx');
   };
 
-  console.log(usuarioLogado, 'usuarioLogado')
   const dados = dadosDetalheVoucher?.flatMap((item) => {
     let funcaoFuncionario = usuarioLogado?.DSFUNCAO;
     let lojaLogada = usuarioLogado?.IDEMPRESA;

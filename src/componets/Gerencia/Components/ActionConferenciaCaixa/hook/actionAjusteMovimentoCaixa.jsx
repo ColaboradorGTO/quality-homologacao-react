@@ -2,8 +2,9 @@ import { useState } from "react"
 import { post, put } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
-export const useAjusteMovimentoCaixa = ({ handleClose, dadosDetalheFechamento, usuarioLogado, optionsModulos }) => {
+export const useAjusteMovimentoCaixa = ({ handleClose, dadosDetalheFechamento, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
     const [empresa, setEmpresa] = useState('')
     const [operadorCaixa, setOperadorCaixa] = useState('')
     const [motivoAjuste, setMotivoAjuste] = useState('')
@@ -51,13 +52,16 @@ export const useAjusteMovimentoCaixa = ({ handleClose, dadosDetalheFechamento, u
         }
 
         const txtObservacaoAjuste = motivoAjuste + '-' + 'Justificativa do Ajuste: ' + motivoAjuste + 'Data do Ajuste: ' + dataLancamento + 'Ajustado por: ' + usuarioLogado?.NOFUNCIONARIO
-        const vrQuebraNova = dinheiroAjuste - dadosDetalheFechamento[0]?.TOTALFECHAMENTODINHEIROFISICO
+        const dinheiroAjusteNum = Number(removerFormatacaoMoeda(dinheiroAjuste));
+        const fisicoNum = Number(dadosDetalheFechamento[0]?.TOTALFECHAMENTODINHEIROFISICO || 0);
+        const vrQuebraNova = dinheiroAjusteNum - fisicoNum;
+
         const putData = {
             ID: dadosDetalheFechamento[0]?.ID,
-            VRAJUSTDINHEIRO: Number(dinheiroAjuste),
+            VRAJUSTDINHEIRO: Number(removerFormatacaoMoeda(dinheiroAjusteNum)),
             VRAJUSTTEF: 0,
             VRAJUSTPOS: 0,
-            VRAJUSTFATURA: Number(faturaAjuste),
+            VRAJUSTFATURA: Number(removerFormatacaoMoeda(faturaAjuste)),
             VRAJUSTVOUCHER: 0,
             VRAJUSTCONVENIO: 0,
             VRAJUSTPIX: 0,
@@ -70,6 +74,7 @@ export const useAjusteMovimentoCaixa = ({ handleClose, dadosDetalheFechamento, u
 
             const textDados = JSON.stringify(putData)
             let textoFuncao = 'GERENCIA/AJUSTE MOVIMENTO CAIXA';
+            const ipUsuario = await getIPUsuario();
 
             const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
@@ -90,6 +95,7 @@ export const useAjusteMovimentoCaixa = ({ handleClose, dadosDetalheFechamento, u
                 }
             });
             handleClose()
+            refetchCaixaMovimento()
             return response.data;
         } catch (error) {
 

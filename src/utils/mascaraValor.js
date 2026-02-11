@@ -44,3 +44,13 @@ export const maskValorEmDecimal = (valor, numMaxCasasDecimais = 2) => {
 	 maximumFractionDigits: numMaxCasasDecimais
  }).format(valor)
 }
+
+export const isSameMoneyValue = (valorA, valorB) => {
+  const a = Number(toFloat(valorA) || 0);
+  const b = Number(toFloat(valorB) || 0);
+
+  const a2 = mascaraValor(a.toFixed(2));
+  const b2 = mascaraValor(b.toFixed(2));
+
+  return a2 === b2;
+};

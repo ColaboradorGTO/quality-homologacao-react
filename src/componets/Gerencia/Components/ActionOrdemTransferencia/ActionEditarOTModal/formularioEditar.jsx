@@ -76,7 +76,6 @@ export const FormularioEditar = ({
 
                             )}
                         />
-                        {console.log(dadosDetalheTransferencia, "dadosDetalheTransferencia")}
                     </div>
                 </div>
 

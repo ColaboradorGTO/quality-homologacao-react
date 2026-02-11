@@ -46,7 +46,6 @@ export const schema = yup.object().shape({
     .number()
     .transform(moneyToNumber)
     .typeError("Dinheiro informado deve ser um número válido")
-    .required("Dinheiro informado é obrigatório")
     .min(0, "Dinheiro informado não pode ser negativo"),
 
   dinheiroAjuste: yup
@@ -59,12 +58,10 @@ export const schema = yup.object().shape({
     .number()
     .transform(moneyToNumber)
     .typeError("Fatura informada deve ser um número válido")
-    .required("Fatura informada é obrigatória")
     .min(0, "Fatura informada não pode ser negativa"),
 
   faturaAjuste: yup
     .number()
     .transform(moneyToNumber)
     .typeError("Fatura ajuste deve ser um número válido")
-    .required("Fatura ajuste é obrigatória"),
 });

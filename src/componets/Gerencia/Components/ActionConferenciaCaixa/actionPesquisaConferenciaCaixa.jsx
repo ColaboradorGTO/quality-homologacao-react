@@ -132,6 +132,7 @@ export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, ID, optionsEmpre
           dadosMovimentosCaixa={dadosMovimentosCaixa}
           usuarioLogado={usuarioLogado}
           optionsModulos={optionsModulos}
+          refetchCaixaMovimento={refetchCaixaMovimento}
         />
       )}
 

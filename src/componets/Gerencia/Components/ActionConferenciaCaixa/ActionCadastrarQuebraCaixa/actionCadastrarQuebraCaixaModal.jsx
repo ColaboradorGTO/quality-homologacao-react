@@ -4,7 +4,7 @@ import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { useForm } from "react-hook-form";
 import { FormularioCadastrarQuebraCaixa } from "./formularioActionQuebraCaixa";
 
-export const ActionCadastrarQuebraCaixaModal = ({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos }) => {
+export const ActionCadastrarQuebraCaixaModal = ({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
   const { register, handleSubmit, errors } = useForm();
 
   return (
@@ -31,6 +31,7 @@ export const ActionCadastrarQuebraCaixaModal = ({ show, handleClose, dadosDetelh
             dadosDetelheCaixa={dadosDetelheCaixa}
             usuarioLogado={usuarioLogado}
             optionsModulos={optionsModulos}
+            refetchCaixaMovimento={refetchCaixaMovimento}
           />
         </Modal.Body>
 

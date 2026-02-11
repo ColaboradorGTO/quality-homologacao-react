@@ -137,7 +137,7 @@ export const ActionEditarEmpresaModal = ({ show, handleClose, dadosEmpresasDetal
 
                 <div className="col-sm-12 col-xl-12">
 
-                  {console.log(dadosEmpresasDetalhe[0]?.STATIVO, 'modal')}
+                  
                   <InputFieldModal
                     label={"Nome Fantasia"}
                     type="text"
