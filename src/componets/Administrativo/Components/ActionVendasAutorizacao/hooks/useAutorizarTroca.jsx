@@ -227,8 +227,6 @@ export const useAutorizarTroca = ({
         }
         
         try {
-
-
             const response = await post('/alterar-vendas-prazo-excedido', postData);
             const textDados = JSON.stringify(postData)
             let textoFuncao = 'VOUCHER /CADASTRO DE CLIENTE';
@@ -276,10 +274,9 @@ export const useAutorizarTroca = ({
                     container: 'custom-swal',
                 }
             });
-            throw error; // Re-throw para debug
+            throw error;
         }
     }
-
 
     return {
         onAuthFuncionario

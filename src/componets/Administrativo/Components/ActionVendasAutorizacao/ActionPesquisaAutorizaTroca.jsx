@@ -200,7 +200,6 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
         onButtonClickCadastro={handleClickReturn}
         corCadastro={"danger"}
         IconCadastro={MdKeyboardDoubleArrowLeft}
-        // IconCadastro={LuArrowBigLeft}
         styleCadastro={btnVisivel ? { display: 'block' } : { display: 'none' }}
 
         ButtonTypeVendasEstrutura={ButtonType}

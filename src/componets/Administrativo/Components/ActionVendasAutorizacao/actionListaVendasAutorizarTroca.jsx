@@ -1,17 +1,15 @@
-import React, { Fragment, useRef, useState } from "react"
+import React, { Fragment, useRef, useState, useEffect, useCallback } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { GrFormView } from "react-icons/gr";
 import { get } from "../../../../api/funcRequest";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { formatMoeda } from "../../../../utils/formatMoeda";
-import { dataFormatada } from "../../../../utils/dataFormatada";
 import HeaderTable from "../../../Tables/headerTable";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { retornaDiasEntreDatas } from "../../../../utils/retornoEntreDias";
 import { Checkbox } from "primereact/checkbox";
 
 
@@ -463,6 +461,7 @@ export const ActionListaVendasAutorizarTroca = ({
   return (
 
     <Fragment>
+
       {tabelaPrincipal && (
         <>
           <div className="panel">
@@ -480,7 +479,6 @@ export const ActionListaVendasAutorizarTroca = ({
 
             </div>
             <div className="card" ref={dataTableRef}>
-
               <DataTable
                 title="Vendas Voucher por Loja"
                 value={dados}
@@ -539,13 +537,12 @@ export const ActionListaVendasAutorizarTroca = ({
 
             </div>
             <div className="card">
-
               <DataTable
                 title="Vendas Voucher por Loja"
                 value={dadosProdutos}
                 globalFilter={globalFilterValue}
                 size="small"
-                selectionMode={rowClick ? null : 'checkbox'}
+                selectionMode={rowClick ? null : 'single'}
                 selection={rowClick}
                 onSelectionChange={(e) => setRowClick(e.value)}
                 sortOrder={-1}
@@ -555,6 +552,7 @@ export const ActionListaVendasAutorizarTroca = ({
                 filterDisplay="menu"
                 showGridlines
                 stripedRows
+                rowClassName={(row) => row.isDisabled ? 'row-disabled' : ''}
                 emptyMessage={<div className="dataTables_empty">Dados não encontrados, verifique os dados inseridos na pesquisa e tente novamente!</div>}
               >
                 {colunasProdutoVenda.map(coluna => (
