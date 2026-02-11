@@ -198,7 +198,7 @@ export const useAutorizarTroca = ({
             setMotivoTroca(resultado.value);
             // Chamar próxima função do callback se existir
             if (callback) {
-                await callback(resultado.value, selectedRows); // Corrigido: era 'row', agora 'selectedRows'
+                await onSubmitVoucher(resultado.value, selectedRows); // Corrigido: era 'row', agora 'selectedRows'
             }
             return resultado.value;
         }
@@ -206,9 +206,9 @@ export const useAutorizarTroca = ({
         return false;
     };
 
-    const onSubmitVoucher = async (dadosClienteParam = null) => {
+    const onSubmitVoucher = async () => {
 
-        let putData = {
+        const postData = {
             DIASAPOSCOMPRAR: selectedRows[0]?.DIFERENCAEMDIAS,
             IDPRODUTO: selectedRows[0]?.CPROD,
             IDVENDA: selectedRows[0]?.IDVENDA,
@@ -224,19 +224,19 @@ export const useAutorizarTroca = ({
         try {
 
 
-            const response = await post('/todos-web', putData);
-            const textDados = JSON.stringify(putData)
+            const response = await post('/alterar-vendas-prazo-excedido', postData);
+            const textDados = JSON.stringify(postData)
             let textoFuncao = 'VOUCHER /CADASTRO DE CLIENTE';
             const ipUsuario = await getIPUsuario();
 
-            const postData = {
+            const createLogData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
 
-            await post('/log-web', postData)
+            await post('/log-web', createLogData)
             Swal.fire({
                 title: 'Cadastro',
                 text: 'Depósito cadastrado com Sucesso',
@@ -252,13 +252,14 @@ export const useAutorizarTroca = ({
 
             let textoFuncao = 'VOUCHER /ERRO AO CRIAR VOUCHER';
             const ipUsuario = await getIPUsuario();
-            const postData = {
+            const textDados = JSON.stringify(postData)
+            const createLogData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
-                DADOS: '',
+                DADOS: textDados,
                 IP: ipUsuario
             }
-            await post('/log-web', postData);
+            await post('/log-web', createLogData);
 
             Swal.fire({
                 title: 'Erro',
@@ -274,7 +275,6 @@ export const useAutorizarTroca = ({
 
 
     return {
-        onSubmitVoucher,
         onAuthFuncionario
     }
 }
