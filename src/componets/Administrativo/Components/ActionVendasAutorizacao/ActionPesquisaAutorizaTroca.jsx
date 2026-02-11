@@ -12,6 +12,8 @@ import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { ActionListaVendasAutorizarTroca } from "./actionListaVendasAutorizarTroca";
 import { CiEdit } from "react-icons/ci";
 import { useAutorizarTroca } from "./hooks/useAutorizarTroca";
+import Swal from "sweetalert2";
+import { on } from "events";
 
 
 export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
@@ -114,6 +116,23 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
     setBtnVisivel(false)
   }
 
+  const handleAutorizarExcecao = () => {
+
+    if(optionsModulos[0]?.ALTERAR == 'True') {
+        Swal.fire({
+        icon: 'warning',
+        title: 'Acesso Negado!',
+        html: `${usuarioLogado?.NOFUNCIONARIO} </br> Você não tem permissão para autorizar exceção.`,
+        confirmButtonText: 'OK',
+        customClass: {
+            container: 'custom-swal',
+        },
+        });
+        return;
+    } else {
+      onAuthFuncionario()
+    }
+  }
   const {
     onAuthFuncionario
   } = useAutorizarTroca({
@@ -190,7 +209,7 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
         ButtonTypeVendasEstrutura={ButtonType}
         linkNomeVendasEstrutura={"Autorizar Exceção"}
         corVendasEstrutura={"info"}
-        onButtonClickVendasEstrutura={onAuthFuncionario}
+        onButtonClickVendasEstrutura={handleAutorizarExcecao}
         iconVendasEstrutura={CiEdit}
         styleVendasEstrutura={btnAlterarVisivel ? { display: 'block' } : { display: 'none' }}
 

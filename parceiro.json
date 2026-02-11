@@ -90,11 +90,11 @@
   "localizacao": [
     {
       "label": "Loja",
-      "value": "True"
+      "value": "Loja"
     },
     {
       "label": "Escritório",
-      "value": "False"
+      "value": "Escritório"
     }
   ],
   "InscricaoEstadual": [

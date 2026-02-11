@@ -15,8 +15,8 @@ import { retornaDiasEntreDatas } from "../../../../utils/retornoEntreDias";
 import { Checkbox } from "primereact/checkbox";
 
 
-export const ActionListaVendasAutorizarTroca = ({ 
-  dadosVendasPrazoExcedido, 
+export const ActionListaVendasAutorizarTroca = ({
+  dadosVendasPrazoExcedido,
   tabelaPrincipal,
   setTabelaPrincipal,
   tabelaSecundaria,
@@ -25,7 +25,7 @@ export const ActionListaVendasAutorizarTroca = ({
   setBtnAlterarVisivel,
   selectedRows,
   setSelectedRows
- }) => {
+}) => {
   const [dadosVisualizarProdutos, setDadosVisualizarProdutos] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
@@ -120,11 +120,11 @@ export const ActionListaVendasAutorizarTroca = ({
     let stDefeito;
     let nomeCliente = item.venda.DEST_CPF ? item.venda.DSNOMERAZAOSOCIAL + " " + item.venda.DSAPELIDONOMEFANTASIA : item.venda.DSNOMERAZAOSOCIAL;
     let cpfCnpjCliente = !item.venda.DEST_CNPJ ? item.venda.DEST_CPF : item.venda.DEST_CNPJ;
-    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6,10), (item.venda.DTHORAFECHAMENTO.slice(3,5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3,5)-1 : item.venda.DTHORAFECHAMENTO.slice(3,5)), item.venda.DTHORAFECHAMENTO.slice(0,2));
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6, 10), (item.venda.DTHORAFECHAMENTO.slice(3, 5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3, 5) - 1 : item.venda.DTHORAFECHAMENTO.slice(3, 5)), item.venda.DTHORAFECHAMENTO.slice(0, 2));
     const DATAHORAATUAL = new Date();
-    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime())/(1000*60*60*24));
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
 
-   
+
     return {
       contador,
       IDVENDA: item.venda.IDVENDA,
@@ -138,7 +138,7 @@ export const ActionListaVendasAutorizarTroca = ({
       STCANCELADO: item.venda.STCANCELADO,
       DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
       diasAposCompra: diasAposCompra = retornaDiasEntreDatas(item.venda.DTHORAFECHAMENTO),
-      DIFERENCAEMDIAS:  DIFERENCAEMDIAS,
+      DIFERENCAEMDIAS: DIFERENCAEMDIAS,
       stCortesia: stCortesia = DIFERENCAEMDIAS <= 32 ? 'Ativa' : 'Inativa',
       stDefeito: stDefeito = DIFERENCAEMDIAS <= 90 ? 'Ativa' : 'Inativa',
       nomeCliente,
@@ -174,7 +174,7 @@ export const ActionListaVendasAutorizarTroca = ({
     {
       field: 'NOFANTASIA',
       header: 'Loja',
-      body: row => <p style={{width: '200px', fontWeight: 600}} >{row.NOFANTASIA}</p>,
+      body: row => <p style={{ width: '200px', fontWeight: 600 }} >{row.NOFANTASIA}</p>,
       sortable: true,
     },
     {
@@ -211,7 +211,7 @@ export const ActionListaVendasAutorizarTroca = ({
     {
       field: 'DIFERENCAEMDIAS',
       header: 'Dias Passados',
-      body: row => <th style={{color: row.DIFERENCAEMDIAS <= 32 ? '#fd3995' : '#2196F3', fontWeight: 900}}>{row.DIFERENCAEMDIAS}</th>,
+      body: row => <th style={{ color: row.DIFERENCAEMDIAS <= 32 ? '#fd3995' : '#2196F3', fontWeight: 900 }}>{row.DIFERENCAEMDIAS}</th>,
       sortable: true,
     },
     {
@@ -257,13 +257,13 @@ export const ActionListaVendasAutorizarTroca = ({
       console.log(error, "não foi possivel pegar os dados da tabela ")
     }
   }
-  
+
 
   const dadosProdutos = dadosVisualizarProdutos.flatMap((item) => {
     const { venda, detalhe } = item;
-   const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6,10), (item.venda.DTHORAFECHAMENTO.slice(3,5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3,5)-1 : item.venda.DTHORAFECHAMENTO.slice(3,5)), item.venda.DTHORAFECHAMENTO.slice(0,2));
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6, 10), (item.venda.DTHORAFECHAMENTO.slice(3, 5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3, 5) - 1 : item.venda.DTHORAFECHAMENTO.slice(3, 5)), item.venda.DTHORAFECHAMENTO.slice(0, 2));
     const DATAHORAATUAL = new Date();
-    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime())/(1000*60*60*24));
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
 
     return detalhe.map((detalheItem, index) => {
       const contadorIndex = index + 1;
@@ -279,6 +279,7 @@ export const ActionListaVendasAutorizarTroca = ({
 
         CPROD: detalheItem.det.CPROD,
         IDVENDADETALHE: detalheItem.det.IDVENDADETALHE,
+        IDVENDA: detalheItem.det.IDVENDA,
         XPROD: detalheItem.det.XPROD,
         NUCODBARRAS: detalheItem.det.NUCODBARRAS,
         QTD: detalheItem.det.QTD,
@@ -301,14 +302,14 @@ export const ActionListaVendasAutorizarTroca = ({
         isChecked,
         isDisabled,
         // ✅ Tooltip/título para produtos já trocados
-        tooltipText: isDisabled && isChecked ? 
-          (qtdExcecao === quantidade ? 
-            `PRODUTO JÁ AUTORIZADO PARA EXCEÇÃO: ${detalheItem.det.TIPOTROCA}` : 
+        tooltipText: isDisabled && isChecked ?
+          (qtdExcecao === quantidade ?
+            `PRODUTO JÁ AUTORIZADO PARA EXCEÇÃO: ${detalheItem.det.TIPOTROCA}` :
             'ESTE PRODUTO JÁ FOI TROCADO!') :
-          (DIFERENCAEMDIAS >= 33 ? 
+          (DIFERENCAEMDIAS >= 33 ?
             `VENDA FORA DO PRAZO DE 30 DIAS PARA A TROCA DO TIPO CORTESIA, JÁ SE PASSARAM: ${DIFERENCAEMDIAS} DIAS APÓS A COMPRA!` :
-            (DIFERENCAEMDIAS >= 91 ? 
-              `VENDA FORA DO PRAZO DE 90 DIAS PARA A TROCAS DO TIPO CORTESIA OU DEFEITO, JÁ SE PASSARAM: ${DIFERENCAEMDIAS} DIAS APÓS A COMPRA!` : 
+            (DIFERENCAEMDIAS >= 91 ?
+              `VENDA FORA DO PRAZO DE 90 DIAS PARA A TROCAS DO TIPO CORTESIA OU DEFEITO, JÁ SE PASSARAM: ${DIFERENCAEMDIAS} DIAS APÓS A COMPRA!` :
               ''))
 
       };
@@ -316,15 +317,15 @@ export const ActionListaVendasAutorizarTroca = ({
   });
 
   const dadosProdutosVenda = dadosVisualizarProdutos.flatMap((item) => {
-    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6,10), (item.venda.DTHORAFECHAMENTO.slice(3,5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3,5)-1 : item.venda.DTHORAFECHAMENTO.slice(3,5)), item.venda.DTHORAFECHAMENTO.slice(0,2));
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6, 10), (item.venda.DTHORAFECHAMENTO.slice(3, 5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3, 5) - 1 : item.venda.DTHORAFECHAMENTO.slice(3, 5)), item.venda.DTHORAFECHAMENTO.slice(0, 2));
     const DATAHORAATUAL = new Date();
-    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime())/(1000*60*60*24));
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
 
 
     return {
       IDVENDA: item.venda.IDVENDA,
       DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
-     
+
       DIFERENCAEMDIAS: DIFERENCAEMDIAS
     };
 
@@ -332,7 +333,7 @@ export const ActionListaVendasAutorizarTroca = ({
 
   const getTituloDinamico = () => {
     if (!dadosProdutosVenda[0]) return null;
-    
+
     const { IDVENDA, DIFERENCAEMDIAS } = dadosProdutosVenda[0];
     const qtdItensTrocados = dadosProdutos.filter(p => p.isDisabled && p.isChecked).length;
     const totalItens = dadosProdutos.length;
@@ -354,7 +355,7 @@ export const ActionListaVendasAutorizarTroca = ({
           <span style={{ fontWeight: 500 }}>
             <i>Produtos - Venda: {IDVENDA}</i> &nbsp;&nbsp;
             <i style={{ color: '#fd3995', fontWeight: 900 }}>
-              Venda Fora do Prazo de <u><b>30 dias</b></u> Para Troca do Tipo <u><b>CORTESIA</b></u>. 
+              Venda Fora do Prazo de <u><b>30 dias</b></u> Para Troca do Tipo <u><b>CORTESIA</b></u>.
               Dias Passados Após a Compra: <u><b>{DIFERENCAEMDIAS} DIAS</b></u>
             </i>
           </span>
@@ -366,7 +367,7 @@ export const ActionListaVendasAutorizarTroca = ({
           <span style={{ fontWeight: 500 }}>
             <i>Produtos - Venda: {IDVENDA}</i> &nbsp;&nbsp;
             <i style={{ color: '#fd3995', fontWeight: 900 }}>
-              Venda Fora do Prazo Para Trocas do Tipo <b>CORTESIA<u>(30 dias)</u></b> ou <b>DEFEITO<u>(90 dias)</u></b>. 
+              Venda Fora do Prazo Para Trocas do Tipo <b>CORTESIA<u>(30 dias)</u></b> ou <b>DEFEITO<u>(90 dias)</u></b>.
               Dias Passados Após a Compra: <u><b>{DIFERENCAEMDIAS} DIAS</b></u>
             </i>
           </span>
@@ -398,7 +399,7 @@ export const ActionListaVendasAutorizarTroca = ({
         <Checkbox
           onChange={e => {
             onRowSelect(row, e.checked);
-            
+
           }}
           checked={row.isChecked || selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex)}
           disabled={row.isDisabled}
@@ -434,7 +435,7 @@ export const ActionListaVendasAutorizarTroca = ({
       field: 'QTD',
       header: 'Quantidade',
       body: row => {
-          const isCheckboxChecked = row.isChecked || selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex);
+        const isCheckboxChecked = row.isChecked || selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex);
         const isDisabled = row.isDisabled || row.QTD <= 1 || isCheckboxChecked;
         const quantidadeAtual = quantidadesProdutos[row.contadorIndex] || row.QTD;
         return (
@@ -531,54 +532,54 @@ export const ActionListaVendasAutorizarTroca = ({
           <div className="panel">
             <div className="panel-hdr">
               {getTituloDinamico()}
-          
+
             </div>
-              <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-                <HeaderTable
-                  globalFilterValue={globalFilterValue}
-                  onGlobalFilterChange={onGlobalFilterChange}
-                  handlePrint={handlePrint}
-                  exportToExcel={exportToExcel}
-                  exportToPDF={exportToPDF}
-                />
+            <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+              <HeaderTable
+                globalFilterValue={globalFilterValue}
+                onGlobalFilterChange={onGlobalFilterChange}
+                handlePrint={handlePrint}
+                exportToExcel={exportToExcel}
+                exportToPDF={exportToPDF}
+              />
 
-              </div>
-              <div className="card">
+            </div>
+            <div className="card">
 
-                <DataTable
-                  title="Vendas Voucher por Loja"
-                  value={dadosProdutos}
-                  globalFilter={globalFilterValue}
-                  size="small"
-                  selectionMode={rowClick ? null : 'checkbox'}
-                  selection={rowClick}
-                  onSelectionChange={(e) => setRowClick(e.value)}
-                  sortOrder={-1}
-                  rowsPerPageOptions={[5, 10, 20, 50, 100, dadosProdutos.length]}
-                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                  currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
-                  filterDisplay="menu"
-                  showGridlines
-                  stripedRows
-                  emptyMessage={<div className="dataTables_empty">Dados não encontrados, verifique os dados inseridos na pesquisa e tente novamente!</div>}
-                >
-                  {colunasProdutoVenda.map(coluna => (
-                    <Column
-                      key={coluna.field}
-                      field={coluna.field}
-                      header={coluna.header}
+              <DataTable
+                title="Vendas Voucher por Loja"
+                value={dadosProdutos}
+                globalFilter={globalFilterValue}
+                size="small"
+                selectionMode={rowClick ? null : 'checkbox'}
+                selection={rowClick}
+                onSelectionChange={(e) => setRowClick(e.value)}
+                sortOrder={-1}
+                rowsPerPageOptions={[5, 10, 20, 50, 100, dadosProdutos.length]}
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+                filterDisplay="menu"
+                showGridlines
+                stripedRows
+                emptyMessage={<div className="dataTables_empty">Dados não encontrados, verifique os dados inseridos na pesquisa e tente novamente!</div>}
+              >
+                {colunasProdutoVenda.map(coluna => (
+                  <Column
+                    key={coluna.field}
+                    field={coluna.field}
+                    header={coluna.header}
 
-                      body={coluna.body}
-                      footer={coluna.footer}
-                      sortable={coluna.sortable}
-                      headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
-                      footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
-                      bodyStyle={{ fontSize: '1rem' }}
+                    body={coluna.body}
+                    footer={coluna.footer}
+                    sortable={coluna.sortable}
+                    headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                    footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
+                    bodyStyle={{ fontSize: '1rem' }}
 
-                    />
-                  ))}
-                </DataTable>
-              </div>
+                  />
+                ))}
+              </DataTable>
+            </div>
           </div>
         </Fragment>
       )}

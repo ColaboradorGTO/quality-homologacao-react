@@ -1,7 +1,9 @@
 import { useState } from "react";
 import axios from "axios";
 import Swal from "sweetalert2";
-import { get, post } from "../../../../../api/funcRequest";
+import { post } from "../../../../../api/funcRequest";
+
+
 
 
 export const useAutorizarTroca = ({
@@ -14,28 +16,28 @@ export const useAutorizarTroca = ({
     const [ipUsuario, setIpUsuario] = useState('');
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
-    const [cpfCliente, setCpfCliente] = useState();
     const [motivoTroca, setMotivoTroca] = useState();
-    const [modalCliente, setModalCliente] = useState(false);
-    const [optionsCPF, setOptionsCPF] = useState([]);
-    const [validaDados, setValidaDados] = useState([]);
 
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
-
-            if (!usuarioIP) {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
+            usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
+
+        if (!usuarioIP) {
+            try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+            } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
     const onAuthFuncionario = async (callback) => {
@@ -100,14 +102,16 @@ export const useAutorizarTroca = ({
         });
 
         if (formValues) {
+            console.log('✅ Autenticação bem-sucedida:', formValues);
             setIsLoggedIn(true);
             setUsuarioAutorizado(formValues);
-            await onMotivo(callback, selectedRows);
+            await onMotivo(selectedRows);
         }
 
     }
 
-    const onMotivo = async (callback) => {
+    const onMotivo = async () => {
+        
         const stCortesia = selectedRows.some(item => item.DIFERENCAEMDIAS < 33);
         const stDefeito = selectedRows.some(item => item.DIFERENCAEMDIAS < 91);
 
@@ -187,40 +191,47 @@ export const useAutorizarTroca = ({
                 }
 
                 return {
-                    idFuncionario: usuarioLogado?.id,
+                    idFuncionario: usuarioAutorizado[0]?.IDFUNCIONARIO,
                     tipoTroca,
                     mtExcecao
                 };
             }
         });
 
-        if (resultado.isConfirmed && resultado.value) {
-            setMotivoTroca(resultado.value);
-            // Chamar próxima função do callback se existir
-            if (callback) {
-                await onSubmitVoucher(resultado.value, selectedRows); // Corrigido: era 'row', agora 'selectedRows'
-            }
-            return resultado.value;
-        }
 
-        return false;
+        if (resultado.isConfirmed && resultado.value) {
+            await onSubmit(resultado.value, usuarioAutorizado);
+        }
     };
 
-    const onSubmitVoucher = async () => {
+
+    const onSubmit = async (dadosMotivo, dadosUsuarioAutorizado) => {
 
         const postData = {
-            DIASAPOSCOMPRAR: selectedRows[0]?.DIFERENCAEMDIAS,
+            DIASAPOSCOMPRAR: parseInt(selectedRows[0]?.DIFERENCAEMDIAS),
             IDPRODUTO: selectedRows[0]?.CPROD,
             IDVENDA: selectedRows[0]?.IDVENDA,
             IDVENDADETALHE: selectedRows[0]?.IDVENDADETALHE,
-            MOTIVOEXCECAO: motivoTroca?.mtExcecao,
-            QTD: selectedRows.reduce((total, item) => total + (item.QTDMODIFICADA || item.QTD), 0),
-            TIPOTROCA: motivoTroca?.tipoTroca,
-            USERAUTORIZADOR: usuarioAutorizado?.MATRICULA,
-            VRPRODUTO: selectedRows[0]?.VPROD,
-            VRTOTALLIQUIDO: selectedRows.reduce((total, item) => total + (item.VRTOTALLIQUIDO || 0), 0)
-
+            MOTIVOEXCECAO: dadosMotivo?.mtExcecao,
+            QTD: parseFloat(selectedRows[0]?.QTD),
+            TIPOTROCA: dadosMotivo?.tipoTroca,
+            USERAUTORIZADOR: parseInt(dadosUsuarioAutorizado[0]?.IDFUNCIONARIO),
+            VRPRODUTO: parseFloat(selectedRows[0]?.VPROD),
+            VRTOTALLIQUIDO: parseFloat(selectedRows[0]?.VRTOTALLIQUIDO)
         }
+
+        if (!dadosMotivo?.tipoTroca) {
+            throw new Error('Tipo da troca não informado');
+        }
+        
+        if (!dadosMotivo?.mtExcecao) {
+            throw new Error('Motivo da exceção não informado');
+        }
+        
+        if (!selectedRows || selectedRows.length === 0) {
+            throw new Error('Nenhuma linha selecionada para processar');
+        }
+        
         try {
 
 
@@ -230,10 +241,10 @@ export const useAutorizarTroca = ({
             const ipUsuario = await getIPUsuario();
 
             const createLogData = {
-                IDFUNCIONARIO: String(usuarioLogado.id),
+                IDFUNCIONARIO: String(dadosUsuarioAutorizado[0]?.IDFUNCIONARIO),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || 'IP não disponível'
             }
 
             await post('/log-web', createLogData)
@@ -246,30 +257,32 @@ export const useAutorizarTroca = ({
                 }
             })
             handleClick()
+            setSelectedRows([])
             return response.data;
-
         } catch (error) {
+            console.error('❌ Erro no onSubmit:', error);
+            console.error('📋 Dados que causaram erro:', postData);
 
             let textoFuncao = 'VOUCHER /ERRO AO CRIAR VOUCHER';
             const ipUsuario = await getIPUsuario();
             const textDados = JSON.stringify(postData)
             const createLogData = {
-                IDFUNCIONARIO: String(usuarioLogado.id),
+                IDFUNCIONARIO: String(dadosUsuarioAutorizado[0]?.IDFUNCIONARIO),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || 'IP não disponível'
             }
             await post('/log-web', createLogData);
 
             Swal.fire({
                 title: 'Erro',
-                text: `Ocorreu um erro ao criar o voucher: ${error.message}. Tente novamente.`,
+                text: `Ocorreu um erro ao processar: ${error.message}. Tente novamente.`,
                 icon: 'error',
                 customClass: {
                     container: 'custom-swal',
                 }
             });
-            return;
+            throw error; // Re-throw para debug
         }
     }
 

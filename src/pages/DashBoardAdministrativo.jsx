@@ -155,7 +155,7 @@ export const DashBoardAdministrativo = () => {
       component = <ActionPesquisaVendasVouchers />;
       break;
     case "/administrativo/ActionPesquisaAutorizaTroca":
-      component = <ActionPesquisaAutorizaTroca />;
+      component = <ActionPesquisaAutorizaTroca usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     default:
       component = null;
