@@ -343,7 +343,7 @@ export const ActionPesquisaCreateVoucherCliente = ({
           setTabelaVenda={setTabelaVenda}
         />
       )}
-      {console.log(tabelaVendasClientes, 'tabelaVendasClientes render'  )}
+      
       <ActionCadastroClienteCPF
         show={modalCadastroClienteCPF}
         handleClose={() => setModalCadastroClienteCPF(false)}

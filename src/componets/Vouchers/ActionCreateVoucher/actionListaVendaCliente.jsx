@@ -403,6 +403,7 @@ export const ActionListaVendaCLiente = ({
 
   return (
     <Fragment>
+
       {tabelaVenda && (
         <div className="panel">
           <div className="panel-hdr">
@@ -509,8 +510,9 @@ export const ActionListaVendaCLiente = ({
                 rowsPerPageOptions={[10, 20, 50, 100, dadosProdutos.length]}
                 showGridlines
                 stripedRows
-                isDataSelectable={isRowSelectable}
-                rowClassName={rowClassName}
+                rowClassName={(row) => row.STTROCA == 'True' ? 'row-disabled' : ''}
+         
+                
                 emptyMessage={<div className="dataTables_empty">Não há Produtos Na Venda</div>}
               >
                 {colunasVouchers2.map(coluna => (

@@ -89,7 +89,6 @@ export const useAuthFuncionarioCreate = ({
         setIsLoggedIn(true);
         setUsuarioAutorizado(formValues);
 
-        // Chama o onMotivo após login bem-sucedido
         await onMotivo(callback, selectedRows);
       }
     };
@@ -140,7 +139,6 @@ export const useAuthFuncionarioCreate = ({
       if (motivo) {
         setMotivoTroca(motivo);
 
-        // Usa o CPF já presente em dadosVisualizarProdutos
         const cpf = dadosVisualizarProdutos[0]?.venda.DEST_CPF || dadosVisualizarProdutos[0]?.venda.DEST_CNPJ;
 
         if (!cpf) {
@@ -159,7 +157,7 @@ export const useAuthFuncionarioCreate = ({
             const clienteData = await response.data;
             console.log(clienteData, 'clientData')
 
-            // Combina os dados do login com motivo, cpf e clienteData
+           
             setUsuarioAutorizado(prev => ({ ...prev, motivo, cpf, clienteData }));
             setIsLoggedIn(true);
 
@@ -171,7 +169,7 @@ export const useAuthFuncionarioCreate = ({
               title: 'Erro',
               text: `Erro ao buscar os dados do cliente: ${error.message}`,
             });
-            // setModalCadastroClienteCPF(true);
+           
           }
         }
       }

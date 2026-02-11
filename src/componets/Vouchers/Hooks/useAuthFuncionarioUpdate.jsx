@@ -2,11 +2,10 @@ import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { post } from '../../../api/funcRequest';
 
-
-
 export const useAuthFuncionarioUpdate = ({ dadosVoucherLogin, usuarioLogado }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
+  
   const onAuthFuncionarioUpdate = async (callback, row) => {
     const { value: formValues } = await Swal.fire({
       title: 'Autorização',
