@@ -11,6 +11,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { Checkbox } from "primereact/checkbox";
+import Swal from "sweetalert2";
 
 
 export const ActionListaVendasAutorizarTroca = ({
@@ -233,11 +234,25 @@ export const ActionListaVendasAutorizarTroca = ({
 
   const handleClickDetalhar = async (row) => {
     if (row.IDVENDA) {
-      handleDetalhar(row.IDVENDA)
+      handleDetalhar(row.IDVENDA, row.stCortesia, row.stDefeito)
     }
   }
 
-  const handleDetalhar = async (IDVENDA) => {
+  const handleDetalhar = async (IDVENDA, stCortesia, stDefeito) => {
+
+    if (stCortesia === 'Ativa' && stDefeito === 'Ativa') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção!',
+        html:'Venda dentro do prazo de troca! Não há necessidade de autorização para efetuar a troca! <br/> Se não for o caso, verifique os dados da venda!',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#886ab5',
+        customClass: {
+          container: 'custom-swal',
+        },
+      })
+      return 
+    }
     try {
       const response = await get(`/vendas-prazo-excedido?idVenda=${IDVENDA}`)
       if (response.data && response.data.length > 0) {
