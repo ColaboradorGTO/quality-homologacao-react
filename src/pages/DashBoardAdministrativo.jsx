@@ -154,9 +154,6 @@ export const DashBoardAdministrativo = () => {
     case "/administrativo/ActionPesquisaVendasVouchers":
       component = <ActionPesquisaVendasVouchers />;
       break;
-    case "/administrativo/ActionPesquisaVendasVouchers":
-      component = <ActionPesquisaVendasVouchers />;
-      break;
     case "/administrativo/ActionPesquisaAutorizaTroca":
       component = <ActionPesquisaAutorizaTroca />;
       break;
