@@ -37,13 +37,13 @@ export const useAutorizarTroca = ({
         return null;
         }
     };
-
-    const onAuthFuncionario = async (callback, selectedRows) => {
+    
+    const onAuthFuncionario = async (callback) => {
 
         const { value: formValues } = await Swal.fire({
             title: 'Autorização',
             html: `
-              <div class="d-block m-auto w-75">
+              <div class="d-block m-auto ">
                 <label class="form-label" for="matricula">Matrícula</label>
                 <div class="input-group">
     
@@ -84,7 +84,7 @@ export const useAutorizarTroca = ({
                 };
 
                 try {
-                    const response = await post('/auth-funcionario-create-voucher', data);
+                    const response = await post('/auth-autorizar-excecao-venda', data);
 
                     if (response.data) {
                         return response.data;
@@ -105,15 +105,15 @@ export const useAutorizarTroca = ({
 
     }
 
-    const onMotivo = async (callback, row) => {
+    const onMotivo = async (callback) => {
         // Calcular stCortesia e stDefeito baseado nos dias passados
-        const stCortesia = row.some(item => item.DIFERENCAEMDIAS < 33);
-        const stDefeito = row.some(item => item.DIFERENCAEMDIAS < 91);
-        
+        const stCortesia = selectedRows.some(item => item.DIFERENCAEMDIAS < 33);
+        const stDefeito = selectedRows.some(item => item.DIFERENCAEMDIAS < 91);
+        console.log('Dados da linha selecionada:', selectedRows);
         const resultado = await Swal.fire({
             title: 'Tipo da troca e motivo da Exceção?',
             html: `
-                <div class="d-block m-auto" style="width: 50%;">
+                <div class="d-block m-auto" >
                     <label class="form-label text-dark" for="tipoTroca">Tipo</label>
                     <div class="pb-2">
                         <select id="tipoTroca" class="form-control">
@@ -123,7 +123,7 @@ export const useAutorizarTroca = ({
                         </select>
                     </div>
                 </div>
-                <div class="d-block m-auto" style="width: 100%;">
+                <div class="d-block m-auto" >
                     <label class="form-label text-dark mt-2" for="mtExcecao">Motivo Exceção</label>
                     <div class="input-group">
                         <input type="text" id="mtExcecao" class="swal2-input m-1" placeholder="Digite o motivo da Exceção" style="text-align: left; text-transform: uppercase;">
