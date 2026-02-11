@@ -28,7 +28,6 @@ export const useCadastrarValeTransporte = ({ handleClose, usuarioLogado, options
     'todos-funcionario',
     async () => {
       const response = await get(`/todos-funcionario?idEmpresa=${usuarioLogado.IDEMPRESA}`);
-      console.log('response', response.data)
       return response.data;
     },
     { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 10 * 60 * 1000 }

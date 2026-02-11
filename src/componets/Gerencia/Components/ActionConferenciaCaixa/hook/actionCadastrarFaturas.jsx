@@ -3,8 +3,9 @@ import { post } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 import axios from "axios";
 import { getDataHoraAtual } from "../../../../../utils/horaAtual";
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
-export const useCadastroFaturas = ({ handleClose, dadosDetelheFatura, usuarioLogado, optionsModulos }) => {
+export const useCadastroFaturas = ({ handleClose, dadosDetelheFatura, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
     const [empresa, setEmpresa] = useState('')
     const [codAutorizacao, setCodAutorizacao] = useState('')
     const [valorFatura, setValorFatura] = useState(0)
@@ -53,18 +54,6 @@ export const useCadastroFaturas = ({ handleClose, dadosDetelheFatura, usuarioLog
             return;
         }
 
-        if (!codAutorizacao || !valorFatura) {
-            Swal.fire({
-                title: 'Error',
-                text: 'Preencha os campos obrigatórios',
-                icon: 'error',
-                timer: 3000,
-                customClass: {
-                    container: 'custom-swal',
-                }
-            });
-            return;
-        }
         const postData = {
             IDEMPRESA: Number(usuarioLogado.IDEMPRESA),
             IDFUNCIONARIO: Number(dadosDetelheFatura[0].IDOPERADORFECHAMENTO),
@@ -79,7 +68,7 @@ export const useCadastroFaturas = ({ handleClose, dadosDetelheFatura, usuarioLog
             NUNSUHOST: "",
             IDMOVIMENTOCAIXAWEB: String(dadosDetelheFatura[0].ID),
             NUCODAUTORIZACAO: String(codAutorizacao),
-            VRRECEBIDO: Number(valorFatura),
+            VRRECEBIDO: Number(removerFormatacaoMoeda(valorFatura)),
             DTHRMIGRACAO: null,
             STCANCELADO: 'False',
             IDUSRCACELAMENTO: null,
@@ -89,7 +78,7 @@ export const useCadastroFaturas = ({ handleClose, dadosDetelheFatura, usuarioLog
             const response = await post('/criar-detalhe-fatura', postData)
             const textDados = JSON.stringify(postData)
             const ipUsuario = await getIPUsuario();
-            let textoFuncao = 'GERENCIA/AJUSTE MOVIMENTO CAIXA';
+            let textoFuncao = 'GERENCIA/AJUSTE LANÇAR FATURA';
 
             const createData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
@@ -111,12 +100,13 @@ export const useCadastroFaturas = ({ handleClose, dadosDetelheFatura, usuarioLog
             });
 
             handleClose()
+            refetchCaixaMovimento()
             return response.data;
         } catch (error) {
 
             const textDados = JSON.stringify(postData)
             const ipUsuario = await getIPUsuario();
-            let textoFuncao = 'GERENCIA/ERRO AO AJUSTAR MOVIMENTO CAIXA';
+            let textoFuncao = 'GERENCIA/ERRO AO LANCAR FATURA';
 
             const createData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),

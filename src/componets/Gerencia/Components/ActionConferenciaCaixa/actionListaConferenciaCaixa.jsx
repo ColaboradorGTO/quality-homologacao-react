@@ -23,7 +23,7 @@ import Swal from "sweetalert2";
 import { ActionImprimirRecibos } from "./actionImprimirRecebibo";
 
 
-export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogado, optionsModulos }) => {
+export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
   const [dadosDetalheFechamento, setDadosDetalheFechamento] = useState([]);
   const [dadosDetelheCaixa, setDadosDetelheCaixa] = useState([]);
   const [dadosDetelheFatura, setDadosDetelheFatura] = useState([]);
@@ -67,7 +67,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
         formatMoeda(item.TOTALFECHAMENTODINHEIROFISICO),
         formatMoeda(item.TOTALFECHAMENTODINHEIRO),
         formatMoeda(item.TOTALAJUSTEFATURA),
-        formatM(item.vrFechamentoQuebraCaixa),
+        formatMoeda(item.vrFechamentoQuebraCaixa),
         formatMoeda(item.VRQUEBRAEFETIVADO),
         item.STFECHADOMOVIMENTO,
         item.STCONFERIDOMOVIMENTO
@@ -96,6 +96,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
       ID: item.ID,
       IDCAIXAFECHAMENTO: item.IDCAIXAFECHAMENTO,
       DSCAIXAFECHAMENTO: item.DSCAIXAFECHAMENTO,
+      DTHORAFECHAMENTOCAIXA: item.DTHORAFECHAMENTOCAIXA,
       DTABERTURA: item.DTABERTURA,
       DTABERTURAMOVCAIXA: item.DTABERTURAMOVCAIXA,
       IDOPERADORFECHAMENTO: item.IDOPERADORFECHAMENTO,
@@ -139,7 +140,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
 
   const colunasMovimentoCixa = [
     {
-      field: 'contador',
+      field: 'ID',
       header: 'Nº Movimento',
       body: row => <p style={{ width: '200px', margin: '0px', fontWeight: 600 }}>{row.ID}</p>,
       sortable: true,
@@ -147,13 +148,18 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
     {
       field: 'IDCAIXAFECHAMENTO',
       header: 'Caixa',
-      body: row => <p style={{ width: '100px', margin: '0px', fontWeight: 600 }}>{row.IDCAIXAFECHAMENTO + row.DSCAIXAFECHAMENTO}</p>,
+      body: row => <p style={{ width: '100px', margin: '0px', fontWeight: 600 }}>
+        {`${row.IDCAIXAFECHAMENTO} - ${row.DSCAIXAFECHAMENTO}`}
+      </p>,
       sortable: true,
     },
     {
       field: 'DTABERTURA',
       header: 'Fechamento',
-      body: row => <p style={{ width: '200px', margin: '0px', fontWeight: 600 }}>{row.DTABERTURA}</p>,
+      body: row => <p style={{ width: '200px', margin: '0px', fontWeight: 600 }}>
+        {row.STFECHADOMOVIMENTO === "True"
+          ? row.DTHORAFECHAMENTOCAIXA
+          : row.DTABERTURA}</p>,
       sortable: true,
     },
     {
@@ -203,7 +209,6 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
       header: 'Quebra Lançado',
       body: row => (
 
-
         <th style={{ color: row.VRQUEBRAEFETIVADO > 0 ? 'blue' : 'red', }}>
           {row.VRQUEBRAEFETIVADO > 0 ? `+${formatMoeda(row.VRQUEBRAEFETIVADO)}` : `-${formatMoeda(Math.abs(row.VRQUEBRAEFETIVADO))}`}
         </th>
@@ -230,151 +235,253 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
       field: 'STFECHADOMOVIMENTO',
       header: 'Opções',
       width: '300px',
+
       body: (row) => {
-        if ( row.STFECHADOMOVIMENTO == 'True' && row.STCONFERIDOMOVIMENTO == 0 ) {
-          if (row.vrFechamentoQuebraCaixa === row.VRQUEBRAEFETIVADO) {
-             return (
-              <div className="p-1 " style={{ display: 'flex', justifyContent: "space-between" }}  >
-      
-                <div className="p-1">
-                  <ButtonTable
-                    titleButton={"Sem permissão para Ajustar Fechamento Caixa"}
-                    cor={"danger"}
-                    disabledBTN={true}
-                    Icon={MdMoneyOff}
-                    onClickButton={() => handleClickAjusteFechamento(row)}
-                    iconSize={20}
-                    width="35px"
-                    height="35px"
-                  />
-                  
-                </div>
-                <div className="p-1">
-                  <ButtonTable
-                    titleButton={"Quebra já lançada"}
-                    cor={"success"}
-                    disabledBTN={true}
-                    Icon={FaUserAltSlash}
-                    onClickButton={() => handleClickCadastroQuebra(row)}
-                    iconSize={20}
-                    width="35px"
-                    height="35px"
-                  />
-                </div>
-                <div className="p-1">
-                  <ButtonTable
-                    titleButton={"Lançar Faturas"}
-                    cor={"info"}
-                    Icon={MdOutlineLocalPrintshop}
-                    onClickButton={() => handleClickCadastroFatura(row)}
-                    iconSize={20}
-                    width="35px"
-                    height="35px"
-                  />
-                </div>
-                <div className="p-1">
-                  <ButtonTable
-                    titleButton={"Confirmar Conferência do Caixa"}
-                    cor={"warning"}
-                    Icon={MdOutlineLocalPrintshop}
-                    onClickButton={() => handleClickImprimir(row)}
-                    iconSize={20}
-                    width="35px"
-                    height="35px"
-                  />
-                  
+        const fechado = row.STFECHADOMOVIMENTO === "True";
+        const conferidoZero = String(row.STCONFERIDOMOVIMENTO) === "0";
+        const conferido = !conferidoZero;
 
-                  {(row.TOTALAJUSTEDINHEIRO > 0 || row.TOTALAJUSTEFATURA > 0) && (
-                    <ButtonTable
-                      titleButton={"Imprimir Ajuste Fechamento Caixa"}
-                      cor={"primary"}
-                      Icon={MdOutlineLocalPrintshop}
-                      onClickButton={() => handleClickImprimir(row)}
-                      iconSize={20}
-                      width="35px"
-                      height="35px"
-                    />)}
-                </div>
-              </div>
-            )
+        const same2 = (a, b) => {
+          const na = Number(toFloat(a));
+          const nb = Number(toFloat(b));
+          return Number(na.toFixed(2)) === Number(nb.toFixed(2));
+        };
 
-          } else  {
-            return (
-              <div className="p-1 " style={{ display: 'flex' }}>
+        const quebraIgual = same2(row.vrFechamentoQuebraCaixa, row.VRQUEBRAEFETIVADO);
 
-                <div className="" style={{ display: 'flex' }}>
-                  <ButtonTable
-                    titleButton={"Ajustar Fechamento Caixa"}
-                    cor={"warning"}
-                    Icon={FaCashRegister}
-                    onClickButton={() => handleClickAjusteFechamento(row)}
-                    iconSize={20}
-                    width="35px"
-                    height="35px"
-                    className="mr-3"
-                  />
+        const temAjuste =
+          Number(row.TOTALAJUSTEDINHEIRO) > 0 || Number(row.TOTALAJUSTEFATURA) > 0;
 
-                  <ButtonTable
-                    titleButton={"Lançar Quebra de Caixa"}
-                    cor={"info"}
-                    Icon={GiTakeMyMoney}
-                    onClickButton={() => handleClickCadastroQuebra(row)}
-                    iconSize={20}
-                    width="35px"
-                    height="35px"
-                    className="mr-3"
-                  />
-
-                  <ButtonTable
-                    titleButton={"Lançar Faturas"}
-                    cor={"primary"}
-                    Icon={FaCcMastercard}
-                    onClickButton={() => handleClickCadastroFatura(row)}
-                    iconSize={20}
-                    width="35px"
-                    height="35px"
-                    className="mr-3"
-                  />
-
-                  <ButtonTable
-                    titleButton={"Confirmar Conferência do Caixa"}
-                    cor={"success"}
-                    disabledBTN={true}
-                    Icon={FaCheck}
-                    onClickButton={() => handleConferir(row)}
-                    iconSize={20}
-                    width="35px"
-                    height="35px"
-                    className="mr-3"
-                  />
-
-                  {(row.TOTALAJUSTEDINHEIRO > 0 || row.TOTALAJUSTEFATURA > 0) && (
-                    <ButtonTable
-                      titleButton={"Imprimir Ajuste Fechamento Caixa"}
-                      cor={"primary"}
-                      Icon={MdOutlineLocalPrintshop}
-                      onClickButton={() => handleClickImprimir(row)}
-                      iconSize={20}
-                      width="35px"
-                      height="35px"
-                    />)}
-
-                </div>
-              </div>
-
-            )
-          }
-
-        } else if (row.STFECHADOMOVIMENTO == 'False' && row.STCONFERIDOMOVIMENTO == 0) {
-          return (<p style={{ width: '300px', margin: '0px', fontWeight: 600 }}>CAIXA ABERTO, NÃO É POSSÍVEL FAZER LANÇAMENTOS. SE NÃO FOR POSSÍVEL FECHAR O CAIXA, ENTRAR EM CONTATO COM O SUPORTE.</p>)
-        } else if (row.STFECHADOMOVIMENTO == 'True' && row.STCONFERIDOMOVIMENTO > 0) {
+        if (fechado && conferidoZero) {
           return (
-            <div style={{ width: '250px' }}>
-              <th>CAIXA CONFERIDO, NÃO É POSSÍVEL FAZER LANÇAMENTOS. PARA FAZER QUALQUER ALTERAÇÃO, ENTRAR EM CONTATO COM O SUPORTE</th>
+            <div className="p-1" style={{ display: "flex", gap: 8, justifyContent: "space-between" }}>
+
+              <ButtonTable
+                titleButton={quebraIgual ? "Sem permissão para Ajustar Fechamento Caixa" : "Ajustar Fechamento Caixa"}
+                cor={quebraIgual ? "danger" : "warning"}
+                disabledBTN={quebraIgual}
+                Icon={quebraIgual ? MdMoneyOff : FaCashRegister}
+                onClickButton={() => handleClickAjusteFechamento(row)}
+                iconSize={20}
+                width="35px"
+                height="35px"
+              />
+
+              <ButtonTable
+                titleButton={quebraIgual ? "Quebra já lançada" : "Lançar Quebra de Caixa"}
+                cor={"info"}
+                disabledBTN={quebraIgual}
+                Icon={quebraIgual ? FaUserAltSlash : GiTakeMyMoney}
+                onClickButton={() => handleClickCadastroQuebra(row)}
+                iconSize={20}
+                width="35px"
+                height="35px"
+              />
+
+              <ButtonTable
+                titleButton={"Lançar Faturas"}
+                cor={"primary"}
+                Icon={FaCcMastercard}
+                onClickButton={() => handleClickCadastroFatura(row)}
+                iconSize={20}
+                width="35px"
+                height="35px"
+              />
+
+              <ButtonTable
+                titleButton={"Confirmar Conferência do Caixa"}
+                cor={"success"}
+                disabledBTN={!quebraIgual}
+                Icon={FaCheck}
+                onClickButton={() => handleConferir(row)}
+                iconSize={20}
+                width="35px"
+                height="35px"
+              />
+
+              {temAjuste && (
+                <ButtonTable
+                  titleButton={"Imprimir Ajuste Fechamento Caixa"}
+                  cor={"primary"}
+                  Icon={MdOutlineLocalPrintshop}
+                  onClickButton={() => handleClickImprimir(row)}
+                  iconSize={20}
+                  width="35px"
+                  height="35px"
+                />
+              )}
             </div>
-          )
+          );
         }
+
+        if (!fechado && conferidoZero) {
+          return (
+            <p style={{ width: "300px", margin: 0, fontWeight: 600 }}>
+              CAIXA ABERTO, NÃO É POSSÍVEL FAZER LANÇAMENTOS. SE NÃO FOR POSSÍVEL FECHAR O CAIXA, ENTRAR EM CONTATO COM O SUPORTE.
+            </p>
+          );
+        }
+
+        if (fechado && conferido) {
+          return (
+            <div style={{ width: "250px" }}>
+              <span>
+                CAIXA CONFERIDO, NÃO É POSSÍVEL FAZER LANÇAMENTOS. PARA FAZER QUALQUER ALTERAÇÃO, ENTRAR EM CONTATO COM O SUPORTE
+              </span>
+            </div>
+          );
+        }
+
+        return null;
       },
+
+
+
+      /*  body: (row) => {
+         if ( row.STFECHADOMOVIMENTO == 'True' && row.STCONFERIDOMOVIMENTO == 0 ) {
+           if (row.vrFechamentoQuebraCaixa === row.VRQUEBRAEFETIVADO) {
+              return (
+               
+               <div className="p-1 " style={{ display: 'flex', justifyContent: "space-between" }}  >
+                 <div className="p-1">
+                   <ButtonTable
+                     titleButton={"Sem permissão para Ajustar Fechamento Caixa"}
+                     cor={"danger"}
+                     disabledBTN={true}
+                     Icon={MdMoneyOff}
+                     onClickButton={() => handleClickAjusteFechamento(row)}
+                     iconSize={20}
+                     width="35px"
+                     height="35px"
+                   />
+                   
+                 </div>
+                 <div className="p-1">
+                   <ButtonTable
+                     titleButton={"Quebra já lançada"}
+                     cor={"success"}
+                     disabledBTN={true}
+                     Icon={FaUserAltSlash}
+                     onClickButton={() => handleClickCadastroQuebra(row)}
+                     iconSize={20}
+                     width="35px"
+                     height="35px"
+                   />
+                 </div>
+                 <div className="p-1">
+                   <ButtonTable
+                     titleButton={"LançarFaturas"}
+                     cor={"info"}
+                     Icon={MdOutlineLocalPrintshop}
+                     onClickButton={() => handleClickCadastroFatura(row)}
+                     iconSize={20}
+                     width="35px"
+                     height="35px"
+                   />
+                 </div>
+                 <div className="p-1">
+                   <ButtonTable
+                     titleButton={"Confirmar Conferência do Caixa"}
+                     cor={"warning"}
+                     Icon={MdOutlineLocalPrintshop}
+                     onClickButton={() => handleClickImprimir(row)}
+                     iconSize={20}
+                     width="35px"
+                     height="35px"
+                   />
+                   
+ 
+                   {(row.TOTALAJUSTEDINHEIRO > 0 || row.TOTALAJUSTEFATURA > 0) && (
+                     <ButtonTable
+                       titleButton={"Imprimir Ajuste Fechamento Caixa"}
+                       cor={"primary"}
+                       Icon={MdOutlineLocalPrintshop}
+                       onClickButton={() => handleClickImprimir(row)}
+                       iconSize={20}
+                       width="35px"
+                       height="35px"
+                     />)}
+                 </div>
+               </div>
+             )
+ 
+           } else  {
+             return (
+               <div className="p-1 " style={{ display: 'flex' }}>
+ 
+                 <div className="" style={{ display: 'flex' }}>
+                   <ButtonTable
+                     titleButton={"Ajustar Fechamento Caixa"}
+                     cor={"warning"}
+                     Icon={FaCashRegister}
+                     onClickButton={() => handleClickAjusteFechamento(row)}
+                     iconSize={20}
+                     width="35px"
+                     height="35px"
+                     className="mr-3"
+                   />
+ 
+                   <ButtonTable
+                     titleButton={"Lançar Quebra de Caixa"}
+                     cor={"info"}
+                     Icon={GiTakeMyMoney}
+                     onClickButton={() => handleClickCadastroQuebra(row)}
+                     iconSize={20}
+                     width="35px"
+                     height="35px"
+                     className="mr-3"
+                   />
+ 
+                   <ButtonTable
+                     titleButton={"Lançar Faturas"}
+                     cor={"primary"}
+                     Icon={FaCcMastercard}
+                     onClickButton={() => handleClickCadastroFatura(row)}
+                     iconSize={20}
+                     width="35px"
+                     height="35px"
+                     className="mr-3"
+                   />
+ 
+                   <ButtonTable
+                     titleButton={"Confirmar Conferência do Caixa"}
+                     cor={"success"}
+                     disabledBTN={true}
+                     Icon={FaCheck}
+                     onClickButton={() => handleConferir(row)}
+                     iconSize={20}
+                     width="35px"
+                     height="35px"
+                     className="mr-3"
+                   />
+ 
+                   {(row.TOTALAJUSTEDINHEIRO > 0 || row.TOTALAJUSTEFATURA > 0) && (
+                     <ButtonTable
+                       titleButton={"Imprimir Ajuste Fechamento Caixa"}
+                       cor={"primary"}
+                       Icon={MdOutlineLocalPrintshop}
+                       onClickButton={() => handleClickImprimir(row)}
+                       iconSize={20}
+                       width="35px"
+                       height="35px"
+                     />)}
+ 
+                 </div>
+               </div>
+ 
+             )
+           }
+ 
+         } else if (row.STFECHADOMOVIMENTO == 'False' && row.STCONFERIDOMOVIMENTO == 0) {
+           return (<p style={{ width: '300px', margin: '0px', fontWeight: 600 }}>CAIXA ABERTO, NÃO É POSSÍVEL FAZER LANÇAMENTOS. SE NÃO FOR POSSÍVEL FECHAR O CAIXA, ENTRAR EM CONTATO COM O SUPORTE.</p>)
+         } else if (row.STFECHADOMOVIMENTO == 'True' && row.STCONFERIDOMOVIMENTO > 0) {
+           return (
+             <div style={{ width: '250px' }}>
+               <th>CAIXA CONFERIDO, NÃO É POSSÍVEL FAZER LANÇAMENTOS. PARA FAZER QUALQUER ALTERAÇÃO, ENTRAR EM CONTATO COM O SUPORTE</th>
+             </div>
+           )
+         }
+       }, */
     },
   ]
 
@@ -394,7 +501,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
 
     const putData = {
       IDSUPERVISOR: usuarioLogado?.id,
-      STCONFERIDO: String(row.STCONFERIDOMOVIMENTO),
+      STCONFERIDO: "1",
       ID: row.ID,
     };
 
@@ -414,6 +521,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
         try {
           await put('/atualizacao-status', putData);
           Swal.fire('Sucesso!', 'Conferência atualizada com sucesso.', 'success');
+          refetchCaixaMovimento();
         } catch (error) {
           Swal.fire('Erro!', 'Erro ao atualizar conferência.', 'error');
         }
@@ -620,6 +728,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
         dadosDetalheFechamento={dadosDetalheFechamento}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+        refetchCaixaMovimento={refetchCaixaMovimento}
       />
 
       <ActionCadastrarQuebraCaixaModal
@@ -628,6 +737,8 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
         dadosDetelheCaixa={dadosDetelheCaixa}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+        refetchCaixaMovimento={refetchCaixaMovimento}
+
       />
 
       <ActionCadastrarFaturaModal
@@ -636,6 +747,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
         dadosDetelheFatura={dadosDetelheFatura}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+        refetchCaixaMovimento={refetchCaixaMovimento}
       />
 
 

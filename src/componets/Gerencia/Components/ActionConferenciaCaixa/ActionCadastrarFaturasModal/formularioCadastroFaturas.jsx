@@ -5,8 +5,9 @@ import { Controller, useForm } from "react-hook-form";
 import { useCadastroFaturas } from "../hook/actionCadastrarFaturas";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schemaCadastroFatura";
+import { formatarMoeda } from "../../../../../utils/formatMoeda";
 
-export const FormularioCadastrarFaturas = ({ show, handleClose, dadosDetelheFatura, usuarioLogado, optionsModulos }) => {
+export const FormularioCadastrarFaturas = ({ show, handleClose, dadosDetelheFatura, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, register } = useForm({
         mode: "onChange"
     });
@@ -22,7 +23,7 @@ export const FormularioCadastrarFaturas = ({ show, handleClose, dadosDetelheFatu
         setNumeroMovimento,
         horaAtual,
         setHoraAtual
-    } = useCadastroFaturas({ show, handleClose, dadosDetelheFatura, usuarioLogado, optionsModulos });
+    } = useCadastroFaturas({ show, handleClose, dadosDetelheFatura, usuarioLogado, optionsModulos, refetchCaixaMovimento });
 
     const handleValidatedSubmit = async () => {
         try {
@@ -52,7 +53,6 @@ export const FormularioCadastrarFaturas = ({ show, handleClose, dadosDetelheFatu
                     }
                 });
             }
-
             const errorMessages = validationError.errors || [validationError.message];
             //console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
@@ -134,7 +134,7 @@ export const FormularioCadastrarFaturas = ({ show, handleClose, dadosDetelheFatu
                                         type="text"
                                         readOnly={false}
                                         value={valorFatura}
-                                        onChange={(e) => setValorFatura(e.target.value)}
+                                        onChange={(e) => setValorFatura(formatarMoeda(e.target.value))}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />

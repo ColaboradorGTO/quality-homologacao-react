@@ -156,7 +156,7 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
     }
 
     async function getDadosCNPJComIE_API_externa(cnpj) {
-        console.log('🔥 CHAMADA API PUBLICA.WS - getDadosCNPJComIE_API_externa:', cnpj);
+        //console.log('🔥 CHAMADA API PUBLICA.WS - getDadosCNPJComIE_API_externa:', cnpj);
         try {
             const response = await axios.get(URL_PUBLICAWS.replace('{CNPJ}', cnpj));
             let status = response.data?.status || 200;
@@ -172,7 +172,7 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
     }
 
     async function getDadosExistenciaCNPJ_API_externa(cnpj) {
-        console.log('🔥 CHAMADA API RECEITA FEDERAL - getDadosExistenciaCNPJ_API_externa:', cnpj);
+        //('🔥 CHAMADA API RECEITA FEDERAL - getDadosExistenciaCNPJ_API_externa:', cnpj);
         try {
             const response = await axios.get(URL_MINHA_RECEITA.replace('{CNPJ}', cnpj));
             response.data = "API-minhareceita";
@@ -258,13 +258,13 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
     // Removido useEffect desnecessário que causava refetch múltiplo
 
     useEffect(() => {
-        console.log('DEBUG useEffect - CNPJ:', cnpj, 'Length:', cnpj?.length, 'optionsCNPJ:', optionsCNPJ?.length);
+       // console.log('DEBUG useEffect - CNPJ:', cnpj, 'Length:', cnpj?.length, 'optionsCNPJ:', optionsCNPJ?.length);
         
         if (cnpj?.length >= 14 && optionsCNPJ && optionsCNPJ.length === 0) {
-            console.log('✅ Chamando API da Receita - Cliente NÃO encontrado no banco');
+            //console.log('✅ Chamando API da Receita - Cliente NÃO encontrado no banco');
             preenche_dados_registrados([], cnpj);
         } else if (cnpj?.length >= 14 && optionsCNPJ && optionsCNPJ.length > 0) {
-            console.log('❌ NÃO chamando API da Receita - Cliente JÁ existe no banco:', optionsCNPJ[0]);
+            //console.log('❌ NÃO chamando API da Receita - Cliente JÁ existe no banco:', optionsCNPJ[0]);
         }
 
     }, [optionsCNPJ, cnpj]);

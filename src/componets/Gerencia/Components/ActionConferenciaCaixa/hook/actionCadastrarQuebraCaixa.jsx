@@ -5,8 +5,9 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { getDataAtual } from "../../../../../utils/dataAtual";
 import { dataFormatada } from "../../../../../utils/dataFormatada";
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
-export const useCadastroQuebraCaixa = ({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos }) => {
+export const useCadastroQuebraCaixa = ({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
     const { register, handleSubmit, errors } = useForm();
     const [empresa, setEmpresa] = useState('')
     const [motivoAjuste, setMotivoAjuste] = useState('')
@@ -21,7 +22,6 @@ export const useCadastroQuebraCaixa = ({ show, handleClose, dadosDetelheCaixa, u
     const [modalQuebraVisivel, setModalQuebraVisivel] = useState(true);
     const dataTableRef = useRef();
 
-    console.log(dadosQuebraCaixasModal, 'dadosQuebraCaixasModal');
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
@@ -78,7 +78,6 @@ export const useCadastroQuebraCaixa = ({ show, handleClose, dadosDetelheCaixa, u
             });
             return;
         }
-
         const TxTHistorico = 'Quebra de Caixa Automático';
         const postData = {
             IDCAIXAWEB: dadosDetelheCaixa[0].IDCAIXAFECHAMENTO,
@@ -87,7 +86,7 @@ export const useCadastroQuebraCaixa = ({ show, handleClose, dadosDetelheCaixa, u
             IDFUNCIONARIO: dadosDetelheCaixa[0].IDOPERADORFECHAMENTO,
             DTLANCAMENTO: dataLancamento,
             VRQUEBRASISTEMA: Number(dadosDetelheCaixa[0].TOTALFECHAMENTOVRQUEBRACAIXA),
-            VRQUEBRAEFETIVADO: Number(dadosDetelheCaixa[0].TOTALFECHAMENTOVRQUEBRACAIXA),
+            VRQUEBRAEFETIVADO: removerFormatacaoMoeda(dinheiroAjuste),
             TXTHISTORICO: motivoAjuste == '' ? TxTHistorico : motivoAjuste,
             STATIVO: 'True'
         }
@@ -120,6 +119,7 @@ export const useCadastroQuebraCaixa = ({ show, handleClose, dadosDetelheCaixa, u
             });
 
             handleClose();
+            refetchCaixaMovimento();
             return response.data;
         } catch (error) {
             const textDados = JSON.stringify(postData)

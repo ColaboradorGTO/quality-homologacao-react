@@ -102,7 +102,6 @@ export const ActionDetalharProdutosEtiquetaModal = ({
     }
   }) : [];
 
-  console.log(produtosSelecionados, "produtosSelecionados")
   const colunasListaProdEtiquetas = [
     {
       field: "contador",

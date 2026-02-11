@@ -4,7 +4,7 @@ import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 
 import { FormularioAjusteMovimentoCaixa } from "./formularioAjusteMovimentoCaixa";
 
-export const ActionAjusteMovimentoCaixaModal = ({ show, handleClose, dadosDetalheFechamento, usuarioLogado, optionsModulos }) => {
+export const ActionAjusteMovimentoCaixaModal = ({ show, handleClose, dadosDetalheFechamento, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
 
   return (
     <Fragment>
@@ -30,6 +30,7 @@ export const ActionAjusteMovimentoCaixaModal = ({ show, handleClose, dadosDetalh
             usuarioLogado={usuarioLogado}
             handleClose={handleClose}
             optionsModulos={optionsModulos}
+            refetchCaixaMovimento={refetchCaixaMovimento}
           />
         </Modal.Body>
 
