@@ -146,9 +146,9 @@ export const FormularioDetalheMalote = ({
         id="btnReenviarMalote"
         className="btn btn-primary mt-3"
         style={{ display: STATUSMALOTE === 'Devolvido' ? 'block' : 'none' }}
-        onClick={() => enviarDadosMalote(IDMALOTE)}
+        onClick={() => reenviarMalote()}
       >
-        Reenviar Malote
+        Reenviar Malote 
       </button>
 
       <FooterModal
