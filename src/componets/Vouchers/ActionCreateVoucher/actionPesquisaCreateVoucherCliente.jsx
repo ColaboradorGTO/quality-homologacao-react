@@ -243,16 +243,7 @@ export const ActionPesquisaCreateVoucherCliente = ({
           linkComponent={["Vendas"]}
           title="Vendas "
           subTitle="Relação de Vendas para Troca"
-
-          // buttonHeader={ButtonType}
-          // onClickButtonTypeHeader={handleClick}
-          // textButtonHeader={"Voltar"}
-          // disabledBTNHeader={false}
-          // iconSizeHeader={20}
-          // iconHeader={AiOutlineSearch}
-          // corHeader={"primary"}
-
-
+          
           InputFieldDTInicioComponent={InputField}
           labelInputFieldDTInicio={"Data Venda Início"}
           valueInputFieldDTInicio={dataPesquisaInicio}

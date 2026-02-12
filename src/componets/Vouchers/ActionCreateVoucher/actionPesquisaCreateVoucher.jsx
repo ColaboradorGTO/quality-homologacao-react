@@ -148,19 +148,19 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
 
 
   const handleClick = () => {
-    setIsQueryData(true);
+
     setTabelaVisivelVoucher(true);
     setTabelaVendasClientes(false);
     setTabelaVisivelVoucherSelecionados(false);
     setActionPrincipal(true);
     setActionSecundaria(false);
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaVouchers()
   }
 
   const handleClickCadastro = () => {
     if (optionsModulos[0]?.CRIAR == 'True') {
       setActionPrincipal(false);
+      setTabelaVisivel(false);
       setActionSecundaria(true);
     } else {
       Swal.fire({

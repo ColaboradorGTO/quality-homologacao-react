@@ -18,7 +18,7 @@ export const useEditarStatusVoucher = ({
     const [ipUsuario, setIpUsuario] = useState('');
 
     
-     const getIPUsuario = async () => {
+    const getIPUsuario = async () => {
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
             let usuarioIP = ipWhoisData?.ip;

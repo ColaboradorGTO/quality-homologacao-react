@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { post } from '../../../../api/funcRequest';
-import axios from 'axios';
 
 export const useAuthFuncionarioCreate = ({usuarioLogado}) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

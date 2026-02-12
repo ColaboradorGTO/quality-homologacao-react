@@ -1,31 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { post } from '../../../../api/funcRequest';
-import axios from 'axios';
 
 export const useAuthFuncionarioCreate = ({ usuarioLogado }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
-  const [ipUsuario, setIpUsuario] = useState('');
-
-  const getIPUsuario = async () => {
-    try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
-
-      if (!usuarioIP) {
-        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-        usuarioIP = ipifyData?.ip;
-      }
-
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
-    } catch (error) {
-      console.error("Erro ao buscar IP:", error);
-      return null;
-    }
-  };
-
 
   const openSwal = async (callback, row) => {
     const { value: formValues } = await Swal.fire({
@@ -75,20 +54,7 @@ export const useAuthFuncionarioCreate = ({ usuarioLogado }) => {
 
         try {
           const response = await post('/auth-funcionario-update-voucher', data);
-
-          const textDados = JSON.stringify(data)
-          let textoFuncao = 'GERENCIA/CRIAÇÃO FUNCIONARIO VOUCHER';
-          await getIPUsuario();
-
-          const postData = {
-            IDFUNCIONARIO: String(usuarioLogado?.id),
-            PATHFUNCAO: textoFuncao,
-            DADOS: textDados,
-            IP: ipUsuario
-          }
-
-          const responsePost = await post('/log-web', postData)
-
+       
           if (response.data) {
             return response.data;
           } else {

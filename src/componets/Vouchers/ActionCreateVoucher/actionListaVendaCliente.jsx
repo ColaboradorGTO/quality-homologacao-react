@@ -241,18 +241,6 @@ export const ActionListaVendaCLiente = ({
     return false;
   };
 
-  const handleClickDetalhar = async (row) => {
-    if (row.IDVENDA) {
-      handleDetalhar(row.IDVENDA)
-    }
-  }
-
-  const handleMostrarProdutos = (dadosVenda) => {
-    setDadosVisualizarProdutos([dadosVenda]);
-    setTabelaVenda(false);
-    setTabelaSecundaria(true);
-  };
-
   const handleDetalhar = async (IDVENDA) => {
     try {
       const response = await get(`/lista-venda-cliente?idVenda=${IDVENDA}`)

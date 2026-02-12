@@ -1,17 +1,12 @@
 import { useState } from "react";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { get, post } from "../../../../api/funcRequest";
-import { mascaraCPF, validarCPF } from "../../../../utils/formatCPF";
+import { mascaraCPF } from "../../../../utils/formatCPF";
 
 export const useCriarVoucher = ({
     usuarioLogado,
-    optionsModulos,
-    selectedRows,
     dadosVisualizarProdutos, 
-    quantidade,
     quantidadesProdutos,
     setModalCadastroClienteCPFVoucher,
     setModalCadastroClienteCNPJVoucher,
