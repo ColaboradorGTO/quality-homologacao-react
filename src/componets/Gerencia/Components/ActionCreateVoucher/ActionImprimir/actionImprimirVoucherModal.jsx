@@ -269,7 +269,7 @@ export const ActionImprimirVoucherModal = ({ show, handleClose, dadosImprimirVou
             </div>
           </Modal.Body>
 
-          {/* <FooterModal
+          <FooterModal
             ButtonTypeConfirmar={ButtonTypeModal}
             textButtonConfirmar={"Fechar"}
             onClickButtonConfirmar={handleClose}
@@ -285,7 +285,7 @@ export const ActionImprimirVoucherModal = ({ show, handleClose, dadosImprimirVou
             textButtonFechar={"Imprimir"}
             onClickButtonFechar={handleImprimir}
             corFechar="primary"
-          /> */}
+          />
         </div>
       </Modal>
     </Fragment>

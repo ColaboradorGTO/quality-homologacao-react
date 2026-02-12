@@ -6,7 +6,7 @@ import { MdOutlineLocalPrintshop } from 'react-icons/md';
 import { CiEdit } from 'react-icons/ci';
 import { ButtonTable } from '../../ButtonsTabela/ButtonTable';
 import { GrFormView } from 'react-icons/gr';
-import { get, post } from '../../../api/funcRequest';
+import { get } from '../../../api/funcRequest';
 import HeaderTable from '../../Tables/headerTable';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -17,7 +17,7 @@ import { ActionEditarStatusVoucherModal } from './ActionEditarVoucher/actionEdit
 import { ActionImprimirVoucherModal } from './ActionImprimir/actionImprimirVoucherModal';
 import Swal from 'sweetalert2';
 import { useAuthFuncionarioUpdate } from './hooks/useAuthFuncionarioUpdate';
-
+import { useAuthFuncionarioPrint } from './hooks/useAuthFuncionarioPrint';
 
 export const ActionListaVoucherEmitido = ({
   dadosVoucher,
@@ -35,12 +35,15 @@ export const ActionListaVoucherEmitido = ({
   const [modalDetalhe, setModalDetalhe] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [usuarioAutorizado, setUsuarioAutorizado] = useState([])
   const dataTableRef = useRef();
+
   const {
     openSwal
   } = useAuthFuncionarioUpdate({ usuarioLogado, optionsModulos });
+
+  const {
+    openSwalImprimir
+  } = useAuthFuncionarioPrint({ usuarioLogado, optionsModulos });
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -90,18 +93,20 @@ export const ActionListaVoucherEmitido = ({
 
   const dados = dadosVoucher.map((item, index) => {
     let contador = index + 1;
-
+    let nomeUsrAutorizacao = item.voucher.IDUSRLIBERACAOCRIACAO ? item.voucher.NOFUNCIONARIOLIBERACAOCRIACAO : '';
+    let nomeUsrAutorizaConsumo = item.voucher.IDUSRLIBERACAOCONSUMO ? item.voucher.NOFUNCIONARIOLIBERACAOCONSUMO : '';
     return {
       IDVOUCHER: item.voucher.IDVOUCHER,
       IDEMPRESAORIGEM: item.voucher.IDEMPRESAORIGEM,
-      DTINVOUCHER: item.voucher.DTINVOUCHER,
-      DTOUTVOUCHER: item.voucher.DTOUTVOUCHER,
-      DSCAIXAORIGEM: item.voucher.DSCAIXAORIGEM,
+      DTINVOUCHER: item.voucher.DTINVOUCHERFORMATADO,
+      DTOUTVOUCHER: item.voucher.DTOUTVOUCHERFORMATADO,
+      IDCAIXAORIGEM: item.voucher.IDCAIXAORIGEM,
+      DSCAIXAORIGEM: item.IDCAIXAORIGEM !== 99999 ? item.voucher.DSCAIXAORIGEM : 'CAIXA WEB',
       IDUSRLIBERACAOCRIACAO: item.voucher.IDUSRLIBERACAOCRIACAO,
-      NOFUNCIONARIOLIBERACAOCRIACAO: item.voucher.NOFUNCIONARIOLIBERACAOCRIACAO,
+      NOFUNCIONARIOLIBERACAOCRIACAO: nomeUsrAutorizacao,
       DSCAIXADESTINO: item.voucher.DSCAIXADESTINO,
       IDUSRLIBERACAOCONSUMO: item.voucher.IDUSRLIBERACAOCONSUMO,
-      NOFUNCIONARIOLIBERACAOCONSUMO: item.voucher.NOFUNCIONARIOLIBERACAOCONSUMO,
+      NOFUNCIONARIOLIBERACAOCONSUMO: nomeUsrAutorizaConsumo,
       NUVOUCHER: item.voucher.NUVOUCHER,
       VRVOUCHER: item.voucher.VRVOUCHER,
       STATIVO: item.voucher.STATIVO,
@@ -264,71 +269,10 @@ export const ActionListaVoucherEmitido = ({
 
   ]
 
-
-
-
-  const openSwalImprimir = async (callback, row) => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Autorização',
-      html: `
-        <div>
-          <label class="form-label" for="matricula">Matrícula</label>
-          <input type="text" id="matricula" class="swal2-input" placeholder="Matrícula" style="text-align: center;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-          <label class="form-label" for="senha">Senha</label>
-          <input type="password" id="senha" class="swal2-input" placeholder="Senha">
-        </div>      
-      `,
-      width: '25rem',
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Entrar',
-      cancelButtonText: 'Cancelar',
-      didOpen: () => {
-        const swalContainer = Swal.getPopup();
-        swalContainer.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            Swal.clickConfirm();
-          }
-        });
-      },
-      preConfirm: async () => {
-        const usuario = document.getElementById('matricula').value;
-        const senha = document.getElementById('senha').value;
-
-        const data = {
-          MATRICULA: usuario,
-          SENHA: senha,
-          IDEMPRESALOGADA: usuarioLogado.IDEMPRESA,
-          IDGRUPOEMPRESARIAL: usuarioLogado.IDGRUPOEMPRESARIAL,
-          IDVOUCHER: row.IDVOUCHER,
-        };
-
-        try {
-          const response = await post('/auth-funcionario-print-voucher', data);
-
-          if (response.data) {
-            return response.data;
-          } else {
-            Swal.showValidationMessage(`Credenciais inválidas`);
-          }
-        } catch (error) {
-          Swal.showValidationMessage(`Erro ao autenticar: ${error.message}`);
-        }
-      }
-    });
-
-    if (formValues) {
-      setIsLoggedIn(true);
-      setUsuarioAutorizado(formValues);
-      callback()
-    }
-  };
-
   const handleClickDetalhar = async (row) => {
     if (row.IDVOUCHER) {
       handleDetalhar(row.IDVOUCHER);
     }
-
   }
 
   const handleDetalhar = async (IDVOUCHER) => {
@@ -346,7 +290,7 @@ export const ActionListaVoucherEmitido = ({
   const handleEdit = async (IDVOUCHER) => {
     try {
       const response = await get(`/detalheVoucherDados?idVoucher=${IDVOUCHER}`);
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosEditarVoucher(response.data);
         setModalEditarVoucher(true);
       }
@@ -397,9 +341,6 @@ export const ActionListaVoucherEmitido = ({
       });
     }
   }
-
-
-
 
   return (
     <Fragment>
@@ -482,4 +423,3 @@ export const ActionListaVoucherEmitido = ({
     </Fragment>
   )
 }
-

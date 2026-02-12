@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Swal from "sweetalert2";
-import { post } from "../../../../api/funcRequest";
+import { post } from "../../../../../api/funcRequest";
 
 export const useAuthFuncionarioPrint = ({ usuarioLogado }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);

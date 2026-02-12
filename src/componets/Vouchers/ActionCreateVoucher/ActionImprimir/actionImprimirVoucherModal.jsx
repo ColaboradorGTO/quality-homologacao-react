@@ -10,8 +10,6 @@ import { FooterModal } from "../../../Modais/FooterModal/footerModal";
 import { ButtonTypeModal } from "../../../Buttons/ButtonTypeModal";
 import { HeaderModal } from "../../../Modais/HeaderModal/HeaderModal";
 
-
-
 export const ActionImprimirVoucherModal = ({ show, handleClose, dadosImprimirVoucher }) => {
   const [dataHoje, setDataHoje] = useState('');
   const [layout, setLayout] = useState('layout-normal'); 
@@ -228,7 +226,6 @@ export const ActionImprimirVoucherModal = ({ show, handleClose, dadosImprimirVou
             textButtonCadastrar={"PDF"}
             onClickButtonCadastrar={handleExportPDF}
             corCadastrar="danger"
-
 
             ButtonTypeFechar={ButtonTypeModal}
             textButtonFechar={"Imprimir"}
