@@ -7,11 +7,10 @@ import { get } from "../../../../api/funcRequest";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { MdAdd } from "react-icons/md";
 import { useQuery } from "react-query";
+import Swal from "sweetalert2";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ActionListaVendaCLiente } from "./actionListaVendaCliente";
-import Swal from "sweetalert2";
-// import { useAuthFuncionarioCreate } from "..";
 import { useCriarVoucher } from "./hooks/useCriarVoucher";
 import { ActionCadastroClienteCNPJ } from "./ActionCadastroCliente/ActionCadastroCNPJ/actionCadastroClienteCNPJ";
 import { ActionCadastroClienteCPF } from "./ActionCadastroCliente/ActionCadastroCPF/actionCadastroClienteCPF";
@@ -27,10 +26,10 @@ export const ActionPesquisaCreateVoucherCliente = ({
   optionsModulos,
   tabelaVisivelVoucher,
   setTabelaVisivelVoucher,
-  refetchListaVouchers
+  tabelaVisivelVoucherSelecionados,
+  setTabelaVisivelVoucherSelecionados
 }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
-  const [tabelaVisivelVoucherSelecionados, setTabelaVisivelVoucherSelecionados] = useState(false);
   const [tabelaVendasClientes, setTabelaVendasClientes] = useState(false);
   const [tabelaVenda, setTabelaVenda] = useState(true);
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
@@ -61,14 +60,10 @@ export const ActionPesquisaCreateVoucherCliente = ({
 
   }, []);
 
-  useEffect(() => {
-
-  }, [usuarioLogado]);
-
 
   const fetchListaEmpresasVouchers = async () => {
     try {
-      const urlApi = `/empresasVoucher?idSubGrupoEmpresa=${usuarioLogado.IDGRUPOEMPRESARIAL}&idEmpresa=${usuarioLogado.IDEMPRESA}`;
+      const urlApi = `/empresasVoucher?idSubGrupoEmpresa=${usuarioLogado?.IDGRUPOEMPRESARIAL}&idEmpresa=${usuarioLogado?.IDEMPRESA}`;
       const response = await get(urlApi);
 
       if (response.data.length && response.data.length === pageSize) {
@@ -107,8 +102,8 @@ export const ActionPesquisaCreateVoucherCliente = ({
   };
 
   const { data: dadosEmpresasVoucher = [], refetch: refetchListaEmpresaVouchers } = useQuery(
-    ['empresasVoucher', usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
-    () => fetchListaEmpresasVouchers(usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
+    ['empresasVoucher',],
+    () => fetchListaEmpresasVouchers(),
     { enabled: Boolean(usuarioLogado?.IDGRUPOEMPRESARIAL), staleTime: 60 * 60 * 1000 }
   );
 
