@@ -33,7 +33,8 @@ export const ButtonTable = ({
   height = 'auto',
   id,
   size = 'sm',
-  textFontSize = '12px' 
+  textFontSize = '12px',
+  lineHeight,
 }) => {
   let btnClasses = "btn  btn-icon";
 
@@ -73,11 +74,12 @@ export const ButtonTable = ({
         onClick={onClickButton}
         title={titleButton}
         id={id}
+        lineHeight={lineHeight}
       >
         <div style={{ alignItems: "center",  display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2px', width: '100%' }}>
 
           {Icon && <Icon size={iconSize} color={iconColor} />}
-          <p style={{ fontSize: textFontSize, margin: '0px', padding: '0px', lineHeight: '0px' }}>
+          <p style={{ fontSize: textFontSize, margin: '0px', padding: '0px', lineHeight: lineHeight || '0px' }}>
             {textButton}
           </p>
         </div>  

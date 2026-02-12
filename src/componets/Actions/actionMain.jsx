@@ -119,6 +119,7 @@ export const ActionMain = ({
   valueInputFieldSearch,
   valueInputFieldOR,
   valueInputFieldOT,
+  valueSelectFilial,
 
   valueTextAreaFieldComponent,
 
@@ -177,6 +178,7 @@ export const ActionMain = ({
   onChangeSelectPendencia,
   onChangeStatusFiliais,
   onChangeAlvaras,
+  onChangeSelectFilial,
 
 
   onChangeSelectEmpresaAsync,
@@ -1479,6 +1481,8 @@ export const ActionMain = ({
                         type="select"
                         id={id}
                         options={optionsFilial}
+                        value={valueSelectFilial}
+                        onChange={onChangeSelectFilial}
                       />
                     )}
 

@@ -93,6 +93,7 @@ export const HeaderModal = ({
           style={{ fontWeight: "bold", color: "#000", fontSize: "20px" }}
         >
           {/* Adiantamento de Salário Principal   */}
+         
           {title}
           <small
             style={{ fontWeight: 500, color: "#666666" }}

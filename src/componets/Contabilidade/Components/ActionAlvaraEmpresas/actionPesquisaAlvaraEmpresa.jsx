@@ -9,24 +9,74 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import Swal from "sweetalert2";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
-import { useFetchData, useFetchEmpresasContabilidade } from "../../../../hooks/useFetchData";
+import { useFetchData } from "../../../../hooks/useFetchData";
 
-export const ActionPesquisaAlvaraEmpresa = () => {
+export const ActionPesquisaAlvaraEmpresa = ({ usuarioLogado, ID }) => {
+    const [filtros, setFiltros] = useState({});
+    const [marcaSelecionada, setMarcaSelecionada] = useState('');
+    const [ufSelecionada, setUfSelecionada] = useState('');
+    const [satusFilialSelecionada, setSatusFilialSelecionada] = useState('');
+    const [empresaSelecionada, setEmpresaSelecionada] = useState('');
+    const [tipoAlvara, setTipoAlvara] = useState('');
+    const [tipoAvaraAplicado, setTipoAvaraAplicado] = useState('');
     const [tabelaVisivel, setTabelaVisivel] = useState(false);
     const [produto, setProduto] = useState('')
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(1000);
-    const [marcaSelecionada, setMarcaSelecionada] = useState('');
+
+    //console.log(marcaSelecionada, 'marcaSelecionada')
+    //console.log(ufSelecionada, 'uf')
+    //console.log(satusFilialSelecionada, 'status')
+    //console.log(empresaSelecionada, 'empresa')
+    //console.log(tipoAlvara, 'tipoAlvara')
+    //console.log(usuarioLogado.id, 'usuarioLogado')
+
+    const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+        'menus-usuario-excecao',
+        async () => {
+            const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+
+            return response.data;
+        },
+        { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    );
 
     const { data: marcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useFetchData('marcasLista', '/marcasLista');
-    const { data: empresas = [], } = useFetchEmpresasContabilidade(marcaSelecionada);
 
-    console.log(marcas, 'marcaSelecionada')
+    const { data: alvarasLista = [], error: errorAlvara, isLoading: isLoadingAlvara, refetch: refetchAlvara
+    } = useQuery(
+        ['alvarasLista'],
+        async () => {
+            const response = await get(`/alvaras`);
 
-    const fetchListaProdutos = async () => {
+            return response.data;
+        },
+        {
+            staleTime: 5 * 60 * 1000
+        }
+    );
+
+
+    const { data: empresasLista = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas
+    } = useQuery(
+        ['empresasLista', marcaSelecionada, ufSelecionada, satusFilialSelecionada],
+        async () => {
+            const response = await get(
+                `/todas-empresas?idSubGrupoEmpresa=${marcaSelecionada || ""}&uf=${ufSelecionada || ""}&stAtivo=${satusFilialSelecionada || ""}`
+            );
+
+            return response.data;
+        },
+        {
+            staleTime: 5 * 60 * 1000
+        }
+    );
+    // console.log(empresasLista, 'empresasLista')
+
+    const fetchListaAlvaraEmpresa = async () => {
         try {
 
-            const urlApi = `/buscar-produtos?descProd=${produto}`;
+            const urlApi = `/alvaras-empresa?idFilial=${empresaSelecionada}&idSubGrupoEmpresa=${marcaSelecionada}&stAtivo=${satusFilialSelecionada}&ufFiliais=${ufSelecionada}`;
             const response = await get(urlApi);
 
             if (response.data.length && response.data.length === pageSize) {
@@ -63,32 +113,32 @@ export const ActionPesquisaAlvaraEmpresa = () => {
         }
     };
 
-
-    const { data: dadosProdutos = [], error: errorProdutos, isLoading: isLoadingProdutos, refetch: refetchListaProdutos } = useQuery(
-        ['buscar-produtos', produto, currentPage, pageSize],
-        fetchListaProdutos,
-        { enabled: Boolean(produto.length > 5), staleTime: 5 * 60 * 1000 },
+    const { data: dadosAlvaraEmpresa = [], error: errorAlvaraEmpresa, isLoading: isLoadingAlvaraEmpresa, refetch: refetchAlvaraEmpresa } = useQuery(
+        ['fetchListaAlvaraEmpresa', empresaSelecionada, marcaSelecionada, satusFilialSelecionada, ufSelecionada],
+        fetchListaAlvaraEmpresa,
+        { enabled: false, staleTime: 5 * 60 * 1000 },
     );
 
+    const optionsUf = [
+        { value: '', label: 'Todos' },
+        { value: 'DF', label: 'DF' },
+        { value: 'GO', label: 'GO' },
+        { value: 'MG', label: 'MG' },
+
+    ]
+
+    const optionStatusFilial = [
+        { value: '', label: 'Todos' },
+        { value: 'True', label: 'Ativo' },
+        { value: 'False', label: 'Inativo' },
+
+    ]
 
     const handleClick = () => {
-        //setCurrentPage(prevPage => prevPage + 1)
-        refetchListaProdutos()
+        setTipoAvaraAplicado(tipoAlvara)
+        refetchAlvaraEmpresa()
         setTabelaVisivel(true);
     }
-
-    useEffect(() => {
-        const handleKeyPress = (e) => {
-            if (e.key === 'Enter') {
-                handleClick();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyPress);
-        return () => {
-            window.removeEventListener('keydown', handleKeyPress);
-        };
-    }, []);
 
     return (
 
@@ -102,62 +152,63 @@ export const ActionPesquisaAlvaraEmpresa = () => {
                 InputSelectUFComponent={InputSelectAction}
                 labelSelectUF={'UF'}
                 optionsSelectUF={[
-                    { value: "", label: "Todos" },
-                    ...empresas.map((marca) => ({
-                        value: marca.IDEMPRESA,
-                        label: marca.NOFANTASIA
+                    ...optionsUf.map((uf) => ({
+                        value: uf.value,
+                        label: uf.label
                     }))
                 ]}
-                valueSelectUF={produto}
-                onChangeSelectUF={(e) => setProduto(e.target.value)}
+                valueSelectUF={ufSelecionada}
+                onChangeSelectUF={(e) => setUfSelecionada(e.value)}
 
-                InputSelectMarcaComponentAync={InputSelectAction}
-                labelSelectMarcaAsync={'Marca'}
-                optionsMarcas={[
-                    { value: "", label: "Todos" },
-                    ...empresas.map((marca) => ({
-                        value: marca.IDEMPRESA,
-                        label: marca.NOFANTASIA
+                labelSelectEmpresa={"Marca"}
+                InputSelectEmpresaComponent={InputSelectAction}
+                optionsEmpresas={[
+
+                    { value: '', label: 'Todos' },
+                    { value: 'OUTLET', label: 'OT - OUTLET' },
+                    ...marcas.map((marcas) => ({
+                        value: marcas.IDGRUPOEMPRESARIAL,
+                        label: marcas.DSGRUPOEMPRESARIAL,
                     }))
                 ]}
-                valueSelectMarcaAsync={produto}
-                onChangeSelectMarcaAsync={(e) => setProduto(e.target.value)}
+
+                valueSelectEmpresa={marcaSelecionada}
+                onChangeSelectEmpresa={(e) => setMarcaSelecionada(e.value)}
 
                 InputSelectFilialComponent={InputSelectAction}
                 labelSelectFilial={'Filiais'}
                 optionsFilial={[
                     { value: "", label: "Todos" },
-                    ...empresas.map((marca) => ({
-                        value: marca.IDEMPRESA,
-                        label: marca.NOFANTASIA
+                    ...empresasLista.map((item) => ({
+                        value: item.IDEMPRESA,
+                        label: item.NOFANTASIA
                     }))
                 ]}
-                //valueSelectMarcaAsync={produto}
-                //onChangeSelectMarcaAsync={(e) => setProduto(e.target.value)}
+                valueSelectFilial={empresaSelecionada}
+                onChangeSelectFilial={(e) => setEmpresaSelecionada(e.value)}
 
                 InputSelectStatusFiliaisComponent={InputSelectAction}
                 LabelSelectStatusFiliais={'Status Filiais'}
                 optionStatusFiliais={[
-                    { value: "", label: "Todos" },
-                    ...empresas.map((marca) => ({
-                        value: marca.IDEMPRESA,
-                        label: marca.NOFANTASIA
+                    ...optionStatusFilial.map((item) => ({
+                        value: item.value,
+                        label: item.label
                     }))
                 ]}
-                valueSelectStatusFiliais={produto}
-                onChangeStatusFiliais={(e) => setProduto(e.target.value)}
+                valueSelectStatusFiliais={satusFilialSelecionada}
+                onChangeStatusFiliais={(e) => setSatusFilialSelecionada(e.value)}
 
                 InputSelectAlvarasComponent={InputSelectAction}
                 LabelSelectAlvaras={'Alvarás'}
                 optionAlvaras={[
                     { value: "", label: "Todos" },
-                    ...empresas.map((marca) => ({
-                        value: marca.IDEMPRESA,
-                        label: marca.NOFANTASIA
+                    ...alvarasLista.map((item) => ({
+                        value: item.IDALVARA,
+                        label: item.DESCRICAO
                     }))
                 ]}
-                valueSelectAlvaras={produto}
-                onChangeAlvaras={(e) => setProduto(e.target.value)}
+                valueSelectAlvaras={tipoAlvara}
+                onChangeAlvaras={(e) => setTipoAlvara(e.value)}
 
                 ButtonSearchComponent={ButtonType}
                 linkNomeSearch={"Pesquisar"}
@@ -170,7 +221,11 @@ export const ActionPesquisaAlvaraEmpresa = () => {
 
             {tabelaVisivel && (
                 <ActionListaAlvaras
-                    dadosProdutos={dadosProdutos}
+                    dadosAlvaraEmpresa={dadosAlvaraEmpresa}
+                    tipoAvaraAplicado={tipoAvaraAplicado}
+                    optionsModulos={optionsModulos}
+                    usuarioLogado={usuarioLogado}
+                    refetchAlvaraEmpresa={refetchAlvaraEmpresa}
                 />
             )}
 

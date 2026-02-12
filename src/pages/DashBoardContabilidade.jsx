@@ -56,7 +56,6 @@ export const DashBoardContabilidade = () => {
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
   );
-
   const permissaoUsuario = selectedModule.menuPai.menuFilho;
   const {
     ID,
@@ -86,7 +85,7 @@ export const DashBoardContabilidade = () => {
       component = <ActionPesquisaProductoPreco />;
       break;
     case "/contabilidade/ActionPesquisaAlvaraEmpresa":
-      component = <ActionPesquisaAlvaraEmpresa />;
+      component = <ActionPesquisaAlvaraEmpresa  usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     default:
       break;
