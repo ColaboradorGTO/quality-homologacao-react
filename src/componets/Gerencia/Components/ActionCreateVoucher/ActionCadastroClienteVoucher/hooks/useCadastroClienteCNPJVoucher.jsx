@@ -1,11 +1,11 @@
 import Swal from "sweetalert2";
-import { get, post, put } from "../../../../../api/funcRequest";
+import { get, post, put } from "../../../../../../api/funcRequest";
 import { useEffect } from "react";
 import { useQuery } from "react-query";
-import { getDataAtual } from "../../../../../utils/dataAtual";
+import { getDataAtual } from "../../../../../../utils/dataAtual";
 import { useState } from "react";
-import { removerMascaraCPF } from "../../../../../utils/formatCPF";
-import { validarCNPJ } from "../../../../../utils/mascaraCNPJ";
+import { removerMascaraCPF } from "../../../../../../utils/formatCPF";
+import { validarCNPJ } from "../../../../../../utils/mascaraCNPJ";
 import axios from "axios";
 
 

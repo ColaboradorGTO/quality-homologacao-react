@@ -17,6 +17,7 @@ import Swal from 'sweetalert2';
 import { ActionDetalharModal } from './ActionDetalhar/actionDetalharModal';
 import { ActionEditarStatusVoucherModal } from './ActionEditarVoucher/actionEditarStatusVoucherModal';
 import { ActionImprimirVoucherModal } from './ActionImprimir/actionImprimirVoucherModal';
+import { useAuthFuncionarioPrint } from './hooks/useAuthFuncionarioPrint';
 
 
 export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSelecionado, usuarioLogado }) => {
@@ -32,6 +33,9 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [usuarioAutorizado, setUsuarioAutorizado] = useState([])
   const dataTableRef = useRef();
+  const {
+    openSwalImprimir
+  } = useAuthFuncionarioPrint({usuarioLogado});
   
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -364,7 +368,7 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
 
   const handleClickImprimir = async (row) => {
     if (row.IDVOUCHER) {
-      openSwal(() => handleImprimir(row.IDVOUCHER), row)
+      openSwalImprimir(() => handleImprimir(row.IDVOUCHER), row)
     }
   }
 

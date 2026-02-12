@@ -1,10 +1,10 @@
 import Swal from "sweetalert2";
-import { get, post, put } from "../../../../../api/funcRequest";
-import { removerMascaraCPF } from "../../../../../utils/formatCPF";
+import { get, post, put } from "../../../../../../api/funcRequest";
+import { removerMascaraCPF } from "../../../../../../utils/formatCPF";
 import { useEffect, useState } from "react";
 import { useQuery } from "react-query";
 import axios from "axios";
-import { getDataAtual } from "../../../../../utils/dataAtual";
+import { getDataAtual } from "../../../../../../utils/dataAtual";
 
 async function getDadosEnderecoViaCep_API_externa(cep) {
     const URL_VIA_CEP = 'https://viacep.com.br/ws/{CEP}/json/';

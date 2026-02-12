@@ -1,5 +1,5 @@
 import * as yup from "yup";
-import { validarCPF } from "../../../../../utils/formatCPF";
+import { validarCPF } from "../../../../../../utils/formatCPF";
 
 export const schema = yup.object({
   cpfCliente: yup.string()

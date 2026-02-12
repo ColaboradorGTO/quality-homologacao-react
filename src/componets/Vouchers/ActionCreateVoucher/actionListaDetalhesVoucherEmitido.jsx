@@ -18,7 +18,7 @@ import { useReactToPrint } from "react-to-print";
 import { ActionEditarStatusVoucherModal } from './ActionEditarVoucher/actionEditarStatusVoucherModal';
 import { ActionImprimirVoucherModal } from './ActionImprimir/actionImprimirVoucherModal';
 import Swal from 'sweetalert2';
-import { useAuthFuncionarioPrint } from '../../Administrativo/Components/ActionConsultaVoucher/hooks/useAuthFuncionarioPrint';
+import { useAuthFuncionarioPrint } from './hooks/useAuthFuncionarioPrint';
 
 
 export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSelecionado, usuarioLogado, optionsModulos }) => {
