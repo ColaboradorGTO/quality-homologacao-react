@@ -27,9 +27,7 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
   const [numeroVoucherSelecionado, setNumeroVoucherSelecionado] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [marcaSelecionado, setMarcaSelecionado] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [dadosDetalheVoucherSelecionado, setDadosDetalheVoucherSelecionado] = useState([])
-  const [isQueryData, setIsQueryData] = useState(false);
   const [modalVoucher, setModalVoucher] = useState(true);
 
   const { data: optionsEmpresas = [] } = useFetchData('empresas', '/empresas');
@@ -160,8 +158,9 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
   const handleClickCadastro = () => {
     if (optionsModulos[0]?.CRIAR == 'True') {
       setActionPrincipal(false);
-      setTabelaVisivel(false);
+      setTabelaVisivelVoucher(false);
       setActionSecundaria(true);
+      console.log(actionSecundaria, 'actionSecundaria')
     } else {
       Swal.fire({
         icon: 'error',
