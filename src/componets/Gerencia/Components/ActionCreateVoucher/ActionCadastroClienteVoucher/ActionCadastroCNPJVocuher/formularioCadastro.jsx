@@ -1,12 +1,12 @@
 import { Fragment } from "react"
-import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
-import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
+import { FooterModal } from "../../../../../Modais/FooterModal/footerModal"
+import { ButtonTypeModal } from "../../../../../Buttons/ButtonTypeModal"
 import { Controller, useForm } from "react-hook-form"
-import { mascaraTelefone } from "../../../../../utils/mascaraTelefone"
+import { mascaraTelefone } from "../../../../../../utils/mascaraTelefone"
 import Select from "react-select"
 import { schema } from "./schemaValidationCNPJ"
-import FormField from "../../../../Formularios/FormField"
-import { AlertError } from "../../../../Inputs/alertError"
+import FormField from "../../../../../Formularios/FormField"
+import { AlertError } from "../../../../../Inputs/alertError"
 import { useCadastrarClienteCNPJVoucher } from "../hooks/useCadastroClienteCNPJVoucher"
 
 export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, onCpf }) => {

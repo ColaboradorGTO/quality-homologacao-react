@@ -15,6 +15,8 @@ import Swal from "sweetalert2";
 import { useCriarVoucher } from "./hooks/useCriarVoucher";
 import { ActionCadastroClienteCNPJ } from "./ActionCadastroCliente/ActionCadastroCNPJ/actionCadastroClienteCNPJ";
 import { ActionCadastroClienteCPF } from "./ActionCadastroCliente/ActionCadastroCPF/actionCadastroClienteCPF";
+import { ActionCadastroClienteVoucherCNPJ } from "./ActionCadastroClienteVoucher/ActionCadastroCNPJVocuher/actionCadastroClienteVoucheCNPJ";
+import { ActionCadastroClienteVoucherCPF } from "./ActionCadastroClienteVoucher/ActionCadastroCPFVoucher/actionCadastroClienteVoucheCPF";
 
 export const ActionPesquisaCreateVoucherCliente = ({
   actionSecundaria,
@@ -33,7 +35,9 @@ export const ActionPesquisaCreateVoucherCliente = ({
   const [tabelaVenda, setTabelaVenda] = useState(true);
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
   const [modalCadastroClienteCPF, setModalCadastroClienteCPF] = useState(false);
+  const [modalCadastroClienteCPFVoucher, setModalCadastroClienteCPFVoucher] = useState(false);
   const [modalCadastroClienteCNPJ, setModalCadastroClienteCNPJ] = useState(false);
+  const [modalCadastroClienteCNPJVoucher, setModalCadastroClienteCNPJVoucher] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [cpf, setCPF] = useState('');
@@ -336,6 +340,23 @@ export const ActionPesquisaCreateVoucherCliente = ({
         handleClose={() => setModalCadastroClienteCNPJ(false)}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+      />
+
+      <ActionCadastroClienteVoucherCNPJ
+        show={modalCadastroClienteCNPJVoucher}
+        handleClose={() => setModalCadastroClienteCNPJVoucher(false)}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        onCpf={onCpf}
+      />
+
+      <ActionCadastroClienteVoucherCPF
+        show={modalCadastroClienteCPFVoucher}
+        handleClose={() => setModalCadastroClienteCPFVoucher(false)}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        optionsCPF={optionsCPF}
+        onCpf={onCpf}
       />
     </Fragment>
   )

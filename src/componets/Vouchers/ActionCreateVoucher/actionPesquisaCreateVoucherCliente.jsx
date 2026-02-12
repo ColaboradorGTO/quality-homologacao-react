@@ -350,16 +350,13 @@ export const ActionPesquisaCreateVoucherCliente = ({
         optionsModulos={optionsModulos}
       />
  
-
       <ActionCadastroClienteVoucherCNPJ
         show={modalCadastroClienteCNPJVoucher}
         handleClose={() => setModalCadastroClienteCNPJVoucher(false)}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
         onCpf={onCpf}
-        
       />
-
 
       <ActionCadastroClienteVoucherCPF
         show={modalCadastroClienteCPFVoucher}
