@@ -8,7 +8,6 @@ import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 import { validarCNPJ } from "../../../../../utils/mascaraCNPJ";
 import axios from "axios";
 import { validarInscricaoEstadual } from "../../../../../utils/validador-inscricao-estadual";
-// import {getDadosEnderecoViaCep_API_externa, validaCEP, getDadosEnderecoViaCep_API_redundancia} from "./validationCNPJService"
 
 async function getDadosEnderecoViaCep_API_externa(cep) {
     const URL_VIA_CEP = 'https://viacep.com.br/ws/{CEP}/json/';
@@ -120,21 +119,25 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
 
 
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
-
-            if (!usuarioIP) {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
+            usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
+
+        if (!usuarioIP) {
+            try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+            } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
 
