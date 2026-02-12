@@ -6,8 +6,69 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import { getDataAtual } from "../../../../../../utils/dataAtual";
 
+async function getDadosEnderecoViaCep_API_externa(cep) {
+    const URL_VIA_CEP = 'https://viacep.com.br/ws/{CEP}/json/';
+    cep = cep.replace(/\D/g, "");
 
-export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose, onCpf, onVoucherSuccess }) => {
+    try {
+        const response = await axios.get(URL_VIA_CEP.replace('{CEP}', cep));
+        const data = response.data;
+        let { erro } = data || {};
+
+        // Se não houver erro, status é 200
+        let status = erro ? 429 : 200;
+
+        if (status !== 200) {
+            return { status: 429, message: 'CEP INVÁLIDO OU NÃO ENCONTRADO, verifique e tente novamente!' };
+        }
+
+        return { status, data };
+    } catch (respError) {
+        let status = respError?.response?.status || 500;
+        let message = respError?.response?.statusText || respError?.message || 'Erro ao consultar o CEP';
+        return { status, message };
+    }
+}
+
+async function validaCEP(cep, verificarNaApi = false) {
+    const regex = /^[0-9]{5}-?[0-9]{3}$/;
+    
+    if (!regex.test(cep)){
+        return false;
+    }
+
+    if(verificarNaApi){
+        let respCep = await getDadosEnderecoViaCep_API_externa(cep);
+        return !(respCep?.erro == 'true'); 
+    }
+
+    return true;
+}
+
+async function getDadosEnderecoViaCep_API_redundancia(cep) {
+    const URL_VIA_CEP = 'https://opencep.com/v1/{CEP}.json';
+    cep = cep.replace(/\D/g, "");
+
+    try {
+        const response = await axios.get(URL_VIA_CEP.replace('{CEP}', cep));
+        const data = response.data;
+        let { erro } = data || {};
+
+        let status = erro ? 429 : 200;
+
+        if (status !== 200) {
+            return { status: 429, message: 'CEP INVÁLIDO OU NÃO ENCONTRADO, verifique e tente novamente!' };
+        }
+
+        return { status, data };
+    } catch (respError) {
+        let status = respError?.response?.status || 500;
+        let message = respError?.response?.statusText || respError?.message || 'Erro ao consultar o CEP';
+        return { status, message };
+    }
+}
+
+export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose }) => {
     const [idCliente, setIdCliente] = useState('');
     const [tipo, setTipo] = useState('');
     const [dataCadastro, setDataCadastro] = useState('');
@@ -30,68 +91,112 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
     const [cpfFuncionario, setCpfFuncionario] = useState('');
     const [empresa, setEmpresa] = useState('');
     const [ipUsuario, setIpUsuario] = useState('');
-
+    const [cepDigitado, setCepDigitado] = useState(false);
 
     useEffect(() => {
         const dataAtual = getDataAtual()
         setDataCadastro(dataAtual)
-
     }, [usuarioLogado]);
 
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
 
-            if (!usuarioIP) {
+        if (!usuarioIP) {
+            try {
                 const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
                 usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
             }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
-        } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
         }
-    };
-
-    useEffect(() => {
-        if (cep.length === 8) {
-            getCEP();
-        }
-
-    }, [cep]);
-
-    const getCEP = async () => {
-        const response = await axios.get(`https://viacep.com.br/ws/${cep}/json`);
-        if (response.data) {
-            setCep(response.data.cep);
-            setEndereco(response.data.logradouro);
-            setComplemento(response.data.complemento);
-            setBairro(response.data.bairro);
-            setCidade(response.data.localidade);
-            setEstado(response.data.uf);
-            setNuIBGE(response.data.ibge);
-
-        }
-        return response.data;
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
     const { data: optionsCPF = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
         ['cliente-todos', cpf],
         async () => {
-            const response = await get(`/cliente-todos?numeroCpfCnpj=${removerMascaraCPF(cpf)}`);
-            
+            const response = await get(`/cliente-todos?numeroCpfCnpj=${removerMascaraCPF(cpf)}`);   
             return response.data;
         },
         { enabled: cpf?.length >= 8, staleTime: 5 * 60 * 1000 }
     );
 
+    useEffect(() => {
+        if (cep.length >= 7 && cepDigitado && optionsCPF.length >= 0) {
+            getCEP();
+        }
+    }, [cep, cepDigitado, optionsCPF]);
+
+    const getCEP = async () => {
+        try {
+            const isValidCep = await validaCEP(cep, false);
+            if (!isValidCep) {
+                Swal.fire({
+                    title: 'CEP Inválido',
+                    text: 'Por favor, digite um CEP válido.',
+                    icon: 'warning',
+                    customClass: {
+                        container: 'custom-swal',
+                    }
+                });
+                return;
+            }
+           
+            let response = await getDadosEnderecoViaCep_API_externa(cep);    
+         
+            if (response.status !== 200) {
+                console.log('API principal falhou, tentando API de redundância...');
+                response = await getDadosEnderecoViaCep_API_redundancia(cep);
+            }
+            
+            if (response.status !== 200) {
+                Swal.fire({
+                    title: 'Erro ao buscar CEP',
+                    text: response.message || 'CEP não encontrado. Verifique e tente novamente.',
+                    icon: 'error',
+                    customClass: {
+                        container: 'custom-swal',
+                    }
+                });
+                return;
+            }
+            
+            const data = response.data;    
+            
+            setCep(data.cep || data.zipCode || cep);
+            setEndereco(data.logradouro || data.address || '');
+            setComplemento(data.complemento || '');
+            setBairro(data.bairro || data.neighborhood || '');
+            setCidade(data.localidade || data.city || '');
+            setEstado(data.uf || data.state || '');
+            setNuIBGE(data.ibge || '');
+            
+        } catch (error) {
+            console.error('Erro ao buscar CEP:', error);
+            Swal.fire({
+                title: 'Erro',
+                text: 'Erro interno ao buscar o CEP. Tente novamente.',
+                icon: 'error',
+                customClass: {
+                    container: 'custom-swal',
+                }
+            });
+        }
+    };
+
     
     useEffect(() => {
         if (optionsCPF.length > 0) {
-            const cliente = optionsCPF[0];
+            const cliente = optionsCPF[0];    
+            setCepDigitado(false);     
             setIdCliente(cliente?.IDCLIENTE || "");
             setEmpresa(cliente?.IDEMPRESA || "");
             setDataCadastro(cliente?.DTCADASTRO || cliente?.DTULTALTERACAO?.split(" ")[0] || "");
@@ -103,29 +208,23 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             setCep(cliente?.NUCEP || "");
             setEndereco(cliente?.EENDERECO || "");
             setNumero(cliente?.NUENDERECO || "");
-            setComplemento(cliente?.ECOMPLEMENTO || "");
+            setComplemento(cliente?.ECOMPLEMENTO);
             setBairro(cliente?.EBAIRRO || "");
             setNuIBGE(cliente?.NUIBGE || "");
             setCidade(cliente?.ECIDADE || "");
             setEstado(cliente?.SGUF || "");
             setNumeroComercial(cliente?.NUTELCOMERCIAL || "");
             setTipoIndicacaoIE(cliente?.IDINDICACAOIE || (cliente?.SGUF == "DF" ? 2 : 9));
-
-            // Separar nome e sobrenome para CPF
+            
             if (cliente?.NUCPFCNPJ?.length <= 11) {
-                let nome = cliente?.DSNOMERAZAOSOCIAL || "";
-                let sobrenome = "";
-                const partes = nome.split(" ");
-                if (partes.length > 1) {
-                    sobrenome = partes.pop();
-                    nome = partes.join(" ");
-                }
-                setNomeClienteRazao(nome);
-                setSobrenome(sobrenome);
+                setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL); 
+                setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);    
             } else {
-                setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL || "");
-                setSobrenome(cliente?.DSNOMERAZAOSOCIAL || "");
+                setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL);
+                setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);
             }
+        } else {
+            setCepDigitado(false); 
         }
     }, [optionsCPF]);
 
@@ -142,56 +241,17 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         }
     }, [optionsCPF]);
 
-
     const optionsIndicacaoIE = [
         { value: 9, label: 'Não Contribuinte Com ou Sem IE' },
+        { value: 1, label: 'Contribuinte ICMS' },
+        { value: 2, label: 'Contribuinte Isento de IE' },
     ]
-    // { value: 1, label: 'Contribuinte ICMS' },
-    // { value: 2, label: 'Contribuinte Isento de IE' },
-
+        
     const readOnlyCpf = optionsCPF && optionsCPF.length > 0;
-
 
     const onSubmit = async () => {
         try {
-            if (nomeClienteRazao == '') {
-                Swal.fire({
-                    title: 'Atenção',
-                    text: 'O campo Nome é obrigatório.',
-                    icon: 'warning',
-                    customClass: {
-                        container: 'custom-swal',
-                    }
-                });
-                return;
-            }
-
-            if (sobrenome == '') {
-                Swal.fire({
-                    title: 'Atenção',
-                    text: 'O campo Sobrenome é obrigatório.',
-                    icon: 'warning',
-                    customClass: {
-                        container: 'custom-swal',
-                    }
-                });
-                return;
-            }
-
-            if (cpf == '') {
-                Swal.fire({
-                    title: 'Atenção',
-                    text: 'O campo CPF é obrigatório.',
-                    icon: 'warning',
-                    customClass: {
-                        container: 'custom-swal',
-                    }
-                });
-                return;
-            }
-
             const cpfSemMascara = removerMascaraCPF(cpf);
-            let IE = tipoIndicacaoIE == 2 ? 'ISENTO' : (tipoIndicacaoIE || 'ISENTO');
             let IM = '';
 
             const isUpdate = optionsCPF.length > 0 && idCliente;
@@ -199,26 +259,26 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             const putData = {
                 ...(isUpdate && { IDCLIENTE: idCliente }),
                 IDEMPRESA: parseInt(usuarioLogado?.IDEMPRESA),
-                DSNOMERAZAOSOCIAL: nomeClienteRazao.toUpperCase(),
-                DSAPELIDONOMEFANTASIA: sobrenome.toUpperCase(),
-                TPCLIENTE: tipo.toUpperCase(),
+                DSNOMERAZAOSOCIAL: nomeClienteRazao,
+                DSAPELIDONOMEFANTASIA: sobrenome,
+                TPCLIENTE: 'FISICA',
                 NUCPFCNPJ: cpfSemMascara,
-                NURGINSCESTADUAL: IE,
+                NURGINSCESTADUAL: tipoIndicacaoIE == 2 ? 'ISENTO' : (tipoIndicacaoIE || 'ISENTO') || tipoIndicacaoIE == 9 ? 'ISENTO' : 'ISENTO',
                 NUINSCMUNICIPAL: IM,
                 NUCEP: cep.replace(/\D/g, ""),
                 NUIBGE: parseInt(nuIBGE),
-                EENDERECO: endereco.toUpperCase(),
+                EENDERECO: endereco,
                 NUENDERECO: numero,
-                ECOMPLEMENTO: complemento.toUpperCase(),
-                EBAIRRO: bairro.toUpperCase(),
-                ECIDADE: cidade.toUpperCase(),
-                SGUF: estado.toUpperCase(),
-                EEMAIL: email.toUpperCase(),
+                ECOMPLEMENTO: complemento,
+                EBAIRRO: bairro,
+                ECIDADE: cidade,
+                SGUF: estado,
+                EEMAIL: email,
                 NUTELCOMERCIAL: numeroComercial,
                 NUTELCELULAR: telefoneCliente.replace(/\D/g, ""),
                 DTNASCFUNDACAO: dataNascimento,
                 IDINDICACAOIE: Number(tipoIndicacaoIE.value) || 9,
-                DSINDICACAOIE: tipoIndicacaoIE?.label,
+                DSINDICACAOIE: tipoIndicacaoIE == 9 ? 'NÃO CONTRIBUINTE COM OU SEM IE' : tipoIndicacaoIE == 1 ? 'CONTRIBUINTE ICMS' : 'CONTRIBUINTE ISENTO DE IE',
                 IDFUNCIONARIO: Number(usuarioLogado.id),
             }
 
@@ -234,7 +294,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postData)
+            await post('/log-web', postData)
 
 
             Swal.fire({
@@ -252,16 +312,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             setCpf('');
             setCep('');
             
-            // Se tem onVoucherSuccess, é contexto de voucher
-            if (onVoucherSuccess && typeof onVoucherSuccess === 'function') {
-                await onVoucherSuccess();
-            } 
-            // Senão, usa o callback padrão se existir
-            else if (onCpf && typeof onCpf === 'function') {
-                await onCpf();
-            }
-            return responsePost.data;
-
+            return response.data;
         } catch (error) {
             console.error("Erro ao processar cliente:", error);
 
@@ -289,7 +340,6 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             return;
         }
     }
-
 
     return {
         idCliente,
@@ -333,6 +383,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         empresa,
         optionsIndicacaoIE,
         onSubmit,
-        readOnlyCpf
+        readOnlyCpf,
+        setCepDigitado
     }
 }
