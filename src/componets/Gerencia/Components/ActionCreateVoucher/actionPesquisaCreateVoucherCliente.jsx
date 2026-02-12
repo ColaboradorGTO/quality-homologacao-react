@@ -153,7 +153,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
     setEmpresaSelecionada(e.value);
   }
 
-
   const handleOpenModalCPF = () => {
     setModalCadastroClienteCPF(true);
     setModalCadastroClienteCNPJ(false);
@@ -163,7 +162,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
     setModalCadastroClienteCNPJ(true);
     setModalCadastroClienteCPF(false);
   };
-
 
   const handleClickModalCPFCNPJ = () => {
     Swal.fire({
@@ -184,7 +182,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
     });
   };
 
-
   const handleClick = () => {
     setTabelaVisivel(true);
     setTabelaVendasClientes(false);
@@ -192,7 +189,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
     setActionPrincipal(true);
     setActionSecundaria(false); 
   }
-
 
   const handleClickClientes = () => {
     setTabelaVendasClientes(true);
@@ -209,7 +205,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
     onCpf,
     onSubmitVoucher,
     onAuthFuncionario,
-    
   } = useCriarVoucher({
     usuarioLogado,
     selectedRows,
@@ -245,11 +240,14 @@ export const ActionPesquisaCreateVoucherCliente = ({
 
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Empresa"}
-        optionsEmpresas={dadosEmpresasVoucher.map((empresa) => ({
-          value: empresa.IDEMPRESA,
-          label: empresa.NOFANTASIA,
-        }))}
-        valueSelectEmpresa={empresaSelecionada}
+        optionsEmpresas={[
+          {value: '', label: 'Todas as Empresas'},
+          ...dadosEmpresasVoucher.map((empresa) => ({
+            value: empresa.IDEMPRESA,
+            label: empresa.NOFANTASIA,
+          }))
+        ]}
+        valueSelectEmpresa={dadosEmpresasVoucher.find(empresa => empresa.IDEMPRESA == usuarioLogado?.IDEMPRESA) || ''}
         onChangeSelectEmpresa={handleSelectEmpresa}
 
         InputFieldCodBarraComponent={InputField}
@@ -293,7 +291,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
         corVendasEstrutura={"info"}
         iconVendasEstrutura={MdAdd}
         styleVendasEstrutura={btnVisivel ? { display: 'block' } : { display: 'none' }}
-
       />
 
   
