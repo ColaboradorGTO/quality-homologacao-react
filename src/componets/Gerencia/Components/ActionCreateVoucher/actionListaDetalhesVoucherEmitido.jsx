@@ -18,6 +18,7 @@ import { ActionDetalharModal } from './ActionDetalhar/actionDetalharModal';
 import { ActionEditarStatusVoucherModal } from './ActionEditarVoucher/actionEditarStatusVoucherModal';
 import { ActionImprimirVoucherModal } from './ActionImprimir/actionImprimirVoucherModal';
 import { useAuthFuncionarioPrint } from './hooks/useAuthFuncionarioPrint';
+import { useAuthFuncionarioUpdate } from './hooks/useAuthFuncionarioUpdate';
 
 
 export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSelecionado, usuarioLogado }) => {
@@ -37,6 +38,10 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
     openSwalImprimir
   } = useAuthFuncionarioPrint({usuarioLogado});
   
+  const {
+    openSwal
+  } = useAuthFuncionarioUpdate({usuarioLogado});
+
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
@@ -260,64 +265,6 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
 
   ]
   
-
-  const openSwal = async (callback, row) => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Autorização',
-      html: `
-        <div>
-          <label class="form-label" for="matricula">Matrícula</label>
-          <input type="text" id="matricula" class="swal2-input" placeholder="Matrícula" style="text-align: center;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-          <label class="form-label" for="senha">Senha</label>
-          <input type="password" id="senha" class="swal2-input" placeholder="Senha">
-        </div>      
-      `,
-      width: '25rem',
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Entrar',
-      cancelButtonText: 'Cancelar',
-      didOpen: () => {
-        const swalContainer = Swal.getPopup();
-        swalContainer.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            Swal.clickConfirm();
-          }
-        });
-      },
-      preConfirm: async () => {
-        const usuario = document.getElementById('matricula').value;
-        const senha = document.getElementById('senha').value;
-        
-        const data = { 
-          MATRICULA: usuario, 
-          SENHA: senha, 
-          IDVOUCHER: row.IDVOUCHER,
-          IDEMPRESALOGADA: usuarioLogado.IDEMPRESA,
-          IDGRUPOEMPRESARIAL: usuarioLogado.IDGRUPOEMPRESARIAL, 
-        }; 
-        try {
-          const response = await post('/auth-funcionario-update-voucher', data);
-          
-          if (response.data) {
-            return response.data;
-          } else {
-            Swal.showValidationMessage(`Credenciais inválidas`);
-          }
-        } catch (error) {
-          Swal.showValidationMessage(`Erro ao autenticar: ${error.message}`);
-        }
-      }
-    });
-  
-    if (formValues) {
-      setIsLoggedIn(true);
-      setUsuarioAutorizado(formValues);
-      callback()
-    }
-  };
-
-
   const handleClickDetalhar = async (row) => {
     if (row.IDVOUCHER) {
      handleDetalhar(row.IDVOUCHER);
@@ -327,7 +274,7 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
   const handleDetalhar = async (IDVOUCHER) => {
     try {
       const response = await get(`/detalheVoucherDados?idVoucher=${IDVOUCHER}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosDetalheVoucher(response.data)
         setModalDetalhe(true)
       }
@@ -339,7 +286,7 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
   const handleEdit = async (IDVOUCHER) => {
     try {
       const response = await get(`/detalheVoucherDados?idVoucher=${IDVOUCHER}`);
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosEditarVoucher(response.data);
         setModalEditarVoucher(true);
       }
@@ -357,7 +304,7 @@ export const ActionListaDetalhesVoucherEmitido = ({ dadosDetalheVoucherSeleciona
   const handleImprimir = async (IDVOUCHER) => {
     try {
       const response = await get(`/detalheVoucherDados?idVoucher=${IDVOUCHER}`);
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosImprimirVoucher(response.data);
         setModalImprimirVoucher(true);
       }
