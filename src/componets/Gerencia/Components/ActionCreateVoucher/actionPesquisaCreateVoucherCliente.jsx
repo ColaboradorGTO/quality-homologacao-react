@@ -109,17 +109,11 @@ export const ActionPesquisaCreateVoucherCliente = ({
   const { data: dadosEmpresasVoucher = [], refetch: refetchListaEmpresaVouchers } = useQuery(
     ['empresasVoucher', usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
     () => fetchListaEmpresasVouchers(usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
-    {
-      enabled: false,
-    }
+    { enabled: Boolean(usuarioLogado?.IDGRUPOEMPRESARIAL), staleTime: 60 * 60 * 1000 }
   );
 
-  useEffect(() => {
-    refetchListaEmpresaVouchers();
-  }, [usuarioLogado, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize]);
-
   const fetchListaVendasClientes = async () => {
-    const urlBase = `/lista-venda-cliente?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpf}&nnf=${numeroNF}&serie=${serie}`;
+    const urlBase = `/lista-venda-cliente?idEmpresa=${empresaSelecionada}&idSubGrupoEmpresarial=${usuarioLogado?.IDGRUPOEMPRESARIAL}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpf}&nnf=${numeroNF}&serie=${serie}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -197,31 +191,30 @@ export const ActionPesquisaCreateVoucherCliente = ({
 
 
   const handleClick = () => {
-    // refetchListaVouchers()
     setTabelaVisivel(true);
     setTabelaVendasClientes(false);
     setTabelaVisivelVoucherSelecionados(false);
     setActionPrincipal(true);
-    setActionSecundaria(false);
-
+    setActionSecundaria(false); 
   }
 
 
   const handleClickClientes = () => {
     setTabelaVendasClientes(true);
+    setTabelaVenda(true);
+    setTabelaSecundaria(false);
     setTabelaVisivel(false);
     setTabelaVisivelVoucherSelecionados(false);
-    // setTabelaVisivelVoucher(false)
+    setTabelaVisivelVoucher(false)
     refetchListaVendasClientes()
   }
 
   const {
     optionsCPF,
     onCpf,
-    onAuthFuncionario,
     onSubmitVoucher,
-    cpfCliente,
-    setCpfCliente
+    onAuthFuncionario,
+    
   } = useCriarVoucher({
     usuarioLogado,
     selectedRows,
@@ -230,8 +223,9 @@ export const ActionPesquisaCreateVoucherCliente = ({
     tipoTrocaSelecionada,
     quantidade,
     quantidadesProdutos,
-    modalCadastroClienteCPF,
-    setModalCadastroClienteCPF,
+    modalCadastroClienteCPFVoucher,
+    setModalCadastroClienteCPFVoucher,
+    setModalCadastroClienteCNPJVoucher,
     handleClick
   })
 
@@ -324,6 +318,10 @@ export const ActionPesquisaCreateVoucherCliente = ({
           setQuantidade={setQuantidade}
           quantidadesProdutos={quantidadesProdutos}
           setQuantidadesProdutos={setQuantidadesProdutos}
+          tabelaSecundaria={tabelaSecundaria}
+          setTabelaSecundaria={setTabelaSecundaria}
+          tabelaVenda={tabelaVenda}
+          setTabelaVenda={setTabelaVenda}
         />
       )}
 

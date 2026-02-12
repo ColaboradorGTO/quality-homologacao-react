@@ -33,10 +33,10 @@ export const useCriarVoucher = ({
 
         if (!usuarioIP) {
             try {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
             } catch (error) {
-            console.error("Erro ao buscar IP via ipify.org:", error);
+                console.error("Erro ao buscar IP via ipify.org:", error);
             }
         }
         setIpUsuario(usuarioIP);

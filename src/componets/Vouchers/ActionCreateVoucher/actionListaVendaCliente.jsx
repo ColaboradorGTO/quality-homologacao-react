@@ -16,7 +16,6 @@ import Swal from 'sweetalert2';
 
 export const ActionListaVendaCLiente = ({
   dadosVendasClientes,
-  btnVisivel,
   setBtnVisivel,
   selectedRows,
   setSelectedRows,
@@ -24,8 +23,6 @@ export const ActionListaVendaCLiente = ({
   setDadosVisualizarProdutos,
   tipoTrocaSelecionada,
   setTipoTrocaSelecionada,
-  quantidade,
-  setQuantidade,
   quantidadesProdutos,
   setQuantidadesProdutos,
   tabelaSecundaria,
@@ -36,7 +33,6 @@ export const ActionListaVendaCLiente = ({
   const [rowClick, setRowClick] = useState(true);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
-
 
   const onRowSelect = (row, checked) => {
     if (checked) {
