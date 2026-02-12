@@ -25,19 +25,29 @@ import { InputSelectAction } from "../../Inputs/InputSelectAction";
 import { useFetchData } from "../../../hooks/useFetchData";
 
 
-export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
+export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const [actionVisivel, setActionVisivel] = useState(true);
   const [resumoVisivel, setResumoVisivel] = useState(false);
   const [dataPesquisa, setDataPesquisa] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [dadosDespesaLoja, setDadosDespesaLoja] = useState([]);
   const [dadosExtratoLoja, setDadosExtratoLoja] = useState([]);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+     
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
@@ -61,7 +71,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
       return response.data;
      
     },
-    { enabled: Boolean(usuarioLogado?.IDEMPRESA), staleTime: 5 * 60 * 1000 }
+    { enabled: Boolean(usuarioLogado?.IDEMPRESA) }
   );
 
   const retornoListaCaixaFechadosNaoConferidos = () => {
@@ -74,7 +84,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
         const dataAbertura = new Date(caixa.DTABERTURA);
         const dataFechamento = new Date(caixa.DTFECHAMENTO);
         const hoje = new Date();
-        console.log(dadosCaixasNaoConferidos, 'caixa')
+    
         // Calcula a diferença em dias
         const diffTime = Math.abs(hoje - dataAbertura);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
@@ -104,7 +114,6 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
     }
   };
 
-
   useEffect(() => {
     if (dadosCaixasNaoConferidos.length > 0 && !isLoadingCaixasNaoConferidos) {
       retornoListaCaixaFechadosNaoConferidos();
@@ -123,7 +132,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
       }
       return [];
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
   
   const { data: dadosAdiantamento = [], error: errorAdiantamento, isLoading: isLoadingAdiantamento, refetch: refetchAdiantamento } = useQuery(
@@ -136,7 +145,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
       }
       return [];
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
   const { data: dadosQuebraCaixa = [], error: errorQuebraCaixa, isLoading: isLoadingQuebraCaixa, refetch: refetchQuebraCaixa } = useQuery(
@@ -148,7 +157,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
       return response.data;
       }
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
  
@@ -163,7 +172,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
       }
       return [];
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
 
@@ -186,92 +195,94 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
   const {  data: dadosListaCaixa = [], error: errorCaixaMovimento, isLoading: isLoadingCaixaMovimento, refetch: refetchCaixaMovimento } = useQuery(
     'lista-caixas-movimento-gerencia',
     async () => {
-      const idEmpresa = ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/lista-caixas-movimento-gerencia?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}`);
         return response.data;
       }
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
   const { data: dadosVendasPCJ = [], error: errorVendasPCJ, isLoading: isLoadingPCJ, refetch: refetchPCJ } = useQuery(
     'lista-caixas-movimento-gerencia',
     async () => {
-      const idEmpresa = ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/lista-caixas-movimento-gerencia?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}`);
         return response.data;
       }
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
   const { data: dadosVendasVendedor = [], error: errorVendasVendedor, isLoading: isLoadingVendasVendedor, refetch: refetchVendasVendedor } = useQuery(
     'vendedor',
     async () => {
-      const idEmpresa = ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      console.log(optionsModulos[0]?.ADMINISTRADOR, 'optionsModulos[0]?.ADMINISTRADOR')
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/vendedor?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}`);
+        console.log(response.data, 'dadosVendasVendedor')
         return response.data;
       }
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
   const { data: dadosVendasAtivas = [], error: errorVendasAtivas, isLoading: isLoadingVendasAtivas, refetch: refetchVendasAtivas } = useQuery(
     'resumo-venda-caixa',
     async () => {
-      const idEmpresa = ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/resumo-venda-caixa?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}&statusCancelado=False`);
         return response.data;
       }
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
   const { data: dadosVendasCanceladas = [], error: errorVendasCanceladas, isLoading: isLoadingVendasCanceladas, refetch: refetchVendasCanceladas } = useQuery(
     'resumo-venda-caixa',
     async () => {
-      const idEmpresa = ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/resumo-venda-caixa?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}&statusCancelado=True`);
         return response.data;
       }
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
   const { data: dadosVendasConvenioDesconto = [], error: errorVendasConvenioDesconto, isLoading: isLoadingVendasConvenioDesconto, refetch: refetchVendasConvenioDesconto } = useQuery(
     'resumo-venda-convenio',
     async () => {
-      const idEmpresa = ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/resumo-venda-convenio?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}`);
         return response.data;
       }
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
   const { data: dadosVendasConvenioDescontoFuncionario = [], error: errorVendasConvenioDescontoFuncionario, isLoading: isLoadingVendasConvenioDescontoFuncionario, refetch: refetchVendasConvenioDescontoFuncionario } = useQuery(
     'resumo-venda-convenio-desconto',
     async () => {
-      const idEmpresa = ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/resumo-venda-convenio-desconto?statusCancelado=False&idEmpresa=${idEmpresa}&dataPesquisaInicio=${dataPesquisa}&dataPesquisaFim=${dataPesquisa}`);
         return response.data;
       }
     },
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false }
   );
 
 
 
   const getListaSaldoExtratoLoja = async () => {
     try {
-      const idEmpresa = ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if (idEmpresa) {
       
         const response = await get(`/extrato-loja-periodo?idEmpresa=${idEmpresa}&dataPesquisaInicio=${dataPesquisa}&dataPesquisaFim=${dataPesquisa}`)
@@ -288,22 +299,33 @@ export const ResumoDashBoardGerencia = ({usuarioLogado, ID, ADMINISTRADOR}) => {
 
   
   const handleClick = async () => {
-    refetchCaixaMovimento()
-    refetchPCJ()
-    setResumoVisivel(true)
-    refetchResumoVendas()
-    refetchVendasVendedor()
-    refetchVendasAtivas()
-    refetchVendasCanceladas()
-    refetchVendasConvenioDesconto()
-    refetchVendasConvenioDescontoFuncionario()
-    refetchQuebraCaixa()
-    refetchAdiantamento()
-    refetchDespesas()
+    if (empresaSelecionada === '' && optionsModulos[0]?.ADMINISTRADOR === "True")  {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Seleção de Empresa',
+        text: 'Por favor, selecione uma empresa para realizar a pesquisa.',
+        showConfirmButton: true,
+      });
+      return;
+    } else {
 
-    // getVendasConvenioFuncionario();
-    getListaSaldoExtratoLoja();
-  }
+        refetchCaixaMovimento()
+        refetchPCJ()
+        setResumoVisivel(true)
+        refetchResumoVendas()
+        refetchVendasVendedor()
+        refetchVendasAtivas()
+        refetchVendasCanceladas()
+        refetchVendasConvenioDesconto()
+        refetchVendasConvenioDescontoFuncionario()
+        refetchQuebraCaixa()
+        refetchAdiantamento()
+        refetchDespesas()
+    
+        // getVendasConvenioFuncionario();
+        getListaSaldoExtratoLoja();
+      }
+    }
 
 
   return (

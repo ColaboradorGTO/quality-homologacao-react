@@ -66,16 +66,17 @@ export const MenuSidebarAdmin = ({componentToShow, handleShowComponent }) => {
         {administrativoUser.map((menuItem, index) => {
         const { ID, DSNOME, URL } = menuItem;
         // const { id, linkText, url } = menuItem;
-
-        if (!URL) {
-          return null;
-        }
-        return (
-          <li key={ID || index} className={activeLink === URL ? "active" : ""}>
+          // console.log(menuItem, 'menuItem')
+          if (!URL) {
+            return null;
+          }
+          return (
+            <li key={ID || index} className={activeLink === URL ? "active" : ""}>
           <a href="#" onClick={() => handleClick(URL)}>
             <span className="nav-link-text">
             {/* {linkText} */}
             
+           
             {DSNOME}
             </span>
           </a>

@@ -64,7 +64,7 @@ export const DashBoardRecursosHumanos = ({}) => {
     return { ...acc, ...curr };
   }, {});
 
-
+  console.log(ID, 'ID do menu filho no DashBoardRecursosHumanos')
   let component = null;
 
   switch (componentToShow) {

@@ -9,8 +9,6 @@ import { useFetchData } from "../hooks/useFetchData";
 import { useQuery } from "react-query";
 import { get } from "../api/funcRequest";
 
-
-
 const ResumoDashBoardGerencia = lazy(() => import("../componets/Gerencia/ResumoGerencia/ResumoDashBoardGerencia").then(module => ({ default: module.ResumoDashBoardGerencia })));
 const ActionPesquisaProdutosQuality = lazy(() => import("../componets/Gerencia/Components/ActionProdutosQuality/actionPesquisaProdutosQuality").then(module => ({ default: module.ActionPesquisaProdutosQuality })));
 const ActionPesquisaProdutosSap = lazy(() => import("../componets/Gerencia/Components/ActionProdutosSAP/actionPesquisaProdutosSap").then(module => ({ default: module.ActionPesquisaProdutosSap })));
@@ -45,6 +43,9 @@ const ActionPesquisaVendaVoucher = lazy(() => import("../componets/Gerencia/Comp
 export const DashBoardGerencia = () => {
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
+  const [menuSelected, setMenuSelected] = useState(null);
+  const [menuFilhoSelecionado, setMenuFilhoSelecionado] = useState(null);
+  
   const [resumoVisivel, setResumoVisivel] = useState(true);
   const [componentToShow, setComponentToShow] = useState("");
   const [usuarioLogado, setUsuarioLogado] = useState(null);
@@ -58,19 +59,44 @@ export const DashBoardGerencia = () => {
   }, []);
 
   useEffect(() => {
+    const storedMenuFilho = JSON.parse(localStorage.getItem('menufilhoSelecionado'));
+
+    if (storedMenuFilho) {
+      setMenuSelected(selectedModule);
+    }
 
   }, [usuarioLogado]);
 
   function handleShowComponent(componentName) {
+    const menuFilhoSelecionado = selectedModule.menuPai.menuFilho.find(
+      menu => menu.URL === componentName
+    );
+  
+    if (menuFilhoSelecionado) {
+      // Salvar todas as informações do menu selecionado no localStorage
+      localStorage.setItem('menuFilhoSelecionado', JSON.stringify({
+        ID: menuFilhoSelecionado.ID,
+        DSNOME: menuFilhoSelecionado.DSNOME,
+        URL: menuFilhoSelecionado.URL,
+        ALTERAR: menuFilhoSelecionado.ALTERAR,
+        CRIAR: menuFilhoSelecionado.CRIAR,
+        VISUALIZAR: menuFilhoSelecionado.VISUALIZAR,
+        N1: menuFilhoSelecionado.N1,
+        N2: menuFilhoSelecionado.N2,
+        N3: menuFilhoSelecionado.N3,
+        N4: menuFilhoSelecionado.N4,
+        ADMINISTRADOR: menuFilhoSelecionado.ADMINISTRADOR
+      }));
+    }
     setComponentToShow(componentName);
   }
-  
+
   const { data: optionsEmpresas = [] } = useFetchData('empresas', '/empresas');
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario',
+    ['menus-usuario', selectedModule],
     async () => {
       const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
-      
+
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
@@ -79,24 +105,27 @@ export const DashBoardGerencia = () => {
   const permissaoUsuario = selectedModule.menuPai.menuFilho;
   const {   
     ID, 
+    IDPERFIL
   } = permissaoUsuario.map(item => ({
     ID: item.ID,
+    IDPERFIL: item.IDPERFIL,
   })).reduce((acc, curr) => {
+    
     return { ...acc, ...curr };
   }, {});
-
+ 
 
   let component = null;
 
   switch (componentToShow) {
+    case "/gerencia/ResumoDashBoardGerencia":
+      component = <ResumoDashBoardGerencia usuarioLogado={usuarioLogado} ID={ID} />;
+      break;
     case "/gerencia/ActionPesquisaProdutoEtiqueta":
       component = <ActionPesquisaProdutoEtiqueta usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>;
       break;
     case "/gerencia/ActionPesquisaEtiquetaRemarcacao":
       component = <ActionPesquisaEtiquetaRemarcacao usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>;
-      break;
-    case "/gerencia/ResumoDashBoardGerencia":
-      component = <ResumoDashBoardGerencia usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/gerencia/ActionPesquisaProdutosQuality":
       component = <ActionPesquisaProdutosQuality usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />;
@@ -208,7 +237,7 @@ export const DashBoardGerencia = () => {
                           <div className="panel-content">
                             <Suspense fallback={<div>Loading...</div>}>
                               {resumoVisivel && !componentToShow && (
-                                <ResumoDashBoardGerencia usuarioLogado={usuarioLogado} ID={ID}/>
+                                <ResumoDashBoardGerencia usuarioLogado={usuarioLogado} />
                               )}
 
                               {componentToShow && component}

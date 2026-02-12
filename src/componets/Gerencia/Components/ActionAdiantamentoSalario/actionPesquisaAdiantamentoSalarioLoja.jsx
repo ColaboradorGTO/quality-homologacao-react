@@ -33,11 +33,13 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({ ID, optionsEmpresas, usu
     'menus-usuario-excecao',
     async () => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      console.log(response.data, 'optionsModulos')
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
+
+  console.log(optionsModulos, 'optionsModulos')
 
   const fetchAdiantamentos = async () => {
     const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
