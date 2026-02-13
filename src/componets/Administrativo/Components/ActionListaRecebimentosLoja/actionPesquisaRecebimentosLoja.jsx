@@ -268,8 +268,6 @@ export const ActionPesquisaRecebimentosLoja = () => {
         valueMultSelectSubGrupo={pagamentoSelecionado}
         onChangeMultSelectSubGrupo={handleSelectParcela}
         
-
-
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Por Pagamentos"}
         onButtonClickSearch={handleClick}

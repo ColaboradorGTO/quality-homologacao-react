@@ -73,6 +73,27 @@ export const DashBoardAdministrativo = () => {
   );
 
   function handleShowComponent(componentName) {
+    const menuFilhoSelecionado = selectedModule.menuPai.menuFilho.find(
+      menu => menu.URL === componentName
+    );
+  
+    if (menuFilhoSelecionado) {
+      // Salvar todas as informações do menu selecionado no localStorage
+      localStorage.setItem('menuFilhoSelecionado', JSON.stringify({
+        ID: menuFilhoSelecionado.ID,
+        DSNOME: menuFilhoSelecionado.DSNOME,
+        URL: menuFilhoSelecionado.URL,
+        ALTERAR: menuFilhoSelecionado.ALTERAR,
+        CRIAR: menuFilhoSelecionado.CRIAR,
+        VISUALIZAR: menuFilhoSelecionado.VISUALIZAR,
+        N1: menuFilhoSelecionado.N1,
+        N2: menuFilhoSelecionado.N2,
+        N3: menuFilhoSelecionado.N3,
+        N4: menuFilhoSelecionado.N4,
+        ADMINISTRADOR: menuFilhoSelecionado.ADMINISTRADOR
+      }));
+    }
+
     setComponentToShow(componentName);
   }
 

@@ -10,7 +10,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { MultSelectAction } from "../../../Select/MultSelectAction";
-import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData";
+
 
 export const ActionPesquisaVendasVendedor = () => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
