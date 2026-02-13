@@ -15,7 +15,7 @@ import { ActionListaDetalhesVoucherEmitido } from "./actionListaDetalhesVoucherE
 import { ActionPesquisaCreateVoucherCliente } from "./actionPesquisaCreateVoucherCliente";
 import { ActionMain } from "../../../Actions/actionMain";
 
-export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas }) => {
+export const ActionPesquisaCreateVoucher = ({usuarioLogado, optionsEmpresas }) => {
   const [actionPrincipal, setActionPrincipal] = useState(true);
   const [actionSecundaria, setActionSecundaria] = useState(false);
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -27,10 +27,27 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
   const [numeroVoucher, setNumeroVoucher] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [marcaSelecionado, setMarcaSelecionado] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [dadosDetalheVoucherSelecionado, setDadosDetalheVoucherSelecionado] = useState([])
   const [modalVoucher, setModalVoucher] = useState(true);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+     
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  );
 
   useEffect(() => {
     const dadosArmazenadosVoucher = localStorage.getItem('dadosDetalheVoucher');
@@ -39,10 +56,8 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
       setDadosDetalheVoucherSelecionado(dadosArmazenadosVoucherParse);
       setTabelaVisivelVoucherSelecionados(true);
       setTabelaVisivel(false);
-
     }
   }, [])
-
 
   useEffect(() => {
     const dataInicio = getDataAtual()
@@ -50,15 +65,6 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
     setDataPesquisaInicio(dataInicio)
     setDataPesquisaFim(dataFim)
   }, []);
-
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
-    async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-      return response.data;
-    },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
-  );
 
   const fetchListaVouchers = async () => {
     let numeroVoucherFormatado = numeroVoucher;

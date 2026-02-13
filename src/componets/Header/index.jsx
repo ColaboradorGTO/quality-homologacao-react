@@ -95,7 +95,7 @@ export const HeaderMain = ({ optionsModulosPage }) => {
   };
 
   const modulosDisponiveis = optionsModulosPage[0]?.modulos || [];
-  console.log(optionsModulosPage[0]?.modulos, 'modulos disponiveis');
+  
   const menuItems = modulosDisponiveis?.map((modulo) => ({
     label: modulo.NOME, 
     icon: modulo.src,

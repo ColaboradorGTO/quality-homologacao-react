@@ -34,7 +34,6 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const [dadosExtratoLoja, setDadosExtratoLoja] = useState([]);
   const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
-
   useEffect(() => {
     const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
     if (menuSalvo) {
@@ -42,7 +41,6 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
       setMenuFilhoAtual(menuParsed);
     }
   }, []);
-  
   
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     ['menus-usuario-excecao', menuFilhoAtual?.ID],

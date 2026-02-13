@@ -14,7 +14,7 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { useQuery } from "react-query";
 
 
-export const ActionPesquisaVendasEstrutura = ({usuarioLogado, ID, optionsEmpresas }) => {
+export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
   const [tabelaProdutosMaisVendidos, setTabelaProdutosMaisVendidos] = useState(false);
   const [tabelaVendasPorVendedor, setTabelaVendasPorVendedor] = useState(false);
   const [tabelaVendasPorEstrutura, setTabelaVendasPorEstrutura] = useState(false);
@@ -72,16 +72,6 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado, ID, optionsEmpresa
       return response.data;
     },
     { staleTime: 5 * 60 * 1000, cacheTime: 10 * 60 * 1000 }
-  );
-
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
-    async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
-      return response.data;
-    },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const fetchVendasEstrutura = async () => {

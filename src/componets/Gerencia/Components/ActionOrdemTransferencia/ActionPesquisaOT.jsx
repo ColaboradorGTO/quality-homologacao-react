@@ -12,7 +12,7 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { ActionIncluirOTModal } from "./ActionIncluirModalOT/actionIncluirOTModal";
 import Swal from "sweetalert2";
 
-export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
+export const ActionPesquisaOT = ({usuarioLogado}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
@@ -20,6 +20,7 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [valueLojaOrigem, setValueLojaOrigem] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -30,16 +31,23 @@ export const ActionPesquisaOT = ({usuarioLogado, ID, optionsEmpresas}) => {
 
     return () => clearTimeout(timer);
   }, [usuarioLogado]);
-
-
+  
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+    
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
   const { data: dadosEmpresa = [], error: errorMarcas, isLoading: isLoadingMarcas } = useQuery(

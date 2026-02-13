@@ -13,14 +13,33 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import Swal from "sweetalert2";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 
-export const ActionPesquisaDespesaLoja = ({ usuarioLogado, ID, optionsEmpresas }) => {
+export const ActionPesquisaDespesaLoja = ({ usuarioLogado, optionsEmpresas }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
- 
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
+
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+     
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  );
+
   useEffect(() => {
     const dataInicial = getDataAtual()
     const dataFinal = getDataAtual()
@@ -28,16 +47,6 @@ export const ActionPesquisaDespesaLoja = ({ usuarioLogado, ID, optionsEmpresas }
     setDataPesquisaFim(dataFinal)
 
   }, []);
-
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
-    async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
-      return response.data;
-    },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
-  );
 
   const fetchDespesas = async () => {
     const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;

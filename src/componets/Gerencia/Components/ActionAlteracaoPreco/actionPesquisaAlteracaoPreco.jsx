@@ -12,7 +12,7 @@ import { InputCheckBoxAction } from "../../../Inputs/chekBoxAction";
 import { ActionAlteracaoPreco } from "../../../Actions/ActionAlteracaoPreco";
 
 
-export const ActionPesquisaAlteracaoPreco = ({usuarioLogado, ID }) => {
+export const ActionPesquisaAlteracaoPreco = ({usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
