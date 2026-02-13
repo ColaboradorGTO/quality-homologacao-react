@@ -13,7 +13,7 @@ import { MdOutlinePhoneEnabled } from "react-icons/md";
 import { CiUser } from "react-icons/ci";
 import { mascaraCNPJ } from "../../../../../utils/mascaraCNPJ";
 import { mascaraTelefone } from "../../../../../utils/mascaraTelefone";
-import { ActionListaAlvaraPrefeitura } from "./ActionAvaraPrefeituraModal/actionListaAlvaraPrefeitura";
+import { ActionListaAlvaraPrefeitura } from "./ActionAvaraPrefeituraLista/actionListaAlvaraPrefeitura.jsx";
 
 export const FormularioActionAlvaraEmpresa = ({ show, dadosAlvaraEmpresaSelecionada, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchAlvaraEmpresa }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, register } = useForm({
@@ -655,7 +655,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, dadosAlvaraEmpresaSelecion
                 optionsModulos={optionsModulos}
                 usuarioLogado={usuarioLogado}
                 refetchAlvaraEmpresa={refetchAlvaraEmpresa}
-                
+
             />
 
             <FooterModal

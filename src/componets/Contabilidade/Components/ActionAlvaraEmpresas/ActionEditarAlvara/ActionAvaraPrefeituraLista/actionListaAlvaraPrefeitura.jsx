@@ -7,16 +7,16 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../../../Tables/headerTable";
 import { ButtonTable } from "../../../../../ButtonsTabela/ButtonTable";
-import { FaPencilAlt, FaRegFileAlt } from "react-icons/fa";
+import { FaPencilAlt } from "react-icons/fa";
 import Swal from "sweetalert2";
 import { get } from "../../../../../../api/funcRequest";
 import { FaPlus, FaRegEye } from "react-icons/fa6";
+import { ActionCadastrarAlvaraModal } from "./ActionCadastrarAlvaraModal/ActionCadastrarAlvaraModal";
 
 export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, optionsModulos, usuarioLogado, refetchAlvaraEmpresa }) => {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [rowSelection, setRowSelection] = useState(null);
-    const [modalAlvaraEmpresa, setModalAlvaraEmpresa] = useState(false);
-    //const [dadosAlvaraEmpresaSelecionada, setDadosAlvaraEmpresaSelecionada] = useState([])
+    const [modalCadastrarAlvaraEmpresa, setModalCadastrarAlvaraEmpresa] = useState(false);
     const dataTableRef = useRef();
 
     const onGlobalFilterChange = (e) => {
@@ -33,44 +33,16 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
 
         doc.autoTable({
             head: [[
-                "Nº Filial",
-                "Fantasia",
-                "CNPJ",
-                "I.E",
-                "I.M",
-                "Endereço",
-                "Município/UF",
-                "Situação",
-                "St.Bombeiro",
-                "Dt.Fim Bombeiro",
-                "St.Meio Ambiente",
-                "Dt.Fim Meio Ambiente",
-                "St.Vigilância Sanitária",
-                "Dt.Fim Vigilância Sanitária",
-                "St.Prefeitura",
-                "Dt.Fim Prefeitura"
+                "#",
+                "Dt.Inicio",
+                "Dt.Fim",
+                "Status",
             ]],
             body: (dados || []).map((item) => [
-                item.IDEMPRESA ?? "",
-                item.NOFANTASIA ?? "",
-                item.NUCNPJ ?? "",
-                item.NUINSCESTADUAL ?? "",
-                item.NUINSCMUNICIPAL ?? "",
-                item.EENDERECO ?? "",
-                item.MUNICIPIO ?? "",
-                item.STATIVO ?? "",
-
-                item.STATIVOBOMBEIRO ?? "",
-                item.DTFIMALVARABOMBEIRO ?? "",
-
-                item.STATIVOMEIOAMBIENTE ?? "",
-                item.DTFIMALVARAMEIOAMBIENTE ?? "",
-
-                item.STATIVOVIGILANCIASANITARIA ?? "",
-                item.DTFIMALVARAVIGILANCIASANITARIA ?? "",
-
-                item.STATIVOPREFEITURA ?? "",
-                item.DTFIMALVARAPREFEITURA ?? ""
+                item?.IDEMPRESA,
+                item?.DTINICIOCOMPETENCIAALVARA,
+                item?.DTFIMCOMPETENCIAALVARA,
+                item?.STATIVO,
             ]),
             horizontalPageBreak: true,
             horizontalPageBreakBehaviour: "immediately",
@@ -85,41 +57,17 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
         const workbook = XLSX.utils.book_new();
 
         const header = [
-            "Nº Filial",
-            "Fantasia",
-            "CNPJ",
-            "I.E",
-            "I.M",
-            "Endereço",
-            "Município/UF",
-            "Situação",
-            "St.Bombeiro",
-            "Dt.Fim Bombeiro",
-            "St.Meio Ambiente",
-            "Dt.Fim Meio Ambiente",
-            "St.Vigilância Sanitária",
-            "Dt.Fim Vigilância Sanitária",
-            "St.Prefeitura",
-            "Dt.Fim Prefeitura"
+            "#",
+            "Dt.Inicio",
+            "Dt.Fim",
+            "Status",
         ];
 
         const data = (dados || []).map(item => [
-            item.IDEMPRESA ?? "",
-            item.NOFANTASIA ?? "",
-            item.NUCNPJ ?? "",
-            item.NUINSCESTADUAL ?? "",
-            item.NUINSCMUNICIPAL ?? "",
-            item.EENDERECO ?? "",
-            item.MUNICIPIO ?? "",
-            item.STATIVO ?? "",
-            item.STATIVOBOMBEIRO ?? "",
-            item.DTFIMALVARABOMBEIRO ?? "",
-            item.STATIVOMEIOAMBIENTE ?? "",
-            item.DTFIMALVARAMEIOAMBIENTE ?? "",
-            item.STATIVOVIGILANCIASANITARIA ?? "",
-            item.DTFIMALVARAVIGILANCIASANITARIA ?? "",
-            item.STATIVOPREFEITURA ?? "",
-            item.DTFIMALVARAPREFEITURA ?? ""
+            item?.IDEMPRESA,
+            item?.DTINICIOCOMPETENCIAALVARA,
+            item?.DTFIMCOMPETENCIAALVARA,
+            item?.STATIVO,
         ]);
 
         const worksheet = XLSX.utils.aoa_to_sheet([header, ...data]);
@@ -129,18 +77,6 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
             { wpx: 220 },
             { wpx: 150 },
             { wpx: 120 },
-            { wpx: 100 },
-            { wpx: 250 },
-            { wpx: 150 },
-            { wpx: 100 },
-            { wpx: 120 },
-            { wpx: 120 },
-            { wpx: 150 },
-            { wpx: 150 },
-            { wpx: 170 },
-            { wpx: 170 },
-            { wpx: 140 },
-            { wpx: 140 }
         ];
 
         XLSX.utils.book_append_sheet(workbook, worksheet, "Alvarás Empresas");
@@ -214,8 +150,6 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
                         height="35px"
                         lineHeight={1.3}
                     />
-
-
                 </div>
             ),
             sortable: true,
@@ -253,6 +187,22 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
         }
     };
 
+    const handleClickCadastrarAlvara = () => {
+        if (optionsModulos[0]?.ALTERAR === 'True') {
+            setModalCadastrarAlvaraEmpresa(true);
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Atenção!',
+                text: 'Você não tem permissão para cadastrar alvará.',
+                confirmButtonColor: '#7352A5',
+                customClass: {
+                    container: 'custom-swal',
+                },
+            });
+        }
+    };
+
     return (
 
         <Fragment>
@@ -271,17 +221,17 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
                         exportToPDF={exportToPDF}
                     />
                     <div style={{ marginTop: "1rem", marginLeft: "0.8rem" }}>
-                    <ButtonTable
-                        titleButton="Adicionar Alvará"
-                        className="btn btn-outline-success d-flex align-items-center justify-content-center gap-4"
-                        Icon={FaPlus}
-                        textButton="Add Alvará"
-                        onClickButton={() => console.log(row)}
-                        iconSize={18}
-                        width="110px"
-                        height="37px"
-                        flexDirection="row"
-                    />
+                        <ButtonTable
+                            titleButton="Adicionar Alvará"
+                            className="btn btn-outline-success d-flex align-items-center justify-content-center gap-4"
+                            Icon={FaPlus}
+                            textButton="Add Alvará"
+                            onClickButton={handleClickCadastrarAlvara}
+                            iconSize={18}
+                            width="110px"
+                            height="37px"
+                            flexDirection="row"
+                        />
                     </div>
                 </div>
                 <div className="card" ref={dataTableRef}>
@@ -321,8 +271,11 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
                     </DataTable>
                 </div>
             </div>
-
-
+            <ActionCadastrarAlvaraModal
+                show={modalCadastrarAlvaraEmpresa}
+                handleClose={() => setModalCadastrarAlvaraEmpresa(false)}
+                dadosAlvaraEmpresa={dadosAlvaraEmpresaSelecionada}
+            />
         </Fragment>
     )
 }
