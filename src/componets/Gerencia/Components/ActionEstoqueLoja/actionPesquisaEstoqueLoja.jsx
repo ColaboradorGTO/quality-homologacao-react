@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom";
 import makeAnimated from 'react-select/animated';
 import { ActionListaEstoqueRotatividade } from "./actionListaEstoqueRotatividade";
 import { ActionListaEstoqueAtual } from "./actionListaEstoqueAtual";
@@ -15,8 +14,7 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 
 
-
-export const ActionPesquisaEstoqueLoja = ({usuarioLogado, ID, optionsEmpresas}) => {
+export const ActionPesquisaEstoqueLoja = ({usuarioLogado, optionsEmpresas}) => {
   const [tabelaVisivelEstoqueAtual, setTabelaVisivelEstoqueAtual] = useState(false);
   const [tabelaVisivelEstoqueRotatividade, setTabelaVisivelEstoqueRotatividade] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
@@ -27,6 +25,7 @@ export const ActionPesquisaEstoqueLoja = ({usuarioLogado, ID, optionsEmpresas}) 
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState([]);
   const [codBarra, setCodBarra] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
   const animatedComponents = makeAnimated();
 
@@ -35,9 +34,26 @@ export const ActionPesquisaEstoqueLoja = ({usuarioLogado, ID, optionsEmpresas}) 
     const dataFinal = getDataAtual();
     setDataPesquisaInicio(dataInicial);
     setDataPesquisaFim(dataFinal);
-    
   }, []);
 
+    
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  );
 
   const { data: dadosFornecedor = [], error: errorFornecedor, isLoading: isLoadingFornecedor } = useQuery(
     'lista-fornecedor-produto',
@@ -73,16 +89,6 @@ export const ActionPesquisaEstoqueLoja = ({usuarioLogado, ID, optionsEmpresas}) 
       return response.data;
     },
     { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
-  );
-
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
-    async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
-      return response.data;
-    },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const fetchListaEstoque = async () => {
@@ -234,7 +240,7 @@ export const ActionPesquisaEstoqueLoja = ({usuarioLogado, ID, optionsEmpresas}) 
         ]}
         onChangeSelectPendencia={(e) => setEmpresaSelecionada(e.value)}
         valueSelectPendencia={empresaSelecionada}
-        isVisible={{display: optionsModulos[0]?.ADMINISTRADOR == false ? "none" : "block"}}
+        stylePendencia={optionsModulos[0]?.ADMINISTRADOR == "True"}
 
         InputFieldDTInicioAComponent={InputField}
         valueInputFieldDTInicioA={dataPesquisaInicio}

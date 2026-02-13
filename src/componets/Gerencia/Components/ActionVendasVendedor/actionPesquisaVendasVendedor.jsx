@@ -94,8 +94,6 @@ export const ActionPesquisaVendasVendedor = ({usuarioLogado, ID, optionsEmpresas
   return (
 
     <Fragment>
-
-
       <ActionMain
         linkComponentAnterior={["Home"]}
         linkComponent={["Vendas por Vendedor e Período"]}
@@ -113,7 +111,7 @@ export const ActionPesquisaVendasVendedor = ({usuarioLogado, ID, optionsEmpresas
         ]}
         onChangeSelectPendencia={(e) => setEmpresaSelecionada(e.value)}
         valueSelectPendencia={empresaSelecionada}
-        isVisible={{display: optionsModulos[0]?.ADMINISTRADOR == false ? "none" : "block"}}
+        stylePendencia={optionsModulos[0]?.ADMINISTRADOR == "True"}
 
         InputFieldDTInicioAComponent={InputField}
         valueInputFieldDTInicioA={dataPesquisaInicio}

@@ -2,7 +2,6 @@ import React, { Fragment, useEffect, useState } from "react"
 import { ActionMain } from "../../../Actions/actionMain"
 import { ButtonType } from "../../../Buttons/ButtonType"
 import { get } from "../../../../api/funcRequest"
-import { useNavigate } from "react-router-dom";
 import { getDataAtual } from "../../../../utils/dataAtual"
 import { InputField } from "../../../Buttons/Input"
 import { AiOutlineSearch } from "react-icons/ai";
@@ -12,12 +11,11 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 
 
-export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, ID, optionsEmpresas }) => {
+export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, optionsEmpresas }) => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
@@ -116,7 +114,7 @@ export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, ID, optionsEmpre
         ]}
         onChangeSelectPendencia={(e) => setEmpresaSelecionada(e.value)}
         valueSelectPendencia={empresaSelecionada}
-        isVisible={{ display: optionsModulos[0]?.ADMINISTRADOR == false ? "none" : "block" }}
+        stylePendencia={optionsModulos[0]?.ADMINISTRADOR == "True"}
 
         InputFieldDTInicioAComponent={InputField}
         valueInputFieldDTInicioA={dataPesquisaInicio}

@@ -10,7 +10,7 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { useQuery } from "react-query";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 
-export const ActionPesquisaFaturaLoja = ({usuarioLogado, ID, optionsEmpresas}) => {
+export const ActionPesquisaFaturaLoja = ({usuarioLogado, optionsEmpresas}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
@@ -111,7 +111,7 @@ export const ActionPesquisaFaturaLoja = ({usuarioLogado, ID, optionsEmpresas}) =
         ]}
         onChangeSelectPendencia={(e) => setEmpresaSelecionada(e.value)}
         valueSelectPendencia={empresaSelecionada}
-        isVisible={{display: optionsModulos[0]?.ADMINISTRADOR == false ? "none" : "block"}}
+        stylePendencia={optionsModulos[0]?.ADMINISTRADOR == "True"}
 
         InputFieldDTInicioAComponent={InputField}
         valueInputFieldDTInicioA={dataPesquisaInicio}

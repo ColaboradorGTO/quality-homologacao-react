@@ -137,7 +137,7 @@ export const ActionPesquisaDespesaLoja = ({ usuarioLogado, optionsEmpresas }) =>
         ]}
         onChangeSelectPendencia={(e) => setEmpresaSelecionada(e.value)}
         valueSelectPendencia={empresaSelecionada}
-        isVisible={{display: optionsModulos[0]?.ADMINISTRADOR == false ? "none" : "block"}}
+        stylePendencia={optionsModulos[0]?.ADMINISTRADOR == "True"}
 
         InputFieldDTInicioAComponent={InputField}
         valueInputFieldDTInicioA={dataPesquisaInicio}

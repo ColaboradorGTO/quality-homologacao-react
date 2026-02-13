@@ -109,7 +109,7 @@ export const ActionPesquisaProdutosQuality = ({ optionsEmpresas, usuarioLogado }
         ]}
         onChangeSelectPendencia={(e) => setEmpresaSelecionada(e.value)}
         valueSelectPendencia={empresaSelecionada}
-        isVisible={{display: optionsModulos[0]?.ADMINISTRADOR == false ? "none" : "block"}}
+        stylePendencia={optionsModulos[0]?.ADMINISTRADOR == "True"}
 
         InputFieldSearch={InputField}
         labelInputFieldSearch={"Cód.Barras / Nome Produto"}
