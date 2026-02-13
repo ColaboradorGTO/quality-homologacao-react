@@ -7,12 +7,12 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { dataFormatada } from "../../../../utils/dataFormatada";
 import { toFloat } from "../../../../utils/toFloat";
 import { mascaraValor } from "../../../../utils/mascaraValor";
 
 export const ActionListaVendasResumidaDigital = ({ dadosVendasDetalhadas }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -148,6 +148,9 @@ export const ActionListaVendasResumidaDigital = ({ dadosVendasDetalhadas }) => {
             globalFilter={globalFilterValue}
             size="small"
             sortField="VRTOTALPAGO"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}

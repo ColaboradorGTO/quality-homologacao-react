@@ -12,6 +12,7 @@ import { formatarPorcentagem } from "../../../../utils/formatarPorcentagem";
 
 export const ActionListaVendasPCJ = ({ dadosVendasPCJ }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -40,15 +41,15 @@ export const ActionListaVendasPCJ = ({ dadosVendasPCJ }) => {
     const workbook = XLSX.utils.book_new();
     const header = ['Empresa', 'Nº Mov', 'Caixa', 'Abertura', 'Operador', 'CPF', 'Total CredS 1-8', 'Total CredS 7-8', '% PCJ'];
     worksheet['!cols'] = [
-      { wpx: 200,  caption: 'Empresa', }, 
-      { wpx: 150, caption: 'Nº Mov' }, 
-      { wpx: 100, caption: 'Caixa' }, 
-      { wpx: 150, caption: 'Abertura' }, 
-      { wpx: 250, caption: 'Operador' }, 
-      { wpx: 100, caption: 'CPF' }, 
-      { wpx: 100, caption: 'Total CredS 1-8' }, 
-      { wpx: 150, caption: 'Total CredS 7-8' }, 
-      { wpx: 100, caption: '% PCJ' }]; 
+      { wpx: 200, caption: 'Empresa', },
+      { wpx: 150, caption: 'Nº Mov' },
+      { wpx: 100, caption: 'Caixa' },
+      { wpx: 150, caption: 'Abertura' },
+      { wpx: 250, caption: 'Operador' },
+      { wpx: 100, caption: 'CPF' },
+      { wpx: 100, caption: 'Total CredS 1-8' },
+      { wpx: 150, caption: 'Total CredS 7-8' },
+      { wpx: 100, caption: '% PCJ' }];
 
 
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
@@ -79,7 +80,7 @@ export const ActionListaVendasPCJ = ({ dadosVendasPCJ }) => {
   const dados = dadosVendasPCJ.map((item) => {
     const pcjTotal = calcularPCJ(item);
     return {
-   
+
       NOFANTASIA: item.caixa.NOFANTASIA,
       ID: item.caixa.ID,
       DSCAIXA: item.caixa.DSCAIXA,
@@ -101,63 +102,63 @@ export const ActionListaVendasPCJ = ({ dadosVendasPCJ }) => {
   };
 
   const colunaVendasPCJ = [
-    { 
+    {
       field: 'NOFANTASIA',
-      header: 'Empresa', 
-      body: (row) => <th style={{ color: '#000' }}>{row.NOFANTASIA}</th>, 
-      sortable: true 
-    },
-    { 
-      field: 'ID', 
-      header: 'Nº Movimento', 
-      body: (row) => <th style={{ color: '#000'  }}>{row.ID}</th>, 
-      sortable: true 
-    },
-    { 
-      field: 'DSCAIXA', 
-      header: 'Caixa', 
-      body: (row) => <th style={{ color: '#000' }}>{row.DSCAIXA}</th>, 
-      sortable: true 
-    },
-    { 
-      field: 'DTABERTURA', 
-      header: 'Abertura',
-      body: (row) => <th style={{ color: '#000' }}>{row.DTABERTURA}</th>, 
-      sortable: true 
-    },
-    { 
-      field: 'NOFUNCIONARIO', 
-      header: 'Operador', 
-      body: (row) => <th style={{ color: '#000' }}>{row.NOFUNCIONARIO}</th>, 
-      sortable: true 
-    },
-    { 
-      field: 'NUCPF', 
-      header: 'CPF', 
-      body: (row) => <th style={{ color: '#000' }}>{row.NUCPF}</th>, 
-      footer: 'Total', 
-      sortable: true 
-    },
-    { 
-      field: 'TOTALPCJ18', 
-      header: 'Total CredS 1-8', 
-      body: (row) => <th style={{ color: '#000' }}>{formatMoeda(row.TOTALPCJ18)}</th>, 
-      footer: formatMoeda(calcularTotalPCJ18()), 
+      header: 'Empresa',
+      body: (row) => <th style={{ color: '#000' }}>{row.NOFANTASIA}</th>,
       sortable: true
     },
-    { 
-      field: 'TOTALPCJ78', 
-      header: 'Total CredS 7-8', 
-      body: (row) => <th style={{ color: '#000' }}>{formatMoeda(row.TOTALPCJ78)}</th>, 
-      footer: formatMoeda(calcularTotalPCJ78()), 
-      sortable: true 
+    {
+      field: 'ID',
+      header: 'Nº Movimento',
+      body: (row) => <th style={{ color: '#000' }}>{row.ID}</th>,
+      sortable: true
     },
-    { 
-      field: 'pcjTotal', 
-      header: '% PCJ', 
-      body: renderPcjTotal, 
-      footer: formatarPorcentagem(calcularTotalPCJ()), 
-      sortable: true 
+    {
+      field: 'DSCAIXA',
+      header: 'Caixa',
+      body: (row) => <th style={{ color: '#000' }}>{row.DSCAIXA}</th>,
+      sortable: true
+    },
+    {
+      field: 'DTABERTURA',
+      header: 'Abertura',
+      body: (row) => <th style={{ color: '#000' }}>{row.DTABERTURA}</th>,
+      sortable: true
+    },
+    {
+      field: 'NOFUNCIONARIO',
+      header: 'Operador',
+      body: (row) => <th style={{ color: '#000' }}>{row.NOFUNCIONARIO}</th>,
+      sortable: true
+    },
+    {
+      field: 'NUCPF',
+      header: 'CPF',
+      body: (row) => <th style={{ color: '#000' }}>{row.NUCPF}</th>,
+      footer: 'Total',
+      sortable: true
+    },
+    {
+      field: 'TOTALPCJ18',
+      header: 'Total CredS 1-8',
+      body: (row) => <th style={{ color: '#000' }}>{formatMoeda(row.TOTALPCJ18)}</th>,
+      footer: formatMoeda(calcularTotalPCJ18()),
+      sortable: true
+    },
+    {
+      field: 'TOTALPCJ78',
+      header: 'Total CredS 7-8',
+      body: (row) => <th style={{ color: '#000' }}>{formatMoeda(row.TOTALPCJ78)}</th>,
+      footer: formatMoeda(calcularTotalPCJ78()),
+      sortable: true
+    },
+    {
+      field: 'pcjTotal',
+      header: '% PCJ',
+      body: renderPcjTotal,
+      footer: formatarPorcentagem(calcularTotalPCJ()),
+      sortable: true
     },
   ];
 
@@ -184,6 +185,9 @@ export const ActionListaVendasPCJ = ({ dadosVendasPCJ }) => {
             value={dados}
             globalFilter={globalFilterValue}
             size={"small"}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             paginator
             rows={10}
             rowsPerPageOptions={[10, 20, 30, 50, 100, dados.length]}

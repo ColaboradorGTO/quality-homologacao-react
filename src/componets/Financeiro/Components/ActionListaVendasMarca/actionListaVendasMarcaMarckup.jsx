@@ -10,8 +10,9 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { formatarPorcentagem } from "../../../../utils/formatarPorcentagem";
 
-export const ActionListaVendasMarcaMarckup = ({dadosListaVendasMarcaMarckup}) => {
+export const ActionListaVendasMarcaMarckup = ({ dadosListaVendasMarcaMarckup }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -28,20 +29,20 @@ export const ActionListaVendasMarcaMarckup = ({dadosListaVendasMarcaMarckup}) =>
     doc.autoTable({
       head: [[
         '#',
-      'Loja',
-      'Venda Bruta (R$)', 
-      'Desconto (R$)', 
-      'Desconto (%)', 
-      'Venda Bruta Desconto (%)',
-      'Voucher (R$)', 
-      'Voucher (%)', 
-      'Venda Líquida (R$)', 
-      'Custo (R$)',
-      'Custo (%)', 
-      'Marckup (%)',
-      'Indicador',
-      'Margem Bruta (R$)', 
-      'Margem (%)'
+        'Loja',
+        'Venda Bruta (R$)',
+        'Desconto (R$)',
+        'Desconto (%)',
+        'Venda Bruta Desconto (%)',
+        'Voucher (R$)',
+        'Voucher (%)',
+        'Venda Líquida (R$)',
+        'Custo (R$)',
+        'Custo (%)',
+        'Marckup (%)',
+        'Indicador',
+        'Margem Bruta (R$)',
+        'Margem (%)'
       ]],
       body: dadosVendasMarcaMarckup.map(item => [
         item.IDEMPRESA,
@@ -65,45 +66,45 @@ export const ActionListaVendasMarcaMarckup = ({dadosListaVendasMarcaMarckup}) =>
     });
     doc.save('vendas_periodo_indicadores.pdf');
   };
-  
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dadosVendasMarcaMarckupExcel);
     const workbook = XLSX.utils.book_new();
     const header = [
       '#',
       'Loja',
-      'Venda Bruta (R$)', 
-      'Desconto (R$)', 
-      'Desconto (%)', 
+      'Venda Bruta (R$)',
+      'Desconto (R$)',
+      'Desconto (%)',
       'Venda Bruta Desconto (%)',
-      'Voucher (R$)', 
-      'Voucher (%)', 
-      'Venda Líquida (R$)', 
+      'Voucher (R$)',
+      'Voucher (%)',
+      'Venda Líquida (R$)',
       'Custo (R$)',
-      'Custo (%)', 
+      'Custo (%)',
       'Marckup (%)',
       'Indicador',
-      'Margem Bruta (R$)', 
+      'Margem Bruta (R$)',
       'Margem (%)'
     ];
     worksheet['!cols'] = [
-      { wpx: 20,  caption: 'ID Empresa', }, 
-      { wpx: 200, caption: 'Loja' }, 
-      { wpx: 100, caption: 'Venda Bruta (R$)' }, 
-      { wpx: 100, caption: 'Desconto (R$)' }, 
-      { wpx: 150, caption: 'Desconto (%)' }, 
-      { wpx: 100, caption: 'Venda Bruta Desconto (%)' }, 
-      { wpx: 100, caption: 'Voucher (R$)' }, 
-      { wpx: 100, caption: 'Voucher (%)' }, 
+      { wpx: 20, caption: 'ID Empresa', },
+      { wpx: 200, caption: 'Loja' },
+      { wpx: 100, caption: 'Venda Bruta (R$)' },
+      { wpx: 100, caption: 'Desconto (R$)' },
+      { wpx: 150, caption: 'Desconto (%)' },
+      { wpx: 100, caption: 'Venda Bruta Desconto (%)' },
+      { wpx: 100, caption: 'Voucher (R$)' },
+      { wpx: 100, caption: 'Voucher (%)' },
       { wpx: 100, caption: 'Venda Líquida (R$)' },
-      { wpx: 100, caption: 'Custo (R$)' }, 
-      { wpx: 100, caption: 'Custo (%)' }, 
-      { wpx: 100, caption: 'Marckup (%)' }, 
-      { wpx: 100, caption: 'Indicador' }, 
-      { wpx: 100, caption: 'Margem Bruta (R$)' }, 
-      { wpx: 100, caption: 'Margem (%)' }, 
-     
-    ]; 
+      { wpx: 100, caption: 'Custo (R$)' },
+      { wpx: 100, caption: 'Custo (%)' },
+      { wpx: 100, caption: 'Marckup (%)' },
+      { wpx: 100, caption: 'Indicador' },
+      { wpx: 100, caption: 'Margem Bruta (R$)' },
+      { wpx: 100, caption: 'Margem (%)' },
+
+    ];
 
 
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
@@ -111,7 +112,7 @@ export const ActionListaVendasMarcaMarckup = ({dadosListaVendasMarcaMarckup}) =>
     XLSX.writeFile(workbook, 'vendas_periodo_indicadores.xlsx');
   };
 
- 
+
 
   const calcularValorTotalVendaLiquida = (item) => {
     return (
@@ -248,17 +249,17 @@ export const ActionListaVendasMarcaMarckup = ({dadosListaVendasMarcaMarckup}) =>
   })
 
   const calcularTotalVendaBrutaMarckup = () => {
-    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+    return dadosVendasMarcaMarckup.reduce((total, vendas) =>
       total + parseFloat(vendas.valorVendaBrutaMarckup), 0
     );
   };
 
   const calcularTotalValorDescontoMarckup = () => {
-    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+    return dadosVendasMarcaMarckup.reduce((total, vendas) =>
       total + parseFloat(vendas.valorDesconto), 0
     );
   };
-  
+
   const calcularTotalPercentualDescontoMarckup = () => {
     const totalDesconto = calcularTotalValorDescontoMarckup();
     const totalPago = calcularTotalValorPagoMarckup();
@@ -266,13 +267,13 @@ export const ActionListaVendasMarcaMarckup = ({dadosListaVendasMarcaMarckup}) =>
   };
 
   const calcularTotalValorPagoMarckup = () => {
-    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+    return dadosVendasMarcaMarckup.reduce((total, vendas) =>
       total + parseFloat(vendas.valorPago), 0
     );
   };
 
   const calcularTotalValorVoucherMarckup = () => {
-    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+    return dadosVendasMarcaMarckup.reduce((total, vendas) =>
       total + parseFloat(vendas.voucher), 0
     );
   };
@@ -284,24 +285,24 @@ export const ActionListaVendasMarcaMarckup = ({dadosListaVendasMarcaMarckup}) =>
   };
 
   const calcularTotalValorVendaLiquidaMarckup = () => {
-    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+    return dadosVendasMarcaMarckup.reduce((total, vendas) =>
       total + parseFloat(vendas.valorTotalVendaLiquida), 0
     );
   };
 
   const calcularTotalValorCustomarckup = () => {
-    return dadosVendasMarcaMarckup.reduce((total, vendas) => 
+    return dadosVendasMarcaMarckup.reduce((total, vendas) =>
       total + parseFloat(vendas.TOTALCUSTO), 0
     );
   };
- 
+
   const calcularTotalCustoPercentual = () => {
     const totalCusto = calcularTotalValorCustomarckup();
     const totalPago = calcularTotalValorPagoMarckup();
     return ((totalCusto * 100) / totalPago);
   };
 
-  
+
   const calcularTotalMarckupPercentual = () => {
     const totalPago = calcularTotalValorPagoMarckup();
     const totalCusto = calcularTotalValorCustomarckup();
@@ -594,6 +595,9 @@ export const ActionListaVendasMarcaMarckup = ({dadosListaVendasMarcaMarckup}) =>
             value={dadosVendasMarcaMarckup}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             rows={10}
             rowsPerPageOptions={[10, 20, 30, 50, 100, dadosVendasMarcaMarckup.length]}

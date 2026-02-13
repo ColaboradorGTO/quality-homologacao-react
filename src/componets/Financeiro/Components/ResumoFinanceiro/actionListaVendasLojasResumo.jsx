@@ -18,6 +18,7 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
   const [modalVisivel, setModalVisivel] = useState(false);
   const [dadosDetalheFechamento, setDadosDetalheFechamento] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -45,7 +46,7 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
     const workbook = XLSX.utils.book_new();
     const header = ['Data', 'Loja', 'Valor Bruto', 'Dinheiro', 'Cartão', 'POS', 'PIX', 'Convênio', 'Fatura Pix', 'Fatura', 'Despesa', 'Disponível'];
     worksheet['!cols'] = [
-      { wpx: 100, caption: 'Data' }, 
+      { wpx: 100, caption: 'Data' },
       { wpx: 200, caption: 'Loja' },
       { wpx: 100, caption: 'Valor Bruto' },
       { wpx: 100, caption: 'Dinheiro' },
@@ -57,8 +58,8 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
       { wpx: 100, caption: 'Fatura' },
       { wpx: 100, caption: 'Despesa' },
       { wpx: 100, caption: 'Disponível' }
-      
-    ]; 
+
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Vendas Por Loja');
     XLSX.writeFile(workbook, 'vendas_loja.xlsx');
@@ -89,7 +90,7 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
     )
   }
 
- 
+
 
   const dadosExcel = Array.isArray(dadosTotalVendasEmpresa) ? dadosTotalVendasEmpresa.map((item, index) => {
     let contador = index + 1;
@@ -109,10 +110,10 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
       VALORTOTALFATURAPIX: formatMoeda(item.VALORTOTALFATURAPIX),
       VALORTOTALFATURA: formatMoeda(item.VALORTOTALFATURA),
       totalDespesasAdiantamento: formatMoeda(totalDespesasAdiantamento),
-      totalDisponivel: formatMoeda(totalDisponivel), 
-      
+      totalDisponivel: formatMoeda(totalDisponivel),
+
     }
-  }): [];
+  }) : [];
 
   const dados = Array.isArray(dadosTotalVendasEmpresa) ? dadosTotalVendasEmpresa.map((item, index) => {
     let contador = index + 1;
@@ -132,22 +133,22 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
       VALORTOTALFATURAPIX: item.VALORTOTALFATURAPIX,
       VALORTOTALFATURA: item.VALORTOTALFATURA,
       totalDespesasAdiantamento: totalDespesasAdiantamento,
-      totalDisponivel: totalDisponivel, 
-      
+      totalDisponivel: totalDisponivel,
+
       VALORTOTALDESPESA: item.VALORTOTALDESPESA,
       IDEMPRESA: item.IDEMPRESA,
       VALORTOTALADIANTAMENTOSALARIAL: item.VALORTOTALADIANTAMENTOSALARIAL,
-      
+
     }
-  }): [];
-  
+  }) : [];
+
   const calcularTotal = (field) => {
     return dados.reduce((total, item) => total + parseFloat(item[field]), 0);
   };
 
   const calcularValorTotalBruto = () => {
     return calcularTotal('totalBruto');
-    
+
   }
   const calcularValorTotalDinheiro = () => {
     return calcularTotal('VALORTOTALDINHEIRO');
@@ -194,7 +195,7 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
     {
       field: 'NOFANTASIA',
       header: 'Loja',
-      body: row => <th style={{ color: 'blue',width: '180px' }}>{row.NOFANTASIA}</th>,
+      body: row => <th style={{ color: 'blue', width: '180px' }}>{row.NOFANTASIA}</th>,
       footer: <th style={{ fontWeight: 700 }} >{'Total'}</th>,
       sortable: true,
     },
@@ -290,7 +291,7 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
       sortable: true,
     }
   ]
- 
+
   const handleEdit = async (IDEMPRESA) => {
     try {
       const response = await get(`/detalheFechamento?idEmpresa=${IDEMPRESA}&dataPesquisa=${dataPesquisa}`);
@@ -334,6 +335,9 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}

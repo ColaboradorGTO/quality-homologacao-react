@@ -23,7 +23,6 @@ export const ResumoDashBoardFinaneiro = () => {
   useEffect(() => {
     const dataAtual = getDataAtual();
     setDataPesquisa(dataAtual);
-
   }, [])
 
   const { data: dadosResumoVendas = [], error: errorGrupo, isLoading: isLoadingGrupo, refetch: refetchResumoVendas } = useQuery(
@@ -53,14 +52,9 @@ export const ResumoDashBoardFinaneiro = () => {
     { enabled: Boolean(isQueryData), staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
-  // const { data: dadosResumoVendas = [], refetch: refetchResumoVendas } = useFetchData('venda-total', `/venda-total?dataPesquisa=${dataPesquisa}`);
-  // const { data: dadosTotalVendasEmpresa = [], refetch: refetchTotalVendasEmpresa } = useFetchData('venda-total-empresa', `/venda-total-empresa?dataPesquisa=${dataPesquisa}`);
-  // const { data: dadosTransacoesEmpresas = [], refetch: refetchTransacoes } = useFetchData('venda-pagamentos', `/venda-pagamentos?dataPesquisa=${dataPesquisa}`);
-
   const calcularTotalDespesasAdiantamento = (item) => {
 
     return (
-
       toFloat(item.VALORTOTALDESPESA) +
       toFloat(item.VALORTOTALADIANTAMENTOSALARIAL)
     );
@@ -99,14 +93,11 @@ export const ResumoDashBoardFinaneiro = () => {
 
  
   const handleClick = () => {
-   
     setIsQueryData(true);
     refetchResumoVendas(dataPesquisa)
     refetchTotalVendasEmpresa(dataPesquisa)
     refetchTransacoes(dataPesquisa)
-    
   }
-
 
   return (
     <Fragment>
@@ -128,8 +119,6 @@ export const ResumoDashBoardFinaneiro = () => {
         corSearch={"primary"}
       />
 
-    
-        
       <ResultadoResumo
         nomeVendas="Dinheiro"
         valorVendas={formatMoeda(toFloat(dadosVendasResumo[0]?.VALORTOTALDINHEIRO))}
