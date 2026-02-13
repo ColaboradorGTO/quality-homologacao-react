@@ -34,6 +34,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const [dadosExtratoLoja, setDadosExtratoLoja] = useState([]);
   const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
+
   useEffect(() => {
     const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
     if (menuSalvo) {
@@ -65,7 +66,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosCaixasNaoConferidos = [], error: errorCaixasNaoConferidos, isLoading: isLoadingCaixasNaoConferidos, refetch: refetchCaixasNaoConferidos } = useQuery(
     'lista-caixas-fechados-nao-conferido',
     async () => {
-      const idEmpresa =  usuarioLogado?.IDEMPRESA;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       
       const response = await get(`/lista-caixas-fechados-nao-conferido?idEmpresa=${idEmpresa}`);
       return response.data;
@@ -124,7 +125,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
     'despesa-lojas-dash',
     async () => {
 
-      const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
 
         const response = await get(`/despesa-lojas-dash?idEmpresa=${idEmpresa}&dataPesquisa=${dataPesquisa}`);
@@ -138,7 +139,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosAdiantamento = [], error: errorAdiantamento, isLoading: isLoadingAdiantamento, refetch: refetchAdiantamento } = useQuery(
     'adiantamentos-salarial',
     async () => {
-      const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if (idEmpresa) {
         const response = await get(`/adiantamentos-salarial?idEmpresa=${idEmpresa}&dataPesquisa=${dataPesquisa}`);
         return response.data;
@@ -151,7 +152,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosQuebraCaixa = [], error: errorQuebraCaixa, isLoading: isLoadingQuebraCaixa, refetch: refetchQuebraCaixa } = useQuery(
     'quebra-caixa-loja-resumo',
     async () => {
-      const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
       const response = await get(`/quebra-caixa-loja-resumo?idEmpresa=${idEmpresa}&dataPesquisa=${dataPesquisa}`);
       return response.data;
@@ -164,7 +165,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosResumoVendas = [], error: errorResumo, isLoading: isLoadingResumo, refetch: refetchResumoVendas } = useQuery(
     'resumoVendaGerencia',
     async () => {
-      const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/resumoVendaGerencia?idEmpresa=${idEmpresa}&dataPesquisa=${dataPesquisa}`);
         return response.data;
@@ -195,7 +196,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const {  data: dadosListaCaixa = [], error: errorCaixaMovimento, isLoading: isLoadingCaixaMovimento, refetch: refetchCaixaMovimento } = useQuery(
     'lista-caixas-movimento-gerencia',
     async () => {
-      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/lista-caixas-movimento-gerencia?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}`);
         return response.data;
@@ -207,7 +208,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosVendasPCJ = [], error: errorVendasPCJ, isLoading: isLoadingPCJ, refetch: refetchPCJ } = useQuery(
     'lista-caixas-movimento-gerencia',
     async () => {
-      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/lista-caixas-movimento-gerencia?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}`);
         return response.data;
@@ -219,11 +220,10 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosVendasVendedor = [], error: errorVendasVendedor, isLoading: isLoadingVendasVendedor, refetch: refetchVendasVendedor } = useQuery(
     'vendedor',
     async () => {
-      console.log(optionsModulos[0]?.ADMINISTRADOR, 'optionsModulos[0]?.ADMINISTRADOR')
-      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/vendedor?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}`);
-        console.log(response.data, 'dadosVendasVendedor')
+
         return response.data;
       }
     },
@@ -233,7 +233,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosVendasAtivas = [], error: errorVendasAtivas, isLoading: isLoadingVendasAtivas, refetch: refetchVendasAtivas } = useQuery(
     'resumo-venda-caixa',
     async () => {
-      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/resumo-venda-caixa?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}&statusCancelado=False`);
         return response.data;
@@ -245,7 +245,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosVendasCanceladas = [], error: errorVendasCanceladas, isLoading: isLoadingVendasCanceladas, refetch: refetchVendasCanceladas } = useQuery(
     'resumo-venda-caixa',
     async () => {
-      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/resumo-venda-caixa?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}&statusCancelado=True`);
         return response.data;
@@ -257,7 +257,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosVendasConvenioDesconto = [], error: errorVendasConvenioDesconto, isLoading: isLoadingVendasConvenioDesconto, refetch: refetchVendasConvenioDesconto } = useQuery(
     'resumo-venda-convenio',
     async () => {
-      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/resumo-venda-convenio?idEmpresa=${idEmpresa}&dataFechamento=${dataPesquisa}`);
         return response.data;
@@ -269,7 +269,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosVendasConvenioDescontoFuncionario = [], error: errorVendasConvenioDescontoFuncionario, isLoading: isLoadingVendasConvenioDescontoFuncionario, refetch: refetchVendasConvenioDescontoFuncionario } = useQuery(
     'resumo-venda-convenio-desconto',
     async () => {
-      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if(idEmpresa) {
         const response = await get(`/resumo-venda-convenio-desconto?statusCancelado=False&idEmpresa=${idEmpresa}&dataPesquisaInicio=${dataPesquisa}&dataPesquisaFim=${dataPesquisa}`);
         return response.data;
@@ -282,7 +282,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
 
   const getListaSaldoExtratoLoja = async () => {
     try {
-      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == false ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
       if (idEmpresa) {
       
         const response = await get(`/extrato-loja-periodo?idEmpresa=${idEmpresa}&dataPesquisaInicio=${dataPesquisa}&dataPesquisaFim=${dataPesquisa}`)
