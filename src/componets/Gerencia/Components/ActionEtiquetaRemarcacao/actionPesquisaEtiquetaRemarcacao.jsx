@@ -11,7 +11,7 @@ import { ActionImprimirEtiquetaModal } from "./actionImprimirEtiquetaModal";
 import { ActionImprimirAcumuladorEtiquetaModal } from "./actionImprimirAcumuladorEtiquetaModal";
 import { formatToDecimal, maskValorEmDecimal } from "../../../../utils/mascaraValor";
 
-export const ActionPesquisaEtiquetaRemarcacao = ({ ID, optionsEmpresas, usuarioLogado }) => {
+export const ActionPesquisaEtiquetaRemarcacao = ({ }) => {
   const [modalDetalhar, setModalDetalhar] = useState(false);
   const [modalAcumulador, setModalAcumulador] = useState(false);
   const [preco, setPreco] = useState(0);

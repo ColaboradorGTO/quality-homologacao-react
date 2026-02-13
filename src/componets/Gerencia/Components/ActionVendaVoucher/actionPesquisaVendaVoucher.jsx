@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
 import { ButtonType } from "../../../Buttons/ButtonType";
@@ -12,7 +11,7 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ActionListaVendaVoucher } from "./actionListaVendaVoucher";
 
-export const ActionPesquisaVendaVoucher = () => {
+export const ActionPesquisaVendaVoucher = ({usuarioLogado}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
@@ -20,11 +19,8 @@ export const ActionPesquisaVendaVoucher = () => {
   const [numeroSerie, setNumeroSerie] = useState('');
   const [numeroNFCE, setNumeroNFCE] = useState('');
   const [numeroVoucherSelecionado, setNumeroVoucherSelecionado] = useState(null);
-  const [usuarioLogado, setUsuarioLogado] = useState(null)
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     const dataInicio = getDataAtual()
@@ -32,19 +28,7 @@ export const ActionPesquisaVendaVoucher = () => {
     setDataPesquisaInicio(dataInicio)
     setDataPesquisaFim(dataFim)
 
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
   

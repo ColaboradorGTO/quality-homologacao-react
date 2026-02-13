@@ -5,24 +5,20 @@ import { get } from "../../../../api/funcRequest"
 import { AiOutlineSearch } from "react-icons/ai"
 import { ActionListaProdutoEtiqueta } from "./actionListaProdutoEtiqueta"
 import { ButtonType } from "../../../Buttons/ButtonType"
-import { useNavigate } from "react-router-dom"
 import { MdOutlineLocalPrintshop } from "react-icons/md"
 import { GoDownload } from "react-icons/go"
 import { BsTrash3 } from "react-icons/bs"
 import { useQuery } from "react-query"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import Swal from "sweetalert2"
-import { set } from "date-fns"
 
 
-export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLogado }) => {
+export const ActionPesquisaProdutoEtiqueta = ({ usuarioLogado }) => {
   // const [dadosListaPrecosSap, setDadosListaPrecosSap] = useState([])
   const [descricaoProduto, setDescricaoProduto] = useState('')
   const [codBarrasProduto, setCodBarrasProduto] = useState('')
   const [idProduto, setIDProduto] = useState('')
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
-  const [pageSize, setPageSize] = useState(1000);
-  const [page, setPage] = useState(1);
   const [btnVisivel, setBtnVisivel] = useState(false);
   const [modalImprimir, setModalImprimir] = useState(false);
   const [produtosSelecionados, setProdutosSelecionados] = useState([]);
@@ -30,20 +26,6 @@ export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLoga
   const [selectAll, setSelectAll] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
 
-  const navigate = useNavigate();
-
-
-
-  // const { data: dadosListaPrecos = [] } = useFetchData('listas-de-precos-sap', '/listas-de-precos-sap');
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
-    async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
-      return response.data;
-    },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
-  );
   const { data: dadosListaPrecos = [], error: errorListaPrecos, isLoading: isLoadingListaPrecos, refetch } = useQuery(
     'listas-de-precos-sap',
     async () => {
@@ -64,19 +46,6 @@ export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLoga
       }
     }
   }, [dadosListaPrecos, usuarioLogado]);
-
-  // const getListaProdutosSAP = async () => {
-  //   try {
-
-  //     const response = await get(`/lista-produtos-etiqueta-sap?idLista=${empresaSelecionada}&idProduto=${idProduto}&descricao=${descricaoProduto}&codBarras=${codBarrasProduto}`)
-  //     if (response.data) {
-  //       setDadosListaPrecosSap(response.data)
-  //     }
-  //     return response.data;
-  //   } catch (error) {
-  //     console.log('Erro ao buscar empresas: ', error)
-  //   }
-  // }
 
   const fetchListaPrecosSap = async () => {
     const urlBase = `/lista-produtos-etiqueta-sap?idLista=${empresaSelecionada}&idProduto=${idProduto}&descricao=${descricaoProduto}&codBarras=${codBarrasProduto}`;
@@ -126,7 +95,6 @@ export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLoga
       })
     } else {
       refetchListaPrecosSap();
-      // getListaProdutosSAP();
 
     }
   }
@@ -267,5 +235,3 @@ export const ActionPesquisaProdutoEtiqueta = ({ ID, optionsEmpresas, usuarioLoga
     </Fragment>
   )
 }
-
-// COD BARRAS 1031280010396

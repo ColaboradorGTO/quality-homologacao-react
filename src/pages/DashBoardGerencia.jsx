@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState, Suspense, lazy } from "react"
-import { useNavigate } from "react-router-dom"
 import { MenuSidebarAdmin } from "../componets/Sidebar/sidebar";
 import { HeaderMain } from "../componets/Header";
 import { MenuButton } from "../componets/Buttons/menuButton";
@@ -119,94 +118,94 @@ export const DashBoardGerencia = () => {
 
   switch (componentToShow) {
     case "/gerencia/ResumoDashBoardGerencia":
-      component = <ResumoDashBoardGerencia usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ResumoDashBoardGerencia usuarioLogado={usuarioLogado}  />;
       break;
     case "/gerencia/ActionPesquisaProdutoEtiqueta":
-      component = <ActionPesquisaProdutoEtiqueta usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>;
+      component = <ActionPesquisaProdutoEtiqueta usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>;
       break;
     case "/gerencia/ActionPesquisaEtiquetaRemarcacao":
-      component = <ActionPesquisaEtiquetaRemarcacao usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>;
+      component = <ActionPesquisaEtiquetaRemarcacao usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>;
       break;
     case "/gerencia/ActionPesquisaProdutosQuality":
-      component = <ActionPesquisaProdutosQuality usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />;
+      component = <ActionPesquisaProdutosQuality usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />;
       break;
     case "/gerencia/ActionPesquisaProdutosSap":
-      component = <ActionPesquisaProdutosSap usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />;
+      component = <ActionPesquisaProdutosSap usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />;
       break;
     case "/gerencia/ActionPesquisaAdiantamentoSalarioLoja":
-      component = <ActionPesquisaAdiantamentoSalarioLoja  usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaAdiantamentoSalarioLoja  usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaDepositoLoja":
-      component = <ActionPesquisaDepositoLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaDepositoLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaDespesaLoja":
-      component = <ActionPesquisaDespesaLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaDespesaLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaValeTransporte":
-      component = <ActionPesquisaValeTransporte usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaValeTransporte usuarioLogado={usuarioLogado}  />
       break;
     case "/gerencia/ActionPesquisaConferenciaCaixa":
-      component = <ActionPesquisaConferenciaCaixa usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaConferenciaCaixa usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaFaturaLoja":
-      component = <ActionPesquisaFaturaLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaFaturaLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaCreateVoucher":
-      component = <ActionPesquisaCreateVoucher usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaCreateVoucher usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaVoucherEmitido":
-      component = <ActionPesquisaVoucherEmitido usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaVoucherEmitido usuarioLogado={usuarioLogado}  />
       break;
     case "/gerencia/ActionPesquisaQuebraCaixa":
-      component = <ActionPesquisaQuebraCaixa usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaQuebraCaixa usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaConferenciaMalote":
-      component = <ActionPesquisaConferenciaMalote usuarioLogado={usuarioLogado} ID={ID}/>
+      component = <ActionPesquisaConferenciaMalote usuarioLogado={usuarioLogado} />
       break;
     case "/gerencia/ActionPesquisaOT":
-      component = <ActionPesquisaOT usuarioLogado={usuarioLogado} ID={ID}/>
+      component = <ActionPesquisaOT usuarioLogado={usuarioLogado} />
       break;
     case "/gerencia/ActionExtratoDeContasCorrenteLoja":
-      component = <ActionPesquisaExtratoContaCorenteLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaExtratoContaCorenteLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaRecebimentosLoja":
-      component = <ActionPesquisaRecebimentosLoja />
+      component = <ActionPesquisaRecebimentosLoja usuarioLogado={usuarioLogado} />
       break;
     case "/gerencia/ActionPesquisaVendasLojas":
-      component = <ActionPesquisaVendasLojas usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaVendasLojas usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaVendasVendedor":
-      component = <ActionPesquisaVendasVendedor usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaVendasVendedor usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaVendasEstrutura":
-      component = <ActionPesquisaVendasEstrutura usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaVendasEstrutura usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaEstoqueLoja":
-      component = <ActionPesquisaEstoqueLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaEstoqueLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionRelatorioBI":
-      component = <ActionRelatorioBI />
+      component = <ActionRelatorioBI usuarioLogado={usuarioLogado} />
       break;
     case "/gerencia/ActionPesquisaAlteracaoPreco":
-      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado}  />
       break;
     case "/gerencia/ActionPesquisaEmpresas":
-      component = <ActionPesquisaEmpresas usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaEmpresas usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaClientesVendas":
-      component = <ActionPesquisaClientesVendas usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaClientesVendas usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaVendasDescontoFuncionario":
-      component = <ActionPesquisaVendasDescontoFuncionario usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaVendasDescontoFuncionario usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaBalancoLoja":
-      component = <ActionPesquisaBalancoLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaBalancoLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaVendaVoucher":
-      component = <ActionPesquisaVendaVoucher />
+      component = <ActionPesquisaVendaVoucher usuarioLogado={usuarioLogado}/>
       break;
     case "/gerencia/ActionPesquisaEtiquetasVolumes":
-      component = <ActionPesquisaEtiquetasVolumes usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaEtiquetasVolumes usuarioLogado={usuarioLogado}  />
       break;
     default:
       component = null;

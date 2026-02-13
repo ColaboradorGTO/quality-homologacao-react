@@ -9,7 +9,7 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { ActionImprimirEtiquetaModal } from "./actionImprimirEtiquetaModal"
 import { useEffect } from "react"
 
-export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
+export const ActionPesquisaEtiquetasVolumes = ({ usuarioLogado }) => {
   const [tipoSelecionado, setTipoSelecionado] = useState('DEVOLUÇÃO');
   const [numeroOR, setNumeroOR] = useState(0);
   const [numeroOT, setNumeroOT] = useState(0);
@@ -20,8 +20,7 @@ export const ActionPesquisaEtiquetasVolumes = ({ ID, usuarioLogado }) => {
   const [quantidade, setQuantidade] = useState(0);
   const [modalImprimir, setModalImprimir] = useState(false);
   const [dadosAcumuladorEtiquetas, setDadosAcumuladorEtiquetas] = useState([]);
-  const [teste, setTeste] = useState(0);
-
+ 
   const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch } = useQuery(
     'empresas',
     async () => {
