@@ -44,7 +44,7 @@ export const DashBoardInformatica = () => {
     setComponentToShow(componentName);
   }
 
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+  const { data: optionsModulosPage = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario',
     async () => {
       const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
@@ -126,7 +126,7 @@ export const DashBoardInformatica = () => {
             handleShowComponent={handleShowComponent}
           />
           <div className="page-content-wrapper">
-            <HeaderMain optionsModulos={optionsModulos}/>
+            <HeaderMain optionsModulosPage={optionsModulosPage}/>
 
             <main id="js-page-content" role="main" className="page-content">
               <div className="row">

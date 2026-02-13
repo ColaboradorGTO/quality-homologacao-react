@@ -45,7 +45,7 @@ export const DashBoardMalotes = ({ }) => {
 
   }, [usuarioLogado]);
 
-  const { data: optionsModulos = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
+  const { data: optionsModulosPage = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
     'menus-usuario',
     async () => {
       const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
@@ -91,7 +91,7 @@ export const DashBoardMalotes = ({ }) => {
                 handleShowComponent={handleShowComponent}
               />
               <div className="page-content-wrapper">
-                <HeaderMain optionsModulos={optionsModulos}/>
+                <HeaderMain optionsModulosPage={optionsModulosPage}/>
 
                 <main id="js-page-content" role="main" className="page-content">
                   <div className="row">

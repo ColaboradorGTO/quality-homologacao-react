@@ -25,7 +25,7 @@ export const ActionPesquisaFuncionarios = ({ usuarioLogado, ID }) => {
     'menus-usuario-excecao',
     async () => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-      console.log(ID, 'ID do menu filho')
+  
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
