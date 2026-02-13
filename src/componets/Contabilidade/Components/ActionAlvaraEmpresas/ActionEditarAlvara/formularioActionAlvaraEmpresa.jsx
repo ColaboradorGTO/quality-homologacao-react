@@ -5,17 +5,17 @@ import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { Controller, useForm } from "react-hook-form";
 import FormField from "../../../../Formularios/FormField";
 //import { schema } from "./schemaCadastrarQuebraCaixa";
-import { formatarMoeda } from "../../../../../utils/formatMoeda";
 import { useCadastrarAlvara } from "../hooks/actionCriarAlvara";
 import { BsBuilding, BsPerson } from "react-icons/bs";
 import Select from "react-select"
 import { AiOutlineHome } from "react-icons/ai";
 import { MdOutlinePhoneEnabled } from "react-icons/md";
 import { CiUser } from "react-icons/ci";
+import { mascaraCNPJ } from "../../../../../utils/mascaraCNPJ";
+import { mascaraTelefone } from "../../../../../utils/mascaraTelefone";
+import { ActionListaAlvaraPrefeitura } from "./ActionAvaraPrefeituraModal/actionListaAlvaraPrefeitura";
 
-
-
-export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
+export const FormularioActionAlvaraEmpresa = ({ show, dadosAlvaraEmpresaSelecionada, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchAlvaraEmpresa }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, register } = useForm({
         mode: "onChange"
     });
@@ -43,7 +43,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
         setOperador,
         setDataLancamento,
         dataTableRef
-    } = useCadastrarAlvara({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchCaixaMovimento });
+    } = useCadastrarAlvara({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos });
 
     const handleValidatedSubmit = async () => {
         try {
@@ -80,11 +80,6 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
             //console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
     };
-
-    const optionsIndicacaoIE = [
-        { value: 'N', label: 'N' },
-        { value: 'S', label: 'S' },
-    ]
     return (
         <Fragment>
             <form onSubmit={handleSubmit(handleValidatedSubmit)} >
@@ -108,7 +103,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="ID"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.IDEMPRESA}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -125,7 +120,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="Status"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFUNCIONARIO}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.STATIVO == "True" ? "Ativo" : "Inativo"}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -134,20 +129,19 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                         </div>
                         <div class="col-sm-6 col-xl-4">
-                            <Controller
-                                name="Grupo Empresarial"
-                                control={control}
-                                render={({ field }) => (
-                                    <FormField
-                                        label={"Grupo Empresarial"}
-                                        name="IGrupo EmpresarialD"
-                                        type="text"
-                                        readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
-                                        errors={errors}
-                                        clearErrors={clearErrors}
-                                    />
-                                )}
+                            <label className="form-label" htmlFor={""}>Grupo Empresarial</label>
+                            <Select
+
+                                label={"Despesa"}
+                                options={optionsModulos.map((item) => ({
+                                    value: item.value,
+                                    label: item.label
+                                }))}
+                                defaultInputValue={"Todos"}
+                                //onChange={(e) => setTipoIndicacaoIE(e)}
+                                isSearchable={true}
+                                menuIsOpen={false}
+
                             />
                         </div>
                     </div>
@@ -163,7 +157,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="IInsc. Estadual"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.NUINSCESTADUAL}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -180,7 +174,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="Insc. Municipal"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFUNCIONARIO}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.NUINSCMUNICIPAL}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -198,7 +192,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="CNPJ"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={mascaraCNPJ(dadosAlvaraEmpresaSelecionada[0]?.NUCNPJ)}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -218,7 +212,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="Razão Social"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.NORAZAOSOCIAL}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -237,7 +231,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="Nome Fantasia"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.NOFANTASIA}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -269,7 +263,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="Endereço"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.EENDERECO}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -289,7 +283,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="Complemento"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.ECOMPLEMENTO}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -308,7 +302,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="Bairro"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.EBAIRRO}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -327,7 +321,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="Cidade"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.ECIDADE}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -344,7 +338,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="UF"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.SGUF}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -363,7 +357,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                                         name="CEP"
                                         type="text"
                                         readOnly={true}
-                                        value={usuarioLogado?.NOFANTASIA}
+                                        value={dadosAlvaraEmpresaSelecionada[0]?.NUCEP}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -401,7 +395,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"nome"}
+                                    value={dadosAlvaraEmpresaSelecionada[0]?.LISTA_GERENTES[0]?.NOFUNCIONARIO}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder="Nome"
                                     readOnly
@@ -420,7 +414,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"E-mail"}
+                                    value={dadosAlvaraEmpresaSelecionada[0]?.EEMAILPRINCIPAL}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder=""
                                     readOnly
@@ -439,7 +433,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"Telefone"}
+                                    value={mascaraTelefone(dadosAlvaraEmpresaSelecionada[0]?.LISTA_GERENTES[0]?.TELEFONE) || "Telefone não cadastrado"}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder="Telefone"
                                     readOnly
@@ -469,7 +463,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"nome"}
+                                    value={dadosAlvaraEmpresaSelecionada[0]?.LISTA_GERENTES[1]?.NOFUNCIONARIO}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder="Nome"
                                     readOnly
@@ -488,7 +482,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"E-mail"}
+                                    value={dadosAlvaraEmpresaSelecionada[0]?.EEMAILPRINCIPAL}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder=""
                                     readOnly
@@ -507,7 +501,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"Telefone"}
+                                    value={mascaraTelefone(dadosAlvaraEmpresaSelecionada[0]?.LISTA_GERENTES[1]?.TELEFONE) || "Telefone não cadastrado"}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder="Telefone"
                                     readOnly
@@ -537,7 +531,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"nome"}
+                                    value={dadosAlvaraEmpresaSelecionada[0]?.LISTA_GERENTES[2]?.NOFUNCIONARIO}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder="Nome"
                                     readOnly
@@ -556,7 +550,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"E-mail"}
+                                    value={dadosAlvaraEmpresaSelecionada[0]?.EEMAILPRINCIPAL}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder=""
                                     readOnly
@@ -575,7 +569,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"Telefone"}
+                                    value={mascaraTelefone(dadosAlvaraEmpresaSelecionada[0]?.LISTA_GERENTES[2]?.TELEFONE) || "Telefone não cadastrado"}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder="Telefone"
                                     readOnly
@@ -605,7 +599,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"nome"}
+                                    value={(dadosAlvaraEmpresaSelecionada[0]?.LISTA_SUPERVISORES[0]?.NOFUNCIONARIO)}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder="Nome"
                                     readOnly
@@ -624,7 +618,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"E-mail"}
+                                    value={dadosAlvaraEmpresaSelecionada[0]?.EEMAILPRINCIPAL}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder=""
                                     readOnly
@@ -643,7 +637,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
 
                                 <input
                                     className="form-control"
-                                    value={"Telefone"}
+                                    value={dadosAlvaraEmpresaSelecionada[0]?.LISTA_SUPERVISORES[0]?.TELEFONE || "Telefone nao cadastrado"}
                                     onChange={(e) => setNome(e.target.value)}
                                     placeholder="Telefone"
                                     readOnly
@@ -655,13 +649,21 @@ export const FormularioActionAlvaraEmpresa = ({ show, handleClose, dadosDetelheC
                 <hr style={{ borderTop: "2px dashed #999" }} />
 
             </form>
+            <ActionListaAlvaraPrefeitura
+                dadosAlvaraEmpresaSelecionada={dadosAlvaraEmpresaSelecionada}
+                handleClose={handleClose}
+                optionsModulos={optionsModulos}
+                usuarioLogado={usuarioLogado}
+                refetchAlvaraEmpresa={refetchAlvaraEmpresa}
+                
+            />
 
             <FooterModal
-                ButtonTypeCadastrar={ButtonTypeModal}
-                onClickButtonCadastrar={handleValidatedSubmit}
-                tipoBtnCadastrar={"submit"}
-                textButtonCadastrar={"Cadastrar Quebra Caixa"}
-                corCadastrar="success"
+                //ButtonTypeCadastrar={ButtonTypeModal}
+                //onClickButtonCadastrar={handleValidatedSubmit}
+                //tipoBtnCadastrar={"submit"}
+                // textButtonCadastrar={"Cadastrar Quebra Caixa"}
+                //corCadastrar="success"
 
                 ButtonTypeFechar={ButtonTypeModal}
                 textButtonFechar={"Fechar"}

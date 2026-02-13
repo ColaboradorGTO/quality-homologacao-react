@@ -35,6 +35,8 @@ export const ButtonTable = ({
   size = 'sm',
   textFontSize = '12px',
   lineHeight,
+  flexDirection,
+
 }) => {
   let btnClasses = "btn  btn-icon";
 
@@ -75,8 +77,9 @@ export const ButtonTable = ({
         title={titleButton}
         id={id}
         lineHeight={lineHeight}
+        flexDirection={flexDirection}
       >
-        <div style={{ alignItems: "center",  display: 'flex', flexDirection: 'column', justifyContent: 'center', gap: '2px', width: '100%' }}>
+        <div style={{ alignItems: "center",  display: 'flex', flexDirection: flexDirection || 'column', justifyContent: 'center', gap: '2px', width: '100%' }}>
 
           {Icon && <Icon size={iconSize} color={iconColor} />}
           <p style={{ fontSize: textFontSize, margin: '0px', padding: '0px', lineHeight: lineHeight || '0px' }}>
