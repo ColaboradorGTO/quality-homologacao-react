@@ -110,7 +110,7 @@ export const DashBoardAdministrativo = () => {
 
   switch (componentToShow) {
     case "/administrativo/ResumoDashBoardAdministrativo":
-      component = <ResumoDashBoardAdministrativo usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ResumoDashBoardAdministrativo usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaExtratoContaCorenteLoja":
       component = <ActionPesquisaExtratoContaCorenteLoja />;
@@ -131,25 +131,25 @@ export const DashBoardAdministrativo = () => {
       component = <ActionPesquisaVendasConvenio />;
       break;
     case "/administrativo/ActionPesquisaBalancoPorLoja":
-      component = <ActionPesquisaBalancoPorLoja usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaBalancoPorLoja usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaBalancoAvulso":
-      component = <ActionPesquisaBalancoAvulso usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaBalancoAvulso usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaProdutosPreco":
       component = <ActionPesquisaProdutosPreco />;
       break;
     case "/administrativo/ActionPesquisaAlterarVendaVendedor":
-      component = <ActionPesquisaAlterarVendaVendedor usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaAlterarVendaVendedor usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaQuebraCaixaLoja":
-      component = <ActionPesquisaQuebraCaixaLoja usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaQuebraCaixaLoja usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaVendas":
       component = <ActionPesquisaVendas />;
       break;
     case "/administrativo/ActionPesquisaConsultaVouchers":
-      component = <ActionPesquisaConsultaVouchers usuarioLogado={usuarioLogado} ID={ID}/>;
+      component = <ActionPesquisaConsultaVouchers usuarioLogado={usuarioLogado} />;
       break;
     case "/administrativo/ActionPesquisaVoucherResumido":
       component = <ActionPesquisaVoucherResumido />;
@@ -158,25 +158,25 @@ export const DashBoardAdministrativo = () => {
       component = <ActionPesquisaEstoqueLoja />;
       break;
     case "/administrativo/ActionPesquisaVendasCanceladas":
-      component = <ActionPesquisaVendasCanceladas usuarioLogado={usuarioLogado} ID={ID}/>;
+      component = <ActionPesquisaVendasCanceladas usuarioLogado={usuarioLogado} />;
       break;
     case "/administrativo/ActionPesquisaVendasContigencia":
-      component = <ActionPesquisaVendasContigencia usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaVendasContigencia usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaVendasDescontoFuncionario":
-      component = <ActionPesquisaVendasDescontoFuncionario usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaVendasDescontoFuncionario usuarioLogado={usuarioLogado}  />
       break;
     case "/administrativo/ActionPesquisaPrimeiroBalanco":
-      component = <ActionPesquisaPrimeiroBalanco usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaPrimeiroBalanco usuarioLogado={usuarioLogado}  />
       break;
     case "/administrativo/ActionPesquisaAlteracaoPreco":
-      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado} ID={ID}/>;
+      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado} />;
       break;
     case "/administrativo/ActionPesquisaVendasVouchers":
       component = <ActionPesquisaVendasVouchers />;
       break;
     case "/administrativo/ActionPesquisaAutorizaTroca":
-      component = <ActionPesquisaAutorizaTroca usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaAutorizaTroca usuarioLogado={usuarioLogado}  />;
       break;
     default:
       component = null;
@@ -206,7 +206,7 @@ export const DashBoardAdministrativo = () => {
                           <div className="panel-content">
                             <Suspense fallback={<div>Loading...</div>}>
                               {resumoVisivel && !componentToShow && (
-                                <ResumoDashBoardAdministrativo usuarioLogado={usuarioLogado} ID={ID}/>
+                                <ResumoDashBoardAdministrativo usuarioLogado={usuarioLogado} />
                               )}
 
                               {componentToShow && component}

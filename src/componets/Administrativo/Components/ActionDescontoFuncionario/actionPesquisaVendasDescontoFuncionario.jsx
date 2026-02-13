@@ -10,7 +10,7 @@ import {InputSelectAction} from "../../../Inputs/InputSelectAction"
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 
-export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado, ID}) => {
+export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('0')
