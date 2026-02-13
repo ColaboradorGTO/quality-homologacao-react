@@ -5,23 +5,20 @@ import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import HeaderTable from "../../../../../Tables/headerTable";
-import { ButtonTable } from "../../../../../ButtonsTabela/ButtonTable";
+import HeaderTable from "../../../../../../Tables/headerTable";
+import { ButtonTable } from "../../../../../../ButtonsTabela/ButtonTable";
 import { FaPencilAlt } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { get } from "../../../../../../api/funcRequest";
+import { get } from "../../../../../../../api/funcRequest";
 import { FaPlus, FaRegEye } from "react-icons/fa6";
-import { ActionCadastrarAlvaraModal } from "./ActionCadastrarAlvaraModal/ActionCadastrarAlvaraModal";
-import { ActionVisualizarDetalhesAlvaraModal } from "./ActionVisualizarAlvaraModal/actionVisualizarDetalhesAlvaraModal";
-import { ActionEditarDetalhesAlvaraModal } from "./ActionEditarAlvaraModal/actionEditarDetalhesAlvaraModal";
+//import { ActionCadastrarAlvaraModal } from "./ActionCadastrarAlvaraModal/ActionCadastrarAlvaraModal";
+//import { ActionVisualizarDetalhesAlvaraModal } from "./ActionVisualizarAlvaraModal/actionVisualizarDetalhesAlvaraModal";
 
-export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, optionsModulos, usuarioLogado, refetchAlvaraEmpresa }) => {
+export const ActionListaArquivosAnexados = ({ dadosAlvaraSelecionado, optionsModulos, usuarioLogado, refetchAlvaraEmpresa, handleClose }) => {
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [rowSelection, setRowSelection] = useState(null);
     const [modalCadastrarAlvaraEmpresa, setModalCadastrarAlvaraEmpresa] = useState(false);
     const [modalVisualizarAlvaraEmpresa, setModalVisualizarAlvaraEmpresa] = useState(false);
-    const [modalEditarAlvaraEmpresa, setModalEditarAlvaraEmpresa] = useState(false);
-    const [dadosAlvaraSelecionado, setDadosAlvaraSelecionado] = useState([]);
     const dataTableRef = useRef();
 
     const onGlobalFilterChange = (e) => {
@@ -88,48 +85,64 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
         XLSX.writeFile(workbook, "alvaras_empresas.xlsx");
     };
 
-    const dados = dadosAlvaraEmpresaSelecionada
-        .flatMap((empresa) => {
-            return empresa.LISTA_ALVARAS
-                .filter(alvara => alvara.IDALVARA === 4)
-                .flatMap(alvara =>
-                    alvara.ITEMS.map(item => ({
-                        IDVINCULO: item.IDVINCULO,
-                        IDEMPRESA: item.IDEMPRESA,
-                        DATA_INICIO: item.DTINICIOCOMPETENCIAALVARA,
-                        DATA_FIM: item.DTFIMCOMPETENCIAALVARA,
-                        STATIVO: item.STATIVO === "True" ? "Ativo" : "Inativo",
-                    }))
-                );
-        })
-        .map((item, index) => ({
-            ...item,
-            CONTADOR: index + 1, 
-        }));
+    const getExtensao = (mime) => {
+        if (!mime || !mime.includes("/")) return "";
+        return mime.split("/")[1].toUpperCase();
+    };
+
+    const dados = dadosAlvaraSelecionado?.map((item) => {
+
+        return {
+            IDVINCULO: item?.IDVINCULO,
+            IDEMPRESA: item?.IDEMPRESA,
+            NOMEARQUIVOALVARA: item?.ARQUIVOSALVARAS[0]?.NOMEARQUIVOALVARA,
+            TIPOARQUIVOALVARA: item?.ARQUIVOSALVARAS[0]?.TIPOARQUIVOALVARA,
+            DTHORACRIACAO: item?.ARQUIVOSALVARAS[0]?.DTHORACRIACAO,
+            STATIVO: item?.ARQUIVOSALVARAS[0]?.STATIVO === "True" ? "Ativo" : "Inativo",
+            IDARQUIVOSALVARA: item?.ARQUIVOSALVARAS[0]?.IDARQUIVOSALVARA
+        };
+    });
 
     const colunasEmpresasAlvaras = [
         {
-            field: 'CONTADOR',
+            field: 'IDEMPRESA',
             header: '#',
-            body: row => <th> {row.CONTADOR} </th>,
+            body: row => <th> {row.IDEMPRESA} </th>,
             sortable: true,
         },
         {
-            field: 'DATA_INICIO',
-            header: 'Dt.Inicio',
-            body: row => <th> {row.DATA_INICIO} </th>,
+            field: 'NOMEARQUIVOALVARA',
+            header: 'Nome',
+            body: row => <th> {row.NOMEARQUIVOALVARA} </th>,
             sortable: true,
         },
         {
-            field: 'DATA_FIM',
-            header: 'Dt.Fim',
-            body: row => <th> {row.DATA_FIM} </th>,
+            field: 'TIPOARQUIVOALVARA',
+            header: 'Dt.Tipo',
+            body: row => <th> {getExtensao(row.TIPOARQUIVOALVARA)} </th>,
+            sortable: true,
+        },
+        {
+            field: 'DTHORACRIACAO',
+            header: 'Dt.Inclusão',
+            body: row => <th> {row.DTHORACRIACAO} </th>,
             sortable: true,
         },
         {
             field: 'STATIVO',
             header: 'Status',
-            body: row => <th style={{ color: row.STATIVO == 'Ativo' ? 'blue' : 'red' }}>{row.STATIVO}</th>,
+            body: row =>
+            (
+                <span
+                    className={` badge text-white ${row.STATIVO === 'Ativo'
+                        ? 'bg-success'
+                        : 'bg-warning'
+                        }`}
+                    style={{ borderRadius: '5px' }}
+                >
+                    {row.STATIVO}
+                </span>
+            ),
             sortable: true,
         },
         {
@@ -138,21 +151,10 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
             body: (row) => (
                 <div style={{ display: "flex", gap: "8px" }}>
                     <ButtonTable
-                        titleButton="Visualizar Detalhes do Alvará"
+                        titleButton="Visualizar Arquivo"
                         cor="info"
                         Icon={FaRegEye}
-                        onClickButton={() => handleClickVisualizarAlvara(row)}
-                        iconSize={18}
-                        width="35px"
-                        height="35px"
-                        lineHeight={1.3}
-                    />
-
-                    <ButtonTable
-                        titleButton="Editar Alvará da Loja"
-                        cor="warning"
-                        Icon={FaPencilAlt}
-                        onClickButton={() => handleClickEditarAlvara(row)}
+                        onClickButton={() => handleVisualizarArquivo(row)}
                         iconSize={18}
                         width="35px"
                         height="35px"
@@ -163,6 +165,14 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
             sortable: true,
         }
     ]
+
+    const handleVisualizarArquivo = (row) => {
+        //const url = `/visualizar-anexo-alvara?idArquivoAlvara=${row.IDARQUIVOSALVARA}`;
+        const url = `http://164.152.245.77:8000/quality/concentrador_homologacao/api/contabilidade/arquivos-anexos-alvaras-empresa.xsjs?id=${row.IDARQUIVOSALVARA}`;
+
+        window.open(url, "_blank");
+    };
+
 
     const handleClickVisualizarAlvara = (row) => {
         if (optionsModulos[0]?.ALTERAR === 'True') {
@@ -195,37 +205,6 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
         }
     };
 
- const handleClickEditarAlvara = (row) => {
-        if (optionsModulos[0]?.ALTERAR === 'True') {
-            if (row && row.IDVINCULO) {
-                handleEditarAlvara(row.IDVINCULO);
-            }
-        } else {
-            Swal.fire({
-                icon: 'error',
-                title: 'Atenção!',
-                text: 'Você não tem permissão para editar alvará.',
-                confirmButtonColor: '#7352A5',
-                customClass: {
-                    container: 'custom-swal',
-                },
-            });
-        }
-    };
-
-    const handleEditarAlvara = async (IDVINCULO) => {
-        try {
-            const response = await get(`/vinculo-alvaras-empresa?idFilial=${IDVINCULO}`);
-            console.log(response, 'response.data')
-            if (response.data && response.data.length > 0) {
-                setDadosAlvaraSelecionado(response.data);
-                setModalVisualizarAlvaraEmpresa(true);
-            }
-        } catch (error) {
-            console.error('Erro ao buscar dados Alvaras: ', error);
-        }
-    };
-
     const handleClickCadastrarAlvara = () => {
         if (optionsModulos[0]?.ALTERAR === 'True') {
             setModalCadastrarAlvaraEmpresa(true);
@@ -241,18 +220,15 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
             });
         }
     };
-    
 
     return (
-
         <Fragment>
-
             <div className="panel">
                 <div className="panel-hdr mb-4">
 
-                    <h3>ALVARÁS - PREFEITURA (LICENÇA DE FUNCIONAMENTO)</h3>
+                    <h3>LISTA DE ARQUIVOS ANEXADOS DO ALVARÁ</h3>
                 </div>
-                <div style={{ marginBottom: "0.5rem" }}>
+                <div style={{ marginBottom: "2rem" }}>
                     <HeaderTable
                         globalFilterValue={globalFilterValue}
                         onGlobalFilterChange={onGlobalFilterChange}
@@ -260,19 +236,7 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
                         exportToExcel={exportToExcel}
                         exportToPDF={exportToPDF}
                     />
-                    <div style={{ marginTop: "1rem", marginLeft: "0.8rem" }}>
-                        <ButtonTable
-                            titleButton="Adicionar Alvará"
-                            className="btn btn-outline-success d-flex align-items-center justify-content-center gap-4"
-                            Icon={FaPlus}
-                            textButton="Add Alvará"
-                            onClickButton={handleClickCadastrarAlvara}
-                            iconSize={18}
-                            width="110px"
-                            height="37px"
-                            flexDirection="row"
-                        />
-                    </div>
+
                 </div>
                 <div className="card" ref={dataTableRef}>
                     <DataTable
@@ -311,23 +275,17 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
                     </DataTable>
                 </div>
             </div>
-            <ActionCadastrarAlvaraModal
+            {/* <ActionCadastrarAlvaraModal
                 show={modalCadastrarAlvaraEmpresa}
                 handleClose={() => setModalCadastrarAlvaraEmpresa(false)}
                 dadosAlvaraEmpresa={dadosAlvaraEmpresaSelecionada}
             />
-
-            <ActionVisualizarDetalhesAlvaraModal
+ */}
+            {/*    <ActionVisualizarDetalhesAlvaraModal
                 show={modalVisualizarAlvaraEmpresa}
                 handleClose={() => setModalVisualizarAlvaraEmpresa(false)}
                 dadosAlvaraSelecionado={dadosAlvaraSelecionado}
-            />
-
-            <ActionEditarDetalhesAlvaraModal
-                show={modalEditarAlvaraEmpresa}
-                handleClose={() => setModalEditarAlvaraEmpresa(false)}
-                dadosAlvaraSelecionado={dadosAlvaraSelecionado}
-            />
+            /> */}
         </Fragment>
     )
-}    
+}
