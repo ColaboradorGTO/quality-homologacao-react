@@ -66,7 +66,7 @@ export const ResumoDashBoardGerencia = ({usuarioLogado }) => {
   const { data: dadosCaixasNaoConferidos = [], error: errorCaixasNaoConferidos, isLoading: isLoadingCaixasNaoConferidos, refetch: refetchCaixasNaoConferidos } = useQuery(
     'lista-caixas-fechados-nao-conferido',
     async () => {
-      const idEmpresa = optionsModulos[0]?.ADMINISTRADOR == "False" ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
+      const idEmpresa = usuarioLogado?.IDEMPRESA;
       
       const response = await get(`/lista-caixas-fechados-nao-conferido?idEmpresa=${idEmpresa}`);
       return response.data;
