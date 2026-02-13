@@ -12,6 +12,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { retornaDiasEntreDatas } from "../../../../utils/retornoEntreDias";
+import Swal from "sweetalert2";
 
 export const ActionListaVendasVouchers = ({ 
   dadosVendasClientes, 
@@ -85,6 +86,14 @@ export const ActionListaVendasVouchers = ({
     let diasAposCompra;
     let stCortesia;
     let stDefeito;
+    
+    // Status da situação da venda
+    let situacaoVenda = item.venda.STCANCELADO == 'False' ? 'Ativa' : 'Cancelada';
+    let nomeCliente = item.venda.DEST_CPF ? item.venda.DSNOMERAZAOSOCIAL + " " + item.venda.DSAPELIDONOMEFANTASIA : item.venda.DSNOMERAZAOSOCIAL;
+    let cpfCnpjCliente = item.venda.DEST_CNPJ || item.venda.DEST_CPF || 'Não Informado';
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6, 10), (item.venda.DTHORAFECHAMENTO.slice(3, 5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3, 5) - 1 : item.venda.DTHORAFECHAMENTO.slice(3, 5)), item.venda.DTHORAFECHAMENTO.slice(0, 2));
+    const DATAHORAATUAL = new Date();
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
 
     return {
       contador,
@@ -96,11 +105,11 @@ export const ActionListaVendasVouchers = ({
       NOFANTASIA: item.venda.NOFANTASIA,
       VRTOTALPAGO: item.venda.VRTOTALPAGO,
       DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
-      STCANCELADO: item.venda.STCANCELADO,
+      STCANCELADO: item.venda.STCANCELADO == 'False' ? 'Ativa' : 'Cancelada',
       DTHORAFECHAMENTOFORMATEUA: item.venda.DTHORAFECHAMENTOFORMATEUA,
-      diasAposCompra: diasAposCompra = retornaDiasEntreDatas(item.venda.DTHORAFECHAMENTOFORMATEUA),
-      stCortesia: stCortesia,
-      stDefeito: stDefeito = diasAposCompra <= 90 ? 'Válida' : 'Inválida'
+      diasAposCompra: DIFERENCAEMDIAS,
+      stCortesia: stCortesia = DIFERENCAEMDIAS <= 32 ? 'Ativa' : 'Inativa',
+      stDefeito: stDefeito = DIFERENCAEMDIAS <= 90 ? 'Ativa' : 'Inativa',
     }
   });
 
@@ -131,27 +140,27 @@ export const ActionListaVendasVouchers = ({
     },
     {
       field: 'VRTOTALPAGO',
-      header: 'Valor Pago',
+      header: 'Valor',
       body: row => <th >{formatMoeda(row.VRTOTALPAGO)}</th>,
       sortable: true,
     },
     {
       field: 'stCortesia',
       header: 'St.Cortesia',
-      body: row => <th style={{ color: row.stCortesia == 'Válida' ? '#1dc9b7' || row.stCortesia == 'Inválida' : '#fd3995 ', fontWeight: 900 }} >{row.stCortesia = row.diasAposCompra <= 32 ? 'Válida' : 'Inválida'} </th>,
+      body: row => <th style={{ color: row.stCortesia == 'Válida' ? '#1dc9b7' : '#fd3995', fontWeight: 900 }} >{row.stCortesia} </th>,
       sortable: true,
     },
     {
       field: 'stDefeito',
       header: 'St.Defeito',
-      body: row => <th style={{ color: row.stDefeito == 'Válida' ? '#1dc9b7' || row.stDefeito == 'Inválida' : '#fd3995 ', fontWeight: 900 }} >{row.stDefeito} </th>,
+      body: row => <th style={{ color: row.stDefeito == 'Válida' ? '#1dc9b7' : '#fd3995', fontWeight: 900 }} >{row.stDefeito} </th>,
       sortable: true,
     },
 
     {
       field: 'diasAposCompra',
       header: 'Dias Passados',
-      body: row => <th style={{}}>{row.diasAposCompra}</th>,
+      body: row => <th style={{ color: row.diasAposCompra <= 32 ? '#fd3995' : '#2196F3', fontWeight: 900 }}>{row.diasAposCompra}</th>,
       sortable: true,
     },
     {
@@ -180,14 +189,27 @@ export const ActionListaVendasVouchers = ({
 
   const handleClickDetalhar = async (row) => {
     if (row.IDVENDA) {
-      handleDetalhar(row.IDVENDA)
+      handleDetalhar(row.IDVENDA, row.stCortesia, row.stDefeito)
     }
   }
 
-  const handleDetalhar = async (IDVENDA) => {
+  const handleDetalhar = async (IDVENDA, stCortesia, stDefeito) => {
+    if (stCortesia === 'Ativa' && stDefeito === 'Ativa') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção!',
+        html:'Venda dentro do prazo de troca! Não há necessidade de autorização para efetuar a troca! <br/> Se não for o caso, verifique os dados da venda!',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#886ab5',
+        customClass: {
+          container: 'custom-swal',
+        },
+      })
+      return 
+    }
     try {
       const response = await get(`/lista-venda-cliente?idVenda=${IDVENDA}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosVisualizarProdutos(response.data)
         setTabelaPrincipal(false)
         setTabelaSecundaria(true)
@@ -201,39 +223,116 @@ export const ActionListaVendasVouchers = ({
 
   const dadosProdutos = dadosVisualizarProdutos.flatMap((item) => {
     const { venda, detalhe } = item;
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6, 10), (item.venda.DTHORAFECHAMENTO.slice(3, 5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3, 5) - 1 : item.venda.DTHORAFECHAMENTO.slice(3, 5)), item.venda.DTHORAFECHAMENTO.slice(0, 2));
+    const DATAHORAATUAL = new Date();
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
 
     return detalhe.map((detalheItem, index) => {
       const contadorIndex = index + 1;
+      const qtdExcecao = Number(detalheItem.det.QTDAUTORIZADA) || 0;
+      const quantidade = Number(detalheItem.det.QTD);
+      const stCortesia = DIFERENCAEMDIAS >= 33 ? false : true;
+      const stDefeito = DIFERENCAEMDIAS >= 91 ? false : true;
+      const stTroca = (detalheItem.det.STTROCA === "True" || qtdExcecao === quantidade);
+      const isChecked = stTroca;
+      const isDisabled = stTroca;
+
       return {
 
         CPROD: detalheItem.det.CPROD,
         IDVENDADETALHE: detalheItem.det.IDVENDADETALHE,
+        IDVENDA: detalheItem.det.IDVENDA,
         XPROD: detalheItem.det.XPROD,
         NUCODBARRAS: detalheItem.det.NUCODBARRAS,
         QTD: detalheItem.det.QTD,
         VRTOTALLIQUIDO: detalheItem.det.VRTOTALLIQUIDO,
         VUNTRIB: detalheItem.det.VUNTRIB,
         VPROD: detalheItem.det.VPROD,
-        STTROCA: detalheItem.det.STTROCA,
         VENDEDOR_MATRICULA: detalheItem.det.VENDEDOR_MATRICULA,
+        IDEXCECAO: detalheItem.det.IDEXCECAO,
+        STEXCECAO: detalheItem.det.STEXCECAO,
+        QTDAUTORIZADA: detalheItem.det.QTDAUTORIZADA,
+        STTROCA: detalheItem.det.STTROCA,
+        TIPOTROCA: detalheItem.det.TIPOTROCA,
+
         STCANCELADO: detalheItem.det.STCANCELADO,
         contadorIndex: contadorIndex,
+
+        DIFERENCAEMDIAS,
+        stCortesia,
+        stDefeito,
+        isChecked,
+        isDisabled,
+        // ✅ Tooltip/título para produtos já trocados
+        tooltipText: isDisabled && isChecked ?
+          (qtdExcecao === quantidade ?
+            `PRODUTO JÁ AUTORIZADO PARA EXCEÇÃO: ${detalheItem.det.TIPOTROCA}` :
+            'ESTE PRODUTO JÁ FOI TROCADO!') :
+          (DIFERENCAEMDIAS >= 33 ?
+            `VENDA FORA DO PRAZO DE 30 DIAS PARA A TROCA DO TIPO CORTESIA, JÁ SE PASSARAM: ${DIFERENCAEMDIAS} DIAS APÓS A COMPRA!` :
+            (DIFERENCAEMDIAS >= 91 ?
+              `VENDA FORA DO PRAZO DE 90 DIAS PARA A TROCAS DO TIPO CORTESIA OU DEFEITO, JÁ SE PASSARAM: ${DIFERENCAEMDIAS} DIAS APÓS A COMPRA!` :
+              ''))
 
       };
     });
   });
 
   const dadosProdutosVenda = dadosVisualizarProdutos.flatMap((item) => {
-    let diferenciaDias;
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6, 10), (item.venda.DTHORAFECHAMENTO.slice(3, 5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3, 5) - 1 : item.venda.DTHORAFECHAMENTO.slice(3, 5)), item.venda.DTHORAFECHAMENTO.slice(0, 2));
+    const DATAHORAATUAL = new Date();
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
+
+
     return {
       IDVENDA: item.venda.IDVENDA,
       DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
-      diferenciaDias: diferenciaDias = retornaDiasEntreDatas(item.venda.DTHORAFECHAMENTOFORMATEUA),
+      DIFERENCAEMDIAS: DIFERENCAEMDIAS
     };
 
   });
 
+ const getTituloDinamico = () => {
+    if (!dadosProdutosVenda[0]) return null;
 
+    const { IDVENDA, DIFERENCAEMDIAS } = dadosProdutosVenda[0];
+    const qtdItensTrocados = dadosProdutos.filter(p => p.isDisabled && p.isChecked).length;
+    const totalItens = dadosProdutos.length;
+
+    if (totalItens - qtdItensTrocados === 0) {
+      return (
+        <h2>
+          <span className="fw-500">
+            <i>  Produtos _ Venda: {IDVENDA}  </i>  &#160;&#160; 
+            <i className="todosTrocados text-danger h4">Todos os Produtos Desta Venda Já Foram Trocados</i>
+          </span>
+        </h2>
+      );
+    } else if (DIFERENCAEMDIAS > 30) {
+      return (
+        <h2>
+          <span className="fw-500">
+            <i>  Produtos - Venda: {IDVENDA}  </i>  &#160;&#160; 
+            <i 
+              className="text-danger h4" 
+              title="Dias Passados Após a Compra"
+              onMouseOver={(e) => e.target.title = e.target.textContent}
+            >
+              Dias Passados Após a Compra: <u><b>{DIFERENCAEMDIAS} DIAS</b></u>
+            </i>
+          </span>
+        </h2>
+      );
+    } else {
+      return (
+        <h2>
+          <span className="fw-500">
+            <i>  Produtos - Venda: {IDVENDA}</i>
+          </span>
+        </h2>
+      );
+    }
+  };
 
   const colunasVouchers2 = [
     {
@@ -347,15 +446,7 @@ export const ActionListaVendasVouchers = ({
         <Fragment>
           <div className="panel">
             <div className="panel-hdr">
-              {dadosProdutosVenda[0]?.diferenciaDias <= 32 && (
-                <h2>
-
-                  Produtos - Vendas {dadosProdutosVenda[0].IDVENDA} &nbsp; - &nbsp;
-                  <span style={{ color: '#fd3995' }}>
-                    Dias Passados Após a Compra <b><u>{dadosProdutosVenda[0].diferenciaDias} DIAS</u></b>
-                  </span>
-                </h2>
-              )}
+              {getTituloDinamico()}
           
             </div>
               <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>

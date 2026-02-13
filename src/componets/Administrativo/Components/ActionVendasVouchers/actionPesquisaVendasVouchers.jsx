@@ -130,7 +130,7 @@ export const ActionPesquisaVendasVouchers = () => {
       <ActionMain
         linkComponentAnterior={["Home"]}
         linkComponent={["Vendas"]}
-        title="Vendas Vouchers"
+        title="Vendas - Vouchers"
 
 
         InputFieldDTInicioComponent={InputField}

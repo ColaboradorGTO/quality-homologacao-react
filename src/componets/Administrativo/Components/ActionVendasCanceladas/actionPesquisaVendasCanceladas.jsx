@@ -113,6 +113,7 @@ export const ActionPesquisaVendasCanceladas = ({usuarioLogado }) => {
     { enabled: false, staleTime: 5 * 60 * 1000}
   );
 
+  
   const fetchVendasCanceladas30Minutos = async () => {
     const urlBase = `venda-ativa?idGrupo=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&statusCanceladoDepois30Minutos=True`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';

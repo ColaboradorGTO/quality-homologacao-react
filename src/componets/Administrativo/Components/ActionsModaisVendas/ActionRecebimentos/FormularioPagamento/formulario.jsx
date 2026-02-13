@@ -226,28 +226,23 @@ export const FormularioAlteracaoPagamento = ({
       setAlerta(true);
     }
   };
-  
+
   
   return (
 
     <Fragment>
 
       <div className="pt-5">
-        {dadosAtivasVendas[0]?.STCONFERIDO == 1 ? (
-          <div></div>
-        ) : (
-          
+        {optionsModulos[0]?.ALTERAR == 'True' ? (
           <ButtonType
             cor={pagamentos ? 'success' : 'danger'}
             textButton={'Alterar Pagamentos'}
             onClickButtonType={alterarPagamentoVisivel}
           />
+        ) : (
+          <h4 style={{color: 'red', fontWeight: 800}}>Colaborador não habilitado para essa função!</h4>
         )}
         <hr />
-        {alerta && (
-
-          <h4 style={{color: 'red', fontWeight:  800}}>Colaborador não habilitado para essa função!</h4>
-        )}
       </div>
 
       {pagamentos && (
