@@ -132,7 +132,7 @@ export const ActionListaVendasRecebidoEletronico = ({
     const valorTotalPagamentoMapaDespesas = parseFloat(item.VALORTOTALDESPESA) + parseFloat(item.VALORTOTALADIANTAMENTOSALARIAL)
     const valorTotalDisponivelMapaDinheiro = calcularTotalDinheiro() - parseFloat(item.VALORTOTALDESPESA) + parseFloat(item.VALORTOTALADIANTAMENTOSALARIAL);
     const valorTotalDisponivelMapaDinheiroFatura = valorTotalDisponivelMapaDinheiro + calcularTotalFatura();
-    console.log(valorTotalDisponivelMapaDinheiro, 'valorTotalDisponivelMapaDinheiro')
+    
     return {
 
       VALORTOTALCONVENIO: item.VALORTOTALCONVENIO,
@@ -392,9 +392,13 @@ export const ActionListaVendasRecebidoEletronico = ({
 
   const handleEditar = async (NOTEF, NOAUTORIZADOR, NPARCELAS) => {
     try {
-      const response = await get(`/venda-detalhe-recebimento-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&nomeTef=${NOTEF}&nomeAutorizador=${NOAUTORIZADOR}&numeroParcelas=${NPARCELAS}`);
-
-      if (response.data) {
+      // Garante que os valores não sejam null/undefined antes de codificar
+      const nomeTefEncoded = NOTEF ? encodeURIComponent(NOTEF.toString()) : '';
+      const nomeAutorizadorEncoded = NOAUTORIZADOR ? encodeURIComponent(NOAUTORIZADOR.toString()) : '';
+      const numeroParcelasEncoded = NPARCELAS ? encodeURIComponent(NPARCELAS.toString()) : '0';
+      
+      const response = await get(`/venda-detalhe-recebimento-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&nomeTef=${nomeTefEncoded}&nomeAutorizador=${nomeAutorizadorEncoded}&numeroParcelas=${numeroParcelasEncoded}`);
+      if (response.data && response.data.length > 0) {
         setDadosDetalheRecebimentosEletronico(response.data)
         setModalDetalheRecebimento(true);
       }
@@ -402,12 +406,18 @@ export const ActionListaVendasRecebidoEletronico = ({
       console.error('Erro ao buscar detalhes da despesa: ', error);
     }
   };
-
-
+  
+  
   const handleClickEditar = (row) => {
-
-    if (row && row.NOTEF && row.NOAUTORIZADOR && row.NPARCELAS) {
+    // Verifica se os valores existem e não são vazios
+    if (row && row.NOTEF && row.NOAUTORIZADOR && row.NPARCELAS !== undefined && row.NPARCELAS !== null) {
       handleEditar(row.NOTEF, row.NOAUTORIZADOR, row.NPARCELAS);
+    } else {
+      console.warn('Dados insuficientes para buscar detalhes:', { 
+        NOTEF: row?.NOTEF, 
+        NOAUTORIZADOR: row?.NOAUTORIZADOR, 
+        NPARCELAS: row?.NPARCELAS 
+      });
     }
   };
 
