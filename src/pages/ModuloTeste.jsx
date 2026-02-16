@@ -26,7 +26,7 @@ import permissoesImg from '../../public/img/icons/permissoes.png';
 import promocaoImg from '../../public/img/icons/promocao.png';
 
 
-export const ModuloTeste = ({ }) => {
+export const ModuloTeste = () => {
   const [selectedModule, setSelectedModule] = useState(null);
   const [moduloSelecionado, setModuloSelecionado] = useState(null);
   const [usuarioLogado, setUsuarioLogado] = useState(null);
@@ -39,9 +39,9 @@ export const ModuloTeste = ({ }) => {
     }
   }, []);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-  }, [usuarioLogado]);
+  // }, [usuarioLogado]);
 
  
   const navigate = useNavigate();
