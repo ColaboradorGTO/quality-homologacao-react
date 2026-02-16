@@ -19,6 +19,10 @@ import * as XLSX from 'xlsx';
 
 
 export const ActionListaVendasRecebidoEletronico = ({ 
+  dadosDespesas,
+  dadosAdiantamentoSalarial,
+  dadosResumoVoucher,
+  dadosDetalheFatura,
   dadosTotalRecebidoEletronico, 
   dadosTotalRecebidoPeriodo, 
   dataPesquisaInicio, 
@@ -101,14 +105,11 @@ export const ActionListaVendasRecebidoEletronico = ({
 
   const calcularTotalConvenio = () => {
     let total = 0;
-    for (let i = 0; i < dados.length; i++) {
-      const valor = parseFloat(dados[i].VALORRECEBIDO || 0);
+    for (let i = 0; i < dadosPeriodo.length; i++) {
+      const valor = parseFloat(dadosPeriodo[i].VALORTOTALCONVENIO || 0);
       total = parseFloat(total) + valor;  // ← DIFERENÇA CRÍTICA
     }
     return parseFloat(total).toFixed(2);
-    // return dadosTotalRecebidoEletronico.reduce((total, item) =>
-    //   total + parseFloat(item.VALORRECEBIDO), 0
-    // );
   }
 
   const calcularTotalFatura = () => {
@@ -178,6 +179,64 @@ export const ActionListaVendasRecebidoEletronico = ({
     return parseFloat(total).toFixed(2);
   }
 
+  const dadosListaDespesass = dadosDespesas?.map((item, index) => {
+    let contador = index + 1;
+    return {
+
+      VRDESPESA: item.VRDESPESA,
+    }
+  });
+
+  const calcularTotalDespesas = () => {
+    let total = 0;
+    for (let resultado of dadosListaDespesass) {
+      total += toFloat(resultado.VRDESPESA);
+    }
+    return total;
+  }
+
+   const dadosAdiantamentos =  dadosAdiantamentoSalarial.map((item, index) => {
+  
+    return {
+      VRVALORDESCONTO: toFloat(item.VRVALORDESCONTO),
+    }
+  });
+
+  const calcularTotalAdiantamento = () => {
+    let total = 0;
+    for(let resultado of dadosAdiantamentos) {
+      total += toFloat(resultado.VRVALORDESCONTO); 
+    }
+    return total;
+  }
+
+    const dadosVoucher =  dadosResumoVoucher.map((item, index) => {
+
+    return {
+      VRVOUCHER: toFloat(item.VRVOUCHER),
+    }
+  });
+
+  const calcularTotalVoucher = () => {
+    let total = 0;
+    for(let resultado of dadosVoucher) {
+      total += toFloat(resultado.VRVOUCHER); 
+    }
+    return total;
+  }
+
+  const dadosFatura = dadosDetalheFatura.map((item, index) => {
+    return {
+      VRRECEBIDO: toFloat(item.VRRECEBIDO),
+    }
+  });
+
+  const calcularTotalFaturas = () => {
+    return dadosFatura.reduce((total, item) =>
+      total + toFloat(item.VRRECEBIDO), 0
+    )
+  }
+
   // como fazer os calculos de headerGroup e footerGroup
   // const calculoValorTotalRecebidoMapaVenda = dadosPeriodo[0]?.valorTotalRecebidoMapaVenda + calcularTotalValorRecebido();
   const calculoValorTotalRecebidoMapaVenda = 
@@ -242,7 +301,7 @@ export const ActionListaVendasRecebidoEletronico = ({
       </Row>
       <Row>
         <Column footer="Pagamento das Despesas:" colSpan={4} style={{ textAlign: 'right' }} />
-        <Column footer={formatMoeda(dadosPeriodo[0]?.valorTotalPagamentoMapaDespesas)} />
+        <Column footer={formatMoeda(calcularTotalDespesas())} />
 
       </Row>
       <Row>
@@ -263,13 +322,13 @@ export const ActionListaVendasRecebidoEletronico = ({
     </ColumnGroup>
   )
 
-  const calcularTotalDespesas = () => {
-    let total = 0;
-    for (let resultado of dados) {
-      total += parseFloat(resultado.VRDESPESA);
-    }
-    return total;
-  }
+  // const calcularTotalDespesas = () => {
+  //   let total = 0;
+  //   for (let resultado of dados) {
+  //     total += parseFloat(resultado.VRDESPESA);
+  //   }
+  //   return total;
+  // }
 
   const colunasEmpresas = [
     {
@@ -401,7 +460,7 @@ export const ActionListaVendasRecebidoEletronico = ({
               stripedRows
               emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
             >
-              {/* {colunasEmpresas.map(coluna => (
+              {colunasEmpresas.map(coluna => (
                 <Column
                   key={coluna.field}
                   field={coluna.field}
@@ -414,7 +473,7 @@ export const ActionListaVendasRecebidoEletronico = ({
                   bodyStyle={{ fontSize: '1rem' }}
 
                 />
-              ))} */}
+              ))}
 
             </DataTable>
           </div>

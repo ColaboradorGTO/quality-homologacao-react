@@ -58,7 +58,7 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado }) => {
   );
 
 
-  const fetchMapaCaixas = async () => {
+  const fetchDespesas = async () => {
     try {
       const urlApi = `/despesa-loja?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
       const response = await get(urlApi);
@@ -98,9 +98,9 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado }) => {
     }
   }
 
-  const { data: dadosMapaCaixa = [], error: erroMapaCaixa, isLoading: isLoadingMapaCaixa, refetch: refetchMapaCaixas } = useQuery(
+  const { data: dadosDespesas = [], error: erroDespesas, isLoading: isLoadingDespesas, refetch: refetchDespesas } = useQuery(
     'despesa-loja',
-    () => fetchMapaCaixas(),
+    () => fetchDespesas(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   );
 
@@ -351,7 +351,7 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado }) => {
 
   const handleClick = () => {
     setTabelaVisivel(true)
-    refetchMapaCaixas()
+    refetchDespesas()
     refetchTotalRecebidoEletronico()
     fetchTotalRecebidoEletronico()
     refetchAdiantamentoSalarial()
@@ -405,15 +405,19 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado }) => {
 
         <div className="card mt-4">
 
-          {/* <ActionListaMapaCaixa
-            dadosMapaCaixa={dadosMapaCaixa}
+          <ActionListaMapaCaixa
+            dadosDespesas={dadosDespesas}
             dadosAdiantamentoSalarial={dadosAdiantamentoSalarial}
             dadosResumoVoucher={dadosResumoVoucher}
             dadosDetalheFatura={dadosDetalheFatura}
 
-          /> */}
+          />
 
           <ActionListaVendasRecebidoEletronico
+            dadosDespesas={dadosDespesas}
+            dadosAdiantamentoSalarial={dadosAdiantamentoSalarial}
+            dadosResumoVoucher={dadosResumoVoucher}
+            dadosDetalheFatura={dadosDetalheFatura}
             dadosTotalRecebidoEletronico={dadosTotalRecebidoEletronico}
             dadosTotalRecebidoPeriodo={dadosTotalRecebidoPeriodo}
             dataPesquisaInicio={dataPesquisaInicio}
