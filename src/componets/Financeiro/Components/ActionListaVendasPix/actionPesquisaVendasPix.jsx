@@ -84,7 +84,7 @@ export const ActionPesquisaVendasPix = () => {
   const { data: dadosVendasPix = [], error: errorVendasPix, isLoading: isLoadingVendasPix, refetch: refetchVendasPix } = useQuery(
     ['venda-pix-periodo', marcaSelecionada, empresaSelecionada, empresaLivre],
     () => fetchListaVendasPix(marcaSelecionada, empresaSelecionada, empresaLivre),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
   
   
@@ -124,7 +124,7 @@ export const ActionPesquisaVendasPix = () => {
   const { data: dadosVendasPixConsolidado = [], error: errorVendasPixConsolidado, isLoading: isLoadingVendasPixConsolidado, refetch: refetchVendasPixConsolidado } = useQuery(
     ['venda-pix-consolidado-loja', marcaSelecionada, empresaSelecionada, empresaLivre],
     () => fetchListaVendasPixConsolidado(marcaSelecionada, empresaSelecionada, empresaLivre),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
   const fetchVendasFaturaPix = async () => {
@@ -163,7 +163,7 @@ export const ActionPesquisaVendasPix = () => {
   const {data: dadosVendasFaturasPix = [], error: errorVendasFaturaPix, isLoading: isLoadingVendasFaturaPix, refetch: refetchVendasFaturaPix} = useQuery(
     ['fatura-pix-periodo', marcaSelecionada, empresaSelecionada, empresaLivre],
     () => fetchVendasFaturaPix(marcaSelecionada, empresaSelecionada, empresaLivre),
-    {enabled: false, staleTime: 5 * 60 * 1000}
+    {enabled: false, staleTime: 60 * 60 * 1000}
   );
 
 
@@ -202,7 +202,7 @@ export const ActionPesquisaVendasPix = () => {
   const {data: dadosVendasPixConsolidadoMarca = [], error: errorVendasPixConsolidadoMarca, isLoading: isLoadingVendasPixConsolidadoMarca, refetch: refetchVendasPixConsolidadoMarca} = useQuery(
     ['venda-pix-consolidado', marcaSelecionada, empresaSelecionada, empresaLivre],
     () => fetchVendasPixConsolidadoMarca(marcaSelecionada, empresaSelecionada, empresaLivre),
-    {enabled: false, staleTime: 5 * 60 * 1000}
+    {enabled: false, staleTime: 60 * 60 * 1000}
   );
   
   const fetchVendasFaturasPixConsolidadoPeriodo = async () => {
@@ -240,7 +240,7 @@ export const ActionPesquisaVendasPix = () => {
   const {data: dadosFaturasPixConsolidadoPeriodo = [], error: errorFaturasPixConsolidadoPeriodo, isLoading: isLoadingFaturasPixConsolidadoPeriodo, refetch: refetchVendasFaturasPixConsolidadoPeriodo} = useQuery(
     ['fatura-pix-periodo-consolidado', marcaSelecionada, empresaSelecionada, empresaLivre],
     () => fetchVendasFaturasPixConsolidadoPeriodo(marcaSelecionada, empresaSelecionada, empresaLivre),
-    {enabled: false, staleTime: 5 * 60 * 1000}
+    {enabled: false, staleTime: 60 * 60 * 1000}
   );
 
   const fetchFaturasPixConsolidadoLoja = async () => {
@@ -278,7 +278,7 @@ export const ActionPesquisaVendasPix = () => {
   const {data: dadosFaturasPixConsolidadoLoja = [], error: errorFaturasPixConsolidadoLoja, isLoading: isLoadingFaturasPixConsolidadoLoja, refetch: refetchFaturasPixConsolidadoLoja} = useQuery(
     ['faturaPixConsolidadoLoja', marcaSelecionada, empresaSelecionada, empresaLivre],
     () => fetchFaturasPixConsolidadoLoja(marcaSelecionada, empresaSelecionada, empresaLivre),
-    {enabled: false, staleTime: 5 * 60 * 1000}
+    {enabled: false, staleTime: 60 * 60 * 1000}
   );
   
 

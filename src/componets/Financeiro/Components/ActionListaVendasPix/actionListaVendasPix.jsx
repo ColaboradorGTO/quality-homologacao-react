@@ -2,7 +2,6 @@ import { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { formatMoeda } from "../../../../utils/formatMoeda";
-import { dataFormatada } from "../../../../utils/dataFormatada";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -11,6 +10,7 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaVendasPIX = ({ dadosVendasPix }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -29,10 +29,10 @@ export const ActionListaVendasPIX = ({ dadosVendasPix }) => {
       body: dadosListaVendasPix.map(item => [
         item.Numero,
         item.NOFANTASIA,
-        item.IDVENDA, 
-        item.DSTIPOPAGAMENTO, 
-        formatMoeda(item.PIX), 
-        item.DATAVENDA, 
+        item.IDVENDA,
+        item.DSTIPOPAGAMENTO,
+        formatMoeda(item.PIX),
+        item.DATAVENDA,
         item.NUAUTORIZACAO
       ]),
       horizontalPageBreak: true,
@@ -146,6 +146,9 @@ export const ActionListaVendasPIX = ({ dadosVendasPix }) => {
                     globalFilter={globalFilterValue}
                     size="small"
                     sortField="VRTOTALPAGO"
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)}
                     sortOrder={-1}
                     paginator={true}
                     rows={10}

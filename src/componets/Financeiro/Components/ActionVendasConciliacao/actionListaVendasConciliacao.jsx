@@ -8,8 +8,9 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 
-export const ActionListaVendasConciliacao = ({dadosVendasConciliacao}) => {
+export const ActionListaVendasConciliacao = ({ dadosVendasConciliacao }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -26,18 +27,18 @@ export const ActionListaVendasConciliacao = ({dadosVendasConciliacao}) => {
     doc.autoTable({
       head: [['Nº', 'ID EMPRESA', 'EMPRESA', 'ID VENDA', 'DT VENDA', 'VR TOTAL', 'DESCONTO', 'VR PAGO', 'TP PAGAMENTO', 'NSU', 'Nº AUTORIZÇÃO', 'ADQUIRENTE']],
       body: dados.map(item => [
-        item.contador, 
-        item.IDEMPRESA, 
-        item.NOFANTASIA, 
-        item.IDVENDA, 
-        item.DATA, 
-        formatMoeda(item.VRTOTALPAGO), 
-        formatMoeda(item.VRTOTALDESCONTO), 
-        formatMoeda(item.VRPAGO), 
-        item.DSTIPOPAGAMENTO,  
-        item.NSU, 
-        item.NUAUTORIZACAO, 
-        item.DSADQUIRENTE, 
+        item.contador,
+        item.IDEMPRESA,
+        item.NOFANTASIA,
+        item.IDVENDA,
+        item.DATA,
+        formatMoeda(item.VRTOTALPAGO),
+        formatMoeda(item.VRTOTALDESCONTO),
+        formatMoeda(item.VRPAGO),
+        item.DSTIPOPAGAMENTO,
+        item.NSU,
+        item.NUAUTORIZACAO,
+        item.DSADQUIRENTE,
       ]),
       horizontalPageBreak: true,
       horizontalPageBreakBehaviour: 'immediately'
@@ -51,7 +52,7 @@ export const ActionListaVendasConciliacao = ({dadosVendasConciliacao}) => {
 
     const header = ['Nº', 'ID EMPRESA', 'EMPRESA', 'ID VENDA', 'DT VENDA', 'VR TOTAL', 'DESCONTO', 'VR PAGO', 'TP PAGAMENTO', 'NSU', 'Nº AUTORIZÇÃO', 'ADQUIRENTE'];
     worksheet['!cols'] = [
-      { wpx: 200, caption: 'Nº' }, 
+      { wpx: 200, caption: 'Nº' },
       { wpx: 100, caption: 'ID EMPRESA' },
       { wpx: 200, caption: 'EMPRESA' },
       { wpx: 100, caption: 'ID VENDA' },
@@ -62,9 +63,9 @@ export const ActionListaVendasConciliacao = ({dadosVendasConciliacao}) => {
       { wpx: 100, caption: 'TP PAGAMENTO' },
       { wpx: 100, caption: 'NSU' },
       { wpx: 100, caption: 'Nº AUTORIZÇÃO' },
-      { wpx: 100, caption: 'ADQUIRENTE' }, 
-      
-    ]; 
+      { wpx: 100, caption: 'ADQUIRENTE' },
+
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Vendas Conciliação');
@@ -94,79 +95,78 @@ export const ActionListaVendasConciliacao = ({dadosVendasConciliacao}) => {
     {
       field: 'contador',
       header: 'Nº',
-      body: row => <th style={{  }}>{row.contador}</th>,
+      body: row => <th style={{}}>{row.contador}</th>,
       sortable: true,
     },
     {
       field: 'IDEMPRESA',
       header: 'ID Empresa',
-      body: row => <th style={{  }}>{row.IDEMPRESA}</th>,
+      body: row => <th style={{}}>{row.IDEMPRESA}</th>,
       sortable: true,
     },
     {
       field: 'NOFANTASIA',
       header: 'Empresa',
-      body: row => <th style={{  }}>{row.NOFANTASIA}</th>,
+      body: row => <th style={{}}>{row.NOFANTASIA}</th>,
       sortable: true,
     },
     {
       field: 'IDVENDA',
       header: 'ID Venda',
-      body: row => <th style={{  }}>{row.IDVENDA}</th>,
+      body: row => <th style={{}}>{row.IDVENDA}</th>,
       sortable: true,
     },
     {
       field: 'DATA',
       header: 'DT Venda',
-      body: row => <th style={{  }}>{row.DATA}</th>,
+      body: row => <th style={{}}>{row.DATA}</th>,
       sortable: true,
     },
     {
       field: 'VRTOTALPAGO',
       header: 'Vr Total',
-      body: row => <th style={{  }}>{formatMoeda(row.VRTOTALPAGO)}</th>,
+      body: row => <th style={{}}>{formatMoeda(row.VRTOTALPAGO)}</th>,
       sortable: true,
     },
     {
       field: 'VRTOTALDESCONTO',
       header: 'Desconto',
-      body: row => <th style={{  }}>{formatMoeda(row.VRTOTALDESCONTO)}</th>,
+      body: row => <th style={{}}>{formatMoeda(row.VRTOTALDESCONTO)}</th>,
       sortable: true,
     },
     {
       field: 'VRPAGO',
       header: 'Vr Pago',
-      body: row => <th style={{  }}>{formatMoeda(row.VRPAGO)}</th>,
+      body: row => <th style={{}}>{formatMoeda(row.VRPAGO)}</th>,
       sortable: true,
     },
     {
       field: 'DSTIPOPAGAMENTO',
       header: 'Tp Pagamento',
-      body: row => <th style={{  }}>{row.DSTIPOPAGAMENTO}</th>,
+      body: row => <th style={{}}>{row.DSTIPOPAGAMENTO}</th>,
       sortable: true,
     },
     {
       field: 'NSU',
       header: 'NSU',
-      body: row => <th style={{  }}>{row.NSU}</th>,
+      body: row => <th style={{}}>{row.NSU}</th>,
       sortable: true,
     },
     {
       field: 'NUAUTORIZACAO',
       header: 'Nº Autorização',
-      body: row => <th style={{  }}>{row.NUAUTORIZACAO}</th>,
+      body: row => <th style={{}}>{row.NUAUTORIZACAO}</th>,
       sortable: true,
     },
     {
       field: 'DSADQUIRENTE',
       header: 'Adquirente',
-      body: row => <th style={{  }}>{row.DSADQUIRENTE}</th>,
+      body: row => <th style={{}}>{row.DSADQUIRENTE}</th>,
       sortable: true,
     },
   ]
 
-  // {console.log(dados, 'dados')}
-  // {console.log(dadosVendasConciliacao, 'dadosVendasConciliacao')}
+
   return (
 
     <Fragment>
@@ -189,6 +189,9 @@ export const ActionListaVendasConciliacao = ({dadosVendasConciliacao}) => {
             value={dados}
             size="small"
             globalFilter={globalFilterValue}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}
@@ -219,7 +222,7 @@ export const ActionListaVendasConciliacao = ({dadosVendasConciliacao}) => {
 
         </div>
       </div>
-  
+
     </Fragment>
   )
 }

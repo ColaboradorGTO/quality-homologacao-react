@@ -11,7 +11,7 @@ import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { useFetchData } from "../../../../hooks/useFetchData"
 
-export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
+export const ActionPesquisaDespesaLoja = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
@@ -34,15 +34,15 @@ export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
       setMenuFilhoAtual(menuParsed);
     }
   }, []);
-  
+
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
-      
+
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useFetchData('listaEmpresasIformatica', '/listaEmpresasIformatica');
@@ -55,7 +55,7 @@ export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
     try {
 
       animacaoCarregamento('Carregando dados...', true);
-  
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -74,7 +74,7 @@ export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
       }
 
       return allData
-     
+
     } catch (error) {
       console.error('Erro ao buscar dados:', error);
       throw error;
@@ -86,7 +86,7 @@ export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
   const { data: dadosDespesasLoja = [], error: errorDespesasLoja, isLoading: isLoadingDespesasLoja, refetch: refetchListaDespesasLoja } = useQuery(
     ['despesa-loja'],
     () => fetchListaDespesasLoja(),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
   const handleChangeEmpresa = (e) => {
@@ -101,7 +101,6 @@ export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
 
   const handleClick = () => {
     setTabelaVisivel(true)
-
     refetchListaDespesasLoja()
   }
 
@@ -109,13 +108,11 @@ export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
   return (
 
     <Fragment>
-
       <ActionMain
         linkComponentAnterior={["Home"]}
         linkComponent={["Lista de Despesas"]}
         title="Despesas por Lojas e Período"
         subTitle={empresaSelecionadaNome}
-      
 
         InputFieldDTInicioComponent={InputField}
         labelInputFieldDTInicio={"Data Início"}
@@ -160,16 +157,14 @@ export const ActionPesquisaDespesaLoja = ({usuarioLogado, ID}) => {
 
       {tabelaVisivel && (
 
-        <div className="card" >
-          <ActionListaDespesaLoja 
-            dadosDespesasLoja={dadosDespesasLoja} 
-            usuarioLogado={usuarioLogado} 
-            optionsModulos={optionsModulos}
-            handleClick={handleClick}
-          />
-        </div>
+        <ActionListaDespesaLoja
+          dadosDespesasLoja={dadosDespesasLoja}
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}
+          handleClick={handleClick}
+        />
+
       )}
     </Fragment>
   )
 }
-

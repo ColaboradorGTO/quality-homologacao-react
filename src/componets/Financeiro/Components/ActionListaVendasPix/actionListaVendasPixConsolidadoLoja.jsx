@@ -8,8 +8,9 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 
-export const ActionListaVendasPixConsolidadoLoja = ({dadosFaturasPixConsolidadoLoja}) => {
+export const ActionListaVendasPixConsolidadoLoja = ({ dadosFaturasPixConsolidadoLoja }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -59,8 +60,8 @@ export const ActionListaVendasPixConsolidadoLoja = ({dadosFaturasPixConsolidadoL
       NOFANTASIA: item.NOFANTASIA,
       VRRECEBIDO: item.VRRECEBIDO,
     }
-  }): [];
-  
+  }) : [];
+
   const colunasVendasPix = [
     {
       field: 'contador',
@@ -75,7 +76,7 @@ export const ActionListaVendasPixConsolidadoLoja = ({dadosFaturasPixConsolidadoL
       footer: 'Total ',
       sortable: true,
     },
-   
+
     {
       field: 'VRRECEBIDO',
       header: 'Valor Fatura PIX',
@@ -84,7 +85,7 @@ export const ActionListaVendasPixConsolidadoLoja = ({dadosFaturasPixConsolidadoL
       sortable: true,
     },
 
-   
+
   ]
 
   return (
@@ -98,11 +99,11 @@ export const ActionListaVendasPixConsolidadoLoja = ({dadosFaturasPixConsolidadoL
               <h2>
                 Lista de Faturas Pix Por Período<span className="fw-300"><i>Consolidado Por Lojas</i></span>
               </h2>
-         
+
             </div>
             <div className="panel-container show">
               <div className="panel-content">
-              <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+                <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
                   <HeaderTable
                     globalFilterValue={globalFilterValue}
                     onGlobalFilterChange={onGlobalFilterChange}
@@ -118,6 +119,9 @@ export const ActionListaVendasPixConsolidadoLoja = ({dadosFaturasPixConsolidadoL
                     value={dadosListaVendasPix}
                     globalFilter={globalFilterValue}
                     size="small"
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)}
                     sortOrder={-1}
                     rows={dadosListaVendasPix.length}
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
@@ -153,4 +157,3 @@ export const ActionListaVendasPixConsolidadoLoja = ({dadosFaturasPixConsolidadoL
     </Fragment>
   )
 }
-

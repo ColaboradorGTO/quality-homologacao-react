@@ -13,6 +13,7 @@ import { Row } from "primereact/row";
 
 export const ActionListaDepositosLoja = ({ dadosListaDepositosLoja }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -30,10 +31,10 @@ export const ActionListaDepositosLoja = ({ dadosListaDepositosLoja }) => {
       head: [['Data Mov.', 'Data Dep.', 'Conta Banco', 'Valor Depósito', 'Histórico', 'Nº Doc Depósito']],
       body: dados.map(item => [
         item.DTMOVIMENTOCAIXA,
-        item.DTDEPOSITO, 
+        item.DTDEPOSITO,
         item.DSCONTABANCO,
-        item.VRDEPOSITO, 
-        item.DSHISTORIO, 
+        item.VRDEPOSITO,
+        item.DSHISTORIO,
         item.NUDOCDEPOSITO,
         item.STCANCELADO
       ]),
@@ -48,15 +49,15 @@ export const ActionListaDepositosLoja = ({ dadosListaDepositosLoja }) => {
     const workbook = XLSX.utils.book_new();
     const header = ['Data Mov.', 'Data Dep.', 'Conta Banco', 'Valor Depósito', 'Histórico', 'Nº Doc Depósito', 'Situação'];
     worksheet['!cols'] = [
-      { wpx: 200, caption: 'Data Mov.' }, 
+      { wpx: 200, caption: 'Data Mov.' },
       { wpx: 200, caption: 'Data Dep.' },
       { wpx: 200, caption: 'Conta Banco' },
       { wpx: 200, caption: 'Valor Depósito' },
       { wpx: 200, caption: 'Histórico' },
       { wpx: 200, caption: 'Nº Doc Depósito' },
       { wpx: 200, caption: 'Situação' }
-      
-    ]; 
+
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
 
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Depósitos por Lojas');
@@ -82,11 +83,11 @@ export const ActionListaDepositosLoja = ({ dadosListaDepositosLoja }) => {
   const calcularTotalDeposito = () => {
     return dadosListaDepositosLoja
       .filter(deposito => deposito.STCANCELADO === 'False')
-      .reduce((total, deposito) => 
+      .reduce((total, deposito) =>
         total + parseFloat(deposito.VRDEPOSITO || 0), 0
       );
   };
-  
+
   const colunasDepositosLoja = [
     {
       field: 'DTMOVIMENTOCAIXA',
@@ -130,7 +131,7 @@ export const ActionListaDepositosLoja = ({ dadosListaDepositosLoja }) => {
       field: 'STCANCELADO',
       header: 'Situação',
       body: row => {
-        if(row.STCONFERIDO == 'False' || row.STCONFERIDO == null || row.STCONFERIDO == '') {
+        if (row.STCONFERIDO == 'False' || row.STCONFERIDO == null || row.STCONFERIDO == '') {
           if (row.STCANCELADO == 'False') {
             return <th style={{ color: 'blue' }}>Ativo</th>
           } else {
@@ -147,11 +148,11 @@ export const ActionListaDepositosLoja = ({ dadosListaDepositosLoja }) => {
   const footerGroup = (
     <ColumnGroup>
 
-      <Row> 
+      <Row>
         <Column footer="Total de Depósitos" colSpan={3} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem', textAlign: 'center' }} />
         <Column footer={formatMoeda(calcularTotalDeposito())} colSpan={3} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }} />
-       
-        <Column footer={""} colSpan={4}  footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}/>
+
+        <Column footer={""} colSpan={4} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }} />
       </Row>
     </ColumnGroup>
   )
@@ -179,6 +180,9 @@ export const ActionListaDepositosLoja = ({ dadosListaDepositosLoja }) => {
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             footerColumnGroup={footerGroup}
