@@ -67,8 +67,10 @@ export const useCriarVoucher = ({
             width: '25rem',
             focusConfirm: false,
             showCancelButton: true,
-            confirmButtonText: 'Entrar',
-            cancelButtonText: 'Cancelar',
+            confirmButtonText: 'Confirmar',
+            cancelButtonText: 'Voltar',
+            cancelButtonColor: '#3085d6',
+            confirmButtonColor: '#7A59AD',
             allowOutsideClick: false,
             allowEscapeKey: false,
             didOpen: () => {

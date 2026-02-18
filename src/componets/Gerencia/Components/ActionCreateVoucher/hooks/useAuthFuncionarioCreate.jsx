@@ -16,9 +16,9 @@ export const useAuthFuncionarioCreate = ({ usuarioLogado }) => {
             <label class="form-label" for="matricula">Matrícula</label>
             <input type="text" id="matricula" class="swal2-input" placeholder="Matrícula" style="text-align: center;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           </div>
-
+ 
           <div class="input-group">
-            <label class="form-label" for="senha">Senha</label>
+            <label class="form-label" for="senha" style="margin-top: 1rem;">Senha</label>
             <input type="password" id="senha" class="swal2-input" placeholder="Senha">
           </div>
         </div>      
@@ -26,8 +26,10 @@ export const useAuthFuncionarioCreate = ({ usuarioLogado }) => {
       width: '25rem',
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonText: 'Entrar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Voltar',
+      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#7A59AD',
       customClass: {
         container: 'container-swal',
       },
