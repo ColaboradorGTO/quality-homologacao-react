@@ -18,11 +18,9 @@ export const DashBoardPromocao = ({ }) => {
   const [componentToShow, setComponentToShow] = useState("");
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
-  const navigate = useNavigate();
+  const [menuSelected, setMenuSelected] = useState(null);
 
-  function handleShowComponent(componentName) {
-    setComponentToShow(componentName);
-  }
+  const navigate = useNavigate();
 
   useEffect(() => {
     const usuarioArmazenado = localStorage.getItem('usuario');
@@ -39,22 +37,55 @@ export const DashBoardPromocao = ({ }) => {
     }
   }, [navigate]);
 
+
   useEffect(() => {
+    const storedMenuFilho = JSON.parse(localStorage.getItem('menufilhoSelecionado'));
+
+    if (storedMenuFilho) {
+      setMenuSelected(selectedModule);
+    }
 
   }, [usuarioLogado]);
 
- const { data: optionsModulosPage = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+  const { data: optionsModulosPage = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario',
     async () => {
       const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
-      
+
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
   );
+
+  function handleShowComponent(componentName) {
+    const menuFilhoSelecionado = selectedModule.menuPai.menuFilho.find(
+      menu => menu.URL === componentName
+    );
+
+    if (menuFilhoSelecionado) {
+      // Salvar todas as informações do menu selecionado no localStorage
+      localStorage.setItem('menuFilhoSelecionado', JSON.stringify({
+        ID: menuFilhoSelecionado.ID,
+        DSNOME: menuFilhoSelecionado.DSNOME,
+        URL: menuFilhoSelecionado.URL,
+        ALTERAR: menuFilhoSelecionado.ALTERAR,
+        CRIAR: menuFilhoSelecionado.CRIAR,
+        VISUALIZAR: menuFilhoSelecionado.VISUALIZAR,
+        N1: menuFilhoSelecionado.N1,
+        N2: menuFilhoSelecionado.N2,
+        N3: menuFilhoSelecionado.N3,
+        N4: menuFilhoSelecionado.N4,
+        ADMINISTRADOR: menuFilhoSelecionado.ADMINISTRADOR
+      }));
+    }
+
+    setComponentToShow(componentName);
+  }
+
+
   const permissaoUsuario = selectedModule.menuPai.menuFilho;
-  const {   
-    ID, 
+  const {
+    ID,
   } = permissaoUsuario.map(item => ({
     ID: item.ID,
   })).reduce((acc, curr) => {
@@ -69,7 +100,7 @@ export const DashBoardPromocao = ({ }) => {
       component = <ActionPesquisaPromocao usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     case "/promocoes/ActionPesquisaPromocoesAtivas":
-      component = <ActionPesquisaPromocoesAtivas usuarioLogado={usuarioLogado} ID={ID}/>;
+      component = <ActionPesquisaPromocoesAtivas usuarioLogado={usuarioLogado} ID={ID} />;
       break;
     default:
       component = null;
@@ -99,7 +130,7 @@ export const DashBoardPromocao = ({ }) => {
                           <div className="panel-content">
                             <Suspense fallback={<div>Loading...</div>}>
                               {actionVisivel && !resumoVisivel && !componentToShow && (
-                                <ActionPesquisaPromocao/>
+                                <ActionPesquisaPromocao />
 
                               )}
 

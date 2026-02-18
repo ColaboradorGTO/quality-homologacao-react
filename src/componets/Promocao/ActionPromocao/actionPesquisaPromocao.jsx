@@ -122,12 +122,12 @@ export const ActionPesquisaPromocao = ({ }) => {
     mostrarProdutosSelecionadosDestino,
     modalDocumentacao,
     setModalDocumentacao,
-     modalPodutoSelecionadoDestinoCSV, setModalPodutoSelecionadoDestinoCSV,
+    modalPodutoSelecionadoDestinoCSV, setModalPodutoSelecionadoDestinoCSV,
     modalPodutoSelecionadoOrigemCSV, setModalPodutoSelecionadoOrigemCSV,
     onSubmit
 
   } = useCreatePromocaoAtiva({});
-  
+
 
   const customStyles = {
     option: (provided, state) => ({
@@ -221,7 +221,7 @@ export const ActionPesquisaPromocao = ({ }) => {
 
   return (
     <Fragment>
-           <ActionMainPromocao
+      <ActionMainPromocao
         linkComponentAnterior={["Home"]}
         linkComponent={["Cadastro de Promoções"]}
         title="Cadastro de Promoções"
@@ -316,7 +316,7 @@ export const ActionPesquisaPromocao = ({ }) => {
         readOnlyDesconto1={tipoDescontoSelecionado == 1 ? false : true}
         // styleDesconto1={styleDesconto1}
 
-        
+
         InputFieldDescontoComponent2={InputFieldAction}
         labelInputFieldDesconto2={"Desconto %"}
         valueInputFieldDesconto2={porcentoDesconto}
@@ -329,7 +329,7 @@ export const ActionPesquisaPromocao = ({ }) => {
         valueInputFieldVrInicio={precoProduto}
         onChangeInputFieldVrInicio={(e) => {
           let valor = e.target.value.replace(/,/g, '.');
-        
+
           valor = valor.replace(/[^0-9.]/g, '');
           const firstDotIndex = valor.indexOf('.');
           if (firstDotIndex !== -1) {
@@ -337,7 +337,7 @@ export const ActionPesquisaPromocao = ({ }) => {
               valor.substring(0, firstDotIndex + 1) +
               valor.substring(firstDotIndex + 1).replace(/\./g, '');
           }
-          
+
           if (
             valor.length > 1 &&
             valor.startsWith('0') &&
@@ -445,7 +445,7 @@ export const ActionPesquisaPromocao = ({ }) => {
         linkCancelar={"Visualizar Produtos Origem"}
         onButtonClickCancelar={() => {
           mostrarProdutosSelecionadosOrigem('origem');
-          setProdutoOrigem(''); 
+          setProdutoOrigem('');
         }}
         corCancelar={"danger"}
         IconCancelar={GrView}
@@ -456,13 +456,13 @@ export const ActionPesquisaPromocao = ({ }) => {
         valueInputFieldProdutoDestino={produtoDestino}
         onChangeInputFieldProdutoDestino={(e) => setProdutoDestino(e.target.value)}
         readOnlyProdutoDestino={fileProdutoDestino.length > 0 ? true : false}
-      
+
         ButtonTypeProdutoPesquisadoDestino={ButtonType}
         linkNomeProdutoPesquisadoDestino={"Visualizar Produto Pesquisado Destino"}
         onButtonClickProdutoPesquisadoDestino={handlePesquisarProdutoDestino}
         corProdutoPesquisadoDestino={"secondary"}
         IconProdutoPesquisadoDestino={GrView}
-        
+
         InputFileProdutoDestino={InputFieldAction}
         labelInputFileProdutoDestino={"Produto Destino"}
         acceptFileProdutoDestino=".csv, .xls, .xlsx"
@@ -475,31 +475,31 @@ export const ActionPesquisaPromocao = ({ }) => {
           }
         }}
         readOnlyFileProdutoDestino={produtoDestino.length > 0 ? true : false}
-        
+
         ButtonTypeCadastro={ButtonType}
         linkNome={"Visualizar Produtos Destino"}
         onButtonClickCadastro={() => {
           mostrarProdutosSelecionadosDestino('destino');
-          setProdutoDestino(''); 
+          setProdutoDestino('');
         }}
         corCadastro={"success"}
         IconCadastro={GrView}
 
-        
+
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Cadastrar Promoção"}
         onButtonClickSearch={handleCadastrar}
         corSearch={"primary"}
         IconSearch={IoIosSend}
-        
+
         ButtonTypeTXT={ButtonType}
         linkTXT={"Documentação"}
         onButtonClickTXT={mostrarDocumentacao}
         corTXT={"success"}
         IconTXT={GrFormView}
-        />
-        
- 
+      />
+
+
       <ActionCadastrarPromocaoModal
         dadosPromocoesAtivas={dadosPromocoesAtivas}
         show={modalVisivel}
@@ -546,9 +546,9 @@ export const ActionPesquisaPromocao = ({ }) => {
         setNovoProdutoOrigem={setNovoProdutoOrigem}
         fileProdutoOrigem={fileProdutoOrigem}
         setFileProdutoOrigem={setFileProdutoOrigem}
-        
+
       />
-      
+
       <ActionProdutoModalPromocaoSelecionadoDestino
         show={modalPodutoSelecionadoDestino}
         handleClose={() => setModalPodutoSelecionadoDestino(false)}
@@ -559,12 +559,12 @@ export const ActionPesquisaPromocao = ({ }) => {
         fileProdutoDestino={fileProdutoDestino}
         setFileProdutoDestino={setFileProdutoDestino}
       />
-  
 
-    <ActionDocumentacaoCriar
+
+      <ActionDocumentacaoCriar
         show={modalDocumentacao}
         handleClose={() => setModalDocumentacao(false)}
-    />
+      />
     </Fragment>
   )
 }
