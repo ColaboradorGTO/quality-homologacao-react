@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useRef, useState } from "react"
 import { get } from "../../../../api/funcRequest"
 import { formatMoeda } from "../../../../utils/formatMoeda"
 import { DataTable } from 'primereact/datatable';
@@ -8,14 +8,12 @@ import { ColumnGroup } from "primereact/columngroup";
 import { Row } from 'primereact/row';
 import { GrView } from "react-icons/gr";
 import { toFloat } from "../../../../utils/toFloat";
-import { useNavigate } from "react-router-dom";
 import { ActionVendaRecebimentoModal } from "../ActionModaisVendas/actionVendaRecebimentoModal";
 import HeaderTable from "../../../Tables/headerTable"
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-
 
 
 export const ActionListaVendasRecebidoEletronico = ({ 
@@ -77,22 +75,6 @@ export const ActionListaVendasRecebidoEletronico = ({
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Vendas Recebimentos');
     XLSX.writeFile(workbook, 'vendas_recebimentos.xlsx');
   };
-
-
-
-  const calcularTotalRecebidoMapaVenda = (item) => {
-    return (
-      toFloat(item.VALORTOTALCONVENIO) +
-      toFloat(item.VALORTOTALDINHEIRO)
-    )
-  }
-
-  const calcularTotalRecebidoMapaDespesas = (item) => {
-    return (
-      toFloat(item.VALORTOTALDESPESA) +
-      toFloat(item.VALORTOTALADIANTAMENTOSALARIAL)
-    )
-  }
 
   const calcularTotalDinheiro = () => {
     let total = 0;
@@ -195,50 +177,7 @@ export const ActionListaVendasRecebidoEletronico = ({
     return total;
   }
 
-   const dadosAdiantamentos =  dadosAdiantamentoSalarial.map((item, index) => {
-  
-    return {
-      VRVALORDESCONTO: toFloat(item.VRVALORDESCONTO),
-    }
-  });
 
-  const calcularTotalAdiantamento = () => {
-    let total = 0;
-    for(let resultado of dadosAdiantamentos) {
-      total += toFloat(resultado.VRVALORDESCONTO); 
-    }
-    return total;
-  }
-
-    const dadosVoucher =  dadosResumoVoucher.map((item, index) => {
-
-    return {
-      VRVOUCHER: toFloat(item.VRVOUCHER),
-    }
-  });
-
-  const calcularTotalVoucher = () => {
-    let total = 0;
-    for(let resultado of dadosVoucher) {
-      total += toFloat(resultado.VRVOUCHER); 
-    }
-    return total;
-  }
-
-  const dadosFatura = dadosDetalheFatura.map((item, index) => {
-    return {
-      VRRECEBIDO: toFloat(item.VRRECEBIDO),
-    }
-  });
-
-  const calcularTotalFaturas = () => {
-    return dadosFatura.reduce((total, item) =>
-      total + toFloat(item.VRRECEBIDO), 0
-    )
-  }
-
-  // como fazer os calculos de headerGroup e footerGroup
-  // const calculoValorTotalRecebidoMapaVenda = dadosPeriodo[0]?.valorTotalRecebidoMapaVenda + calcularTotalValorRecebido();
   const calculoValorTotalRecebidoMapaVenda = 
   parseFloat(
     (parseFloat(dadosPeriodo[0]?.valorTotalRecebidoMapaVenda || 0) + 
@@ -267,8 +206,6 @@ export const ActionListaVendasRecebidoEletronico = ({
         <Column header="" />
         <Column header="" />
         <Column header={formatMoeda(calcularTotalDinheiro())} />
-
-
       </Row>
 
     </ColumnGroup>
@@ -321,14 +258,6 @@ export const ActionListaVendasRecebidoEletronico = ({
       </Row>
     </ColumnGroup>
   )
-
-  // const calcularTotalDespesas = () => {
-  //   let total = 0;
-  //   for (let resultado of dados) {
-  //     total += parseFloat(resultado.VRDESPESA);
-  //   }
-  //   return total;
-  // }
 
   const colunasEmpresas = [
     {
