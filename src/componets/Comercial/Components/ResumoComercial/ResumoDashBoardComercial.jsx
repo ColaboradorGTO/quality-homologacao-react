@@ -30,7 +30,7 @@ export const ResumoDashBoardComercial = ({ }) => {
       return response.data;
     },
     {
-      enabled: Boolean(dataPesquisa), staleTime: 5 * 60 * 1000, 
+      enabled: Boolean(dataPesquisa), staleTime: 60 * 60 * 1000, 
     }
   );
 
@@ -76,7 +76,7 @@ export const ResumoDashBoardComercial = ({ }) => {
       return response.data;
     },
     {
-     enabled: Boolean(dataPesquisa), staleTime: 5 * 60 * 1000, 
+     enabled: Boolean(dataPesquisa), staleTime: 60 * 60 * 1000, 
     }
   );
   
