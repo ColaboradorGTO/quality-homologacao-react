@@ -190,7 +190,6 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, optionsEmpresas }) =
     <Fragment>
       
       {actionPrincipal && (
-
         <ActionMain
           linkComponentAnterior={["Home"]}
           linkComponent={["Vouchers"]}

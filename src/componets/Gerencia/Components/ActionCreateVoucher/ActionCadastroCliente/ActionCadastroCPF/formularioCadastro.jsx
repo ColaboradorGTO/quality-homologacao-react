@@ -4,7 +4,7 @@ import { ButtonTypeModal } from "../../../../../Buttons/ButtonTypeModal"
 import { useForm, Controller } from "react-hook-form"
 import { useCadastrarClienteCPF } from "../hooks/useCadastroClienteCPF"
 import { mascaraCPF } from "../../../../../../utils/formatCPF"
-import { mascaraTelefone } from "../../../../../../utils/mascaraTelefone"
+import { mascaraTelefone, removerMascaraTelefone } from "../../../../../../utils/mascaraTelefone"
 import FormField from "../../../../../Formularios/FormField"
 import { schema } from "./schemaValidationCPF"
 

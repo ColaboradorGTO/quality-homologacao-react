@@ -3,10 +3,10 @@ import { FooterModal } from "../../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../../Buttons/ButtonTypeModal"
 import { useForm, Controller } from "react-hook-form"
 import { mascaraCPF } from "../../../../../../utils/formatCPF"
-import { mascaraTelefone, removerMascaraTelefone } from "../../../../../../utils/mascaraTelefone"
 import FormField from "../../../../../Formularios/FormField"
 import { schema } from "./schemaValidationCPF"
 import { useCadastrarClienteCPFVoucher } from "../hooks/useCadastroClienteCPFVoucher"
+import { mascaraTelefone, removerMascaraTelefone } from "../../../../../../utils/mascaraTelefone"
 
 
 export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf }) => {
@@ -95,7 +95,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
         cidadeCliente: cidade,
         estadoCliente: estado
       }
-
+      
       await schema.validate(dadosParaValidar, { abortEarly: false });
 
       onSubmit();
@@ -106,7 +106,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
 
       if (validationError.inner && validationError.inner.length > 0) {
         validationError.inner.forEach(error => {
-          if (error.path) {
+          if (error.path) {S
             setError(error.path, {
               type: 'manual',
               message: error.message
