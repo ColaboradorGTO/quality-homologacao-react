@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom";
 import { AiOutlineSearch } from "react-icons/ai";
 import { ActionListaVendasMarca } from "./actionListaVendasMarca";
 import { get } from "../../../../api/funcRequest";
@@ -9,18 +8,14 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
-import { useFetchData } from "../../../../hooks/useFetchData";
 import { getDataAtual } from "../../../../utils/dataAtual";
 
 
 export const ActionPesquisaVendasMarca = () => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
-  const [clickContador, setClickContador] = useState(0);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [marcaSelecionada, setMarcaSelecionada] = useState(null);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
 
   useEffect(() => {
     const dataAtual = getDataAtual();
@@ -35,7 +30,7 @@ export const ActionPesquisaVendasMarca = () => {
       const response = await get(`/marcasLista`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
@@ -77,24 +72,12 @@ export const ActionPesquisaVendasMarca = () => {
   const { data: dadosVendasMarca = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaVendasMarca } = useQuery(
     ['venda-marca-periodo-comercial'],
     () => fetchListaVendasMarca(),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
-
-
-  const handleSelectMarca = (e) => {
-    const selectId = e.value;
-
-    if (!isNaN(selectId)) {
-      setMarcaSelecionada(selectId)
-    }
-  }
-
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
-
     setTabelaVisivel(true)
-    refetchListaVendasMarca(marcaSelecionada)
+    refetchListaVendasMarca();
   }
 
   return (

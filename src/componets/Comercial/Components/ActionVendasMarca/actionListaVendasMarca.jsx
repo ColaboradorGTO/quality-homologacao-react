@@ -11,10 +11,8 @@ import 'jspdf-autotable';
 
 export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const dataTableRef = useRef();
   const [rowSelection, setRowSelection] = useState(null);
-
-
+  const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -195,7 +193,7 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
 
     <Fragment>
 
-      <div className="panel" style={{ marginTop: "4rem" }}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>Vendas por Marcas e Período</h2>
         </div>
@@ -252,4 +250,3 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
     </Fragment>
   )
 }
-

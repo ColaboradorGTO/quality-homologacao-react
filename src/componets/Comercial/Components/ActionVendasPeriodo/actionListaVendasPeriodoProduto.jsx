@@ -192,7 +192,7 @@ export const ActionListaVendasPeriodoProduto = ({ dadosVendasConsolidadas }) => 
 
     <Fragment>
 
-      <div className="panel" style={{ marginTop: "4rem" }}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>Vendas por Produtos </h2>
         </div>
