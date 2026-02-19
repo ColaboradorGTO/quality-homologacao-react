@@ -72,7 +72,6 @@ export const ActionListaProdutosSelecionadoDestino = ({
     }
   }, [produtoDestinoSelecionado]);
 
-
   useEffect(() => {
     const fetchProdutosCompletos = async () => {
       if (idsParaBuscar.length > 0) {

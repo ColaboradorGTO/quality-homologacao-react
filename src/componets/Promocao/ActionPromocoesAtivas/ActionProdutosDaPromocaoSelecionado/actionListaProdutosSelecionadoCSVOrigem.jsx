@@ -158,7 +158,6 @@ export const ActionListaProdutosSelecionadoCSVOrigem = ({
     }
   }
   
-  // console.log(dados, 'dados');
 
   const colunasProdutos = [
     {

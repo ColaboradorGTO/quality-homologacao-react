@@ -825,7 +825,7 @@ export const useCreatePromocaoAtiva = ({ }) => {
         title: 'Processando sua promoção...',
         html: 'Aguarde enquanto enviamos os dados <b></b>',
         timerProgressBar: true,
-        timer: 20000,
+        timer: 30000,
         didOpen: () => {
           Swal.showLoading();
           timerInterval = setInterval(() => {
