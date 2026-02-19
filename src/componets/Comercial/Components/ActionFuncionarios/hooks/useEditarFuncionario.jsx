@@ -82,7 +82,7 @@ export const useEditarFuncionario = ({dadosAtualizarFuncionarios}) => {
     useEffect(() => {
       if (dadosAtualizarFuncionarios) {
         setEmpresaSelecionada({value: dadosAtualizarFuncionarios[0]?.IDEMPRESA, label: dadosAtualizarFuncionarios[0]?.NOFANTASIA});
-        setFuncaoSelecionado(dadosAtualizarFuncionarios[0]?.DSFUNCAO);
+        setFuncaoSelecionado({ value: dadosAtualizarFuncionarios[0]?.DSFUNCAO, label: dadosAtualizarFuncionarios[0]?.DSFUNCAO });
         setTipoSelecionado({value: dadosAtualizarFuncionarios[0]?.DSTIPO, label: dadosAtualizarFuncionarios[0]?.DSTIPO});
         setCPF(dadosAtualizarFuncionarios[0]?.NUCPF);
         setNomeFuncionario(dadosAtualizarFuncionarios[0]?.NOFUNCIONARIO);

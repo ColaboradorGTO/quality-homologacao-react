@@ -19,6 +19,16 @@
       "id": 4,
       "label": "Parceiro de Negócios PJ",
       "value": "PN"
+    },
+    {
+      "id": 5,
+      "label": "Marketing",
+      "value": "MARKETING"
+    },
+    {
+      "id": 6,
+      "label": "PN PJ",
+      "value": "PN PJ"
     }
   ],
   "optionsTipoFrete": [
