@@ -156,9 +156,11 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
                 titleButton={"Alterar"}
                 onClickButton={() => handleClickEdit(row)}
                 Icon={CiEdit}
-                iconSize={18}
+                iconSize={25}
                 iconColor={"#fff"}
                 cor={"success"}
+                width="30px"
+                height="30px"
               />
             </div>
           </div>
@@ -190,7 +192,7 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
   return (
 
     <Fragment>
-      <div className="panel" style={{ marginTop: "8rem" }}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>Lista de Funcionários</h2>
         </div>
@@ -218,6 +220,9 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

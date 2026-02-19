@@ -20,7 +20,7 @@ export const ActionPesquisaFuncionario = () => {
   const [pageSize, setPageSize] = useState(1000);
 
 
-     const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
+  const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
     'listaEmpresasIformatica',
     async () => {
       const response = await get(`/listaEmpresasIformatica`);
@@ -31,69 +31,58 @@ export const ActionPesquisaFuncionario = () => {
 
 
 
-   const fetchListaFuncionarios = async () => {
-    try {
-
-      const urlApi = `/atualizarFuncionario?idEmpresa=${empresaSelecionada}&descricaoNomeFuncao=${cpf}`;
-      const response = await get(urlApi);
-
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
+  const fetchListaFuncionarios = async () => {
+      const urlBase = `/funcionarios-loja?idEmpresa=${empresaSelecionada}&noFuncionarioCPF=${cpfFiltro}`;
+        let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+        urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+        try {
+    
+          animacaoCarregamento('Carregando dados...', true);
+    
+          const primeiraPagina = 1;
+          const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+          const page = primeiraResposta.page || primeiraPagina;
+          const pageSize = primeiraResposta.pageSize || 1000;
+          const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+          const totalPages = Math.ceil(totalRows / pageSize);
+    
+          let allData = [...(primeiraResposta.data || [])];
+    
+          if (totalPages > 1) {
+            for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+              animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+              const responsePage = await get(`${urlApi}&page=${currentPage}`);
+              allData.push(...(responsePage.data || []));
             }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
           }
+    
+          return allData;
+        } catch (error) {
+          console.error('Erro ao buscar dados da api:', error);
+          throw error;
+        } finally {
+          fecharAnimacaoCarregamento();
         }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
-      }
-    } catch (error) {
-      console.error('Erro ao buscar dados:', error);
-      throw error;
-    } finally {
-      fecharAnimacaoCarregamento();
-    }
   };
-  
-  const { data: 
-      dadosFuncionarios = [],
-      error: errorPrdoutos,
-      isLoading: isLoadingProdutos,
-      refetch: refetchListaFuncionarios
-    } = useQuery(
-    ['funcionarios-loja', empresaSelecionada, currentPage, pageSize],
-    () => fetchListaFuncionarios(empresaSelecionada, currentPage, pageSize),
-    { enabled: true, staleTime: 5 * 60 * 1000 }
+
+  const { data: dadosFuncionarios = [], error: errorPrdoutos, isLoading: isLoadingProdutos, refetch: refetchListaFuncionarios } = useQuery(
+    ['funcionarios-loja',],
+    () => fetchListaFuncionarios(),
+    { enabled: true, staleTime: 60 * 60 * 1000 }
   );
 
 
   const handlChangeEmpresaAction = (e) => {
     const nomeEmpresa = dadosEmpresas.find((item) => item.IDEMPRESA === e.value);
     setEmpresaSelecionadaNome(nomeEmpresa.NOFANTASIA);
-    setEmpresaSelecionada(e.value); 
+    setEmpresaSelecionada(e.value);
   }
 
   const handleTabelaVisivel = () => {
     setCurrentPage(prevPage => prevPage + 1);
     setTabelaVisivel(true);
     refetchListaFuncionarios();
-   
+
   };
 
   return (
@@ -130,7 +119,7 @@ export const ActionPesquisaFuncionario = () => {
       />
 
       {tabelaVisivel &&
-        <ActionListaFuncionario dadosFuncionarios={dadosFuncionarios} dadosEmpresas={dadosEmpresas}/>
+        <ActionListaFuncionario dadosFuncionarios={dadosFuncionarios} dadosEmpresas={dadosEmpresas} />
       }
     </Fragment>
   )

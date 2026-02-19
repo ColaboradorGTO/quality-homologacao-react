@@ -81,7 +81,7 @@ export const ActionDocumentacaoCriar = ({ show, handleClose }) => {
                         </h3> */}
                         <h4 style={{ color: "red", fontWeight: "600" }}>
                             Observação: via upload de arquivo, somente pelo N.Item serão inseridos(.csv, .xls, .xlsx).
-                            Não funciona com o código de barras.
+                            Não funciona com o código de barras e não pode passar de 1000 itens por arquivo.
                             
                         </h4>
                         <li style={{ color: "#000", fontWeight: "600" }}>
