@@ -4,17 +4,15 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ActionMain } from "../../../Actions/actionMain";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { AiOutlineSearch } from "react-icons/ai";
-import { useFetchData } from "../../../../hooks/useFetchData";
 import { useQuery } from "react-query";
 import { get } from "../../../../api/funcRequest";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
+import Swal from "sweetalert2";
 
 export const ActionPesquisaProductoPreco = () => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
 
   const { data: dadosMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
     'marcasLista',
@@ -22,7 +20,7 @@ export const ActionPesquisaProductoPreco = () => {
       const response = await get(`/marcasLista`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
   const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
@@ -31,7 +29,7 @@ export const ActionPesquisaProductoPreco = () => {
       const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
   useEffect(() => {
@@ -42,39 +40,32 @@ export const ActionPesquisaProductoPreco = () => {
   }, [marcaSelecionada, refetchEmpresas])
 
   const fetchListaProdutos = async () => {
+    const urlBase = `/lista-produtos?idEmpresa=${empresaSelecionada}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
+      animacaoCarregamento('Carregando dados...', true);
 
-      const urlApi = `/lista-produtos?idEmpresa=${empresaSelecionada}`;
-      const response = await get(urlApi);
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      if (response.data && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+      let allData = [...(primeiraResposta.data || [])];
 
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
       }
+
+      return allData;
     } catch (error) {
-      console.error('Erro ao buscar dados:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -82,35 +73,23 @@ export const ActionPesquisaProductoPreco = () => {
   };
 
   const { data: dadosProdutos = [], error: errorPrdoutos, isLoading: isLoadingProdutos, refetch: refetchListaProdutos } = useQuery(
-    ['produtos', empresaSelecionada, currentPage, pageSize],
-    () => fetchListaProdutos(empresaSelecionada, currentPage, pageSize),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    ['produtos',],
+    () => fetchListaProdutos(),
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
  
-
-  const handleSelectEmpresa = (e) => {
-    const selectedId = e.value;
-    
-    if (selectedId) {
-      setEmpresaSelecionada(selectedId);
-    }
-  };
-
-  const handleSelectMarcas = (e) => {
-    const selectedId = e.value
-
-    if (!isNaN(selectedId)) {
-      setMarcaSelecionada(selectedId);
-    }
-  }
-
   const handleClick = () => {
     if(empresaSelecionada) {
 
       refetchListaProdutos();
       setTabelaVisivel(true);
     } else {
-      alert('Selecione uma empresa para pesquisar');
+      Swal.fire({
+        title:'Atenção',
+        text:'Por favor, selecione uma empresa para realizar a pesquisa dos produtos e preços.',
+        icon:'warning',
+        confirmButtonText:'OK'
+      });
     }
   }
 
@@ -133,7 +112,7 @@ export const ActionPesquisaProductoPreco = () => {
         ]}
         labelSelectEmpresa={"Empresa"}
         valueSelectEmpresa={empresaSelecionada}
-        onChangeSelectEmpresa={handleSelectEmpresa}
+        onChangeSelectEmpresa={(e) => setEmpresaSelecionada(e.value)}
 
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marcas"}
@@ -146,7 +125,7 @@ export const ActionPesquisaProductoPreco = () => {
           }))
         ]}
         valueSelectMarcas={marcaSelecionada}
-        onChangeSelectMarcas={handleSelectMarcas}
+        onChangeSelectMarcas={(e) => setMarcaSelecionada(e.value)}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
