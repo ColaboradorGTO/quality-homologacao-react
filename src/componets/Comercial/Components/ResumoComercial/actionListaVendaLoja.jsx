@@ -3,7 +3,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
-import { GrCertificate, GrView } from "react-icons/gr";
+import { GrView } from "react-icons/gr";
 import { get } from "../../../../api/funcRequest";
 import { ActionDetalheFechamentoLojaModal } from "./ActionDetalheModal/actionDetalheFechamentoLojaModal";
 import { useReactToPrint } from "react-to-print";

@@ -82,8 +82,6 @@ export const ResumoDashBoardComercial = ({ }) => {
   
 
   const handleClick = () => {
-    setClickContador(prevContador => prevContador + 1);
-
     refetchResumoVendas();
     refetchVendas();
   }

@@ -14,8 +14,6 @@ export const ActionListaVendasPeriodoSaldo = ({ dadosVendasSaldo }) => {
   const dataTableRef = useRef();
   const [rowSelection, setRowSelection] = useState(null);
 
-
-
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
@@ -209,6 +207,9 @@ export const ActionListaVendasPeriodoSaldo = ({ dadosVendasSaldo }) => {
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
