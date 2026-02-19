@@ -2,7 +2,6 @@ import { Fragment, useEffect, useState } from "react"
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
-import { MultSelectAction } from "../../../Select/MultSelectAction";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { AiOutlineSearch } from "react-icons/ai";
 import { ActionListaVendasEstoque } from "./actionListaVendasEstoque";
@@ -21,8 +20,6 @@ export const ActionPesquisaVendasEstoque = () => {
   const [grupoGradeSelecionado, setGrupoGradeSelecionado] = useState('');
   const [gradeSelecionado, setGradeSelecionado] = useState('');
   const [marcaSelecionada, setMarcaSelecionada] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
 
   useEffect(() => {
     const dataInicial = getDataAtual()
@@ -73,7 +70,7 @@ export const ActionPesquisaVendasEstoque = () => {
 
 
   const fetchListaEstoque = async () => {
-    const urlBase = `/vendasEstoqueProduto?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idMarcaProduto=${grupoSelecionado}&descricaoProduto=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoGradeSelecionado}&idGrade=${gradeSelecionado}`;
+    const urlBase = `/vendasEstoqueComercial?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idGrupoEmpresarial=${grupoSelecionado}&produtoPesquisado=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupoGrade=${grupoGradeSelecionado}&idGrade=${gradeSelecionado}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -106,7 +103,7 @@ export const ActionPesquisaVendasEstoque = () => {
   };
 
   const { data: dadosEstoqueAtual = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaEstoque } = useQuery(
-    ['rotatividadeVendas',],
+    ['vendasEstoqueComercial',],
     () => fetchListaEstoque(),
     { enabled: false, staleTime: 60 * 60 * 1000 }
   );
@@ -127,20 +124,7 @@ export const ActionPesquisaVendasEstoque = () => {
 
   }
 
-  const handleGradeChange = (e) => {
-    const selectedSubGrupo = e.value;
-    if (selectedSubGrupo) {
-      setGradeSelecionado(selectedSubGrupo);
-    }
-  }
-
-  const handleFornecedorChange = (selectedOptions) => {
-    const values = selectedOptions.map((option) => option.value);
-    setFornecedorSelecionado(values);
-  };
-
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1)
     refetchListaEstoque()
     setTabelaVisivel(true)
   }
@@ -188,19 +172,19 @@ export const ActionPesquisaVendasEstoque = () => {
         ]}
         labelSelectSubGrupo={"Por Grade"}
         valueSelectSubGrupo={gradeSelecionado}
-        onChangeSelectSubGrupo={handleGradeChange}
+        onChangeSelectSubGrupo={(e) => setGradeSelecionado(e.value)}
 
-        MultSelectFornecedorComponent={MultSelectAction}
-        optionsMultSelectFornecedor={[
+        InputSelectFuncionarioComponent={InputSelectAction}
+        optionsFuncionarios={[
           { value: '', label: 'Selecione um Fornecedor' },
           ...dadosFornecedor.map((fornecedor) => ({
-            value: fornecedor.ID_FORNECEDOR,
-            label: `${fornecedor.ID_FORNECEDOR} ${fornecedor.FORNECEDOR}`,
+            value: fornecedor.IDPN,
+            label: `${fornecedor.IDPN} ${fornecedor.PN}`,
           }))
         ]}
-        labelMultSelectFornecedor={"Por Fornecedor"}
-        valueMultSelectFornecedor={fornecedorSelecionado}
-        onChangeMultSelectFornecedor={handleFornecedorChange}
+        labelSelectFuncionario={"Por Fornecedor"}
+        valueSelectFuncionario={fornecedorSelecionado}
+        onChangeSelectFuncionario={(e) => setFornecedorSelecionado(e.value)}
 
         InputFieldCodBarraComponent={InputField}
         labelInputFieldCodBarra={"Cód.Barras / Nome Produto"}
@@ -210,7 +194,7 @@ export const ActionPesquisaVendasEstoque = () => {
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marcas"}
         optionsMarcas={[
-          { value: null, label: 'Selecione uma Marca' },
+          { value: '', label: 'Selecione uma Marca' },
           ...dadosMarcas.map((empresa) => ({
             value: empresa.IDGRUPOEMPRESARIAL,
             label: empresa.DSGRUPOEMPRESARIAL,
