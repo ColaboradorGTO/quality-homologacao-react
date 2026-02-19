@@ -186,7 +186,7 @@ export const ActionListaRotatividade = ({ dadosRotatividade }) => {
 
     <Fragment>
 
-      <div className="panel" style={{ marginTop: "4rem" }}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>Rotatividade por Período</h2>
         </div>
@@ -211,7 +211,10 @@ export const ActionListaRotatividade = ({ dadosRotatividade }) => {
             selectionMode="single"
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
-            rowsPerPageOptions={[5, 10, 20, 50]}
+            rowsPerPageOptions={[10, 20, 30, 40, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
@@ -228,7 +231,7 @@ export const ActionListaRotatividade = ({ dadosRotatividade }) => {
                 sortable={coluna.sortable}
                 headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '1rem' }}
+                bodyStyle={{ fontSize: '0.8rem' }}
 
               />
             ))}
