@@ -7,17 +7,27 @@ import axios from "axios";
 export const useCriarMecanica = ({usuarioLogado, optionsModulos, handleClick}) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
-    useEffect(() => {
-        getIPUsuario();
-    }, [usuarioLogado]);
-
     const getIPUsuario = async () => {
-        const response = await axios.get('http://ipwho.is/')
-        if(response.data) {
-            setIpUsuario(response.data.ip);
+        let usuarioIP = null;
+    
+        try {
+          const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+          usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+          console.error("Erro ao buscar IP via ipwho.is:", error);
         }
-        return response.data;
-    }
+    
+        if (!usuarioIP) {
+          try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+          } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+          }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+      };
 
     const handleCancelar = async (IDQUEBRACAIXA, status) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
@@ -52,7 +62,7 @@ export const useCriarMecanica = ({usuarioLogado, optionsModulos, handleClick}) =
 
             const textDados = JSON.stringify(putData)
             let textoFuncao = status ? 'FINANCEIRO/ATIVADO QUEBRA DE CAIXA' : 'FINANCEIRO/CANCELAMENTO DE QUEBRA DE CAIXA';
-        
+            const ipUsuario = await getIPUsuario();
             const postData = {  
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO:  textoFuncao,
@@ -67,7 +77,7 @@ export const useCriarMecanica = ({usuarioLogado, optionsModulos, handleClick}) =
         } catch (error) {
 
             let textoFuncao = status ? 'FINANCEIRO/ATIVADO QUEBRA DE CAIXA' : 'FINANCEIRO/CANCELAMENTO DE QUEBRA DE CAIXA';
-        
+            const ipUsuario = await getIPUsuario();
             const postData = {  
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO:  textoFuncao,

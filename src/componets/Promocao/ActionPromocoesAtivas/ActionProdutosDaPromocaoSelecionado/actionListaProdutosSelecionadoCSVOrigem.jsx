@@ -6,14 +6,10 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
-import { get, post, put } from "../../../../api/funcRequest";
-import Swal from "sweetalert2";
+import { post } from "../../../../api/funcRequest";
+
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { IoMdClose } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { FaCheck } from "react-icons/fa";
-import { set } from "react-hook-form";
 
 export const ActionListaProdutosSelecionadoCSVOrigem = ({
   produtoOrigemSelecionado,
@@ -24,6 +20,7 @@ export const ActionListaProdutosSelecionadoCSVOrigem = ({
   setFileProdutoOrigem
 }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [idsParaBuscar, setIdsParaBuscar] = useState([]);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -65,33 +62,80 @@ export const ActionListaProdutosSelecionadoCSVOrigem = ({
     XLSX.writeFile(workbook, 'produtos_promocoes.xlsx');
   };
 
+ // Detecta quando novos IDs chegam e precisa buscar dados completos
  useEffect(() => {
-  const fetchProdutosCompletos = async () => {
-    if (
-      Array.isArray(produtoOrigemSelecionado) &&
-      produtoOrigemSelecionado.length > 0 &&
-      typeof produtoOrigemSelecionado[0] !== "object"
-    ) {
-      try {
-        // Exemplo: /produto-promocao-ativa?idProduto=1,2,3
-        const ids = produtoOrigemSelecionado.join(',');
-        const response = await get(`/produto-promocao-ativa?idProduto=${ids}`);
-        if (response?.data) {
-          // Se a API retorna um array de produtos
-          setProdutoOrigemSelecionado(response.data);
-        }
-      } catch (error) {
-        console.error('Erro ao buscar produtos:', error);
-      }
-    }
-  };
-  fetchProdutosCompletos();
-}, [produtoOrigemSelecionado, setProdutoOrigemSelecionado, fileProdutoOrigem]);
+   if (
+     Array.isArray(produtoOrigemSelecionado) &&
+     produtoOrigemSelecionado.length > 0 &&
+     typeof produtoOrigemSelecionado[0] !== "object"
+   ) {
+     setIdsParaBuscar(produtoOrigemSelecionado);
+   }
+ }, [produtoOrigemSelecionado]);
 
-  // console.log("Produtos Origem Selecionados:", produtoOrigemSelecionado);
+ // Busca os dados completos dos produtos quando IDs são definidos
+ useEffect(() => {
+   const fetchProdutosCompletos = async () => {
+     if (idsParaBuscar.length > 0) {
+       try {
+         const ids = idsParaBuscar.join(',');
+         
+         // Primeira tentativa: solicitar todos de uma vez
+         let response = await post(`/criar-produto-promocao-ativa`, {
+           idProduto: ids,
+           pageSize: idsParaBuscar.length // Solicita todos os produtos de uma vez
+         });
+         
+         let allData = [];
+         
+         if (response?.data?.data) {
+           allData = [...response.data.data];
+           
+           // Se há paginação e não obteve todos os dados, busca as páginas restantes
+           if (response.data.rows > allData.length) {
+             const totalPages = Math.ceil(response.data.rows / response.data.pageSize);
+             
+             for (let page = 2; page <= totalPages; page++) {
+               const pageResponse = await post(`/criar-produto-promocao-ativa`, {
+                 idProduto: ids,
+                 page: page,
+                 pageSize: response.data.pageSize
+               });
+               
+               if (pageResponse?.data?.data) {
+                 allData = [...allData, ...pageResponse.data.data];
+               }
+             }
+           }
+           
+           setProdutoOrigemSelecionado(allData);
+           setIdsParaBuscar([]); // Limpa os IDs após buscar
+         }
+       } catch (error) {
+         console.error('Erro ao buscar produtos:', error);
+         setIdsParaBuscar([]); // Limpa os IDs mesmo em caso de erro
+       }
+     }
+   };
+   fetchProdutosCompletos();
+ }, [idsParaBuscar]);
+
+ 
   // Transforma o array de IDs em objetos de produto, se necessário
   let dados = [];
-  if (
+  
+  // Verifica se é um objeto com propriedade data (resposta da API)
+  if (produtoOrigemSelecionado && typeof produtoOrigemSelecionado === 'object' && produtoOrigemSelecionado.data) {
+    dados = produtoOrigemSelecionado.data.map((item, index) => ({
+      contador: index + 1,
+      IDPRODUTO: item.IDPRODUTO,
+      NUCODBARRAS: item.NUCODBARRAS,
+      DSNOME: item.DSNOME,
+    }));
+   
+  }
+  // Verifica se é um array direto
+  else if (
     Array.isArray(produtoOrigemSelecionado) &&
     produtoOrigemSelecionado.length > 0
   ) {
@@ -113,6 +157,8 @@ export const ActionListaProdutosSelecionadoCSVOrigem = ({
       }));
     }
   }
+  
+  // console.log(dados, 'dados');
 
   const colunasProdutos = [
     {
@@ -160,9 +206,6 @@ export const ActionListaProdutosSelecionadoCSVOrigem = ({
   ]
 
   const handleRemoverProduto = (row) => {
-    // setProdutoOrigemSelecionado(prevState =>
-    //   prevState.filter(item => item.IDPRODUTO !== row.IDPRODUTO)
-    // ); 
 
     setProdutoOrigemSelecionado(prevState =>
       Array.isArray(prevState)
@@ -198,15 +241,14 @@ export const ActionListaProdutosSelecionadoCSVOrigem = ({
     });
   }
 
- 
+  
+
   return (
     <Fragment>
-
-
       <div className="panel">
         <div className="panel-hdr mb-4">
           <h2>Lista de Produtos Origem</h2>
-
+          
         </div>
         <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
           <HeaderTable
@@ -226,8 +268,8 @@ export const ActionListaProdutosSelecionadoCSVOrigem = ({
             globalFilter={globalFilterValue}
             sortOrder={-1}
             paginator={true}
-            rows={100}
-            // rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            rows={10}
+            rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"

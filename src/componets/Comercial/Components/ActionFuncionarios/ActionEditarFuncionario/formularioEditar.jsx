@@ -7,6 +7,7 @@ import { useEditarFuncionario } from "../hooks/useEditarFuncionario"
 import { Controller, useForm } from 'react-hook-form';
 import { AlertError } from "../../../../Inputs/alertError"
 import { mascaraCPF } from "../../../../../utils/formatCPF"
+import FormField from "../../../../Formularios/FormField"
 
 export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handleClose }) => {
   const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
@@ -80,7 +81,7 @@ export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handle
 
                 }))}
                 value={funcaoSelecionado}
-                onChange={(e) => setFuncaoSelecionado(e.value)}
+                onChange={(e) => setFuncaoSelecionado(e)}
                 isDisabled={true}
               />
               {errors.funcaoFuncionario && (
@@ -135,21 +136,21 @@ export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handle
 
               />
 
-              {/* <Controller
-                      name="nome"
-                      control={control}
-                      render={({ field }) => (
-                        <FormField
-                          name="nome"
-                          label={"Funcionário"}
-                          type="text"
-                          errors={errors}
-                          clearErrors={clearErrors}
-                          value={nomeFuncionario}
-                          onChangeModal={e => setNomeFuncionario(e.target.value)}
-                        />
-                      )}
-                    /> */}
+              <Controller
+                name="nome"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="nome"
+                    label={"Funcionário"}
+                    type="text"
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    value={nomeFuncionario}
+                    onChangeModal={e => setNomeFuncionario(e.target.value)}
+                  />
+                )}
+              />
             </div>
           </div>
         </div>
