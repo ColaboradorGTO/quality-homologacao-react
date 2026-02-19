@@ -78,7 +78,7 @@ export const RoutesMain = () => {
         <Route path="/DashBoardConferenciaCega" element={usuarioLogado ? <DashBoardConferenciaCega componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/>} />
         <Route path="/DashBoardCadastro" element={usuarioLogado ? <DashBoardCadastro componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/>} />
         <Route path="/DashBoardComprasDM" element={usuarioLogado ? <DashBoardComprasDM componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
-        <Route path="/DashBoardComercial" element={usuarioLogado ? <DashBoardComercial componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
+        <Route path="/DashBoardComercial" element={<DashBoardComercial componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
         <Route path="/DashBoardEtiquetagem" element={usuarioLogado ? <DashBoardEtiquetagem componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
       </Routes>
     </Suspense>

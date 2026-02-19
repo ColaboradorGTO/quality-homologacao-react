@@ -12,8 +12,8 @@ import 'jspdf-autotable';
 
 export const ActionListaVendasDigitalMarca = ({ dadosVendasMarca }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const dataTableRef = useRef();
   const [rowSelection, setRowSelection] = useState(null);
+  const dataTableRef = useRef();
 
 
   const onGlobalFilterChange = (e) => {
@@ -54,7 +54,9 @@ export const ActionListaVendasDigitalMarca = ({ dadosVendasMarca }) => {
     XLSX.writeFile(workbook, 'vendas_digital.xlsx');
   };
 
-  const dados = dadosVendasMarca.map((item) => {
+  const dados = dadosVendasMarca
+    .filter(item => item.QTDTOTAL > 0)
+   .map((item) => {
 
     return {
       NOFANTASIA: item.NOFANTASIA,
@@ -117,7 +119,10 @@ export const ActionListaVendasDigitalMarca = ({ dadosVendasMarca }) => {
             selectionMode="single"
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
-            rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            rowsPerPageOptions={[10, 20, 30, 40, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
@@ -146,4 +151,3 @@ export const ActionListaVendasDigitalMarca = ({ dadosVendasMarca }) => {
     </Fragment>
   )
 }
-
