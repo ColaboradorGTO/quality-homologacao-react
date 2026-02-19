@@ -45,16 +45,26 @@ export const useEditarFuncionario = ({dadosAtualizarFuncionarios}) => {
       }
     }, [navigate]);
   
-    useEffect(() => {
-      getIPUsuario();
-    }, [usuarioLogado]);
-  
     const getIPUsuario = async () => {
-      const response = await axios.get('http://ipwho.is/');
-      if (response.data) {
-        setIpUsuario(response.data.ip);
+      let usuarioIP = null;
+
+      try {
+        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+        usuarioIP = ipWhoisData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
       }
-      return response.data;
+
+      if (!usuarioIP) {
+        try {
+          const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+          usuarioIP = ipifyData?.ip;
+        } catch (error) {
+          console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+      }
+      setIpUsuario(usuarioIP);
+      return usuarioIP;
     };
   
     const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch } = useQuery(
@@ -64,22 +74,22 @@ export const useEditarFuncionario = ({dadosAtualizarFuncionarios}) => {
         return response.data;
       },
       {
-        staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000
+        staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000
       }
     );
   
   
     useEffect(() => {
       if (dadosAtualizarFuncionarios) {
-        setEmpresaSelecionada(dadosAtualizarFuncionarios[0]?.IDEMPRESA);
+        setEmpresaSelecionada({value: dadosAtualizarFuncionarios[0]?.IDEMPRESA, label: dadosAtualizarFuncionarios[0]?.NOFANTASIA});
         setFuncaoSelecionado(dadosAtualizarFuncionarios[0]?.DSFUNCAO);
-        setTipoSelecionado(dadosAtualizarFuncionarios[0]?.DSTIPO);
+        setTipoSelecionado({value: dadosAtualizarFuncionarios[0]?.DSTIPO, label: dadosAtualizarFuncionarios[0]?.DSTIPO});
         setCPF(dadosAtualizarFuncionarios[0]?.NUCPF);
         setNomeFuncionario(dadosAtualizarFuncionarios[0]?.NOFUNCIONARIO);
         setLocalizacaoSelecionada(dadosAtualizarFuncionarios[0]?.STLOJA);
         setValorSalario(dadosAtualizarFuncionarios[0]?.VALORSALARIO);
         setValorDesconto(dadosAtualizarFuncionarios[0]?.PERC);
-        setSituacaoSelecionada(dadosAtualizarFuncionarios[0]?.STATIVO);
+        setSituacaoSelecionada({ value: dadosAtualizarFuncionarios[0]?.STATIVO == 'True' ? 'Ativo' : 'Inativo', label: dadosAtualizarFuncionarios[0]?.STATIVO == 'True' ? 'Ativo' : 'Inativo' });
         setSenha(dadosAtualizarFuncionarios[0]?.PWSENHA);
         setRepitaSenha(dadosAtualizarFuncionarios[0]?.PWSENHA);
 

@@ -16,8 +16,8 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
   const [dadosAtualizarFuncionarios, setDadosAtualizarFuncionarios] = useState([]);
   const [modalAlterarFuncionarioVisivel, setModalAlterarFuncionarioVisivel] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const dataTableRef = useRef();
   const [rowSelection, setRowSelection] = useState(null);
+  const dataTableRef = useRef();
 
 
   const onGlobalFilterChange = (e) => {
@@ -72,9 +72,9 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
       NOFUNCIONARIO: item.NOFUNCIONARIO,
       NOLOGIN: item.NOLOGIN,
       DSFUNCAO: item.DSFUNCAO,
-      DSTIPO: item.DSTIPO,
+      DSTIPO: item.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIONÁRIO',
       PERC: item.PERC,
-      STATIVO: item.STATIVO,
+      STATIVO: item.STATIVO == 'True' ? 'Ativo' : 'Inativo',
       DTDEMISSAO: item.DTDEMISSAO,
       IDFUNCIONARIO: item.IDFUNCIONARIO,
     };
@@ -86,28 +86,25 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
       header: 'Funcionário',
       body: row => <th>{row.NOFUNCIONARIO}</th>,
       sortable: true,
-
     },
     {
       field: 'NOLOGIN',
       header: 'Login',
       body: row => <th>{row.NOLOGIN}</th>,
       sortable: true,
-
     },
     {
       field: 'DSFUNCAO',
       header: 'Função',
       body: row => <th>{row.DSFUNCAO}</th>,
       sortable: true,
-
     },
     {
       field: 'DSTIPO',
       header: 'Tipo',
       body: (row) => (
         <th >
-          {row.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO'}
+          {row.DSTIPO }
         </th>
       ),
       sortable: true,
@@ -119,7 +116,6 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
         (row) => (
           <th style={{ color: row.PERC == 'False' ? 'red' : 'blue' }}>
             {parseFloat(row.PERC).toFixed(2)}
-
           </th>
         )
       ),
@@ -130,9 +126,8 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
       header: 'Situação',
       body: (
         (row) => (
-          <th style={{ color: row.STATIVO == 'True' ? 'blue' : 'red' }}>
-            {row.STATIVO == 'True' ? 'Ativo' : 'Inativo'}
-
+          <th style={{ color: row.STATIVO == 'Ativo' ? 'blue' : 'red' }}>
+            {row.STATIVO}
           </th>
         )
       ),
@@ -149,22 +144,31 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
       field: 'IDFUNCIONARIO',
       header: 'Opções',
       body: (
-        (row) => (
-          <div style={{ display: "flex", justifyContent: "space-around" }}>
-            <div className="p-1">
-              <ButtonTable
-                titleButton={"Alterar"}
-                onClickButton={() => handleClickEdit(row)}
-                Icon={CiEdit}
-                iconSize={25}
-                iconColor={"#fff"}
-                cor={"success"}
-                width="30px"
-                height="30px"
-              />
+        (row) => {
+          if(row.STATIVO == 'Ativo'){
+          return  (
+            <div style={{ display: "flex", justifyContent: "space-around" }}>
+              <div className="p-1">
+                <ButtonTable
+                  titleButton={"Alterar"}
+                  onClickButton={() => handleClickEdit(row)}
+                  Icon={CiEdit}
+                  iconSize={25}
+                  iconColor={"#fff"}
+                  cor={"success"}
+                  width="30px"
+                  height="30px"
+                />
+              </div>
             </div>
-          </div>
-        )
+          )  
+          } else {
+            return (
+              <div style={{ display: "flex", justifyContent: "space-around" }}>
+              </div>
+            )
+          }
+        }
       ),
       sortable: true,
     },
@@ -174,12 +178,12 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
   const handleEdit = async (IDFUNCIONARIO) => {
     try {
       const response = await get(`/atualizarFuncionario?idFuncionario=${IDFUNCIONARIO}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosAtualizarFuncionarios(response.data)
         setModalAlterarFuncionarioVisivel(true);
       }
     } catch (error) {
-      console.error('Erro ao buscar detalhes da venda: ', error);
+      console.error('Erro ao buscar detalhes do funcionário: ', error);
     }
   };
 
@@ -236,9 +240,9 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
                 body={coluna.body}
                 footer={coluna.footer}
                 sortable={coluna.sortable}
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '1rem' }}
+                bodyStyle={{ fontSize: '0.8rem' }}
               />
             ))}
           </DataTable>

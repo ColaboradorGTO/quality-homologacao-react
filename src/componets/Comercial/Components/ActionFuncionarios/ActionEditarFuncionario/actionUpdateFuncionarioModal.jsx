@@ -24,7 +24,10 @@ export const ActionUpdateFuncionarioModal = ({ show, handleClose, dadosAtualizar
 
         <Modal.Body>
 
-          <FormularioEditarFuncionario dadosAtualizarFuncionarios={dadosAtualizarFuncionarios} handleClose={handleClose} />
+          <FormularioEditarFuncionario 
+            dadosAtualizarFuncionarios={dadosAtualizarFuncionarios} 
+            handleClose={handleClose} 
+          />
         
         </Modal.Body>
 
