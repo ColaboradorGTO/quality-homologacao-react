@@ -110,7 +110,6 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   }
 
   const calcularTotalLucroPorPagina = () => {
-    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
     const totalPagina = calcularTotalPagina('valorTotalLucro');
     const totalGeral = calcularTotalGeral('valorTotalLucro');
     
@@ -121,7 +120,6 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   }
 
   const calcularTotalCustoTotalPorPagina = () => {
-    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
     const totalPagina = calcularTotalPagina('VRCUSTOTOTAL');
     const totalGeral = calcularTotalGeral('VRCUSTOTOTAL');
     
@@ -132,7 +130,6 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   }
 
   const calcularTotalProjecaoMesPorPagina = () => {
-    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
     const totalPagina = calcularTotalPagina('VRTOTALVENDA');
     const totalGeral = calcularTotalGeral('VRTOTALVENDA');
     
@@ -143,7 +140,6 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   }
 
   const calcularTotalVendaLiquidaPorPagina = () => {
-    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
     const totalPagina = calcularTotalPagina('valorTotalLiquido');
     const totalGeral = calcularTotalGeral('valorTotalLiquido');
     
@@ -154,7 +150,6 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   }
 
   const calcularTotalVendaBrutaPorPagina = () => {
-    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
     const totalPagina = calcularTotalPagina('VRTOTALVENDA');
     const totalGeral = calcularTotalGeral('VRTOTALVENDA');
     
@@ -165,7 +160,6 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   }
 
   const calcularTotalQtdProdutosPorPagina = () => {
-    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
     const totalPagina = calcularTotalPagina('QTD_PRODUTO');
     const totalGeral = calcularTotalGeral('QTD_PRODUTO');
     
@@ -176,7 +170,6 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   }
   
   const calcularTotalQtdClientesPorPagina = () => {
-    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
     const totalPagina = calcularTotalPagina('QTD_CLIENTE');
     const totalGeral = calcularTotalGeral('QTD_CLIENTE');
     

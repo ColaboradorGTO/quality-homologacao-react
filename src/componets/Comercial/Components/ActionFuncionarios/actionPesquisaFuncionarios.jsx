@@ -51,7 +51,6 @@ export const ActionPesquisaFuncionario = ({ usuarioLogado }) => {
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-
       animacaoCarregamento('Carregando dados...', true);
 
       const primeiraPagina = 1;

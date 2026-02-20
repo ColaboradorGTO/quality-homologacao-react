@@ -13,8 +13,8 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
-  const dataTableRef = useRef();
   const [rowSelection, setRowSelection] = useState(null);
+  const dataTableRef = useRef();
 
   
   const onPageChange = (event) => {
@@ -79,125 +79,6 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
     return toFloat(item.VRTOTALVENDA) - toFloat(item.VRRECVOUCHER)
   }
 
-  const calcularTotalQuantidadeVendas = () => {
-    let total = 0;
-    for(let dados of dadosVendasVendedor) {
-      total += parseFloat(dados.QTD_VENDAS);
-    }
-    return total;
-  }
-
-  const calcularTotalQuantidadeVendasPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for(let i = firstIndex; i < lastIndex && i < dadosVendasVendedor.length; i++) {
-      if(dadosVendasVendedor[i]) {
-        total += parseFloat(dadosVendasVendedor[i].QTD_VENDAS);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalQuantidadeProdutos = () => {
-    let total = 0;
-    for(let dados of dadosVendasVendedor) {
-      total += parseFloat(dados.QTD_PRODUTOS)
-    }
-    return total;
-  }
-
-  const calcularTotalQuantidadeProdutosPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for(let i = firstIndex; i < lastIndex && i < dadosVendasVendedor.length; i++) {
-      if(dadosVendasVendedor[i]) {
-        total += parseFloat(dadosVendasVendedor[i].QTD_PRODUTOS);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalVendaBrutaVendasVendedor = () => {
-    let total = 0;
-    for(let dados of dadosVendasVendedor) {
-      total += parseFloat(dados.VRTOTALVENDA);
-    }
-    return total;
-  }
-
-  const calcularTotalVendaBrutaVendasVendedorPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for(let i = firstIndex; i < lastIndex && i < dadosVendasVendedor.length; i++) {
-      if(dadosVendasVendedor[i]) {
-        total += parseFloat(dadosVendasVendedor[i].VRTOTALVENDA);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalValorVoucher = () => {
-    let total = 0;
-    for(let dados of dadosVendasVendedor) {
-      total += parseFloat(dados.VRRECVOUCHER);
-    }
-    return total;
-  }
-
-  const calcularTotalValorVoucherPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for(let i = firstIndex; i < lastIndex && i < dadosVendasVendedor.length; i++) {
-      if(dadosVendasVendedor[i]) {
-        total += parseFloat(dadosVendasVendedor[i].VRRECVOUCHER);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalVendaLiquidaVendasVendedor = () => {
-    let total = 0;
-    for(let dados of dadosListaVendedorVendas) {
-      total += parseFloat(dados.valorTotalVendaLiquida);
-    }
-    return total;
-  }
-
-  const calcularTotalVendaLiquidaVendasVendedorPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for(let i = firstIndex; i < lastIndex && i < dadosListaVendedorVendas.length; i++) {
-      if(dadosListaVendedorVendas[i]) {
-        total += parseFloat(dadosListaVendedorVendas[i].valorTotalVendaLiquida);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalValorCusto = () => {
-    let total = 0;
-    for(let dados of dadosVendasVendedor) {
-      total += parseFloat(dados.PRECO_COMPRA);
-    }
-    return total;
-  }
-
-  const calcularTotalValorCustoPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for(let i = firstIndex; i < lastIndex && i < dadosVendasVendedor.length; i++) {
-      if(dadosVendasVendedor[i]) {
-        total += parseFloat(dadosVendasVendedor[i].PRECO_COMPRA);
-      }
-    }
-    return total;
-  }
 
   const dadosListaVendedorVendas = dadosVendasVendedor.map((item, index) => {
     let contador = index + 1;
@@ -217,6 +98,86 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
     }
   });
   
+  const filtrarDados = (dados, filtro) => {
+    if (!filtro) return dados;
+    
+    return dados.filter(item => {
+      return Object.values(item).some(value => {
+        if (value === null || value === undefined) return false;
+        return value.toString().toLowerCase().includes(filtro.toLowerCase());
+      });
+    });
+  };
+
+  const calcularTotalGeral = (field) => {
+    return dadosListaVendedorVendas.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotalPagina = (field) => {
+    const dadosFiltrados = filtrarDados(dadosListaVendedorVendas, globalFilterValue);
+    const firstIndex = first;
+    const lastIndex = first + rows;
+    const dataPaginada = dadosFiltrados.slice(firstIndex, lastIndex);
+    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotalValorCustoPorPagina = () => {
+    const totalPagina = calcularTotalPagina('PRECO_COMPRA');
+    const totalGeral = calcularTotalGeral('PRECO_COMPRA');
+
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalVendaLiquidaVendasVendedorPorPagina = () => {
+    const totalPagina = calcularTotalPagina('valorTotalVendaLiquida');
+    const totalGeral = calcularTotalGeral('valorTotalVendaLiquida');
+    
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalValorVoucherPorPagina = () => {
+    const totalPagina = calcularTotalPagina('VRRECVOUCHER');
+    const totalGeral = calcularTotalGeral('VRRECVOUCHER');
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalVendaBrutaVendasVendedorPorPagina = () => {
+    const totalPagina = calcularTotalPagina('VRTOTALVENDA');
+    const totalGeral = calcularTotalGeral('VRTOTALVENDA');
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalQuantidadeProdutosPorPagina = () => {
+    const totalPagina = calcularTotalPagina('QTD_PRODUTOS');
+    const totalGeral = calcularTotalGeral('QTD_PRODUTOS');
+    if (globalFilterValue) {
+      return `${totalPagina} (${totalGeral} total)`;
+    }
+    return `${totalPagina} (${totalGeral} total)`;
+  }
+
+  const calcularTotalQuantidadeVendasPorPagina = () => {
+    const totalPagina = calcularTotalPagina('QTD_VENDAS');
+    const totalGeral = calcularTotalGeral('QTD_VENDAS');
+    if (globalFilterValue) {
+      return `${totalPagina} (${totalGeral} total)`;
+    }
+    return `${totalPagina} (${totalGeral} total)`;
+  }
+
+
   const colunasVendasVendedor = [
     {
       field: 'contador',
@@ -227,7 +188,7 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
     {
       field: 'NOFANTASIA',
       header: 'Empresa',
-      body: row => <th>{row.NOFANTASIA}</th>,
+      body: row => <p style={{margin: '0px', width: '200px', fontWeight: 600}}>{row.NOFANTASIA}</p>,
       sortable: true
     },
     {
@@ -239,19 +200,17 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
     {
       field: 'VENDEDOR_NOME',
       header: 'Funcionário',
-      body: row => <th>{row.VENDEDOR_NOME}</th>,
+      body: row => <p style={{margin: '0px', width: '200px', fontWeight: 600}}>{row.VENDEDOR_NOME}</p>,
       sortable: true
     },
     {
       field: 'QTD_VENDAS',
       header: 'Quantidade Vendas',
-      body: row => row.QTD_VENDAS,
+      body: row => <th>{row.QTD_VENDAS}</th>,
       footer: () => {
         return(
           <div>          
-            <th style={{ fontWeight: 600, }}>Total: {parseFloat(calcularTotalQuantidadeVendasPorPagina())}</th>
-            <hr/>
-            <th style={{ fontWeight: 600, }}>Total: {parseFloat(calcularTotalQuantidadeVendas())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalQuantidadeVendasPorPagina()}</th>
           </div>
         )
       },
@@ -260,13 +219,11 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
     {
       field: 'QTD_PRODUTOS',
       header: 'Quantidade Produtos',
-      body: row => row.QTD_PRODUTOS,
+      body: row => <th>{row.QTD_PRODUTOS}</th>,
       footer: () => {
         return(
           <div>          
-            <th style={{ fontWeight: 600, }}>Total: {parseFloat(calcularTotalQuantidadeProdutosPorPagina())}</th>
-            <hr/>
-            <th style={{ fontWeight: 600, }}>Total: {parseFloat(calcularTotalQuantidadeProdutos())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalQuantidadeProdutosPorPagina()}</th>
           </div>
         )
       },
@@ -275,13 +232,11 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
     {
       field: 'VRTOTALVENDA',
       header: 'Venda Bruta',
-      body: row => formatMoeda(row.VRTOTALVENDA),
+      body: row => <th>{formatMoeda(row.VRTOTALVENDA)}</th>,
       footer: () => {
         return(
           <div>          
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalVendaBrutaVendasVendedorPorPagina())}</th>
-            <hr/>
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalVendaBrutaVendasVendedor())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalVendaBrutaVendasVendedorPorPagina()}</th>
           </div>
         )
       },
@@ -290,13 +245,11 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
     {
       field: 'VRRECVOUCHER',
       header: 'Valor Total Vouchers',
-      body: row => formatMoeda(row.VRRECVOUCHER),
+      body: row => <th>{formatMoeda(row.VRRECVOUCHER)}</th>,
       footer: () => {
         return(
           <div>          
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalValorVoucherPorPagina())}</th>
-            <hr/>
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalValorVoucher())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalValorVoucherPorPagina()}</th>
           </div>
         )
       },
@@ -305,13 +258,11 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
     {
       field: 'valorTotalVendaLiquida',
       header: 'Total Venda Líquida',
-      body: row => formatMoeda(row.valorTotalVendaLiquida),
+      body: row => <th>{formatMoeda(row.valorTotalVendaLiquida)}</th>,
       footer: () => {
         return(
           <div>          
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalVendaLiquidaVendasVendedorPorPagina())}</th>
-            <hr/>
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalVendaLiquidaVendasVendedor())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalVendaLiquidaVendasVendedorPorPagina()}</th>
           </div>
         )
       },
@@ -320,13 +271,11 @@ export const ActionListaVendasPorVendedor  = ({dadosVendasVendedor}) => {
     {
       field: 'PRECO_COMPRA',
       header: 'Total Custo',
-      body: row => formatMoeda(row.PRECO_COMPRA),
+      body: row => <th>{formatMoeda(row.PRECO_COMPRA)}</th>,
       footer: () => {
         return(
           <div>          
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalValorCustoPorPagina())}</th>
-            <hr/>
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalValorCusto())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalValorCustoPorPagina()}</th>
           </div>
         )
       },
