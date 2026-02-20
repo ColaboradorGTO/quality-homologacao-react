@@ -12,7 +12,13 @@ import * as XLSX from 'xlsx';
 import 'jspdf-autotable';
 import HeaderTable from "../../../Tables/headerTable";
 
-export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) => {
+export const ActionListaFuncionario = ({
+  dadosFuncionarios, 
+  optionsEmpresas,
+  refetchListaFuncionarios,
+  usuarioLogado,
+  optionsModulos
+}) => {
   const [dadosAtualizarFuncionarios, setDadosAtualizarFuncionarios] = useState([]);
   const [modalAlterarFuncionarioVisivel, setModalAlterarFuncionarioVisivel] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -254,6 +260,9 @@ export const ActionListaFuncionario = ({ dadosFuncionarios, optionsEmpresas }) =
         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
         dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
         optionsEmpresas={optionsEmpresas}
+        refetchListaFuncionarios={refetchListaFuncionarios}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}  
       />
     </Fragment>
   )

@@ -8,8 +8,16 @@ import { Controller, useForm } from 'react-hook-form';
 import { AlertError } from "../../../../Inputs/alertError"
 import { mascaraCPF } from "../../../../../utils/formatCPF"
 import FormField from "../../../../Formularios/FormField"
+import { schema } from './schamaValidarFuncionario'
 
-export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handleClose }) => {
+export const FormularioEditarFuncionario = ({ 
+  dadosAtualizarFuncionarios, 
+  handleClose,
+  optionsEmpresas,
+  refetchListaFuncionarios, 
+  usuarioLogado, 
+  optionsModulos 
+}) => {
   const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
     mode: "onChange"
   });
@@ -17,7 +25,6 @@ export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handle
   const {
     empresaSelecionada,
     setEmpresaSelecionada,
-    optionsEmpresas,
     funcaoSelecionado,
     setFuncaoSelecionado,
     Funcoes,
@@ -41,11 +48,38 @@ export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handle
     setSituacaoSelecionada,
     onSubmit
 
-  } = useEditarFuncionario({ dadosAtualizarFuncionarios })
+  } = useEditarFuncionario({ dadosAtualizarFuncionarios, optionsEmpresas, refetchListaFuncionarios,  usuarioLogado, optionsModulos })
 
+  const handleValidatedSubmit = async () => {
+    try {
+      const dadosParaValidar = {
+        empresaFuncionario: empresaSelecionada,
+      }
+      await schema.validate(dadosParaValidar, { abortEarly: false });
+      onSubmit();
+    } catch (validationError) {
+      console.error('❌ Erro de validação:', validationError);
+
+      clearErrors();
+
+      if (validationError.inner && validationError.inner.length > 0) {
+        validationError.inner.forEach(error => {
+          if (error.path) {
+            setError(error.path, {
+              type: 'manual',
+              message: error.message
+            });
+          }
+        });
+      }
+
+      const errorMessages = validationError.errors || [validationError.message];
+      console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+    }
+  }
   return (
     <Fragment>
-      <form >
+      <form className="modal-form" onSubmit={handleSubmit(handleValidatedSubmit)}>
         <div className="form-group">
 
           <div className="row">
@@ -230,7 +264,7 @@ export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handle
 
           ButtonTypeConfirmar={ButtonTypeModal}
           textButtonConfirmar={"Atualizar"}
-          onClickButtonConfirmar={handleSubmit(onSubmit)}
+          onClickButtonConfirmar={handleValidatedSubmit}
           corConfirmar="success"
 
         />

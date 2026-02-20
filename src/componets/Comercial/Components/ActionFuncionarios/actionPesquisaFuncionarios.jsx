@@ -6,19 +6,34 @@ import { ButtonType } from "../../../Buttons/ButtonType";
 import { AiOutlineSearch } from "react-icons/ai";
 import { get } from "../../../../api/funcRequest";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
-import { useFetchData } from "../../../../hooks/useFetchData";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 
-
-export const ActionPesquisaFuncionario = () => {
+export const ActionPesquisaFuncionario = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(true);
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [cpf, setCpf] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  );
 
   const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
     'listaEmpresasIformatica',
@@ -26,7 +41,7 @@ export const ActionPesquisaFuncionario = () => {
       const response = await get(`/listaEmpresasIformatica`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
@@ -119,7 +134,13 @@ export const ActionPesquisaFuncionario = () => {
       />
 
       {tabelaVisivel &&
-        <ActionListaFuncionario dadosFuncionarios={dadosFuncionarios} dadosEmpresas={dadosEmpresas} />
+        <ActionListaFuncionario 
+          dadosFuncionarios={dadosFuncionarios} 
+          dadosEmpresas={dadosEmpresas} 
+          refetchListaFuncionarios={refetchListaFuncionarios}
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}  
+        />
       }
     </Fragment>
   )
