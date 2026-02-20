@@ -84,13 +84,7 @@ export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handle
                 onChange={(e) => setFuncaoSelecionado(e)}
                 isDisabled={true}
               />
-              {errors.funcaoFuncionario && (
-                <AlertError
-                  error={errors.funcaoFuncionario?.value || errors.funcaoFuncionario}
-                  onClose={clearErrors}
-                  fieldName="funcaoFuncionario"
-                />
-              )}
+
             </div>
             <div className="col-sm-6 col-md-4 col-xl-4">
               <label className="form-label" htmlFor="tpFuncionario">Tipo</label>
@@ -126,15 +120,6 @@ export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handle
               />
             </div>
             <div className="col-sm-8 col-md-8 col-xl-8">
-              <InputFieldModal
-                type="text"
-                className="form-control input"
-                readOnly={true}
-                label="Funcionário"
-                value={nomeFuncionario}
-                onChangeModal={(e) => setNomeFuncionario(e.target.value)}
-
-              />
 
               <Controller
                 name="nome"
@@ -148,6 +133,7 @@ export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handle
                     clearErrors={clearErrors}
                     value={nomeFuncionario}
                     onChangeModal={e => setNomeFuncionario(e.target.value)}
+                    readOnly={true}
                   />
                 )}
               />
@@ -158,59 +144,41 @@ export const FormularioEditarFuncionario = ({ dadosAtualizarFuncionarios, handle
         <div className="form-group">
           <div className="row">
             <div className="col-sm-3 col-md-6 col-xl-6">
-              <InputFieldModal
-                type="text"
-                className="form-control input"
-                label="Valor Salário"
-                value={valorSalario}
-                onChangeModal={(e) => setValorSalario(e.target.value)}
-                readOnly={true}
+              <Controller
+                name="salarioFuncionario"
+                control={control}
+                render={({ field }) => (
+                  <FormField
+                    name="salarioFuncionario"
+                    label={"Valor Salário"}
+                    type="text"
+                    errors={errors}
+                    clearErrors={clearErrors}
+                    value={valorSalario}
+                    onChangeModal={e => setValorSalario(formatarMoeda(e.target.value))}
+                    readOnly={true}
+                  />
+                )}
               />
-
-              {/* <Controller
-                      name="salarioFuncionario"
-                      control={control}
-                      render={({ field }) => (
-                        <FormField
-                          name="salarioFuncionario"
-                          label={"Valor Salário"}
-                          type="text"
-                          errors={errors}
-                          clearErrors={clearErrors}
-                          value={valorSalario}
-                          onChangeModal={e => setValorSalario(formatarMoeda(e.target.value))}
-                        />
-                      )}
-                    /> */}
             </div>
 
             <div className="col-sm-3 col-md-6 col-xl-6">
-              <InputFieldModal
-                type="text"
-                className="form-control input"
-                readOnly={true}
-                label="Valor Desconto"
-                value={valorDesconto}
-                onChangeModal={(e) => setValorDesconto(e.target.value)}
-
-              />
-
-              {/* <Controller
+              <Controller
+                  name="valorDescontoFuncionario"
+                  control={control}
+                  render={({ field }) => (
+                    <FormField
                       name="valorDescontoFuncionario"
-                      control={control}
-                      render={({ field }) => (
-                        <FormField
-                          name="valorDescontoFuncionario"
-                          label={"Valor Desc."}
-                          type="text"
-                          errors={errors}
-                          clearErrors={clearErrors}
-                          value={valorDesconto}
-                          readOnly={true}
-                          onChangeModal={e => setValorDesconto(e.target.value)}
-                        />
-                      )}
-                    /> */}
+                      label={"Valor Desc."}
+                      type="text"
+                      errors={errors}
+                      clearErrors={clearErrors}
+                      value={valorDesconto}
+                      readOnly={true}
+                      onChangeModal={e => setValorDesconto(e.target.value)}
+                    />
+                  )}
+                />
             </div>
           </div>
         </div>
