@@ -79,9 +79,6 @@ export const ActionListaDescontoVendas = ({ dadosDescontoVendas }) => {
     XLSX.writeFile(workbook, 'desconto_vendas.xlsx');
   };
 
-
-
-
   const dadosExcel = Array.isArray(dadosDescontoVendas) ? dadosDescontoVendas.map((item, index) => {
     return {
       IDVENDA: item.IDVENDA,

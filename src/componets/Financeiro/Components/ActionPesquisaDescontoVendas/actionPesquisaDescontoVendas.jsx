@@ -25,8 +25,6 @@ export const ActionPesquisaDescontoVendas = () => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
 
-
-
   useEffect(() => {
     const dataInicial = getDataAtual();
     const dataFinal = getDataAtual();

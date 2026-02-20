@@ -1,6 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react"
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import { Fragment, useEffect, useState } from "react"
 import { AiOutlineSearch } from "react-icons/ai"
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
@@ -26,7 +24,6 @@ export const ActionPesquisaVendasRelatorio = () => {
   const [tabelaVisivelVendasEstrutura, setTabelaVisivelVendasEstrutura] = useState(false);
   const [tabelaVisivelEstoqueVendasPosicionamento, setTabelaVisivelEstoqueVendasPosicionamento] = useState(false);
   const [tabelaVisivelColaborador, setTabelaVisivelColaborador] = useState(false);
-  const [clickContador, setClickContador] = useState(0);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
   const [marcaProdutoSelecionada, setMarcaProdutoSelecionada] = useState('')
@@ -164,8 +161,8 @@ export const ActionPesquisaVendasRelatorio = () => {
 
   const { data: dadosCustosLojas = [], error: erroVendasCusto, isLoading: isLoadingVendasCusto, refetch: refetchVendasCustoLojas } = useQuery(
     'custo-por-loja',
-    () => fetchVendasCustoLojas(empresaSelecionada, dataPesquisaInicio, dataPesquisaFim, produtoPesquisado, fornecedorSelecionado, grupoSelecionado, subGrupoSelecionado, marcaSelecionada, currentPage, pageSize),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    () => fetchVendasCustoLojas( ),
+    { enabled: false, staleTime: 60 * 60 * 1000, }
   );
 
   const fetchVendasVendedor = async () => {
@@ -359,7 +356,7 @@ export const ActionPesquisaVendasRelatorio = () => {
   const fetchProdutosMaisVendidos = async () => {
     try {
 
-      const urlApi = `/produtos-mais-vendidos?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&uf=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idSubGrupo=${subGrupoSelecionado}&idMarca=${marcaSelecionada}`;
+      const urlApi = `/produtos-mais-vendidos?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&uf=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idSubGrupo=${subGrupoSelecionado}&idGrupoEmpresarial=${marcaSelecionada}`;
       const response = await get(urlApi);
 
       if (response.data.length && response.data.length === pageSize) {
