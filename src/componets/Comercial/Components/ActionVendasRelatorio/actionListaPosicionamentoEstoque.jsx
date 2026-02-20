@@ -180,7 +180,7 @@ export const ActionListaPosicionamentoEstoque  = ({dadosEstoqueVendasPosicioname
     <Fragment>
       <div className="card">
         <DataTable
-         
+          size={'small'}
           title="Vendas por Loja"
           value={dados}
           sortField="VRTOTALPAGO"
@@ -191,6 +191,9 @@ export const ActionListaPosicionamentoEstoque  = ({dadosEstoqueVendasPosicioname
           selection={rowSelection}
           onSelectionChange={(e) => setRowSelection(e.value)}
           rowsPerPageOptions={[10, 20, 30, 50, 100]}
+          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+          filterDisplay="menu"
           showGridlines
           stripedRows
           emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

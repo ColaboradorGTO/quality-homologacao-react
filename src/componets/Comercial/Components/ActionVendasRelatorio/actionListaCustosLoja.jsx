@@ -403,7 +403,9 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 30, 50, 100]}
-
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

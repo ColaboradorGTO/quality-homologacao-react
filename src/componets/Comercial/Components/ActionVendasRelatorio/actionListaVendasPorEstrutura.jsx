@@ -12,7 +12,6 @@ import { formatarPorcentagem } from "../../../../utils/formatarPorcentagem";
 
 export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [size, setSize] = useState('small');
   const dataTableRef = useRef();
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
@@ -443,7 +442,7 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
             title="Vendas por Estrutura"
             value={dadosEstruturaVendas}
             globalFilter={globalFilterValue}
-            size={size}
+            size={'small'}
             sortOrder={-1}
             paginator={true}
             onPage={onPageChange}
@@ -454,6 +453,9 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
             onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dadosEstruturaVendas.length]}
             totalRecords={dadosEstruturaVendas.length}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

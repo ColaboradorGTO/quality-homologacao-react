@@ -10,7 +10,6 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [size, setSize] = useState('small');
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
   const dataTableRef = useRef();
@@ -228,7 +227,7 @@ export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
             title="Produtos Mais Vendidos"
             value={dados}
             globalFilter={globalFilterValue}
-            size={size}
+            size={'small'}
             sortOrder={-1}
             paginator={true}
             rows={rows}
@@ -239,6 +238,9 @@ export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
             onPage={onPageChange}
             totalRecords={dados.length}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
