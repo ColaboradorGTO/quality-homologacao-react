@@ -14,7 +14,7 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaFuncionario = ({
   dadosFuncionarios, 
-  optionsEmpresas,
+  dadosEmpresas,
   refetchListaFuncionarios,
   usuarioLogado,
   optionsModulos
@@ -259,7 +259,7 @@ export const ActionListaFuncionario = ({
         show={modalAlterarFuncionarioVisivel}
         handleClose={() => setModalAlterarFuncionarioVisivel(false)}
         dadosAtualizarFuncionarios={dadosAtualizarFuncionarios}
-        optionsEmpresas={optionsEmpresas}
+        dadosEmpresas={dadosEmpresas}
         refetchListaFuncionarios={refetchListaFuncionarios}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}  

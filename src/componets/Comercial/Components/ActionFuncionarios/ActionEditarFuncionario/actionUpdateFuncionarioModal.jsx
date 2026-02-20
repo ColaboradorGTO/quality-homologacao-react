@@ -8,7 +8,7 @@ export const ActionUpdateFuncionarioModal = ({
   show, 
   handleClose, 
   dadosAtualizarFuncionarios, 
-  optionsEmpresas,
+  dadosEmpresas,
   refetchListaFuncionarios, 
   usuarioLogado, 
   optionsModulos 
@@ -35,7 +35,7 @@ export const ActionUpdateFuncionarioModal = ({
           <FormularioEditarFuncionario 
             dadosAtualizarFuncionarios={dadosAtualizarFuncionarios} 
             handleClose={handleClose} 
-            optionsEmpresas={optionsEmpresas}
+            dadosEmpresas={dadosEmpresas}
             refetchListaFuncionarios={refetchListaFuncionarios}
             usuarioLogado={usuarioLogado}
             optionsModulos={optionsModulos}

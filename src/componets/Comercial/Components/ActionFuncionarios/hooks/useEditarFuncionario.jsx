@@ -1,13 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useQuery } from 'react-query';
 import Swal from 'sweetalert2';
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Funcoes } from '../../../../../../tipoFuncao.json';
 import { Parceiro } from '../../../../../../parceiro.json';
-import { get, post, put } from "../../../../../api/funcRequest";
+import { post, put } from "../../../../../api/funcRequest";
 
-export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, optionsEmpresas, refetchListaFuncionarios, usuarioLogado, optionsModulos }) => {
+export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas, refetchListaFuncionarios, usuarioLogado, optionsModulos }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState(0);
   const [funcaoSelecionado, setFuncaoSelecionado] = useState('')
   const [tipoSelecionado, setTipoSelecionado] = useState('')
@@ -73,42 +71,29 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, optionsEmpres
 
   const onSubmit = async (e) => {
 
-    if (optionsModulos[0]?.ALTERAR == 'False') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       Swal.fire({
         title: 'Acesso Negado',
-        text: 'Usuário não tem permissão para desconto maior ou igual há 20%',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> não tem permissão para alterar`,
         icon: 'error',
-        timer: 3000,
+        confirmButtonText: 'Ok',
+        timer: 6000,
         customClass: {
           container: 'custom-swal',
         }
       })
       return;
     }
-
-    if (parseFloat(valorDesconto) > 50) {
-      Swal.fire({
-        title: 'Acesso Negado',
-        text: 'Valor Desconto maior que permitido',
-        icon: 'error',
-        timer: 3000,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-      return;
-    }
-
 
     const putData = {
+
+      IDFUNCIONARIO: dadosAtualizarFuncionarios[0]?.IDFUNCIONARIO,
+      IDSUBGRUPOEMPRESARIAL: dadosAtualizarFuncionarios[0]?.IDSUBGRUPOEMPRESARIAL,
+      IDEMPRESA: empresaSelecionada,
+      NUCPF: dadosAtualizarFuncionarios[0]?.NUCPF,
       NOLOGIN: dadosAtualizarFuncionarios[0]?.NOLOGIN,
       PWSENHA: dadosAtualizarFuncionarios[0]?.PWSENHA,
-      IDEMPRESA: empresaSelecionada,
-      IDSUBGRUPOEMPRESARIAL: dadosAtualizarFuncionarios[0]?.IDSUBGRUPOEMPRESARIAL,
-      IDFUNCIONARIO: dadosAtualizarFuncionarios[0]?.IDFUNCIONARIO,
-      IDFUNCALTERACAO: usuarioLogado?.id,
-      ID: dadosAtualizarFuncionarios[0]?.ID,
-
+      IDFUNCIONARIOULTALTERACAO: usuarioLogado.id,
     }
 
     try {
@@ -296,19 +281,12 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, optionsEmpres
     setIsChecked,
     ipUsuario,
     setIpUsuario,
-    usuarioLogado,
-    setUsuarioLogado,
     formularioVisivel,
     setFormularioVisivel,
     formularioVisivelLogin,
     setFormularioVisivelLogin,
     isLoading,
     setIsLoading,
-    navigate,
-    optionsEmpresas,
-    errorEmpresas,
-    isLoadingEmpresas,
-    refetch,
     onSubmit,
     handleRadioChange,
     localizacao,

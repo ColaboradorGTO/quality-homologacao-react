@@ -13,7 +13,7 @@ import { schema } from './schamaValidarFuncionario'
 export const FormularioEditarFuncionario = ({ 
   dadosAtualizarFuncionarios, 
   handleClose,
-  optionsEmpresas,
+  dadosEmpresas,
   refetchListaFuncionarios, 
   usuarioLogado, 
   optionsModulos 
@@ -48,7 +48,7 @@ export const FormularioEditarFuncionario = ({
     setSituacaoSelecionada,
     onSubmit
 
-  } = useEditarFuncionario({ dadosAtualizarFuncionarios, optionsEmpresas, refetchListaFuncionarios,  usuarioLogado, optionsModulos })
+  } = useEditarFuncionario({ dadosAtualizarFuncionarios, dadosEmpresas, refetchListaFuncionarios,  usuarioLogado, optionsModulos })
 
   const handleValidatedSubmit = async () => {
     try {
@@ -88,7 +88,7 @@ export const FormularioEditarFuncionario = ({
 
               <Select
                 closeMenuOnSelect={false}
-                options={optionsEmpresas.map((item) => ({
+                options={dadosEmpresas?.map((item) => ({
                   value: item.IDEMPRESA,
                   label: item.NOFANTASIA
                 }))}
