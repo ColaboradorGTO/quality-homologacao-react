@@ -17,7 +17,8 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas
   const [repitaSenha, setRepitaSenha] = useState('')
   const [situacaoSelecionada, setSituacaoSelecionada] = useState('')
   const [ipUsuario, setIpUsuario] = useState('')
-
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarRepitaSenha, setMostrarRepitaSenha] = useState(false);
 
 
 
@@ -218,6 +219,10 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas
     situacao,
     situacaoSelecionada,
     setSituacaoSelecionada,
+    mostrarSenha,
+    setMostrarSenha,
+    mostrarRepitaSenha,
+    setMostrarRepitaSenha,
     onSubmit,
     
   }

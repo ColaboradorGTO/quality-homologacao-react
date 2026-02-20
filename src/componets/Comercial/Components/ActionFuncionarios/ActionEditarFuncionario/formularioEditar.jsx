@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { Fragment } from "react"
 import Select from 'react-select'
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
@@ -22,8 +22,7 @@ export const FormularioEditarFuncionario = ({
   const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
     mode: "onChange"
   });
-  const [mostrarSenha, setMostrarSenha] = useState(false);
-  const [mostrarRepitaSenha, setMostrarRepitaSenha] = useState(false);
+
   const {
     empresaSelecionada,
     setEmpresaSelecionada,
@@ -48,6 +47,10 @@ export const FormularioEditarFuncionario = ({
     situacao,
     situacaoSelecionada,
     setSituacaoSelecionada,
+    mostrarSenha,
+    setMostrarSenha,
+    mostrarRepitaSenha,
+    setMostrarRepitaSenha,
     onSubmit
 
   } = useEditarFuncionario({ dadosAtualizarFuncionarios, dadosEmpresas, refetchListaFuncionarios,  usuarioLogado, optionsModulos })
@@ -242,7 +245,7 @@ export const FormularioEditarFuncionario = ({
                 </button>
               </div>
             </div>
-            
+
             <div className="col-sm-4 col-md-4 col-xl-4">
           
               <label htmlFor="">Repita Senha</label>
