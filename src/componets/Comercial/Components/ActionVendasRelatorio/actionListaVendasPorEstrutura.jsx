@@ -29,7 +29,7 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
 
   const handlePrint = useReactToPrint({
     content: () => dataTableRef.current,
-    documentTitle: 'Vendas por Vendedor',
+    documentTitle: 'Vendas por Estrutura',
   });
 
   const exportToPDF = () => {
@@ -254,7 +254,7 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     }
     return `${totalPagina} (${totalGeral} total)`;
   }
-  
+
   const colunasVendasEstutura = [
     {
       field: 'contador',
@@ -262,12 +262,7 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
       body: row => <th>{row.contador}</th>,
       sortable: true,
     },
-    {
-      field: 'NOFANTASIA',
-      header: 'Loja',
-      body: row => <p style={{width: '150px', fontWeight: 600}}>{row.NOFANTASIA}</p>,
-      sortable: true
-    },
+ 
     {
       field: 'GRUPO',
       header: 'Grupo',
@@ -388,12 +383,22 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
 
   ]
 
+  const HeaderTemplate = (rowData) => {
+    return (
+      <div className="flex align-items-center gap-2" style={{ alignContent: 'center'}}>
+        <h2 className="font-bold">
+          {`${rowData.NOFANTASIA}`}
+        </h2>
+      </div>
+    );
+  };
+
   return (
 
     <Fragment>
       <div className="panel">
         <div className="panel-hdr">
-          <h2>Vendas por Estrutura</h2>
+          <h3>Vendas por Estrutura</h3>
         </div>
         <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
           <HeaderTable
@@ -427,6 +432,11 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
             filterDisplay="menu"
             showGridlines
             stripedRows
+            rowGroupMode="subheader"
+            groupRowsBy="IDEMPRESA"
+            sortMode="single"
+            scrollable
+            rowGroupHeaderTemplate={HeaderTemplate}
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
           >
             {colunasVendasEstutura.map(coluna => (
@@ -439,8 +449,8 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
                 footer={coluna.footer}
                 sortable={coluna.sortable}
                 headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "", border: '1px solid #ccc', fontSize: '0.8rem' }}
+                bodyStyle={{ backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
 
               />
             ))}

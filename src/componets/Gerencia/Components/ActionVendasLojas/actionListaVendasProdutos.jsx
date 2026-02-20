@@ -134,7 +134,6 @@ export const ActionListaVendasProdutos = ({ dadosVendasLojaProdutos }) => {
     );
   };
 
-
   return (
 
     <Fragment>
