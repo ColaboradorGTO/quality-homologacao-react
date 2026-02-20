@@ -198,7 +198,7 @@ export const ActionPesquisaVendasRelatorio = () => {
   );
 
   const fetchVendasEstrutura = async () => {
-    const urlBase = `/vendas-por-estrutura?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idSubGrupo=${subGrupoSelecionado}&idMarcaProduto=${marcaSelecionada}`;
+    const urlBase = `/vendas-por-estrutura?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idSubGrupo=${subGrupoSelecionado}&idMarcaProduto=${produtoPesquisado}&uf=${ufSelecionado}&idGrupoEmpresarial=${marcaSelecionada}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -310,8 +310,8 @@ export const ActionPesquisaVendasRelatorio = () => {
 
   const { data: dadosColaboradorProdutosVendidos = [], error: erroVendasColaborador, isLoading: isLoadingVendasColaborador, refetch: refetchVendasColaborador } = useQuery(
     'colaboradorProdutosVendidos',
-    () => fetchVendasColaborador(empresaSelecionada, dataPesquisaInicio, dataPesquisaFim, produtoPesquisado, fornecedorSelecionado, grupoSelecionado, subGrupoSelecionado, marcaSelecionada, currentPage, pageSize),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    () => fetchVendasColaborador(),
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
   const fetchProdutosMaisVendidos = async () => {
@@ -362,7 +362,7 @@ export const ActionPesquisaVendasRelatorio = () => {
 
     const values = selectedOptions.map((option) => option.value);
     setEmpresaSelecionada(values);
-    getListaVendasCustoLojas(values)
+
 
   }
 

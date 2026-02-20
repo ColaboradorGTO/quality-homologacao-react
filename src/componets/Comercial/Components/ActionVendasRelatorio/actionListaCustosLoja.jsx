@@ -9,13 +9,13 @@ import { useReactToPrint } from "react-to-print";
 import HeaderTable from "../../../Tables/headerTable";
 
 
-export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
+export const ActionListaCustosLoja = ({ dadosCustosLojas }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
   const dataTableRef = useRef();
-  const [rowSelection, setRowSelection] = useState(null); 
-  
+  const [rowSelection, setRowSelection] = useState(null);
+
   const onPageChange = (event) => {
     setFirst(event.first);
     setRows(event.rows);
@@ -52,7 +52,7 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
-    const header = ['Nº', 'Empresa', 'QTD Clientes', 'QTD Produtos', 'Venda Bruto (- Desc)', 'Venda Liq (- Voucher)', 'Projeção Mês', 'Custo Total', 'Lucro Total', 'Markup' ]
+    const header = ['Nº', 'Empresa', 'QTD Clientes', 'QTD Produtos', 'Venda Bruto (- Desc)', 'Venda Liq (- Voucher)', 'Projeção Mês', 'Custo Total', 'Lucro Total', 'Markup']
     worksheet['!cols'] = [
       { wpx: 100, caption: 'Nº' },
       { wpx: 200, caption: 'Empresa' },
@@ -77,7 +77,7 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
 
   const calcularTotalMackup = (item) => {
     const toFloat = (value) => (isNaN(parseFloat(value)) || value === null || value === undefined) ? 0 : parseFloat(value);
-    return (toFloat(item.VRTOTALVENDA) / toFloat(item.VRCUSTOTOTAL) -1) * 100
+    return (toFloat(item.VRTOTALVENDA) / toFloat(item.VRCUSTOTOTAL) - 1) * 100
   }
 
   const calcularSomaTotalLucro = (item) => {
@@ -88,7 +88,7 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   // Função para filtrar dados baseado no globalFilterValue
   const filtrarDados = (dados, filtro) => {
     if (!filtro) return dados;
-    
+
     return dados.filter(item => {
       return Object.values(item).some(value => {
         if (value === null || value === undefined) return false;
@@ -112,7 +112,7 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   const calcularTotalLucroPorPagina = () => {
     const totalPagina = calcularTotalPagina('valorTotalLucro');
     const totalGeral = calcularTotalGeral('valorTotalLucro');
-    
+
     if (globalFilterValue) {
       return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
     }
@@ -122,7 +122,7 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   const calcularTotalCustoTotalPorPagina = () => {
     const totalPagina = calcularTotalPagina('VRCUSTOTOTAL');
     const totalGeral = calcularTotalGeral('VRCUSTOTOTAL');
-    
+
     if (globalFilterValue) {
       return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
     }
@@ -132,7 +132,7 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   const calcularTotalProjecaoMesPorPagina = () => {
     const totalPagina = calcularTotalPagina('VRTOTALVENDA');
     const totalGeral = calcularTotalGeral('VRTOTALVENDA');
-    
+
     if (globalFilterValue) {
       return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
     }
@@ -142,7 +142,7 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   const calcularTotalVendaLiquidaPorPagina = () => {
     const totalPagina = calcularTotalPagina('valorTotalLiquido');
     const totalGeral = calcularTotalGeral('valorTotalLiquido');
-    
+
     if (globalFilterValue) {
       return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
     }
@@ -152,7 +152,7 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   const calcularTotalVendaBrutaPorPagina = () => {
     const totalPagina = calcularTotalPagina('VRTOTALVENDA');
     const totalGeral = calcularTotalGeral('VRTOTALVENDA');
-    
+
     if (globalFilterValue) {
       return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
     }
@@ -162,17 +162,17 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
   const calcularTotalQtdProdutosPorPagina = () => {
     const totalPagina = calcularTotalPagina('QTD_PRODUTO');
     const totalGeral = calcularTotalGeral('QTD_PRODUTO');
-    
+
     if (globalFilterValue) {
       return `${totalPagina} (${totalGeral} total)`;
     }
     return `${totalPagina} (${totalGeral} total)`;
   }
-  
+
   const calcularTotalQtdClientesPorPagina = () => {
     const totalPagina = calcularTotalPagina('QTD_CLIENTE');
     const totalGeral = calcularTotalGeral('QTD_CLIENTE');
-    
+
     if (globalFilterValue) {
       return `${totalPagina} (${totalGeral} total)`;
     }
@@ -199,29 +199,31 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
       valorTotalMackup: valorTotalMackup,
     }
   })
- 
+
   const colunasVendasCustosLojas = [
-    {field: 'contador', header: 'Nº', body: row => <th>{row.contador}</th>, sortable: true},
+    { field: 'contador', header: 'Nº', body: row => <th>{row.contador}</th>, sortable: true },
     {
-      field: 'NOFANTASIA', 
-      header: 'Loja', 
-      body: row => <p style={{margin: '0px', width: '200px', fontWeight: 600}}>{row.NOFANTASIA}</p>,
-      sortable: true },
-    { 
+      field: 'NOFANTASIA',
+      header: 'Loja',
+      body: row => <p style={{ margin: '0px', width: '200px', fontWeight: 600 }}>{row.NOFANTASIA}</p>,
+      sortable: true
+    },
+    {
       field: 'QTD_CLIENTE',
       header: 'Qtd. Clientes',
       body: row => <th>{row.QTD_CLIENTE}</th>,
       footer: () => {
-        return(
-          <div>          
+        return (
+          <div>
             <p style={{ fontWeight: 600, }}>{calcularTotalQtdClientesPorPagina()}</p>
-   
+
           </div>
         )
-      }, 
-      sortable: true 
+      },
+      sortable: true
     },
-    { field: 'QTD_PRODUTO',
+    {
+      field: 'QTD_PRODUTO',
       header: 'Qtd. Produtos',
       body: row => <th>{row.QTD_PRODUTO}</th>,
       footer: () => {
@@ -231,9 +233,10 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
           </div>
         )
       },
-      sortable: true 
+      sortable: true
     },
-    { field: 'VRTOTALVENDA',
+    {
+      field: 'VRTOTALVENDA',
       header: 'Venda Bruta (- Desc)',
       body: row => <th>{formatMoeda(row.VRTOTALVENDA)}</th>,
       footer: () => {
@@ -243,10 +246,11 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
           </div>
         )
       },
-      sortable: true 
+      sortable: true
     },
-    { field: 'valorTotalLiquido', 
-      header: 'Venda Líq (- Voucher)', 
+    {
+      field: 'valorTotalLiquido',
+      header: 'Venda Líq (- Voucher)',
       body: row => <th>{formatMoeda(row.valorTotalLiquido)}</th>,
       footer: () => {
         return (
@@ -256,9 +260,10 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
           </div>
         )
       },
-      sortable: true 
+      sortable: true
     },
-    { field: 'VRTOTALVENDA',
+    {
+      field: 'VRTOTALVENDA',
       header: 'Projeção Mês',
       body: row => <th>{formatMoeda(row.VRTOTALVENDA)}</th>,
       footer: () => {
@@ -268,9 +273,10 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
           </div>
         )
       },
-      sortable: true 
+      sortable: true
     },
-    { field: 'VRCUSTOTOTAL',
+    {
+      field: 'VRCUSTOTOTAL',
       header: 'Custo Total',
       body: row => <th>{formatMoeda(row.VRCUSTOTOTAL)}</th>,
       footer: () => {
@@ -280,31 +286,33 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
           </div>
         )
       },
-      sortable: true 
+      sortable: true
     },
-    { field: 'valorTotalLucro',
+    {
+      field: 'valorTotalLucro',
       header: 'Lucro Total',
       body: row => <th>{formatMoeda(row.valorTotalLucro)}</th>,
       footer: () => {
         return (
           <div>
-            <th style={{ fontWeight: 600, }}>{calcularTotalLucroPorPagina()}</th>
+            <p style={{ fontWeight: 600, }}>{calcularTotalLucroPorPagina()}</p>
           </div>
         )
       },
-      sortable: true 
+      sortable: true
     },
-    { field: 'valorTotalMackup', 
-      header: 'Mackup', 
+    {
+      field: 'valorTotalMackup',
+      header: 'Mackup',
       body: row => <th >{parseFloat(row.valorTotalMackup).toFixed(2)}%</th>,
-      sortable: true 
+      sortable: true
     },
   ]
-  
+
   return (
 
     <Fragment>
-        <div className="panel">
+      <div className="panel">
         <div className="panel-hdr">
           <h2>Vendas Custos Por Lojas</h2>
         </div>
@@ -348,9 +356,9 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
                 header={coluna.header}
                 body={coluna.body}
                 footer={coluna.footer}
-                sortable={coluna.sortable}                          
-                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem'}}
-                footerStyle={{ color: '', backgroundColor: "", border: '1px solid #e9e9e9',fontSize: '0.8rem' }}
+                sortable={coluna.sortable}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
                 bodyStyle={{ fontSize: '0.8rem' }}
 
               />
@@ -358,7 +366,7 @@ export const ActionListaCustosLoja  = ({dadosCustosLojas}) => {
           </DataTable>
         </div>
       </div>
-      
+
     </Fragment>
   )
 }

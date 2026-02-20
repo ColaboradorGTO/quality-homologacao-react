@@ -12,15 +12,15 @@ import { formatarPorcentagem } from "../../../../utils/formatarPorcentagem";
 
 export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const dataTableRef = useRef();
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
   const [rowSelection, setRowSelection] = useState(null);
+  const dataTableRef = useRef();
 
 
   const onPageChange = (event) => {
-      setFirst(event.first);
-      setRows(event.rows);
+    setFirst(event.first);
+    setRows(event.rows);
   };
 
   const onGlobalFilterChange = (e) => {
@@ -111,105 +111,6 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     return ((toFloat(item.vendaMarca?.TOTALDESCONTO) / (toFloat(item.vendaMarca?.TOTALBRUTO) + toFloat(item.vendaMarca?.TOTALDESCONTO))) * 100)
   }
 
-  const calcularTotalQuantidadeVendasEstrutura = () => {
-    return dadosEstruturaVendas.reduce((total, dados) => total + parseFloat(dados.QTD), 0);
-  }
-
-  const calcularTotalQuantidadeVendasEstruturaPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for (let i = firstIndex; i < lastIndex && i < dadosVendasEstrutura.length; i++) {
-      if (dadosVendasEstrutura[i]) {
-        total += parseFloat(dadosVendasEstrutura[i].vendaMarca.QTD);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalVendaBrutaVendasEstrutura = () => {
-    return dadosEstruturaVendas.reduce((total, dados) => total + parseFloat(dados.TOTALBRUTO), 0);
-  }
-
-  const calcularTotalVendaBrutaVendasEstruturaPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for (let i = firstIndex; i < lastIndex && i < dadosVendasEstrutura.length; i++) {
-      if (dadosVendasEstrutura[i]) {
-        total += parseFloat(dadosVendasEstrutura[i].vendaMarca.TOTALBRUTO);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalDescontoVendasEstrutura = () => {
-    return dadosEstruturaVendas.reduce((total, dados) => total + parseFloat(dados.TOTALDESCONTO), 0);
-  }
-
-  const calcularTotalDescontoVendasEstruturaPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for (let i = firstIndex; i < lastIndex && i < dadosVendasEstrutura.length; i++) {
-      if (dadosVendasEstrutura[i]) {
-        total += parseFloat(dadosVendasEstrutura[i].vendaMarca.TOTALDESCONTO);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalVoucherVendasEstrutura = () => {
-    return dadosEstruturaVendas.reduce((total, dados) => total + parseFloat(dados.VLVOUCHER), 0);
-  }
-
-  const calcularTotalVoucherVendasEstruturaPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for (let i = firstIndex; i < lastIndex && i < dadosVendasEstrutura.length; i++) {
-      if (dadosVendasEstrutura[i]) {
-        total += parseFloat(dadosVendasEstrutura[i].vendaMarca.VLVOUCHER);
-      }
-    }
-    return total;
-  }
-
-
-  const calcularTotalVendaBrutaDescontoPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    
-    for (let i = firstIndex; i < lastIndex && i < dadosVendasEstrutura.length; i++) {
-      if (dadosVendasEstrutura[i]) {
-        total += parseFloat(dadosVendasEstrutura[i].vendaMarca.VRTOTALLIQUIDO);
-      }
-    }
-    
-    return total;
-  };
-  
-  const calcularTotalVendaLiquidaEstrutura = () => {
-    return dadosEstruturaVendas.reduce((total, dados) => total + parseFloat(dados.valorTotalLiquido), 0);
-  }  
-
-  const calcularTotalVendaLiquidaEstruturaPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for (let i = firstIndex; i < lastIndex && i < dadosEstruturaVendas.length; i++) {
-      if (dadosEstruturaVendas[i]) {
-        total += parseFloat(dadosEstruturaVendas[i].valorTotalLiquido);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalVendaBrutaDesconto = () => {
-    return dadosEstruturaVendas.reduce((total, dados) => total + parseFloat(dados.VRTOTALLIQUIDO), 0);
-  }
-
   const dadosExcell = dadosVendasEstrutura.map((item, index) => {
     let contador = index + 1;
     const valorTotalLiquido = calcularValorTotalLiquidoProduto(item);
@@ -244,8 +145,6 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     const margemPercentualProduto = calcularMargemPercentualProduto(item);
     const percentualDescontoProduto = calcularPercentualDescontoProduto(item);
   
-
-
     return {
       contador,
       NOFANTASIA: item.vendaMarca.NOFANTASIA,
@@ -274,6 +173,88 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     }
   });
 
+   const filtrarDados = (dados, filtro) => {
+    if (!filtro) return dados;
+
+    return dados.filter(item => {
+      return Object.values(item).some(value => {
+        if (value === null || value === undefined) return false;
+        return value.toString().toLowerCase().includes(filtro.toLowerCase());
+      });
+    });
+  };
+
+  const calcularTotalGeral = (field) => {
+    return dadosEstruturaVendas.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotalPagina = (field) => {
+    const dadosFiltrados = filtrarDados(dadosEstruturaVendas, globalFilterValue);
+    const firstIndex = first;
+    const lastIndex = first + rows;
+    const dataPaginada = dadosFiltrados.slice(firstIndex, lastIndex);
+    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotalVendaLiquidaEstruturaPorPagina = () => {
+    const totalPagina = calcularTotalPagina('valorTotalLiquido');
+    const totalGeral = calcularTotalGeral('valorTotalLiquido');
+
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalVendaBrutaDescontoPorPagina = () => {
+    const totalPagina = calcularTotalPagina('VRTOTALLIQUIDO');
+    const totalGeral = calcularTotalGeral('VRTOTALLIQUIDO');
+
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalVoucherVendasEstruturaPorPagina = () => {
+    const totalPagina = calcularTotalPagina('VLVOUCHER');
+    const totalGeral = calcularTotalGeral('VLVOUCHER');
+
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalDescontoVendasEstruturaPorPagina = () => {
+    const totalPagina = calcularTotalPagina('TOTALDESCONTO');
+    const totalGeral = calcularTotalGeral('TOTALDESCONTO');
+
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalVendaBrutaVendasEstruturaPorPagina = () => {
+    const totalPagina = calcularTotalPagina('TOTALBRUTO');
+    const totalGeral = calcularTotalGeral('TOTALBRUTO');
+
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalQuantidadeVendasEstruturaPorPagina = () => {
+    const totalPagina = calcularTotalPagina('QTD');
+    const totalGeral = calcularTotalGeral('QTD');
+    if (globalFilterValue) {
+      return `${totalPagina} (${totalGeral} total)`;
+    }
+    return `${totalPagina} (${totalGeral} total)`;
+  }
+  
   const colunasVendasEstutura = [
     {
       field: 'contador',
@@ -320,16 +301,13 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     {
       field: 'QTD',
       header: 'Total Quantidade',
-      body: row => parseFloat(row.QTD),
+      body: row => <th>{parseFloat(row.QTD)}</th>,
       footer: () => {
         return (
           <div>
-            <th style={{ fontWeight: 600, }}> {parseFloat(calcularTotalQuantidadeVendasEstruturaPorPagina())}</th>
-            <hr />
-            <th style={{ fontWeight: 600, }}>Total: {parseFloat(calcularTotalQuantidadeVendasEstrutura())}</th>
+            <th style={{ fontWeight: 600, }}> {calcularTotalQuantidadeVendasEstruturaPorPagina()}</th>
           </div>
         )
-        
       },
     
       sortable: true,
@@ -337,13 +315,11 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     {
       field: 'TOTALBRUTO',
       header: 'Venda Bruta(R$)',
-      body: row => formatMoeda(row.TOTALBRUTO),
+      body: row => <th>{formatMoeda(row.TOTALBRUTO)}</th>,
       footer: () => {
         return (
           <div>
-            <th style={{ fontWeight: 600, }}>{formatMoeda(calcularTotalVendaBrutaVendasEstruturaPorPagina())}</th>
-            <hr />
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalVendaBrutaVendasEstrutura())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalVendaBrutaVendasEstruturaPorPagina()}</th>
           </div>
         )
       },
@@ -352,13 +328,11 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     {
       field: 'TOTALDESCONTO',
       header: 'Desconto(R$)',
-      body: row => formatMoeda(row.TOTALDESCONTO),
+      body: row => <th>{formatMoeda(row.TOTALDESCONTO)}</th>,
       footer: () => {
         return (
           <div>
-            <th style={{ fontWeight: 600, }}> {formatMoeda(calcularTotalDescontoVendasEstruturaPorPagina())}</th>
-            <hr />
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalDescontoVendasEstrutura())}</th>
+            <th style={{ fontWeight: 600, }}> {calcularTotalDescontoVendasEstruturaPorPagina()}</th>
           </div>
         )
       },
@@ -368,19 +342,18 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     {
       field: 'percentualDescontoProduto',
       header: 'Desconto(%)',
-      body: row => formatarPorcentagem(row.percentualDescontoProduto),
+      body: row => <th>{formatarPorcentagem(row.percentualDescontoProduto)}</th>,
       sortable: true,
     },
     {
       field: 'VRTOTALLIQUIDO',
       header: 'Venda Bruta (Desc)',
-      body: row => formatMoeda(row.VRTOTALLIQUIDO),
+      body: row => <th>{formatMoeda(row.VRTOTALLIQUIDO)}</th>,
       footer: () => {
         return (
           <div>
-            <th style={{ fontWeight: 600, }}>{formatMoeda(calcularTotalVendaBrutaDescontoPorPagina())}</th>
-            <hr />
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalVendaBrutaDesconto())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalVendaBrutaDescontoPorPagina()}</th>
+
           </div>
         )
       },
@@ -389,13 +362,11 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     {
       field: 'VLVOUCHER',
       header: 'Voucher(R$)',
-      body: row => formatMoeda(row.VLVOUCHER),
+      body: row => <th>{formatMoeda(row.VLVOUCHER)}</th>,
       footer: () => {
         return (
           <div>
-            <th style={{ fontWeight: 600, }}> {formatMoeda(calcularTotalVoucherVendasEstruturaPorPagina())}</th>
-            <hr />
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalVoucherVendasEstrutura())}</th>
+            <th style={{ fontWeight: 600, }}> {calcularTotalVoucherVendasEstruturaPorPagina()}</th>
           </div>
         )
       },
@@ -404,13 +375,11 @@ export const ActionListaPorVendasEstrutura = ({ dadosVendasEstrutura }) => {
     {
       field: 'valorTotalLiquido',
       header: 'Venda Líquida(R$)',
-      body: row => formatMoeda(row.valorTotalLiquido),
+      body: row => <th>{formatMoeda(row.valorTotalLiquido)}</th>,
       footer: () => {
         return (
           <div>
-            <th style={{ fontWeight: 600, }}>{formatMoeda(calcularTotalVendaLiquidaEstruturaPorPagina())}</th>
-            <hr />
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalVendaLiquidaEstrutura())} </th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalVendaLiquidaEstruturaPorPagina()}</th>
           </div>
         )
       },
