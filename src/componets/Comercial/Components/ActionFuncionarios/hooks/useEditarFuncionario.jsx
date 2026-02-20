@@ -2,29 +2,22 @@ import React, { useState, useEffect } from "react";
 import Swal from 'sweetalert2';
 import axios from "axios";
 import { Funcoes } from '../../../../../../tipoFuncao.json';
-import { Parceiro } from '../../../../../../parceiro.json';
 import { post, put } from "../../../../../api/funcRequest";
 
 export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas, refetchListaFuncionarios, usuarioLogado, optionsModulos }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState(0);
   const [funcaoSelecionado, setFuncaoSelecionado] = useState('')
   const [tipoSelecionado, setTipoSelecionado] = useState('')
-  const [dataAdmissao, setDataAdmissao] = useState('')
   const [cpf, setCPF] = useState('')
   const [nomeFuncionario, setNomeFuncionario] = useState('')
   const [localizacaoSelecionada, setLocalizacaoSelecionada] = useState('')
-  const [categoriaContratacao, setCategoriaContratacao] = useState('')
   const [valorDesconto, setValorDesconto] = useState('');
   const [valorSalario, setValorSalario] = useState('');
-  const [usuario, setUsuario] = useState('')
   const [senha, setSenha] = useState('')
   const [repitaSenha, setRepitaSenha] = useState('')
   const [situacaoSelecionada, setSituacaoSelecionada] = useState('')
-  const [isChecked, setIsChecked] = useState(false);
   const [ipUsuario, setIpUsuario] = useState('')
-  const [formularioVisivel, setFormularioVisivel] = useState(true);
-  const [formularioVisivelLogin, setFormularioVisivelLogin] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+
 
 
 
@@ -71,7 +64,7 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas
 
   const onSubmit = async (e) => {
 
-    if (optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'False') {
       Swal.fire({
         title: 'Acesso Negado',
         html: `${usuarioLogado?.NOFUNCIONARIO} <br/> não tem permissão para alterar`,
@@ -85,15 +78,28 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas
       return;
     }
 
-    const putData = {
+    if(senha !== repitaSenha) {
+      Swal.fire({
+        title: 'Erro de Validação',
+        text: 'As senhas não coincidem. Por favor, verifique e tente novamente.',
+        icon: 'error',
+        confirmButtonText: 'Ok',
+        timer: 6000,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+      return;
+    }
 
+    const putData = {
+      ID: dadosAtualizarFuncionarios[0]?.ID,
       IDFUNCIONARIO: dadosAtualizarFuncionarios[0]?.IDFUNCIONARIO,
+      IDEMPRESA: empresaSelecionada?.value,
       IDSUBGRUPOEMPRESARIAL: dadosAtualizarFuncionarios[0]?.IDSUBGRUPOEMPRESARIAL,
-      IDEMPRESA: empresaSelecionada,
-      NUCPF: dadosAtualizarFuncionarios[0]?.NUCPF,
-      NOLOGIN: dadosAtualizarFuncionarios[0]?.NOLOGIN,
-      PWSENHA: dadosAtualizarFuncionarios[0]?.PWSENHA,
       IDFUNCIONARIOULTALTERACAO: usuarioLogado.id,
+      NOLOGIN: dadosAtualizarFuncionarios[0]?.NOLOGIN,
+      PWSENHA: senha,
     }
 
     try {
@@ -101,16 +107,16 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas
 
       Swal.fire({
         title: 'Atualização',
-        text: 'Atualizção Realizada com Sucesso',
+        text: 'Atualização Realizada com Sucesso',
         icon: 'success',
-        timer: 3000,
+        timer: 5000,
         customClass: {
           container: 'custom-swal',
         }
       })
 
       const textDados = JSON.stringify(putData)
-      const textoFuncao = 'COMERCIAL/ ALTUALIZAÇÃO DE FUNCIONARIOS';
+      const textoFuncao = 'COMERCIAL / ALTUALIZAÇÃO DE FUNCIONARIOS';
       const ipUsuario = await getIPUsuario();
 
       const createData = {
@@ -121,12 +127,12 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas
       }
 
       await post('/log-web', createData)
-
+      refetchListaFuncionarios();
 
       return response.data;
     } catch (error) {
-        const textDados = JSON.stringify(putData)
-      const textoFuncao = 'COMERCIAL/ ALTUALIZAÇÃO DE FUNCIONARIOS';
+      const textDados = JSON.stringify(putData)
+      const textoFuncao = 'COMERCIAL / ERRO AO ALTUALIZAR FUNCIONARIO';
       const ipUsuario = await getIPUsuario();
 
       const createData = {
@@ -151,66 +157,6 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas
     }
   }
 
-
-  const handleRadioChange = (event) => {
-    const { id } = event.target;
-    if (id === 'radioCLT') {
-      setCategoriaContratacao('CLT');
-    } else if (id === 'radioPJ') {
-      setCategoriaContratacao('PJ');
-    }
-  };
-
-
-  const loginConfirmacao = async () => {
-    setFormularioVisivelLogin(true);
-    setFormularioVisivel(false);
-
-    const postData = {
-      usuario: usuario,
-      senha: senha,
-      modulo: selectedModule?.nome
-    }
-    try {
-      const response = await post('/login', postData);
-
-      const textDados = JSON.stringify(postData)
-      const textoFuncao = 'RH/AUTORIZAÇÃO DESCONTO FOLHA FUNCIONARIO';
-
-      const createLog = {
-        IDFUNCIONARIO: usuarioLogado.id,
-        PATHFUNCAO: textoFuncao,
-        DADOS: textDados,
-        IP: ipUsuario
-      }
-
-      const responsePost = await post('/log-web', createLog)
-
-      setFormularioVisivelLogin(false);
-      setFormularioVisivel(true);
-      setIsLoading(true);
-      return responsePost.data;
-    } catch (error) {
-      Swal.showValidationMessage(`Erro ao autenticar: ${error.message}`);
-    }
-
-  };
-
-
-
-
-  const localizacao = [
-    {
-      id: 1,
-      label: "Loja",
-      value: "True"
-    },
-    {
-      id: 2,
-      label: "Escritório",
-      value: "False"
-    }
-  ]
 
   const situacao = [
     {
@@ -253,47 +199,26 @@ export const useEditarFuncionario = ({ dadosAtualizarFuncionarios, dadosEmpresas
     setEmpresaSelecionada,
     funcaoSelecionado,
     setFuncaoSelecionado,
+    Funcoes,
     tipoSelecionado,
     setTipoSelecionado,
-    dataAdmissao,
-    setDataAdmissao,
+    tipo,
     cpf,
     setCPF,
     nomeFuncionario,
     setNomeFuncionario,
-    localizacaoSelecionada,
-    setLocalizacaoSelecionada,
-    categoriaContratacao,
-    setCategoriaContratacao,
-    valorDesconto,
-    setValorDesconto,
     valorSalario,
     setValorSalario,
-    usuario,
-    setUsuario,
+    valorDesconto,
+    setValorDesconto,
     senha,
     setSenha,
     repitaSenha,
     setRepitaSenha,
+    situacao,
     situacaoSelecionada,
     setSituacaoSelecionada,
-    isChecked,
-    setIsChecked,
-    ipUsuario,
-    setIpUsuario,
-    formularioVisivel,
-    setFormularioVisivel,
-    formularioVisivelLogin,
-    setFormularioVisivelLogin,
-    isLoading,
-    setIsLoading,
     onSubmit,
-    handleRadioChange,
-    localizacao,
-    situacao,
-    Parceiro,
-    Funcoes,
-    tipo,
-    loginConfirmacao
+    
   }
 }

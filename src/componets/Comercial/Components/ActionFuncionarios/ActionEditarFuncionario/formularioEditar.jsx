@@ -1,4 +1,4 @@
-import { Fragment } from "react"
+import { Fragment, useState } from "react"
 import Select from 'react-select'
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
@@ -9,6 +9,7 @@ import { AlertError } from "../../../../Inputs/alertError"
 import { mascaraCPF } from "../../../../../utils/formatCPF"
 import FormField from "../../../../Formularios/FormField"
 import { schema } from './schamaValidarFuncionario'
+import { GrFormView, GrFormViewHide } from "react-icons/gr"
 
 export const FormularioEditarFuncionario = ({ 
   dadosAtualizarFuncionarios, 
@@ -21,7 +22,8 @@ export const FormularioEditarFuncionario = ({
   const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
     mode: "onChange"
   });
-
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [mostrarRepitaSenha, setMostrarRepitaSenha] = useState(false);
   const {
     empresaSelecionada,
     setEmpresaSelecionada,
@@ -220,24 +222,48 @@ export const FormularioEditarFuncionario = ({
         <div className="form-group">
           <div className="row">
             <div className="col-sm-3 col-md-3 col-xl-">
-              <InputFieldModal
-                type="password"
-                className="form-control input"
-                label="Senha"
-                value={senha}
-                onChangeModal={(e) => setSenha(e.target.value)}
+              <label htmlFor="">Senha</label>
+              <div className="d-flex align-items-center">
 
-              />
+                <input 
+                  type={mostrarSenha ? "text" : "password"}
+                  className="form-control input"
+                  label="Senha"
+                  value={senha}
+                  onChange={(e) => setSenha(e.target.value)}
+                />
+                <button 
+                  type="button"
+                  className="btn "
+                  style={{ background: 'transparent', border: 'none', marginLeft: '-2.5rem', zIndex: 1 }}
+                  onClick={() => setMostrarSenha(!mostrarSenha)}
+                >
+                  {mostrarSenha ? <GrFormViewHide size={20} color="0000ff" /> : <GrFormView size={20} color="#7A59AD"/>}
+                </button>
+              </div>
             </div>
+            
             <div className="col-sm-4 col-md-4 col-xl-4">
-              <InputFieldModal
-                type="password"
-                className="form-control input"
-                label="Repita Senha"
-                value={repitaSenha}
-                onChangeModal={(e) => setRepitaSenha(e.target.value)}
-
-              />
+          
+              <label htmlFor="">Repita Senha</label>
+              <div className="d-flex align-items-center">
+                <input 
+                  type={mostrarRepitaSenha ? "text" : "password"}
+                  className="form-control input"
+                  label="Repita Senha"
+                  value={repitaSenha}
+                  onChange={(e) => setRepitaSenha(e.target.value)}
+                />
+                <button 
+                  type="button"
+                  className="btn "
+                  style={{ background: 'transparent', border: 'none', marginLeft: '-2.5rem', zIndex: 1 }}
+                  onClick={() => setMostrarRepitaSenha(!mostrarRepitaSenha)}
+                >
+                  {mostrarRepitaSenha ? <GrFormViewHide size={20} color="0000ff" /> : <GrFormView size={20} color="#7A59AD"/>}
+                </button>
+              </div>
+             
             </div>
             <div className="col-sm-4 col-md-4 col-xl-4">
               <label className="form-label" htmlFor="stativofuncionario">Situação</label>
