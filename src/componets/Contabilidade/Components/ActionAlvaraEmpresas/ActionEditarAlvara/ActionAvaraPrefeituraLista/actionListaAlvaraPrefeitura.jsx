@@ -11,7 +11,7 @@ import { FaPencilAlt } from "react-icons/fa";
 import Swal from "sweetalert2";
 import { get } from "../../../../../../api/funcRequest";
 import { FaPlus, FaRegEye } from "react-icons/fa6";
-import { ActionCadastrarAlvaraModal } from "./ActionCadastrarAlvaraModal/ActionCadastrarAlvaraModal";
+import { ActionCadastrarAlvaraModal } from "./ActionCadastrarAlvaraModal/actionCadastrarAlvaraModal";
 import { ActionVisualizarDetalhesAlvaraModal } from "./ActionVisualizarAlvaraModal/actionVisualizarDetalhesAlvaraModal";
 import { ActionEditarDetalhesAlvaraModal } from "./ActionEditarAlvaraModal/actionEditarDetalhesAlvaraModal";
 
