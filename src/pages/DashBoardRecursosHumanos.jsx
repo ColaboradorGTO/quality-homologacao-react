@@ -43,19 +43,19 @@ export const DashBoardRecursosHumanos = ({}) => {
     if (storedMenuFilho) {
       setMenuSelected(selectedModule);
     }
-  
+    console.log(menuSelected, 'menuSelected')
   }, [usuarioLogado]);
 
   const { data: optionsModulosPage = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario',
     async () => {
-      const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
+      const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.idFuncionario}&idModulo=${selectedModule?.ID}`);
       
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
   );
-
+ 
   function handleShowComponent(componentName) {
     const menuFilhoSelecionado = selectedModule.menuPai.menuFilho.find(
       menu => menu.URL === componentName
@@ -95,7 +95,7 @@ export const DashBoardRecursosHumanos = ({}) => {
 
   switch (componentToShow) {
     case "/recursosHumanos/ActionPesquisaFuncionarios":
-      component = <ActionPesquisaFuncionarios usuarioLogado={usuarioLogado} />;
+      component = <ActionPesquisaFuncionarios usuarioLogado={usuarioLogado} ID={ID}/>;
       break;
     default:
       component = null;

@@ -79,6 +79,7 @@ export const Permissoes = ({}) => {
         },
         { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
     );
+    console.log(usuarioLogado, 'usuarioLogado')
     
     const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
         'empresas',
@@ -105,53 +106,49 @@ export const Permissoes = ({}) => {
         }
     }, [moduloSelecionado, optionsModulos]);
 
-    const fetchListaFuncionarios = async () => {
+      const fetchListaFuncionarios = async () => {
+        const urlBase = `/funcionarios-loja?idEmpresa=${empresaSelecionada}`;
+        let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+        urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
         try {
-            const urlApi = `/funcionarios-loja?idEmpresa=${empresaSelecionada?.value}`;
-            const response = await get(urlApi);
-
-            if (response.data.length && response.data.length === pageSize) {
-
-                let allData = [...response.data];
-                animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-
-                async function fetchNextPage(currentPage) {
-                    try {
-                        currentPage++;
-                        const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-                        if (responseNextPage.data.length) {
-                            allData.push(...responseNextPage.data);
-                            return fetchNextPage(currentPage);
-                        } else {
-                            return allData;
-                        }
-                    } catch (error) {
-                        console.error('Erro ao buscar próxima página:', error);
-                        throw error;
-                    }
-                }
-
-                await fetchNextPage(currentPage);
-                return allData;
-            } else {
-
-                return response.data;
+    
+          animacaoCarregamento('Carregando dados...', true);
+    
+          const primeiraPagina = 1;
+          const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+          const page = primeiraResposta.page || primeiraPagina;
+          const pageSize = primeiraResposta.pageSize || 1000;
+          const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+          const totalPages = Math.ceil(totalRows / pageSize);
+    
+          let allData = [...(primeiraResposta.data || [])];
+    
+          if (totalPages > 1) {
+            for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+              animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+              const responsePage = await get(`${urlApi}&page=${currentPage}`);
+              allData.push(...(responsePage.data || []));
             }
+          }
+    
+          return allData;
         } catch (error) {
-            console.error('Erro ao buscar dados:', error);
-            throw error;
+          console.error('Erro ao buscar dados da api:', error);
+          throw error;
         } finally {
-            fecharAnimacaoCarregamento();
+          fecharAnimacaoCarregamento();
         }
-    };
+      };
+    
 
-    const { data: dadosFuncionarios = [], error: errorFuncionario, isLoading: isLoadingFuncionario } = useQuery(
-        ['funcionarios-loja', empresaSelecionada?.value],
-        () => fetchListaFuncionarios(),
+    const { data: dadosFuncionarios = [], error: errorFuncionario, isLoading: isLoadingFuncionario, refetch } = useQuery(
+        ['funcionarios-loja'],
+        fetchListaFuncionarios,
         {
-         enabled: Boolean(empresaSelecionada?.value), staleTime: Infinity, cacheTime: Infinity,
+          enabled: true,
+          staleTime: 60 * 60 * 1000,
         }
-    );
+      );
 
     const selecioneModulos = (moduloURL) => {
         const modulos = optionsModulos[0]?.modulos || [];
@@ -264,7 +261,7 @@ export const Permissoes = ({}) => {
 
                                     <Select
                                         options={dadosFuncionarios?.map((item) => ({
-                                            value: item.IDFUNCIONARIO,
+                                            value: item.ID,
                                             label: `${item.NOLOGIN} - ${item.NOFUNCIONARIO} `
                                         }))}
                                         value={funcionarioSelecionado}
@@ -280,7 +277,7 @@ export const Permissoes = ({}) => {
 
                                     <Select
                                         options={dadosFuncionarios?.map((item) => ({
-                                            value: item.IDFUNCIONARIO,
+                                            value: item.ID,
                                             label: `${item.NOLOGIN} - ${item.NOFUNCIONARIO} `
                                         }))}
                                         value={funcionarioSelecionado}

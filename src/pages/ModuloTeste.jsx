@@ -48,13 +48,14 @@ export const ModuloTeste = () => {
   const { data: optionsModulosPage = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
     'menus-usuario',
     async () => {
-      const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}`);
+      const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.idFuncionario}`);
       
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
   
+ 
   useEffect(() => {
     const storedModule = JSON.parse(localStorage.getItem('moduloselecionado'));
     if (storedModule) {
