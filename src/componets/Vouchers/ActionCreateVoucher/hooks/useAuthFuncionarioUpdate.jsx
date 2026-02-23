@@ -1,32 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { post } from '../../../../api/funcRequest';
-import axios from 'axios';
 
-
-
-export const useAuthFuncionarioUpdate = ({usuarioLogado}) => {
+export const useAuthFuncionarioUpdate = ({ usuarioLogado }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
-  const [ipUsuario, setIpUsuario] = useState('');
-
-  const getIPUsuario = async () => {
-    try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
-
-    if (!usuarioIP) {
-      const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-      usuarioIP = ipifyData?.ip;
-    }
-
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
-    } catch (error) {
-    console.error("Erro ao buscar IP:", error);
-    return null;
-    }
-  };
 
   const openSwal = async (callback, row) => {
     const { value: formValues } = await Swal.fire({
@@ -58,28 +36,28 @@ export const useAuthFuncionarioUpdate = ({usuarioLogado}) => {
       preConfirm: async () => {
         const usuario = document.getElementById('matricula').value;
         const senha = document.getElementById('senha').value;
-    
-        const data = { 
-          MATRICULA: usuario, 
-          SENHA: senha, 
+
+        const data = {
+          MATRICULA: usuario,
+          SENHA: senha,
           IDEMPRESALOGADA: usuarioLogado.IDEMPRESA,
-          IDGRUPOEMPRESARIAL: usuarioLogado.IDGRUPOEMPRESARIAL, 
+          IDGRUPOEMPRESARIAL: usuarioLogado.IDGRUPOEMPRESARIAL,
           IDVOUCHER: row.IDVOUCHER,
-        }; 
+        };
 
         try {
           const response = await post('/auth-funcionario-update-voucher', data);
-        
-          
+
+
           if (response.data) {
             return response.data;
           } else {
             Swal.showValidationMessage(`Credenciais inválidas`);
           }
-          
+
         } catch (error) {
           let errorMessage = 'Erro desconhecido';
-                              
+
           if (typeof error.response.data.error === 'string') {
             errorMessage = error.response.data.error;
           } else if (error.response.data.error?.error) {
@@ -87,12 +65,12 @@ export const useAuthFuncionarioUpdate = ({usuarioLogado}) => {
           } else if (typeof error.response.data.error === 'object') {
             errorMessage = JSON.stringify(error.response.data.error);
           }
-          
+
           Swal.showValidationMessage(`Erro ao autenticar: ${errorMessage}`);
         }
       }
     });
-  
+
     if (formValues) {
       setIsLoggedIn(true);
       setUsuarioAutorizado(formValues);

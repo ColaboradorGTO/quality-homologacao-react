@@ -6,7 +6,7 @@ import { MdOutlineLocalPrintshop } from 'react-icons/md';
 import { CiEdit } from 'react-icons/ci';
 import { ButtonTable } from '../../ButtonsTabela/ButtonTable';
 import { GrFormView } from 'react-icons/gr';
-import { get, post } from '../../../api/funcRequest';
+import { get } from '../../../api/funcRequest';
 import HeaderTable from '../../Tables/headerTable';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -17,11 +17,11 @@ import { ActionEditarStatusVoucherModal } from './ActionEditarVoucher/actionEdit
 import { ActionImprimirVoucherModal } from './ActionImprimir/actionImprimirVoucherModal';
 import Swal from 'sweetalert2';
 import { useAuthFuncionarioUpdate } from './hooks/useAuthFuncionarioUpdate';
+import { useAuthFuncionarioPrint } from './hooks/useAuthFuncionarioPrint';
 
-
-export const ActionListaVoucherEmitido = ({ 
-  dadosVoucher, 
-  usuarioLogado, 
+export const ActionListaVoucherEmitido = ({
+  dadosVoucher,
+  usuarioLogado,
   optionsModulos,
   refetchListaVouchers,
 }) => {
@@ -35,28 +35,31 @@ export const ActionListaVoucherEmitido = ({
   const [modalDetalhe, setModalDetalhe] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [usuarioAutorizado, setUsuarioAutorizado] = useState([])
   const dataTableRef = useRef();
+
   const {
     openSwal
-  } = useAuthFuncionarioUpdate({usuarioLogado, optionsModulos});
-  
+  } = useAuthFuncionarioUpdate({ usuarioLogado, optionsModulos });
+
+  const {
+    openSwalImprimir
+  } = useAuthFuncionarioPrint({ usuarioLogado, optionsModulos });
+
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
-  
+
   const handlePrint = useReactToPrint({
     content: () => dataTableRef.current,
     documentTitle: 'Vouchers Emitidos',
   });
-  
+
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
-    const header = ['Nº', 'Nº Voucher', 'Loja Emissor',  'Caixa Emissor', 'Aut. Criação', 'Data Emissão', 'Valor', 'Loja Recebido', 'Caixa Recebido', 'Aut. Consumo', 'Data Recebido' , 'Situação']
+    const header = ['Nº', 'Nº Voucher', 'Loja Emissor', 'Caixa Emissor', 'Aut. Criação', 'Data Emissão', 'Valor', 'Loja Recebido', 'Caixa Recebido', 'Aut. Consumo', 'Data Recebido', 'Situação']
     worksheet['!cols'] = [
-      { wpx: 50,  caption: 'Nº' },
+      { wpx: 50, caption: 'Nº' },
       { wpx: 150, caption: 'Nº Voucher' },
       { wpx: 250, caption: 'Loja Emissor' },
       { wpx: 250, caption: 'Caixa Emissor' },
@@ -75,11 +78,11 @@ export const ActionListaVoucherEmitido = ({
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Vouchers Emitidos');
     XLSX.writeFile(workbook, 'vouchers_emitidos.xlsx');
   };
-  
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['Nº', 'Nº Voucher', 'Loja Emissor',  'Caixa Emissor', 'Aut. Criação', 'Data Emissão', 'Valor', 'Loja Recebido', 'Caixa Recebido', 'Aut. Consumo', 'Data Recebido' , 'Situação']],
+      head: [['Nº', 'Nº Voucher', 'Loja Emissor', 'Caixa Emissor', 'Aut. Criação', 'Data Emissão', 'Valor', 'Loja Recebido', 'Caixa Recebido', 'Aut. Consumo', 'Data Recebido', 'Situação']],
       body: dados.map(item => [item.contador, item.NUVOUCHER, item.EMPORIGEM, item.DSCAIXAORIGEM, item.NOFUNCIONARIOLIBERACAOCRIACAO, item.DTINVOUCHER, item.VRVOUCHER, item.EMPDESTINO, item.DSCAIXADESTINO, item.NOFUNCIONARIOLIBERACAOCONSUMO, item.DTOUTVOUCHER, item.STSTATUS]),
       horizontalPageBreak: true,
       horizontalPageBreakBehaviour: 'immediately'
@@ -90,18 +93,20 @@ export const ActionListaVoucherEmitido = ({
 
   const dados = dadosVoucher.map((item, index) => {
     let contador = index + 1;
-
+    let nomeUsrAutorizacao = item.voucher.IDUSRLIBERACAOCRIACAO ? item.voucher.NOFUNCIONARIOLIBERACAOCRIACAO : '';
+    let nomeUsrAutorizaConsumo = item.voucher.IDUSRLIBERACAOCONSUMO ? item.voucher.NOFUNCIONARIOLIBERACAOCONSUMO : '';
     return {
       IDVOUCHER: item.voucher.IDVOUCHER,
       IDEMPRESAORIGEM: item.voucher.IDEMPRESAORIGEM,
-      DTINVOUCHER: item.voucher.DTINVOUCHER,
-      DTOUTVOUCHER: item.voucher.DTOUTVOUCHER,
-      DSCAIXAORIGEM: item.voucher.DSCAIXAORIGEM,
+      DTINVOUCHER: item.voucher.DTINVOUCHERFORMATADO,
+      DTOUTVOUCHER: item.voucher.DTOUTVOUCHERFORMATADO,
+      IDCAIXAORIGEM: item.voucher.IDCAIXAORIGEM,
+      DSCAIXAORIGEM: item.IDCAIXAORIGEM !== 99999 ? item.voucher.DSCAIXAORIGEM : 'CAIXA WEB',
       IDUSRLIBERACAOCRIACAO: item.voucher.IDUSRLIBERACAOCRIACAO,
-      NOFUNCIONARIOLIBERACAOCRIACAO: item.voucher.NOFUNCIONARIOLIBERACAOCRIACAO,
+      NOFUNCIONARIOLIBERACAOCRIACAO: nomeUsrAutorizacao,
       DSCAIXADESTINO: item.voucher.DSCAIXADESTINO,
       IDUSRLIBERACAOCONSUMO: item.voucher.IDUSRLIBERACAOCONSUMO,
-      NOFUNCIONARIOLIBERACAOCONSUMO: item.voucher.NOFUNCIONARIOLIBERACAOCONSUMO,
+      NOFUNCIONARIOLIBERACAOCONSUMO: nomeUsrAutorizaConsumo,
       NUVOUCHER: item.voucher.NUVOUCHER,
       VRVOUCHER: item.voucher.VRVOUCHER,
       STATIVO: item.voucher.STATIVO,
@@ -109,10 +114,10 @@ export const ActionListaVoucherEmitido = ({
       STSTATUS: item.voucher.STSTATUS,
       EMPORIGEM: item.voucher.EMPORIGEM,
       EMPDESTINO: item.voucher.EMPDESTINO,
-      
+
 
       DSMOTIVOCANCELAMENTO: item.voucher.DSMOTIVOCANCELAMENTO,
-      MOTIVOTROCA: item.voucher.MOTIVOTROCA, 
+      MOTIVOTROCA: item.voucher.MOTIVOTROCA,
       IDRESUMOVENDAWEBDESTINO: item.voucher.IDRESUMOVENDAWEBDESTINO,
       IDRESUMOVENDAWEB: item.voucher.IDRESUMOVENDAWEB,
       NUCPFCNPJ: item.voucher.NUCPFCNPJ,
@@ -124,68 +129,68 @@ export const ActionListaVoucherEmitido = ({
     {
       field: 'contador',
       header: 'Nº',
-      body: row => <th style={{color: 'blue'}}>{row.contador}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.contador}</th>,
       sortable: true,
     },
     {
       field: 'NUVOUCHER',
       header: 'Nº Voucher',
       // body: row => <th style={{color: 'blue'}}>{ocultaParteDosDadosVoucher(row.NUVOUCHER)}</th>,
-      body: row => <th style={{color: 'blue'}}>{row.NUVOUCHER}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.NUVOUCHER}</th>,
       sortable: true,
     },
     {
       field: 'EMPORIGEM',
       header: 'Loja Emissor',
-      body: row => <p style={{color: 'blue', margin: 0, fontWeight: 600, width: '200px'}}>{row.EMPORIGEM}</p>,
+      body: row => <p style={{ color: 'blue', margin: 0, fontWeight: 600, width: '200px' }}>{row.EMPORIGEM}</p>,
       sortable: true,
     },
     {
       field: 'DSCAIXAORIGEM',
       header: 'Caixa Emissor',
-      body: row => <p style={{color: 'blue', margin: 0, fontWeight: 600, width: '100px'}}>{row.DSCAIXAORIGEM ? 'CAIXA WEB' : 'CAIXA WEB'}</p>,
+      body: row => <p style={{ color: 'blue', margin: 0, fontWeight: 600, width: '100px' }}>{row.DSCAIXAORIGEM ? 'CAIXA WEB' : 'CAIXA WEB'}</p>,
       sortable: true,
     },
     {
       field: 'NOFUNCIONARIOLIBERACAOCRIACAO',
       header: 'Aut. Criação',
-      body: row => <p style={{color: 'blue', margin: 0, fontWeight: 600, width: '250px'}}>{row.NOFUNCIONARIOLIBERACAOCRIACAO}</p>,
+      body: row => <p style={{ color: 'blue', margin: 0, fontWeight: 600, width: '250px' }}>{row.NOFUNCIONARIOLIBERACAOCRIACAO}</p>,
       sortable: true,
     },
     {
       field: 'DTINVOUCHER',
       header: 'Data Emissão',
-      body: row => <p style={{color: 'blue', margin: 0, fontWeight: 600, width: '200px'}}>{row.DTINVOUCHER}</p>,
+      body: row => <p style={{ color: 'blue', margin: 0, fontWeight: 600, width: '200px' }}>{row.DTINVOUCHER}</p>,
       sortable: true,
     },
     {
       field: 'VRVOUCHER',
       header: 'Valor',
-      body: row => <th style={{color: 'green'}}>{formatMoeda(row.VRVOUCHER)}</th>,
+      body: row => <th style={{ color: 'green' }}>{formatMoeda(row.VRVOUCHER)}</th>,
       sortable: true,
     },
     {
       field: 'EMPDESTINO',
       header: 'Loja Recebido',
-      body: row => <p style={{color: 'blue', margin: 0, fontWeight: 600, width: '200px'}}>{row.EMPDESTINO}</p>,
+      body: row => <p style={{ color: 'blue', margin: 0, fontWeight: 600, width: '200px' }}>{row.EMPDESTINO}</p>,
       sortable: true,
     },
     {
       field: 'DSCAIXADESTINO',
       header: 'Caixa Recebido',
-      body: row => <th style={{color: 'blue'}}>{row.DSCAIXADESTINO}</th>,
+      body: row => <th style={{ color: 'blue' }}>{row.DSCAIXADESTINO}</th>,
       sortable: true,
     },
     {
       field: 'NOFUNCIONARIOLIBERACAOCONSUMO',
       header: 'Aut. Consumo',
-      body: row => <p style={{color: 'blue', margin: 0, fontWeight: 600, width: '300px'}}>{row.NOFUNCIONARIOLIBERACAOCONSUMO}</p>,
+      body: row => <p style={{ color: 'blue', margin: 0, fontWeight: 600, width: '300px' }}>{row.NOFUNCIONARIOLIBERACAOCONSUMO}</p>,
       sortable: true,
     },
     {
       field: 'DTOUTVOUCHER',
       header: 'Data Recebido',
-      body: row => <p style={{color: 'blue', margin: 0, fontWeight: 600, width: '200px'}}>{row.DTOUTVOUCHER}</p>,
+      body: row => <p style={{ color: 'blue', margin: 0, fontWeight: 600, width: '200px' }}>{row.DTOUTVOUCHER}</p>,
       sortable: true,
     },
     {
@@ -195,22 +200,22 @@ export const ActionListaVoucherEmitido = ({
 
         if (row.STATIVO == 'True' && !row.STSTATUS) {
 
-          return <th style={{color: 'blue'}}>NOVO</th>;
+          return <th style={{ color: 'blue' }}>NOVO</th>;
         } else if (row.STATIVO == 'False' && !row.STSTATUS) {
 
-          return <th style={{color: 'red'}}>FINALIZADO</th>;
+          return <th style={{ color: 'red' }}>FINALIZADO</th>;
         } else if (row.STATIVO == 'True' && (row.STSTATUS == 'LIBERADO PARA O CLIENTE' || row.STSTATUS == 'NOVO')) {
-          return <th style={{color: 'green'}}>{row.STSTATUS}</th>;
+          return <th style={{ color: 'green' }}>{row.STSTATUS}</th>;
         } else if (row.STATIVO == 'False' && (row.STSTATUS == 'NEGADO' || row.STSTATUS == 'CANCELADO' || row.STSTATUS == 'FINALIZADO')) {
-          return <th style={{color: 'red'}}>{row.STSTATUS}</th>;
+          return <th style={{ color: 'red' }}>{row.STSTATUS}</th>;
         } else if (row.STATIVO == 'False' && row.STSTATUS == 'EM ANALISE') {
-          return <th style={{color: 'blue'}}>{row.STSTATUS}</th>;
+          return <th style={{ color: 'blue' }}>{row.STSTATUS}</th>;
         } else if (row.STATIVO == 'False' && row.STCANCELADO == 'True' && !row.STSTATUS) {
-          return <th style={{color: 'red'}}>{row.STSTATUS}</th>;
+          return <th style={{ color: 'red' }}>{row.STSTATUS}</th>;
         } else {
-          return <th style={{color: 'red'}}>USADO</th>;
+          return <th style={{ color: 'red' }}>USADO</th>;
         }
-      }, 
+      },
       sortable: true,
     },
     {
@@ -264,71 +269,10 @@ export const ActionListaVoucherEmitido = ({
 
   ]
 
-
-
-  
-  const openSwalImprimir = async (callback, row) => {
-    const { value: formValues } = await Swal.fire({
-      title: 'Autorização',
-      html: `
-        <div>
-          <label class="form-label" for="matricula">Matrícula</label>
-          <input type="text" id="matricula" class="swal2-input" placeholder="Matrícula" style="text-align: center;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
-          <label class="form-label" for="senha">Senha</label>
-          <input type="password" id="senha" class="swal2-input" placeholder="Senha">
-        </div>      
-      `,
-      width: '25rem',
-      focusConfirm: false,
-      showCancelButton: true,
-      confirmButtonText: 'Entrar',
-      cancelButtonText: 'Cancelar',
-      didOpen: () => {
-        const swalContainer = Swal.getPopup();
-        swalContainer.addEventListener('keydown', (e) => {
-          if (e.key === 'Enter') {
-            Swal.clickConfirm();
-          }
-        });
-      },
-      preConfirm: async () => {
-        const usuario = document.getElementById('matricula').value;
-        const senha = document.getElementById('senha').value;
-        
-        const data = { 
-          MATRICULA: usuario, 
-          SENHA: senha, 
-          IDEMPRESALOGADA: usuarioLogado.IDEMPRESA,
-          IDGRUPOEMPRESARIAL: usuarioLogado.IDGRUPOEMPRESARIAL, 
-          IDVOUCHER: row.IDVOUCHER,
-        }; 
-
-        try {
-          const response = await post('/auth-funcionario-print-voucher', data);
-        
-          if (response.data) {
-            return response.data;
-          } else {
-            Swal.showValidationMessage(`Credenciais inválidas`);
-          }
-        } catch (error) {
-          Swal.showValidationMessage(`Erro ao autenticar: ${error.message}`);
-        }
-      }
-    });
-  
-    if (formValues) {
-      setIsLoggedIn(true);
-      setUsuarioAutorizado(formValues);
-      callback()
-    }
-  };
-
   const handleClickDetalhar = async (row) => {
     if (row.IDVOUCHER) {
-     handleDetalhar(row.IDVOUCHER);
+      handleDetalhar(row.IDVOUCHER);
     }
-
   }
 
   const handleDetalhar = async (IDVOUCHER) => {
@@ -346,7 +290,7 @@ export const ActionListaVoucherEmitido = ({
   const handleEdit = async (IDVOUCHER) => {
     try {
       const response = await get(`/detalheVoucherDados?idVoucher=${IDVOUCHER}`);
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosEditarVoucher(response.data);
         setModalEditarVoucher(true);
       }
@@ -356,10 +300,10 @@ export const ActionListaVoucherEmitido = ({
   };
 
   const handleClickEditar = async (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True'){
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row.IDVOUCHER) {
-       
-        openSwal(() =>  handleEdit(row.IDVOUCHER), row)
+
+        openSwal(() => handleEdit(row.IDVOUCHER), row)
       }
     } else {
       Swal.fire({
@@ -368,7 +312,7 @@ export const ActionListaVoucherEmitido = ({
         text: 'Você não tem permissão para editar o voucher.',
         timer: 3000,
       });
-    }  
+    }
   }
 
   const handleImprimir = async (IDVOUCHER) => {
@@ -384,7 +328,7 @@ export const ActionListaVoucherEmitido = ({
   };
 
   const handleClickImprimir = async (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True'){
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row.IDVOUCHER) {
         openSwalImprimir(() => handleImprimir(row.IDVOUCHER), row)
       }
@@ -395,11 +339,8 @@ export const ActionListaVoucherEmitido = ({
         text: 'Você não tem permissão para editar o voucher.',
         timer: 3000,
       });
-    }  
+    }
   }
-
-
-
 
   return (
     <Fragment>
@@ -422,7 +363,7 @@ export const ActionListaVoucherEmitido = ({
             title="Vouchers"
             size="small"
             value={dados}
-            globalFilter={globalFilterValue} 
+            globalFilter={globalFilterValue}
             selectionMode="single"
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
@@ -452,7 +393,7 @@ export const ActionListaVoucherEmitido = ({
 
               />
             ))}
-    
+
           </DataTable>
         </div>
       </div>
@@ -474,12 +415,11 @@ export const ActionListaVoucherEmitido = ({
         refetchListaVouchers={refetchListaVouchers}
       />
 
-     <ActionImprimirVoucherModal 
+      <ActionImprimirVoucherModal
         show={modalImprimirVoucher}
         handleClose={() => setModalImprimirVoucher(false)}
         dadosImprimirVoucher={dadosImprimirVoucher}
-     />
+      />
     </Fragment>
   )
 }
-

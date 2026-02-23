@@ -8,7 +8,6 @@ import { removerMascaraCPF } from "../../../../../../utils/formatCPF";
 import { validarCNPJ } from "../../../../../../utils/mascaraCNPJ";
 import axios from "axios";
 import { validarInscricaoEstadual } from "../../../../../../utils/validador-inscricao-estadual";
-// import {getDadosEnderecoViaCep_API_externa, validaCEP, getDadosEnderecoViaCep_API_redundancia} from "./validationCNPJService"
 
 async function getDadosEnderecoViaCep_API_externa(cep) {
     const URL_VIA_CEP = 'https://viacep.com.br/ws/{CEP}/json/';
@@ -36,15 +35,15 @@ async function getDadosEnderecoViaCep_API_externa(cep) {
 
 async function validaCEP(cep, verificarNaApi = false) {
     const regex = /^[0-9]{5}-?[0-9]{3}$/;
-    
-    if (!regex.test(cep)){
+
+    if (!regex.test(cep)) {
         return false;
     }
 
-    if(verificarNaApi){
+    if (verificarNaApi) {
         let respCep = await getDadosEnderecoViaCep_API_externa(cep);
 
-        return !(respCep?.erro == 'true'); 
+        return !(respCep?.erro == 'true');
     }
 
     return true;
@@ -118,23 +117,27 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
 
     }, [usuarioLogado]);
 
- 
+
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
-
-            if (!usuarioIP) {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
+            usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
+
+        if (!usuarioIP) {
+            try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+            } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
 
@@ -156,7 +159,7 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
     }
 
     async function getDadosCNPJComIE_API_externa(cnpj) {
-        //console.log('🔥 CHAMADA API PUBLICA.WS - getDadosCNPJComIE_API_externa:', cnpj);
+        console.log('🔥 CHAMADA API PUBLICA.WS - getDadosCNPJComIE_API_externa:', cnpj);
         try {
             const response = await axios.get(URL_PUBLICAWS.replace('{CNPJ}', cnpj));
             let status = response.data?.status || 200;
@@ -172,22 +175,22 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
     }
 
     async function getDadosExistenciaCNPJ_API_externa(cnpj) {
-        //('🔥 CHAMADA API RECEITA FEDERAL - getDadosExistenciaCNPJ_API_externa:', cnpj);
+        console.log('🔥 CHAMADA API RECEITA FEDERAL - getDadosExistenciaCNPJ_API_externa:', cnpj);
         try {
             const response = await axios.get(URL_MINHA_RECEITA.replace('{CNPJ}', cnpj));
             response.data = "API-minhareceita";
-         
+
             return { status: 200, data: response.data };
-            
+
         } catch (error) {
             let status = error?.response?.data?.status || error?.status || 400;
             let message = error?.response?.data?.message;
             if (!message && error?.response?.data?.responseText) {
                 try {
                     message = JSON.parse(error.response.data.responseText)?.message;
-            } catch {}
+                } catch { }
             }
-          
+
             if (status !== 200 && status !== 400) {
                 return await getDadosCNPJRedundancia_API_externa(cnpj);
             }
@@ -199,28 +202,28 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
         cnpj = cnpj.replace(/\D/g, "");
         let objCliente = await getDadosExistenciaCNPJ_API_externa(cnpj);
 
-        if(objCliente.status == 200) {
-            const dadosComIE = await getDadosCNPJComIE_API_externa(cnpj); 
+        if (objCliente.status == 200) {
+            const dadosComIE = await getDadosCNPJComIE_API_externa(cnpj);
 
-            if(dadosComIE.status == 200) {
+            if (dadosComIE.status == 200) {
                 objCliente = dadosComIE;
             }
-            
+
             const dados = objCliente.data;
 
             const dadosMapeados = {
                 razao: dados.razao_social || '',
                 fantasia: dados?.estabelecimento?.nome_fantasia || dados?.fantasia || dados?.nome_fantasia || dados?.razao_social || '',
                 inscricaoEstadual: dados?.estabelecimento?.inscricoes_estaduais[0]?.inscricao_estadual || '',
-                cnae: dados.estabelecimento?.atividade_principal?.id  || dados?.cnae_fiscal || '',
-                dataCriacaoEmpresa: dados?.estabelecimento?.data_inicio_atividade || dados?.data_situacao ||  dados?.data_inicio_atividade || '',
-              
-                tel1: (dados?.estabelecimento?.ddd1 + dados?.estabelecimento?.telefone1) || dados?.telefone ||  (dados?.ddd_telefone || dados?.ddd_telefone_1.replace(/\D/g, "")) || '',
+                cnae: dados.estabelecimento?.atividade_principal?.id || dados?.cnae_fiscal || '',
+                dataCriacaoEmpresa: dados?.estabelecimento?.data_inicio_atividade || dados?.data_situacao || dados?.data_inicio_atividade || '',
+
+                tel1: (dados?.estabelecimento?.ddd1 + dados?.estabelecimento?.telefone1) || dados?.telefone || (dados?.ddd_telefone || dados?.ddd_telefone_1.replace(/\D/g, "")) || '',
                 tel2: (dados?.estabelecimento?.ddd2 + dados?.estabelecimento?.telefone2) || dados?.ddd_telefone_2 || '',
                 email: dados?.estabelecimento?.email || dados?.email || '',
                 cep: dados?.estabelecimento?.cep || dados?.cep || '',
                 endereco: dados?.estabelecimento?.logradouro || dados?.logradouro || '',
-                numeroEndereco: dados?.estabelecimento?.numero  || dados?.numero || '',
+                numeroEndereco: dados?.estabelecimento?.numero || dados?.numero || '',
                 complemento: dados?.estabelecimento?.complemento || dados?.complemento || '',
 
                 bairro: dados?.estabelecimento?.bairro || dados?.bairro || '',
@@ -249,7 +252,7 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
         async () => {
             const response = await get(`/clientes?cpfoucnpj=${removerMascaraCPF(cnpj)}`);
             setClienteExistente(response.data);
-          
+
             return response.data;
         },
         { enabled: cnpj?.length >= 14, staleTime: 5 * 60 * 1000 }
@@ -258,21 +261,23 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
     // Removido useEffect desnecessário que causava refetch múltiplo
 
     useEffect(() => {
-       // console.log('DEBUG useEffect - CNPJ:', cnpj, 'Length:', cnpj?.length, 'optionsCNPJ:', optionsCNPJ?.length);
-        
+        console.log('DEBUG useEffect - CNPJ:', cnpj, 'Length:', cnpj?.length, 'optionsCNPJ:', optionsCNPJ?.length);
+
+        // Só chama APIs externas se o cliente NÃO existir no banco
         if (cnpj?.length >= 14 && optionsCNPJ && optionsCNPJ.length === 0) {
-            //console.log('✅ Chamando API da Receita - Cliente NÃO encontrado no banco');
+            console.log('✅ Chamando API da Receita - Cliente NÃO encontrado no banco');
             preenche_dados_registrados([], cnpj);
         } else if (cnpj?.length >= 14 && optionsCNPJ && optionsCNPJ.length > 0) {
-            //console.log('❌ NÃO chamando API da Receita - Cliente JÁ existe no banco:', optionsCNPJ[0]);
+            console.log('❌ NÃO chamando API da Receita - Cliente JÁ existe no banco:', optionsCNPJ[0]);
+            // Cliente existe no banco - não chama APIs externas
         }
 
     }, [optionsCNPJ, cnpj]);
 
     async function preenche_cadastro_empresa_com_dados_de_API_externa(cnpj, stUltimaInstancia = false) {
         const dadosAPI = await busca_e_valida_dados_empresa_com_API_externa(cnpj, stUltimaInstancia);
- 
-        if(!dadosAPI) {
+
+        if (!dadosAPI) {
             return false;
         }
 
@@ -295,13 +300,13 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
             codigoIbge
         } = dadosAPI;
 
-        if(razao) {
+        if (razao) {
             setCNAE(cnae || '');
             setTelefoneCliente(tel1 || '');
             setTelefoneComercial(tel2 || '');
             setCep(cep || '');
             setIE(inscricaoEstadual || '');
-            setDataCriacao(dataCriacaoEmpresa || ''); 
+            setDataCriacao(dataCriacaoEmpresa || '');
             setNomeClienteRazao(razao || '');
             setSobrenome(fantasia || '');
             setEndereco(endereco || '');
@@ -314,18 +319,20 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
             setNuIBGE(codigoIbge || '');
 
 
-            if(cep) {
+            if (cep) {
                 await valida_e_preenche_cep_empresa_com_API_externa(cep, stUltimaInstancia);
             }
             return true;
         }
-        
+
         return false;
     }
 
     async function preenche_dados_registrados(response, cnpj, stUltimaInstancia = false) {
         let cnpjEmpresaVoucher = cnpj.replace(/\D/g, "");
-        if(validarCNPJ(cnpj)) {
+
+        // Só executa se for CNPJ válido E se o cliente não existir no banco
+        if (validarCNPJ(cnpj) && optionsCNPJ.length === 0) {
             await Swal.fire({
                 title: 'Deseja Autocompletar ou Atualizar as Informações deste Cliente Automaticamente de Acordo Com o Cadastro na Receita Federal?',
                 showCancelButton: true,
@@ -336,11 +343,10 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
                 customClass: { container: 'custom-swal' }
             }).then(async (result) => {
                 if (result.isConfirmed) {
-                    // animationLoadingStart("Carregando os dados do CNPJ... Por favor aguarde!");
-    
-    
+                    console.log('🔄 Buscando dados na Receita Federal para CNPJ:', cnpjEmpresaVoucher);
+
                     let status = await preenche_cadastro_empresa_com_dados_de_API_externa(cnpjEmpresaVoucher);
-    
+
                     if (status) {
                         await Swal.fire({
                             title: 'Sucesso!',
@@ -352,12 +358,11 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
                         });
                     }
                 }
-                
             });
-
+        } else if (optionsCNPJ.length > 0) {
+            console.log('❌ Cliente já existe no banco - não consultando Receita Federal');
+            return; // Não executa busca na API se cliente já existe
         }
-
-        await preenche_cadastro_empresa_com_dados_de_API_externa(cnpjEmpresaVoucher, stUltimaInstancia);
     }
 
     async function valida_e_preenche_cep_empresa_com_API_externa(cepSemFormato, stUltimaInstancia = false) {
@@ -365,11 +370,11 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
 
         try {
 
-            if(cep) {
+            if (cep) {
 
-                if(await validaCEP(cep)) {
+                if (await validaCEP(cep)) {
                     let dadosCep = await getDadosEnderecoViaCep_API_externa(cep).then(async (response) => {
-                        if(response.status !== 200) {
+                        if (response.status !== 200) {
                             return await getDadosEnderecoViaCep_API_redundancia(cep).then(response => response.data)
                         }
                         return response.data;
@@ -402,30 +407,37 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
         }
     }
 
-  
-    useEffect(() => {
-  
-        if (optionsCNPJ.length > 0) {
-            setIdCliente(optionsCNPJ[0]?.IDCLIENTE);
-            setEmpresa(optionsCNPJ[0]?.IDEMPRESA);
-            setDataCadastro(optionsCNPJ[0]?.DTCADASTRO);
-            setCnpj(optionsCNPJ[0]?.NUCPFCNPJ);
-            setNomeClienteRazao(optionsCNPJ[0]?.DSNOMERAZAOSOCIAL);
-            setSobrenome(optionsCNPJ[0]?.DSAPELIDONOMEFANTASIA);
-            setDataCriacao(optionsCNPJ[0]?.DTNASCFUNDACAO);
-            setTelefoneCliente(optionsCNPJ[0]?.NUTELCELULAR);
-            setEmail(optionsCNPJ[0]?.EEMAIL);
-            setCep(optionsCNPJ[0]?.NUCEP);
-            setEndereco(optionsCNPJ[0]?.EENDERECO);
-            setNumero(optionsCNPJ[0]?.NUENDERECO);
-            setComplemento(optionsCNPJ[0]?.ECOMPLEMENTO);
-            setBairro(optionsCNPJ[0]?.EBAIRRO);
-            setNuIBGE(optionsCNPJ[0]?.NUIBGE);
-            setCidade(optionsCNPJ[0]?.ECIDADE);
-            setEstado(optionsCNPJ[0]?.SGUF);
-        }
 
-    }, [optionsCNPJ])
+    useEffect(() => {
+        if (optionsCNPJ.length > 0) {
+            const cliente = optionsCNPJ[0];
+
+            console.log('📝 Preenchendo dados do cliente existente no banco:', cliente);
+
+            // Preenche com dados do banco - sem chamar APIs externas
+            setIdCliente(cliente?.IDCLIENTE);
+            setEmpresa(cliente?.IDEMPRESA);
+            setDataCadastro(cliente?.DTCADASTRO);
+            setCnpj(cliente?.NUCPFCNPJ);
+            setNomeClienteRazao(cliente?.DSNOMERAZAOSOCIAL);
+            setSobrenome(cliente?.DSAPELIDONOMEFANTASIA);
+            setDataCriacao(cliente?.DTNASCFUNDACAO);
+            setTelefoneCliente(cliente?.NUTELCELULAR);
+            setEmail(cliente?.EEMAIL);
+            setCep(cliente?.NUCEP);
+            setEndereco(cliente?.EENDERECO);
+            setNumero(cliente?.NUENDERECO);
+            setComplemento(cliente?.ECOMPLEMENTO);
+            setBairro(cliente?.EBAIRRO);
+            setNuIBGE(cliente?.NUIBGE);
+            setCidade(cliente?.ECIDADE);
+            setEstado(cliente?.SGUF);
+            setTipoIndicacaoIE(cliente?.IDINDICACAOIE || 1);
+            setIE(cliente?.NURGINSCESTADUAL || '');
+            setIM(cliente?.NUINSCMUNICIPAL || '');
+            setTelefoneComercial(cliente?.NUTELCOMERCIAL || '');
+        }
+    }, [optionsCNPJ]);
 
 
 
@@ -451,8 +463,8 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
 
 
     const onSubmit = async () => {
-        
-        if(optionsModulos[0]?.CRIAR == 'False') {
+
+        if (optionsModulos[0]?.CRIAR == 'False') {
             Swal.fire({
                 title: 'Erro!',
                 text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para criar um novo Cliente!`,
@@ -462,135 +474,106 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
             });
             return;
         }
-        
-        if(nomeClienteRazao.length < 3) {
-            Swal.fire({
-                title: 'Erro!',
-                text: `O campo Nome/Razão Social deve conter no mínimo 3 caracteres.`,
-                icon: 'error',
-                confirmButtonText: 'Ok',
-                customClass: { container: 'custom-swal' },
-            });
-            return;
-        }
-        if(sobrenome.length < 3) {
-            Swal.fire({
-                title: 'Erro!',
-                text: `O campo Sobrenome/Nome Fantasia deve conter no mínimo 3 caracteres.`,
-                icon: 'error',
-                confirmButtonText: 'Ok',
-                customClass: { container: 'custom-swal' },
-            });
-            return;
-        }
-        
-        if(tipo == 'JURIDICA') {
-            if(!tipoIndicacaoIE) {
-                Swal.fire({
-                    title: 'Atenção!',
-                    text: `Inscrição Estadual Vazia ou Divergente do Tipo de Indicação, favor preencher e tentar novamente! 1`,
-                    icon: 'warning',
-                    confirmButtonText: 'Ok',
-                    customClass: {
-                        container: 'custom-swal',
-                    }
-                })
-                return;
-            }
-    
-            if(tipoIndicacaoIE == 1) {
-                const ieNumeros = IE?.replace(/\D/g, "");
-                
-                if(!ieNumeros) {
-                    Swal.fire({
-                        title: 'Atenção!',
-                        text: `Inscrição Estadual Vazia ou Divergente do Tipo de Indicação, favor preencher e tentar novamente! 2`,
-                        icon: 'warning',
-                        confirmButtonText: 'Ok',
-                        customClass: {
-                            container: 'custom-swal',
-                        }
-                    })
-                    return;
-                }
-
-                if(!validarInscricaoEstadual(ieNumeros, estado)) {
-                    Swal.fire({
-                        title: 'Atenção!',
-                        text: `Inscrição Estadual Incorreta, verifique e tente novamente! 3`,
-                        icon: 'warning',
-                        confirmButtonText: 'Ok',
-                        customClass: {
-                            container: 'custom-swal',
-                        }
-                    })
-                    return;
-                }
-            } else if(tipoIndicacaoIE == 2) {
-                if(IE && IE != 'ISENTO') {
-                    Swal.fire({
-                        title: 'Atenção!',
-                        text: `Inscrição Estadual Divergente do Tipo de Indicação, verifique e tente novamente! 4`,
-                        icon: 'warning',
-                        confirmButtonText: 'Ok',
-                        customClass: {
-                            container: 'custom-swal',
-                        }
-                    })
-                    return;
-                }
-            } else {
-                
-                if(IE) {
-                    const ieNumeros = IE?.replace(/\D/g, "");
-                    if(!ieNumeros) {
-                        if(!validarInscricaoEstadual(ieNumeros, estado)) {
-                            Swal.fire({
-                                title: 'Atenção!',
-                                text: `Inscrição Estadual Incorreta, verifique e tente novamente! 5`,
-                                icon: 'warning',
-                                confirmButtonText: 'Ok',
-                                customClass: {
-                                    container: 'custom-swal',
-                                }
-                            })
-                            return;
-                        }
-
-                    }
-                }
-            }
-        }
 
         try {
 
-            let IEFinal = tipoIndicacaoIE?.value == 2 ? 'ISENTO' : (IE || 'ISENTO');
-            
+            // Validação de IE para pessoa jurídica
+            if (!tipoIndicacaoIE) {
+                Swal.fire({
+                    title: 'Erro!',
+                    text: 'Selecione o tipo da Indicação da Inscrição Estadual e tente novamente!',
+                    icon: 'error',
+                    confirmButtonText: 'Ok',
+                    customClass: { container: 'custom-swal' },
+                });
+                return;
+            }
+
+            let IEFinal = IE?.toUpperCase()?.trim() || '';
+
+            if (tipoIndicacaoIE == 1) {
+                // Contribuinte ICMS - IE obrigatório e deve ser válido
+                IEFinal = IEFinal?.replace(/\D/g, '');
+
+                if (!IEFinal) {
+                    Swal.fire({
+                        title: 'Erro!',
+                        text: 'Inscrição Estadual é obrigatória para Contribuinte ICMS!',
+                        icon: 'error',
+                        confirmButtonText: 'Ok',
+                        customClass: { container: 'custom-swal' },
+                    });
+                    return;
+                }
+
+                if (!await validarInscricaoEstadual(IEFinal, estado)) {
+                    Swal.fire({
+                        title: 'Erro!',
+                        text: 'Inscrição Estadual incorreta, verifique e tente novamente!',
+                        icon: 'error',
+                        confirmButtonText: 'Ok',
+                        customClass: { container: 'custom-swal' },
+                    });
+                    return;
+                }
+            } else if (tipoIndicacaoIE == 2) {
+                // Contribuinte Isento - IE deve ser 'ISENTO' ou vazio
+                if (IEFinal && IEFinal !== 'ISENTO') {
+                    Swal.fire({
+                        title: 'Erro!',
+                        text: 'Inscrição Estadual divergente do tipo de indicação, verifique e tente novamente!',
+                        icon: 'error',
+                        confirmButtonText: 'Ok',
+                        customClass: { container: 'custom-swal' },
+                    });
+                    return;
+                }
+                IEFinal = 'ISENTO';
+            } else {
+                // Não Contribuinte (9) - IE opcional, mas se preenchido deve ser válido
+                IEFinal = IEFinal?.replace(/\D/g, '');
+
+                if (IEFinal) {
+                    if (!await validarInscricaoEstadual(IEFinal, estado)) {
+                        Swal.fire({
+                            title: 'Erro!',
+                            text: 'Inscrição Estadual incorreta, verifique e tente novamente!',
+                            icon: 'error',
+                            confirmButtonText: 'Ok',
+                            customClass: { container: 'custom-swal' },
+                        });
+                        return;
+                    }
+                } else {
+                    IEFinal = 'ISENTO';
+                }
+            }
+
             const isUpdate = clienteExistente.length > 0 && idCliente;
-   
+
             const postData = {
                 ...(isUpdate && { IDCLIENTE: idCliente }),
                 NUCPFCNPJ: cnpj.replace(/\D/g, ""),
                 IDEMPRESA: parseInt(usuarioLogado?.IDEMPRESA),
-                DSNOMERAZAOSOCIAL: `${nomeClienteRazao.toUpperCase()} - ${sobrenome.toUpperCase()}`,
-                DSAPELIDONOMEFANTASIA: sobrenome.toUpperCase(),
-                TPCLIENTE: tipo.toUpperCase(),
+                DSNOMERAZAOSOCIAL: `${nomeClienteRazao} - ${sobrenome}`,
+                DSAPELIDONOMEFANTASIA: sobrenome,
+                TPCLIENTE: tipo,
                 NURGINSCESTADUAL: IEFinal,
                 NUINSCMUNICIPAL: IM,
                 NUCEP: cep.replace(/\D/g, "") || '',
                 NUIBGE: parseInt(nuIBGE) || 0,
-                EENDERECO: endereco.toUpperCase(),
+                EENDERECO: endereco,
                 NUENDERECO: numero || 'SN',
-                ECOMPLEMENTO: complemento.toUpperCase(),
-                EBAIRRO: bairro.toUpperCase() || 'NI',
-                ECIDADE: cidade.toUpperCase(),
-                SGUF: estado.toUpperCase(),
-                EEMAIL: email.toUpperCase() || '',
+                ECOMPLEMENTO: complemento,
+                EBAIRRO: bairro || 'NI',
+                ECIDADE: cidade,
+                SGUF: estado,
+                EEMAIL: email || '',
                 NUTELCOMERCIAL: numeroComercial || telefoneCliente,
                 NUTELCELULAR: telefoneCliente || '',
                 DTNASCFUNDACAO: dataCriacao,
-                IDINDICACAOIE: Number(tipoIndicacaoIE?.value),
-                DSINDICACAOIE: tipoIndicacaoIE?.label.toUpperCase(),
+                IDINDICACAOIE: Number(tipoIndicacaoIE),
+                DSINDICACAOIE: tipoIndicacaoIE == 9 ? 'NÃO CONTRIBUINTE COM OU SEM IE' : tipoIndicacaoIE == 1 ? 'CONTRIBUINTE ICMS' : 'CONTRIBUINTE ISENTO DE IE',
                 IDFUNCIONARIO: parseInt(usuarioLogado?.id)
             }
 
@@ -607,7 +590,7 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
                 IP: ipUsuario
             }
 
-            const responsePost = await post('/log-web', postDataLog)
+            await post('/log-web', postDataLog)
 
 
             Swal.fire({
@@ -622,12 +605,12 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
             })
 
             handleClose();
-            return responsePost.data;
+            return response.data;
         } catch (error) {
             console.error('Erro ao cadastrar cliente:', error);
             const isUpdate = optionsCNPJ.length > 0 && idCliente;
-            let textoFuncao = isUpdate 
-                ? 'GERENCIA/ATUALIZACAO DE CLIENTE' 
+            let textoFuncao = isUpdate
+                ? 'GERENCIA/ATUALIZACAO DE CLIENTE'
                 : 'GERENCIA/CADASTRO DE CLIENTE';
             const createLog = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
@@ -636,7 +619,7 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
                 IP: ipUsuario
             }
             const responseLog = await post('/log-web', createLog)
-            
+
 
             Swal.fire({
                 title: 'Erro',

@@ -12,12 +12,13 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { useFetchData } from "../../../../hooks/useFetchData";
 
 
-export const ActionPesquisaAlterarVendaVendedor = ({ usuarioLogado, ID }) => {
+export const ActionPesquisaAlterarVendaVendedor = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
  
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -26,14 +27,22 @@ export const ActionPesquisaAlterarVendaVendedor = ({ usuarioLogado, ID }) => {
     setDataPesquisaFim(dataFinal);
   }, [])
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
   const { data: dadosEmpresa = [], error: errorEmpresa, isLoading: isLoadingEmpresa } = useFetchData('empresas', '/empresas')

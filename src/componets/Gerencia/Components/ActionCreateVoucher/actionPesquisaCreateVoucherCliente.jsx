@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState } from "react"
-import { useNavigate } from "react-router-dom"
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
 import { ButtonType } from "../../../Buttons/ButtonType";
@@ -8,14 +7,15 @@ import { get } from "../../../../api/funcRequest";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { MdAdd } from "react-icons/md";
 import { useQuery } from "react-query";
+import Swal from "sweetalert2";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ActionListaVendaCLiente } from "./actionListaVendaCliente";
-import { ActionCadastroClienteVoucherCPF } from "./ActionCadastroCliente/ActionCadastroCPF/actionCadastroClienteVoucheCPF";
-import { ActionCadastroClienteVoucherCNPJ } from "./ActionCadastroCliente/ActionCadastroCNPJ/actionCadastroClienteVoucheCNPJ";
-import Swal from "sweetalert2";
-// import { useAuthFuncionarioCreate } from "..";
 import { useCriarVoucher } from "./hooks/useCriarVoucher";
+import { ActionCadastroClienteCNPJ } from "./ActionCadastroCliente/ActionCadastroCNPJ/actionCadastroClienteCNPJ";
+import { ActionCadastroClienteCPF } from "./ActionCadastroCliente/ActionCadastroCPF/actionCadastroClienteCPF";
+import { ActionCadastroClienteVoucherCNPJ } from "./ActionCadastroClienteVoucher/ActionCadastroCNPJVocuher/actionCadastroClienteVoucheCNPJ";
+import { ActionCadastroClienteVoucherCPF } from "./ActionCadastroClienteVoucher/ActionCadastroCPFVoucher/actionCadastroClienteVoucheCPF";
 
 export const ActionPesquisaCreateVoucherCliente = ({
   actionSecundaria,
@@ -26,15 +26,17 @@ export const ActionPesquisaCreateVoucherCliente = ({
   optionsModulos,
   tabelaVisivelVoucher,
   setTabelaVisivelVoucher,
-  refetchListaVouchers
+  tabelaVisivelVoucherSelecionados,
+  setTabelaVisivelVoucherSelecionados
 }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
-  const [tabelaVisivelVoucherSelecionados, setTabelaVisivelVoucherSelecionados] = useState(false);
   const [tabelaVendasClientes, setTabelaVendasClientes] = useState(false);
   const [tabelaVenda, setTabelaVenda] = useState(true);
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
   const [modalCadastroClienteCPF, setModalCadastroClienteCPF] = useState(false);
+  const [modalCadastroClienteCPFVoucher, setModalCadastroClienteCPFVoucher] = useState(false);
   const [modalCadastroClienteCNPJ, setModalCadastroClienteCNPJ] = useState(false);
+  const [modalCadastroClienteCNPJVoucher, setModalCadastroClienteCNPJVoucher] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [cpf, setCPF] = useState('');
@@ -58,14 +60,10 @@ export const ActionPesquisaCreateVoucherCliente = ({
 
   }, []);
 
-  useEffect(() => {
-
-  }, [usuarioLogado]);
-
 
   const fetchListaEmpresasVouchers = async () => {
     try {
-      const urlApi = `/empresasVoucher?idSubGrupoEmpresa=${usuarioLogado.IDGRUPOEMPRESARIAL}&idEmpresa=${usuarioLogado.IDEMPRESA}`;
+      const urlApi = `/empresasVoucher?idSubGrupoEmpresa=${usuarioLogado?.IDGRUPOEMPRESARIAL}&idEmpresa=${usuarioLogado?.IDEMPRESA}`;
       const response = await get(urlApi);
 
       if (response.data.length && response.data.length === pageSize) {
@@ -104,19 +102,13 @@ export const ActionPesquisaCreateVoucherCliente = ({
   };
 
   const { data: dadosEmpresasVoucher = [], refetch: refetchListaEmpresaVouchers } = useQuery(
-    ['empresasVoucher', usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
-    () => fetchListaEmpresasVouchers(usuarioLogado?.IDEMPRESA, usuarioLogado?.IDGRUPOEMPRESARIAL, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
-    {
-      enabled: false,
-    }
+    ['empresasVoucher',],
+    () => fetchListaEmpresasVouchers(),
+    { enabled: Boolean(usuarioLogado?.IDGRUPOEMPRESARIAL), staleTime: 60 * 60 * 1000 }
   );
 
-  useEffect(() => {
-    refetchListaEmpresaVouchers();
-  }, [usuarioLogado, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize]);
-
   const fetchListaVendasClientes = async () => {
-    const urlBase = `/lista-venda-cliente?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpf}&nnf=${numeroNF}&serie=${serie}`;
+    const urlBase = `/lista-venda-cliente?idEmpresa=${empresaSelecionada}&idSubGrupoEmpresarial=${usuarioLogado?.IDGRUPOEMPRESARIAL}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&cpfOUidVenda=${cpf}&nnf=${numeroNF}&serie=${serie}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -161,7 +153,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
     setEmpresaSelecionada(e.value);
   }
 
-
   const handleOpenModalCPF = () => {
     setModalCadastroClienteCPF(true);
     setModalCadastroClienteCNPJ(false);
@@ -171,7 +162,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
     setModalCadastroClienteCNPJ(true);
     setModalCadastroClienteCPF(false);
   };
-
 
   const handleClickModalCPFCNPJ = () => {
     Swal.fire({
@@ -192,33 +182,29 @@ export const ActionPesquisaCreateVoucherCliente = ({
     });
   };
 
-
   const handleClick = () => {
-    // refetchListaVouchers()
     setTabelaVisivel(true);
     setTabelaVendasClientes(false);
     setTabelaVisivelVoucherSelecionados(false);
     setActionPrincipal(true);
-    setActionSecundaria(false);
-
+    setActionSecundaria(false); 
   }
-
 
   const handleClickClientes = () => {
     setTabelaVendasClientes(true);
+    setTabelaVenda(true);
+    setTabelaSecundaria(false);
     setTabelaVisivel(false);
     setTabelaVisivelVoucherSelecionados(false);
-    // setTabelaVisivelVoucher(false)
+    setTabelaVisivelVoucher(false)
     refetchListaVendasClientes()
   }
 
   const {
     optionsCPF,
     onCpf,
-    onAuthFuncionario,
     onSubmitVoucher,
-    cpfCliente,
-    setCpfCliente
+    onAuthFuncionario,
   } = useCriarVoucher({
     usuarioLogado,
     selectedRows,
@@ -227,32 +213,20 @@ export const ActionPesquisaCreateVoucherCliente = ({
     tipoTrocaSelecionada,
     quantidade,
     quantidadesProdutos,
-    modalCadastroClienteCPF,
-    setModalCadastroClienteCPF,
+    modalCadastroClienteCPFVoucher,
+    setModalCadastroClienteCPFVoucher,
+    setModalCadastroClienteCNPJVoucher,
     handleClick
   })
 
   return (
 
     <Fragment>
-
-
- 
-
       <ActionMain
         linkComponentAnterior={["Home"]}
         linkComponent={["Vendas"]}
         title="Vendas "
         subTitle="Relação de Vendas para Troca"
-
-        // buttonHeader={ButtonType}
-        // onClickButtonTypeHeader={handleClick}
-        // textButtonHeader={"Voltar"}
-        // disabledBTNHeader={false}
-        // iconSizeHeader={20}
-        // iconHeader={AiOutlineSearch}
-        // corHeader={"primary"}
-
 
         InputFieldDTInicioComponent={InputField}
         labelInputFieldDTInicio={"Data Venda Início"}
@@ -266,11 +240,14 @@ export const ActionPesquisaCreateVoucherCliente = ({
 
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Empresa"}
-        optionsEmpresas={dadosEmpresasVoucher.map((empresa) => ({
-          value: empresa.IDEMPRESA,
-          label: empresa.NOFANTASIA,
-        }))}
-        valueSelectEmpresa={empresaSelecionada}
+        optionsEmpresas={[
+          {value: '', label: 'Todas as Empresas'},
+          ...dadosEmpresasVoucher.map((empresa) => ({
+            value: empresa.IDEMPRESA,
+            label: empresa.NOFANTASIA,
+          }))
+        ]}
+        valueSelectEmpresa={dadosEmpresasVoucher.find(empresa => empresa.IDEMPRESA == usuarioLogado?.IDEMPRESA) || ''}
         onChangeSelectEmpresa={handleSelectEmpresa}
 
         InputFieldCodBarraComponent={InputField}
@@ -314,7 +291,6 @@ export const ActionPesquisaCreateVoucherCliente = ({
         corVendasEstrutura={"info"}
         iconVendasEstrutura={MdAdd}
         styleVendasEstrutura={btnVisivel ? { display: 'block' } : { display: 'none' }}
-
       />
 
   
@@ -334,45 +310,43 @@ export const ActionPesquisaCreateVoucherCliente = ({
           setQuantidade={setQuantidade}
           quantidadesProdutos={quantidadesProdutos}
           setQuantidadesProdutos={setQuantidadesProdutos}
+          tabelaSecundaria={tabelaSecundaria}
+          setTabelaSecundaria={setTabelaSecundaria}
+          tabelaVenda={tabelaVenda}
+          setTabelaVenda={setTabelaVenda}
         />
       )}
 
-      <ActionCadastroClienteVoucherCPF
+      <ActionCadastroClienteCPF
         show={modalCadastroClienteCPF}
         handleClose={() => setModalCadastroClienteCPF(false)}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
         optionsCPF={optionsCPF}
-        onVoucherSuccess={async () => {
-          // Buscar dados atualizados do cliente após cadastro
-          try {
-            // Tenta pegar o CPF de diferentes fontes
-            const cpfParaBuscar = cpfCliente || 
-                                dadosVisualizarProdutos[0]?.venda?.DEST_CPF || 
-                                dadosVisualizarProdutos[0]?.venda?.DEST_CNPJ ||
-                                optionsCPF[0]?.NUCPFCNPJ;
-            
-            if (cpfParaBuscar) {
-              const response = await get(`/cliente-todos?numeroCpfCnpj=${cpfParaBuscar}`);
-              if (response && response.data && response.data.length > 0) {
-                // Continua o fluxo do voucher com os dados atualizados
-                await onSubmitVoucher(response.data[0]);
-              }
-            } else {
-              console.warn('CPF não encontrado para buscar dados do cliente');
-            }
-          } catch (error) {
-            console.error('Erro ao buscar cliente cadastrado:', error);
-          }
-        }}
-        refetchListaVouchers={refetchListaVouchers}
       />
 
-      <ActionCadastroClienteVoucherCNPJ
+      <ActionCadastroClienteCNPJ
         show={modalCadastroClienteCNPJ}
         handleClose={() => setModalCadastroClienteCNPJ(false)}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+      />
+
+      <ActionCadastroClienteVoucherCNPJ
+        show={modalCadastroClienteCNPJVoucher}
+        handleClose={() => setModalCadastroClienteCNPJVoucher(false)}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        onCpf={onCpf}
+      />
+
+      <ActionCadastroClienteVoucherCPF
+        show={modalCadastroClienteCPFVoucher}
+        handleClose={() => setModalCadastroClienteCPFVoucher(false)}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        optionsCPF={optionsCPF}
+        onCpf={onCpf}
       />
     </Fragment>
   )

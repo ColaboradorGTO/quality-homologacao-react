@@ -46,7 +46,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, empresaSele
     const doc = new jsPDF();
     doc.autoTable({
       head: [['Nº', 'Caixa', 'Nº Venda', 'NFCe', 'Abertura', 'Operador', 'Valor', 'Nota', 'Cancelado Por', 'Motivo']],
-      body: dadosCanceladasVendas.map(item => [
+      body: dadosVendasAtivas.map(item => [
         item.contador,
         item.DSCAIXA,
         item.IDVENDA,
@@ -66,7 +66,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, empresaSele
   };
 
   const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(dadosCanceladasVendas);
+    const worksheet = XLSX.utils.json_to_sheet(dadosVendasAtivas);
     const workbook = XLSX.utils.book_new();
     const header = ['Nº', 'Caixa', 'Nº Venda', 'NFCe', 'Abertura', 'Operador', 'Valor', 'Nota', 'Cancelado Por', 'Motivo'];
     worksheet['!cols'] = [
@@ -87,7 +87,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, empresaSele
     XLSX.writeFile(workbook, 'vendas_canceladas.xlsx');
   };
 
-  const dadosCanceladasVendas = dadosVendasCanceladas.map((item, index) => {
+  const dadosVendasAtivas = dadosVendasCanceladas.map((item, index) => {
     let contador = index + 1;
     
     return {
@@ -110,7 +110,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, empresaSele
 
   const calcularValorTotaPago = () => {
     let total = 0;
-    for (let dados of dadosCanceladasVendas) {
+    for (let dados of dadosVendasAtivas) {
       total += parseFloat(dados.VRTOTALPAGO);
     }
     return total;
@@ -351,13 +351,13 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, empresaSele
           <DataTable
             title="Vendas por Loja"
             size="small"
-            value={dadosCanceladasVendas}
+            value={dadosVendasAtivas}
             globalFilter={globalFilterValue}
             footerColumnGroup={footerGroup}
             sortOrder={-1}
             paginator={true}
             rows={10}
-            rowsPerPageOptions={[10, 20, 50, 100, dadosCanceladasVendas.length]}
+            rowsPerPageOptions={[10, 20, 50, 100, dadosVendasAtivas.length]}
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
@@ -405,6 +405,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, empresaSele
           handleClose={() => setModalPagamentoVisivel(false)}
           dadosDetalheRecebimentos={dadosDetalheRecebimentos}
           usuarioLogado={usuarioLogado}
+          dadosAtivasVendas={dadosVendasAtivas}
         />
       )}
 

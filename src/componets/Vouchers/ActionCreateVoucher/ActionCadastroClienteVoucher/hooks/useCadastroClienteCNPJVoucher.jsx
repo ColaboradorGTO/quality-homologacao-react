@@ -8,7 +8,6 @@ import { removerMascaraCPF } from "../../../../../utils/formatCPF";
 import { validarCNPJ } from "../../../../../utils/mascaraCNPJ";
 import axios from "axios";
 import { validarInscricaoEstadual } from "../../../../../utils/validador-inscricao-estadual";
-// import {getDadosEnderecoViaCep_API_externa, validaCEP, getDadosEnderecoViaCep_API_redundancia} from "./validationCNPJService"
 
 async function getDadosEnderecoViaCep_API_externa(cep) {
     const URL_VIA_CEP = 'https://viacep.com.br/ws/{CEP}/json/';

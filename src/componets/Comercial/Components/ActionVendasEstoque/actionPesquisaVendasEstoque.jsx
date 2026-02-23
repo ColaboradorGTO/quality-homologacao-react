@@ -2,12 +2,10 @@ import { Fragment, useEffect, useState } from "react"
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
-import { MultSelectAction } from "../../../Select/MultSelectAction";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { AiOutlineSearch } from "react-icons/ai";
 import { ActionListaVendasEstoque } from "./actionListaVendasEstoque";
 import { getDataAtual } from "../../../../utils/dataAtual";
-import { useFetchData } from "../../../../hooks/useFetchData";
 import { get } from "../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
@@ -22,8 +20,6 @@ export const ActionPesquisaVendasEstoque = () => {
   const [grupoGradeSelecionado, setGrupoGradeSelecionado] = useState('');
   const [gradeSelecionado, setGradeSelecionado] = useState('');
   const [marcaSelecionada, setMarcaSelecionada] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
 
   useEffect(() => {
     const dataInicial = getDataAtual()
@@ -40,78 +36,76 @@ export const ActionPesquisaVendasEstoque = () => {
       const response = await get(`/marcasLista`);
       return response.data;
     },
-    { enabled: true, staleTime: 5 * 60 * 1000, }
+    { enabled: true, staleTime: 60 * 60 * 1000, }
   );
 
 
-   const { data: dadosFornecedor = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch: refechtFornecedor } = useQuery(
+  const { data: dadosFornecedor = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch: refechtFornecedor } = useQuery(
     'parceiro-negocio',
     async () => {
       const response = await get(`/parceiro-negocio`);
       return response.data;
     },
-    { enabled: true, staleTime: 5 * 60 * 1000, }
+    { enabled: true, staleTime: 60 * 60 * 1000, }
   );
 
 
-     const { data: dadosGrupo = [], error: errorGrupo, isLoading: isLoadingGrupo, refetch: refechtGrupo } = useQuery(
+  const { data: dadosGrupo = [], error: errorGrupo, isLoading: isLoadingGrupo, refetch: refechtGrupo } = useQuery(
     'listaProdutoSap',
     async () => {
       const response = await get(`/listaProdutoSap`);
       return response.data;
     },
-    { enabled: true, staleTime: 5 * 60 * 1000, }
+    { enabled: true, staleTime: 60 * 60 * 1000, }
   );
 
-    const { data: dadosGrade = [], error: errorGrade, isLoading: isLoadingGrade, refetch: refechtGrade } = useQuery(
+  const { data: dadosGrade = [], error: errorGrade, isLoading: isLoadingGrade, refetch: refechtGrade } = useQuery(
     'listaGrade',
     async () => {
       const response = await get(`/listaGrade?idGrupo=${grupoSelecionado}`);
       return response.data;
     },
-    { enabled: true, staleTime: 5 * 60 * 1000, }
+    { enabled: true, staleTime: 60 * 60 * 1000, }
   );
 
 
+  const fetchListaEstoque = async () => {
+    const urlBase = `/vendasEstoqueComercial?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idGrupoEmpresarial=${grupoSelecionado}&produtoPesquisado=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupoGrade=${grupoGradeSelecionado}&idGrade=${gradeSelecionado}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    try {
+      animacaoCarregamento('Carregando dados...', true);
 
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      const fetchListaEstoque = async () => {
-      const urlBase = `/vendasEstoqueProduto?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idMarcaProduto=${grupoSelecionado}&descricaoProduto=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoGradeSelecionado}&idGrade=${gradeSelecionado}`;
-      let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
-      urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
-      try {
-        animacaoCarregamento('Carregando dados...', true);
-                                                                        
-        const primeiraPagina = 1;
-        const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
-        const page = primeiraResposta.page || primeiraPagina;
-        const pageSize = primeiraResposta.pageSize || 1000;
-        const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
-        const totalPages = Math.ceil(totalRows / pageSize);
-  
-        let allData = [...(primeiraResposta.data || [])];
-  
-        if (totalPages > 1) {
-          for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-            animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-            const responsePage = await get(`${urlApi}&page=${currentPage}`);
-            allData.push(...(responsePage.data || []));
-          }
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        return allData;
-      } catch (error) {
-        console.error('Erro ao buscar dados da api:', error);
-        throw error;
-      } finally {
-        fecharAnimacaoCarregamento();
       }
-    };
+
+      return allData;
+    } catch (error) {
+      console.error('Erro ao buscar dados da api:', error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
+  };
 
   const { data: dadosEstoqueAtual = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaEstoque } = useQuery(
-    ['rotatividadeVendas', dataPesquisaInicio, dataPesquisaFim, marcaSelecionada, produtoPesquisado, fornecedorSelecionado, grupoSelecionado, gradeSelecionado, currentPage, pageSize],
-    () => fetchListaEstoque(dataPesquisaInicio, dataPesquisaFim, marcaSelecionada, produtoPesquisado, fornecedorSelecionado, grupoSelecionado, gradeSelecionado, currentPage, pageSize),
-    { enabled: Boolean(marcaSelecionada), staleTime: 5 * 60 * 1000 }
+    ['vendasEstoqueComercial',],
+    () => fetchListaEstoque(),
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
 
@@ -130,20 +124,7 @@ export const ActionPesquisaVendasEstoque = () => {
 
   }
 
-  const handleGradeChange = (e) => {
-    const selectedSubGrupo = e.value;
-    if (selectedSubGrupo) {
-      setGradeSelecionado(selectedSubGrupo);
-    }
-  }
-
-  const handleFornecedorChange = (selectedOptions) => {
-    const values = selectedOptions.map((option) => option.value);
-    setFornecedorSelecionado(values);
-  };
-  
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1)
     refetchListaEstoque()
     setTabelaVisivel(true)
   }
@@ -191,19 +172,19 @@ export const ActionPesquisaVendasEstoque = () => {
         ]}
         labelSelectSubGrupo={"Por Grade"}
         valueSelectSubGrupo={gradeSelecionado}
-        onChangeSelectSubGrupo={handleGradeChange}
+        onChangeSelectSubGrupo={(e) => setGradeSelecionado(e.value)}
 
-        MultSelectFornecedorComponent={MultSelectAction}
-        optionsMultSelectFornecedor={[
+        InputSelectFuncionarioComponent={InputSelectAction}
+        optionsFuncionarios={[
           { value: '', label: 'Selecione um Fornecedor' },
           ...dadosFornecedor.map((fornecedor) => ({
-            value: fornecedor.ID_FORNECEDOR,
-            label: `${fornecedor.ID_FORNECEDOR} ${fornecedor.FORNECEDOR}`,
+            value: fornecedor.IDPN,
+            label: `${fornecedor.IDPN} ${fornecedor.PN}`,
           }))
         ]}
-        labelMultSelectFornecedor={"Por Fornecedor"}
-        valueMultSelectFornecedor={fornecedorSelecionado}
-        onChangeMultSelectFornecedor={handleFornecedorChange}
+        labelSelectFuncionario={"Por Fornecedor"}
+        valueSelectFuncionario={fornecedorSelecionado}
+        onChangeSelectFuncionario={(e) => setFornecedorSelecionado(e.value)}
 
         InputFieldCodBarraComponent={InputField}
         labelInputFieldCodBarra={"Cód.Barras / Nome Produto"}
@@ -213,7 +194,7 @@ export const ActionPesquisaVendasEstoque = () => {
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marcas"}
         optionsMarcas={[
-          { value: null, label: 'Selecione uma Marca' },
+          { value: '', label: 'Selecione uma Marca' },
           ...dadosMarcas.map((empresa) => ({
             value: empresa.IDGRUPOEMPRESARIAL,
             label: empresa.DSGRUPOEMPRESARIAL,

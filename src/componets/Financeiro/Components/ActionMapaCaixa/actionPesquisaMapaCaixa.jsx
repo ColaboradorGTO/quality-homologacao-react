@@ -12,7 +12,7 @@ import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 
 
-export const ActionPesquisaMapaCaixa = ({ usuarioLogado, ID }) => {
+export const ActionPesquisaMapaCaixa = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
@@ -20,7 +20,7 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado, ID }) => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(500)
-
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -30,13 +30,22 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado, ID }) => {
 
   }, [])
   
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
@@ -49,7 +58,7 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado, ID }) => {
   );
 
 
-  const fetchMapaCaixas = async () => {
+  const fetchDespesas = async () => {
     try {
       const urlApi = `/despesa-loja?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
       const response = await get(urlApi);
@@ -89,9 +98,9 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado, ID }) => {
     }
   }
 
-  const { data: dadosMapaCaixa = [], error: erroMapaCaixa, isLoading: isLoadingMapaCaixa, refetch: refetchMapaCaixas } = useQuery(
+  const { data: dadosDespesas = [], error: erroDespesas, isLoading: isLoadingDespesas, refetch: refetchDespesas } = useQuery(
     'despesa-loja',
-    () => fetchMapaCaixas(),
+    () => fetchDespesas(),
     { enabled: false, staleTime: 5 * 60 * 1000 }
   );
 
@@ -285,8 +294,6 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado, ID }) => {
 
 
   const fetchListaTotalRecebidoMapa = async () => {
-
-
     try {
       const urlApi = `/venda-total-recebido-periodo?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
       const response = await get(urlApi);
@@ -344,7 +351,7 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado, ID }) => {
 
   const handleClick = () => {
     setTabelaVisivel(true)
-    refetchMapaCaixas()
+    refetchDespesas()
     refetchTotalRecebidoEletronico()
     fetchTotalRecebidoEletronico()
     refetchAdiantamentoSalarial()
@@ -398,15 +405,19 @@ export const ActionPesquisaMapaCaixa = ({ usuarioLogado, ID }) => {
 
         <div className="card mt-4">
 
-          {/* <ActionListaMapaCaixa
-            dadosMapaCaixa={dadosMapaCaixa}
+          <ActionListaMapaCaixa
+            dadosDespesas={dadosDespesas}
             dadosAdiantamentoSalarial={dadosAdiantamentoSalarial}
             dadosResumoVoucher={dadosResumoVoucher}
             dadosDetalheFatura={dadosDetalheFatura}
 
-          /> */}
+          />
 
           <ActionListaVendasRecebidoEletronico
+            dadosDespesas={dadosDespesas}
+            dadosAdiantamentoSalarial={dadosAdiantamentoSalarial}
+            dadosResumoVoucher={dadosResumoVoucher}
+            dadosDetalheFatura={dadosDetalheFatura}
             dadosTotalRecebidoEletronico={dadosTotalRecebidoEletronico}
             dadosTotalRecebidoPeriodo={dadosTotalRecebidoPeriodo}
             dataPesquisaInicio={dataPesquisaInicio}

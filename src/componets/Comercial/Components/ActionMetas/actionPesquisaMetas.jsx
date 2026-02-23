@@ -8,7 +8,7 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { useQuery } from "react-query";
-import { useFetchData } from "../../../../hooks/useFetchData";
+
 
 export const ActionPesquisaMetas = () => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -31,7 +31,7 @@ export const ActionPesquisaMetas = () => {
       const response = await get(`/marcasLista`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
@@ -41,15 +41,8 @@ export const ActionPesquisaMetas = () => {
       const response = await get(`/listaMetaVendas`);
       return response.data;
     },
-    { enabled: true, staleTime: 5 * 60 * 1000 }
+    { enabled: true, staleTime: 60 * 60 * 1000 }
   );
-
-  const handleSelectMarca = (e) => {
-    const nome = marcas.find((item) => item.IDGRUPOEMPRESARIAL === e.value)
-    setMarcaNome(nome.GRUPOEMPRESARIAL)
-    setMarcaSelecionada(e.value)
-
-  }
 
   const handleClick = () => {
     refetchVendasMarca()
@@ -89,7 +82,7 @@ export const ActionPesquisaMetas = () => {
           })
         ]}
         valueSelectMarca={marcaSelecionada}
-        onChangeSelectMarcas={handleSelectMarca}
+        onChangeSelectMarcas={(e) => setMarcaSelecionada(e.value)}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}

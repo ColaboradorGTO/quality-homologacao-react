@@ -3,9 +3,9 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
-import { GrCertificate, GrView } from "react-icons/gr";
+import { GrView } from "react-icons/gr";
 import { get } from "../../../../api/funcRequest";
-import { ActionDetalheFechamentoLojaModal } from "./actionDetalheFechamentoLojaModal";
+import { ActionDetalheFechamentoLojaModal } from "./ActionDetalheModal/actionDetalheFechamentoLojaModal";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -312,7 +312,10 @@ export const ActionListaVendasLoja = ({ dadosVendasPagamentos, dataPesquisa }) =
             selectionMode="single"
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
-            rowsPerPageOptions={[5, 10, 20, 50]}
+            rowsPerPageOptions={[10, 20, 30, 40, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

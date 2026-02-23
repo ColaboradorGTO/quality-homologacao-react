@@ -19,8 +19,6 @@ const ActionPesquisaVendasConvenio = lazy(() => import("../componets/Administrat
 const ActionPesquisaVendasCanceladas = lazy(() => import("../componets/Administrativo/Components/ActionVendasCanceladas/actionPesquisaVendasCanceladas").then(module => ({ default: module.ActionPesquisaVendasCanceladas })));
 const ActionPesquisaVendasContigencia = lazy(() => import("../componets/Administrativo/Components/ActionVendasContigencia/actionPesquisaVendasContigencia").then(module => ({ default: module.ActionPesquisaVendasContigencia })));
 const ActionPesquisaVendasDescontoFuncionario = lazy(() => import("../componets/Administrativo/Components/ActionDescontoFuncionario/actionPesquisaVendasDescontoFuncionario").then(module => ({ default: module.ActionPesquisaVendasDescontoFuncionario })));
-
-// criar schema no backend cancelar quebra de caixa
 const ActionPesquisaQuebraCaixaLoja = lazy(() => import("../componets/Administrativo/Components/ActionQuebraCaixaLoja/actionPesquisaQuebraCaixaLoja").then(module => ({ default: module.ActionPesquisaQuebraCaixaLoja })));
 const ActionPesquisaEstoqueLoja = lazy(() => import("../componets/Administrativo/Components/ActionEstoqueLoja/actionPesquisaEstoqueLoja").then(module => ({ default: module.ActionPesquisaEstoqueLoja })));
 const ActionPesquisaPrimeiroBalanco = lazy(() => import("../componets/Administrativo/Components/ActionListaPrimeiroBalanco/actionPesquisaPrimeiroBalanco").then(module => ({ default: module.ActionPesquisaPrimeiroBalanco })));
@@ -62,7 +60,7 @@ export const DashBoardAdministrativo = () => {
    
   }, [usuarioLogado]);
 
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+  const { data: optionsModulosPage = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario',
     async () => {
       const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
@@ -73,6 +71,27 @@ export const DashBoardAdministrativo = () => {
   );
 
   function handleShowComponent(componentName) {
+    const menuFilhoSelecionado = selectedModule.menuPai.menuFilho.find(
+      menu => menu.URL === componentName
+    );
+  
+    if (menuFilhoSelecionado) {
+      // Salvar todas as informações do menu selecionado no localStorage
+      localStorage.setItem('menuFilhoSelecionado', JSON.stringify({
+        ID: menuFilhoSelecionado.ID,
+        DSNOME: menuFilhoSelecionado.DSNOME,
+        URL: menuFilhoSelecionado.URL,
+        ALTERAR: menuFilhoSelecionado.ALTERAR,
+        CRIAR: menuFilhoSelecionado.CRIAR,
+        VISUALIZAR: menuFilhoSelecionado.VISUALIZAR,
+        N1: menuFilhoSelecionado.N1,
+        N2: menuFilhoSelecionado.N2,
+        N3: menuFilhoSelecionado.N3,
+        N4: menuFilhoSelecionado.N4,
+        ADMINISTRADOR: menuFilhoSelecionado.ADMINISTRADOR
+      }));
+    }
+
     setComponentToShow(componentName);
   }
 
@@ -89,7 +108,7 @@ export const DashBoardAdministrativo = () => {
 
   switch (componentToShow) {
     case "/administrativo/ResumoDashBoardAdministrativo":
-      component = <ResumoDashBoardAdministrativo usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ResumoDashBoardAdministrativo usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaExtratoContaCorenteLoja":
       component = <ActionPesquisaExtratoContaCorenteLoja />;
@@ -110,25 +129,25 @@ export const DashBoardAdministrativo = () => {
       component = <ActionPesquisaVendasConvenio />;
       break;
     case "/administrativo/ActionPesquisaBalancoPorLoja":
-      component = <ActionPesquisaBalancoPorLoja usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaBalancoPorLoja usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaBalancoAvulso":
-      component = <ActionPesquisaBalancoAvulso usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaBalancoAvulso usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaProdutosPreco":
       component = <ActionPesquisaProdutosPreco />;
       break;
     case "/administrativo/ActionPesquisaAlterarVendaVendedor":
-      component = <ActionPesquisaAlterarVendaVendedor usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaAlterarVendaVendedor usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaQuebraCaixaLoja":
-      component = <ActionPesquisaQuebraCaixaLoja usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaQuebraCaixaLoja usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaVendas":
       component = <ActionPesquisaVendas />;
       break;
     case "/administrativo/ActionPesquisaConsultaVouchers":
-      component = <ActionPesquisaConsultaVouchers usuarioLogado={usuarioLogado} ID={ID}/>;
+      component = <ActionPesquisaConsultaVouchers usuarioLogado={usuarioLogado} />;
       break;
     case "/administrativo/ActionPesquisaVoucherResumido":
       component = <ActionPesquisaVoucherResumido />;
@@ -137,25 +156,25 @@ export const DashBoardAdministrativo = () => {
       component = <ActionPesquisaEstoqueLoja />;
       break;
     case "/administrativo/ActionPesquisaVendasCanceladas":
-      component = <ActionPesquisaVendasCanceladas usuarioLogado={usuarioLogado} ID={ID}/>;
+      component = <ActionPesquisaVendasCanceladas usuarioLogado={usuarioLogado} />;
       break;
     case "/administrativo/ActionPesquisaVendasContigencia":
-      component = <ActionPesquisaVendasContigencia usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaVendasContigencia usuarioLogado={usuarioLogado}  />;
       break;
     case "/administrativo/ActionPesquisaVendasDescontoFuncionario":
-      component = <ActionPesquisaVendasDescontoFuncionario usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaVendasDescontoFuncionario usuarioLogado={usuarioLogado}  />
       break;
     case "/administrativo/ActionPesquisaPrimeiroBalanco":
-      component = <ActionPesquisaPrimeiroBalanco usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaPrimeiroBalanco usuarioLogado={usuarioLogado}  />
       break;
     case "/administrativo/ActionPesquisaAlteracaoPreco":
-      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado} ID={ID}/>;
+      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado} />;
       break;
     case "/administrativo/ActionPesquisaVendasVouchers":
       component = <ActionPesquisaVendasVouchers />;
       break;
     case "/administrativo/ActionPesquisaAutorizaTroca":
-      component = <ActionPesquisaAutorizaTroca />;
+      component = <ActionPesquisaAutorizaTroca usuarioLogado={usuarioLogado}  />;
       break;
     default:
       component = null;
@@ -175,7 +194,7 @@ export const DashBoardAdministrativo = () => {
                 handleShowComponent={handleShowComponent}
               />
               <div className="page-content-wrapper">
-                <HeaderMain optionsModulos={optionsModulos} />
+                <HeaderMain optionsModulosPage={optionsModulosPage} />
 
                 <main id="js-page-content" role="main" className="page-content">
                   <div className="row">
@@ -185,7 +204,7 @@ export const DashBoardAdministrativo = () => {
                           <div className="panel-content">
                             <Suspense fallback={<div>Loading...</div>}>
                               {resumoVisivel && !componentToShow && (
-                                <ResumoDashBoardAdministrativo usuarioLogado={usuarioLogado} ID={ID}/>
+                                <ResumoDashBoardAdministrativo usuarioLogado={usuarioLogado} />
                               )}
 
                               {componentToShow && component}

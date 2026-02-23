@@ -1,17 +1,12 @@
 import { useState } from "react";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from "sweetalert2";
 import { get, post } from "../../../../api/funcRequest";
-import { mascaraCPF, validarCPF } from "../../../../utils/formatCPF";
+import { mascaraCPF } from "../../../../utils/formatCPF";
 
 export const useCriarVoucher = ({
     usuarioLogado,
-    optionsModulos,
-    selectedRows,
     dadosVisualizarProdutos, 
-    quantidade,
     quantidadesProdutos,
     setModalCadastroClienteCPFVoucher,
     setModalCadastroClienteCNPJVoucher,
@@ -24,24 +19,28 @@ export const useCriarVoucher = ({
     const [motivoTroca, setMotivoTroca] = useState();
     const [modalCliente, setModalCliente] = useState(false);
     const [optionsCPF, setOptionsCPF] = useState([]);
-   const [validaDados, setValidaDados] = useState([]);
+    const [validaDados, setValidaDados] = useState([]);
 
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
 
         if (!usuarioIP) {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
         }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
-        } catch (error) {
-        console.error("Erro ao buscar IP:", error);
-        return null;
-        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
     const onAuthFuncionario = async (callback, selectedRows) => {

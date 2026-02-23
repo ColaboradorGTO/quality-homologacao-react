@@ -15,7 +15,7 @@ import { ActionListaVendasCanceladasEmTelaPDV } from "./actionListaVendasCancela
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 
 
-export const ActionPesquisaVendasCanceladas = ({usuarioLogado, ID}) => {
+export const ActionPesquisaVendasCanceladas = ({usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [tabelaVendaWebVisivel, setTabelaVendaWebVisivel] = useState(false);
   const [tabelaVendaEmitidaPDVVisivel, setTabelaVendaEmitidaPDVVisivel] = useState(false);
@@ -25,7 +25,7 @@ export const ActionPesquisaVendasCanceladas = ({usuarioLogado, ID}) => {
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
-
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
   useEffect(() => {
     const dataInicial =  getDataAtual()
@@ -35,11 +35,19 @@ export const ActionPesquisaVendasCanceladas = ({usuarioLogado, ID}) => {
     
   }, [])
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+    
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
@@ -105,6 +113,7 @@ export const ActionPesquisaVendasCanceladas = ({usuarioLogado, ID}) => {
     { enabled: false, staleTime: 5 * 60 * 1000}
   );
 
+  
   const fetchVendasCanceladas30Minutos = async () => {
     const urlBase = `venda-ativa?idGrupo=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&statusCanceladoDepois30Minutos=True`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';

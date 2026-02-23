@@ -19,22 +19,27 @@ export const useEditarStatusVoucher = ({
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
 
-            if (!usuarioIP) {
+        if (!usuarioIP) {
+            try {
                 const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
                 usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
             }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
-        } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
         }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
+
     useEffect(() => {
         setStatusSelecionado(dadosEditarVoucher[0]?.voucher.STSTATUS)
         setTrocaSelecionado(dadosEditarVoucher[0]?.voucher.STTIPOTROCA)

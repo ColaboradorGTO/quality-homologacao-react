@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from "react"
+import React, { Fragment, useEffect, useState } from "react"
 import { ActionMain } from "../../Actions/actionMain";
 import { InputField } from "../../Buttons/Input";
 import { ButtonType } from "../../Buttons/ButtonType";
@@ -25,7 +25,7 @@ import { InputSelectActionPromocao } from "../../Inputs/InputSelectActionPromoca
 import { useUpdatePromocaoAtivaStatus } from "./hook/useUpdatePromocaoStatus";
 
 
-export const ActionPesquisaPromocoesAtivas = ({ usuarioLogado, ID }) => {
+export const ActionPesquisaPromocoesAtivas = ({ usuarioLogado }) => {
   const [tabelaCampanha, setTabelaCampanha] = useState(true);
   const [actionPromocaoAtiva, setActionPromocaoAtiva] = useState(true);
   const [isQueryData, setIsQueryData] = useState(false)
@@ -42,7 +42,27 @@ export const ActionPesquisaPromocoesAtivas = ({ usuarioLogado, ID }) => {
   const [actionEditarVisivel, setActionEditarVisivel] = useState(false);
   const [tabelaProdutoDestino, setTabelaProdutoDestino] = useState(false);
   const [tabelaProdutoOrigem, setTabelaProdutoOrigem] = useState(false);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
   const dataTableRef = useRef();
+
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  );
+
 
   const fetchListaProdutosPromocaoDestino = async () => {
     const urlBase = `/produto-promocao-destino?dsProduto=${produtoDestino}`;
@@ -124,16 +144,6 @@ export const ActionPesquisaPromocoesAtivas = ({ usuarioLogado, ID }) => {
     {
       enabled: false, staleTime: 5 * 60 * 1000,
     }
-  );
-
-
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
-    async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-      return response.data;
-    },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const fetchListaProdutosPromocao = async () => {

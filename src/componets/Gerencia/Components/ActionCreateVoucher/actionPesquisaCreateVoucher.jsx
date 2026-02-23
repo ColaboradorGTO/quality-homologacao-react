@@ -15,10 +15,11 @@ import { ActionListaDetalhesVoucherEmitido } from "./actionListaDetalhesVoucherE
 import { ActionPesquisaCreateVoucherCliente } from "./actionPesquisaCreateVoucherCliente";
 import { ActionMain } from "../../../Actions/actionMain";
 
-export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas }) => {
+export const ActionPesquisaCreateVoucher = ({usuarioLogado, optionsEmpresas }) => {
   const [actionPrincipal, setActionPrincipal] = useState(true);
   const [actionSecundaria, setActionSecundaria] = useState(false);
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
+  const [tabelaVisivelVoucher, setTabelaVisivelVoucher] = useState(false);
   const [tabelaVisivelVoucherSelecionados, setTabelaVisivelVoucherSelecionados] = useState(false);
   const [tabelaVendasClientes, setTabelaVendasClientes] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
@@ -26,10 +27,27 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
   const [numeroVoucher, setNumeroVoucher] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [marcaSelecionado, setMarcaSelecionado] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [dadosDetalheVoucherSelecionado, setDadosDetalheVoucherSelecionado] = useState([])
   const [modalVoucher, setModalVoucher] = useState(true);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+     
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  );
 
   useEffect(() => {
     const dadosArmazenadosVoucher = localStorage.getItem('dadosDetalheVoucher');
@@ -38,10 +56,8 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
       setDadosDetalheVoucherSelecionado(dadosArmazenadosVoucherParse);
       setTabelaVisivelVoucherSelecionados(true);
       setTabelaVisivel(false);
-
     }
   }, [])
-
 
   useEffect(() => {
     const dataInicio = getDataAtual()
@@ -49,15 +65,6 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
     setDataPesquisaInicio(dataInicio)
     setDataPesquisaFim(dataFim)
   }, []);
-
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
-    async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-      return response.data;
-    },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
-  );
 
   const fetchListaVouchers = async () => {
     let numeroVoucherFormatado = numeroVoucher;
@@ -109,7 +116,7 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
   const { data: dadosVoucher = [], error: errorVouchers, isLoading: isLoadingVouchers, refetch: refetchListaVouchers } = useQuery(
     ['detalheVoucherDados'],
     () => fetchListaVouchers(),
-    { enabled: false,}
+    { enabled: false, staleTime: 60 * 60 * 1000, }
   );
 
   const fetchListaVouchersProcessando = async () => {
@@ -150,7 +157,7 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
   const { data: dadosVoucherProcessamento = [], error: errorVouchersProcessando, isLoading: isLoadingVouchersProcessando, refetch: refetchListaVouchersProcessando } = useQuery(
     ['detalheVoucherDados'],
     () => fetchListaVouchersProcessando(),
-    { enabled: true, cacheTime: 5 * 60 * 1000, staleTime: 5 * 60 * 1000, }
+    { enabled: true, staleTime: 60 * 60 * 1000, }
   );
 
   const handleClick = () => {
@@ -160,9 +167,7 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
     setTabelaVisivelVoucherSelecionados(false);
     setActionPrincipal(true);
     setActionSecundaria(false);
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaVouchers()
-   
   }
 
   const handleClickCadastro = () => {
@@ -185,7 +190,6 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
     <Fragment>
       
       {actionPrincipal && (
-
         <ActionMain
           linkComponentAnterior={["Home"]}
           linkComponent={["Vouchers"]}
@@ -208,7 +212,7 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
             setEmpresaSelecionada(e.value);
           }}
           valueSelectPendencia={empresaSelecionada}
-          isVisible={{display: optionsModulos[0]?.ADMINISTRADOR == false ? "none" : "block"}}
+          stylePendencia={optionsModulos[0]?.ADMINISTRADOR == "True"}
   
           InputFieldDTInicioAComponent={InputField}
           valueInputFieldDTInicioA={dataPesquisaInicio}
@@ -242,14 +246,18 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
 
       {actionSecundaria && (
         <div className="">
-            <ActionPesquisaCreateVoucherCliente 
-              actionSecundaria={actionSecundaria}
-              setActionSecundaria={setActionSecundaria}
-              actionPrincipal={actionPrincipal} 
-              setActionPrincipal={setActionPrincipal}
-              optionsModulos={optionsModulos}
-              usuarioLogado={usuarioLogado}
-              refetchListaVouchers={refetchListaVouchers}
+          <ActionPesquisaCreateVoucherCliente 
+            actionSecundaria={actionSecundaria}
+            setActionSecundaria={setActionSecundaria}
+            actionPrincipal={actionPrincipal} 
+            setActionPrincipal={setActionPrincipal}
+            optionsModulos={optionsModulos}
+            usuarioLogado={usuarioLogado}
+            tabelaVisivelVoucher={tabelaVisivelVoucher}
+            setTabelaVisivelVoucher={setTabelaVisivelVoucher}
+            tabelaVisivelVoucherSelecionados={tabelaVisivelVoucherSelecionados}
+            setTabelaVisivelVoucherSelecionados={setTabelaVisivelVoucherSelecionados}
+            refetchListaVouchers={refetchListaVouchers}
           />
         </div>
       )}
@@ -268,6 +276,7 @@ export const ActionPesquisaCreateVoucher = ({usuarioLogado, ID, optionsEmpresas 
         <ActionListaDetalhesVoucherEmitido 
           dadosDetalheVoucherSelecionado={dadosDetalheVoucherSelecionado} 
           usuarioLogado={usuarioLogado} 
+          optionsModulos={optionsModulos}
         />
       )}
 

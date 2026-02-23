@@ -11,6 +11,7 @@ import * as XLSX from 'xlsx';
 
 export const ActionListaVendasMarca = ({dadosListaVendasMarca}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -449,6 +450,9 @@ export const ActionListaVendasMarca = ({dadosListaVendasMarca}) => {
             value={dadosVendasMarca}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator
             rows={10}

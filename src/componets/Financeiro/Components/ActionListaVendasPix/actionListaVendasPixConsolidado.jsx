@@ -10,6 +10,7 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaVendasPixConsolidado = ({ dadosVendasPixConsolidadoMarca }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -60,7 +61,7 @@ export const ActionListaVendasPixConsolidado = ({ dadosVendasPixConsolidadoMarca
       PIX: item.PIX,
     }
   }) : [];
-  
+
   const colunasVendasPix = [
     {
       field: 'contador',
@@ -123,6 +124,9 @@ export const ActionListaVendasPixConsolidado = ({ dadosVendasPixConsolidadoMarca
                     paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
                     filterDisplay="menu"
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)}
                     sortOrder={-1}
                     rows={10}
                     showGridlines
@@ -155,4 +159,3 @@ export const ActionListaVendasPixConsolidado = ({ dadosVendasPixConsolidadoMarca
     </Fragment>
   )
 }
-

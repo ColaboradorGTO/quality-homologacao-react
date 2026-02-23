@@ -10,6 +10,7 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaFaturasPix = ({ dadosVendasFaturasPix }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -66,7 +67,7 @@ export const ActionListaFaturasPix = ({ dadosVendasFaturasPix }) => {
 
       contador
     }
-  }): [];
+  }) : [];
 
   const colunasVendasPix = [
     {
@@ -78,7 +79,7 @@ export const ActionListaFaturasPix = ({ dadosVendasFaturasPix }) => {
     {
       field: 'NOFANTASIA',
       header: 'Loja',
-      body: row => <p style={{ color: 'blue', fontWeight: 600, width: '250px', margin: '0px'}}>{row.NOFANTASIA}</p>,
+      body: row => <p style={{ color: 'blue', fontWeight: 600, width: '250px', margin: '0px' }}>{row.NOFANTASIA}</p>,
       sortable: true,
     },
     {
@@ -152,6 +153,9 @@ export const ActionListaFaturasPix = ({ dadosVendasFaturasPix }) => {
                     value={dadosListaVendasPix}
                     globalFilter={globalFilterValue}
                     size={"small"}
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)} a
                     sortOrder={-1}
                     rows={10}
                     rowsPerPageOptions={[10, 20, 50, 100, dadosListaVendasPix.length]}

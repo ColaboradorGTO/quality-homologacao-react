@@ -4,7 +4,15 @@ import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { FormularioEditarFuncionario } from "./formularioEditar";
 
 
-export const ActionUpdateFuncionarioModal = ({ show, handleClose, dadosAtualizarFuncionarios }) => {
+export const ActionUpdateFuncionarioModal = ({ 
+  show, 
+  handleClose, 
+  dadosAtualizarFuncionarios, 
+  dadosEmpresas,
+  refetchListaFuncionarios, 
+  usuarioLogado, 
+  optionsModulos 
+}) => {
   return (
     <Fragment>
       <Modal
@@ -24,7 +32,14 @@ export const ActionUpdateFuncionarioModal = ({ show, handleClose, dadosAtualizar
 
         <Modal.Body>
 
-          <FormularioEditarFuncionario dadosAtualizarFuncionarios={dadosAtualizarFuncionarios} handleClose={handleClose} />
+          <FormularioEditarFuncionario 
+            dadosAtualizarFuncionarios={dadosAtualizarFuncionarios} 
+            handleClose={handleClose} 
+            dadosEmpresas={dadosEmpresas}
+            refetchListaFuncionarios={refetchListaFuncionarios}
+            usuarioLogado={usuarioLogado}
+            optionsModulos={optionsModulos}
+          />
         
         </Modal.Body>
 

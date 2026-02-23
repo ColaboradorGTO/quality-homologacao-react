@@ -39,7 +39,6 @@ async function validaCEP(cep, verificarNaApi = false) {
 
     if(verificarNaApi){
         let respCep = await getDadosEnderecoViaCep_API_externa(cep);
-
         return !(respCep?.erro == 'true'); 
     }
 
@@ -55,7 +54,6 @@ async function getDadosEnderecoViaCep_API_redundancia(cep) {
         const data = response.data;
         let { erro } = data || {};
 
-        // Se não houver erro, status é 200
         let status = erro ? 429 : 200;
 
         if (status !== 200) {
@@ -69,7 +67,6 @@ async function getDadosEnderecoViaCep_API_redundancia(cep) {
         return { status, message };
     }
 }
-
 
 export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleClose }) => {
     const [idCliente, setIdCliente] = useState('');
@@ -96,52 +93,50 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
     const [ipUsuario, setIpUsuario] = useState('');
     const [cepDigitado, setCepDigitado] = useState(false);
 
-
     useEffect(() => {
         const dataAtual = getDataAtual()
         setDataCadastro(dataAtual)
-
     }, [usuarioLogado]);
 
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
             const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
 
-            if (!usuarioIP) {
+        if (!usuarioIP) {
+            try {
                 const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
                 usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
             }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
-        } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
         }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
     const { data: optionsCPF = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
         ['cliente-todos', cpf],
         async () => {
-            const response = await get(`/cliente-todos?numeroCpfCnpj=${removerMascaraCPF(cpf)}`);
-        
+            const response = await get(`/cliente-todos?numeroCpfCnpj=${removerMascaraCPF(cpf)}`);   
             return response.data;
         },
         { enabled: cpf?.length >= 8, staleTime: 5 * 60 * 1000 }
     );
 
     useEffect(() => {
-        // Só busca CEP se o usuário não existir no banco e CEP foi digitado manualmente
         if (cep.length >= 7 && cepDigitado && optionsCPF.length >= 0) {
             getCEP();
         }
-
     }, [cep, cepDigitado, optionsCPF]);
 
     const getCEP = async () => {
         try {
-            // Primeiro valida o CEP
             const isValidCep = await validaCEP(cep, false);
             if (!isValidCep) {
                 Swal.fire({
@@ -154,16 +149,13 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 });
                 return;
             }
-
            
-            let response = await getDadosEnderecoViaCep_API_externa(cep);
-           
+            let response = await getDadosEnderecoViaCep_API_externa(cep);    
          
             if (response.status !== 200) {
                 console.log('API principal falhou, tentando API de redundância...');
                 response = await getDadosEnderecoViaCep_API_redundancia(cep);
             }
-
             
             if (response.status !== 200) {
                 Swal.fire({
@@ -176,10 +168,8 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 });
                 return;
             }
-
             
-            const data = response.data;
-            
+            const data = response.data;    
             
             setCep(data.cep || data.zipCode || cep);
             setEndereco(data.logradouro || data.address || '');
@@ -205,11 +195,8 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
     
     useEffect(() => {
         if (optionsCPF.length > 0) {
-            const cliente = optionsCPF[0];
-            
-           
-            setCepDigitado(false);
-            
+            const cliente = optionsCPF[0];    
+            setCepDigitado(false);     
             setIdCliente(cliente?.IDCLIENTE || "");
             setEmpresa(cliente?.IDEMPRESA || "");
             setDataCadastro(cliente?.DTCADASTRO || cliente?.DTULTALTERACAO?.split(" ")[0] || "");
@@ -254,19 +241,16 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         }
     }, [optionsCPF]);
 
-
     const optionsIndicacaoIE = [
         { value: 9, label: 'Não Contribuinte Com ou Sem IE' },
         { value: 1, label: 'Contribuinte ICMS' },
         { value: 2, label: 'Contribuinte Isento de IE' },
     ]
         
-    
     const readOnlyCpf = optionsCPF && optionsCPF.length > 0;
 
     const onSubmit = async () => {
         try {
-
             const cpfSemMascara = removerMascaraCPF(cpf);
             let IM = '';
 
@@ -357,7 +341,6 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         }
     }
 
-
     return {
         idCliente,
         setIdCliente,
@@ -402,6 +385,5 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
         onSubmit,
         readOnlyCpf,
         setCepDigitado
-
     }
 }

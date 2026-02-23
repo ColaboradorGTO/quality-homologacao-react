@@ -8,7 +8,6 @@ import { MultSelectAction } from "../../../Select/MultSelectAction";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { ActionListaRotatividade } from "./actionListaRotatividade";
 import { getDataAtual } from "../../../../utils/dataAtual";
-import { useFetchData } from "../../../../hooks/useFetchData";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 
@@ -35,7 +34,7 @@ export const ActionPesquisaRotatividade = () => {
   }, [])
 
 
-   const { data: dadosMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
+  const { data: dadosMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
     'marcasLista',
     async () => {
       const response = await get(`/marcasLista`);
@@ -62,38 +61,38 @@ export const ActionPesquisaRotatividade = () => {
     }
   }, [marcaSelecionada, refetchEmpresa]);
 
-     const { data: dadosFornecedor = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch: refetchFornecedor } = useQuery(
+  const { data: dadosFornecedor = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch: refetchFornecedor } = useQuery(
     'parceiro-negocio',
     async () => {
       const response = await get(`/parceiro-negocio`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
   
-       const { data: dadosGrupo = [], error: errorGrupo, isLoading: isLoadingGrupo, refetch: refetchGrupo } = useQuery(
+  const { data: dadosGrupo = [], error: errorGrupo, isLoading: isLoadingGrupo, refetch: refetchGrupo } = useQuery(
     'listaProdutoSap',
     async () => {
       const response = await get(`/listaProdutoSap`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
-         const { data: dadosGrade = [], error: errorGrade, isLoading: isLoadingGrade, refetch: refetchGrade } = useQuery(
+  const { data: dadosGrade = [], error: errorGrade, isLoading: isLoadingGrade, refetch: refetchGrade } = useQuery(
     '/listaGrade',
     async () => {
       const response = await get(`/listaGrade?idGrupo=${grupoSelecionado}`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
   const fetchListaRotatividade = async () => {
     try {
 
-      const urlApi = `/rotatividadeVendas?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&descProduto=${produtoPesquisado}&uf=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupoGrade=${grupoSelecionado}&idGrade=${gradeSelecionado}`;
+      const urlApi = `/rotatividadeVendas?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idGrupoEmpresarial=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&produtoPesquisado=${produtoPesquisado}&ufPesquisa=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupoGrade=${grupoSelecionado}&idGrade=${gradeSelecionado}`;
       const response = await get(urlApi);
 
       if (response.data.length && response.data.length === pageSize) {
@@ -133,7 +132,7 @@ export const ActionPesquisaRotatividade = () => {
   const { data: dadosRotatividade = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaRotatividade } = useQuery(
     ['rotatividadeVendas'],
     () => fetchListaRotatividade(),
-    { enabled: false , staleTime: 5 * 60 * 1000 }
+    { enabled: false , staleTime: 60 * 60 * 1000 }
   );
 
 
@@ -154,13 +153,6 @@ export const ActionPesquisaRotatividade = () => {
     const selectedGrupo = e.value;
     if (!isNaN(selectedGrupo)) {
       setGrupoSelecionado(selectedGrupo);
-    }
-  }
-
-  const handleGradeChange = (e) => {
-    const selectedSubGrupo = e.value;
-    if (!isNaN(selectedSubGrupo)) {
-      setGradeSelecionado(selectedSubGrupo);
     }
   }
 
@@ -228,7 +220,7 @@ export const ActionPesquisaRotatividade = () => {
         ]}
         labelSelectGrade={"Por Grade"}
         valueSelectGrade={gradeSelecionado}
-        onChangeSelectGrade={handleGradeChange}
+        onChangeSelectGrade={(e) => setGradeSelecionado(e.value)}
 
         InputSelectFornecedorComponent={InputSelectAction}
         optionsFornecedores={[

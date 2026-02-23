@@ -13,27 +13,35 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import Swal from "sweetalert2";
 
-export const ActionPesquisaAdiantamentoSalarioLoja = ({ ID, optionsEmpresas, usuarioLogado }) => {
+export const ActionPesquisaAdiantamentoSalarioLoja = ({ optionsEmpresas, usuarioLogado }) => {
   const [modalVisivel, setModalVisivel] = useState(false);
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
   const [currentPage, setCurrentPage] = useState(1);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
- 
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
+
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   useEffect(() => {
     const dataInicial = getDataAtual();
     const dataFinal = getDataAtual();
     setDataPesquisaInicio(dataInicial);
     setDataPesquisaFim(dataFinal);
   }, []);
-
   
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+     
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
@@ -161,8 +169,8 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({ ID, optionsEmpresas, usu
 
       {tabelaVisivel &&
         <ActionListaAdiantamentoSalarioLoja 
-        dadosAdiantamentoFuncionarios={dadosAdiantamentoFuncionarios}
-         />
+          dadosAdiantamentoFuncionarios={dadosAdiantamentoFuncionarios}
+        />
       }
 
       <ActionCadastrarAdiantamentoSalarial 

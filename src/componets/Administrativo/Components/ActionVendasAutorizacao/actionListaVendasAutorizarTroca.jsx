@@ -1,22 +1,21 @@
-import React, { Fragment, useRef, useState } from "react"
+import React, { Fragment, useRef, useState, useEffect, useCallback } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { GrFormView } from "react-icons/gr";
 import { get } from "../../../../api/funcRequest";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { formatMoeda } from "../../../../utils/formatMoeda";
-import { dataFormatada } from "../../../../utils/dataFormatada";
 import HeaderTable from "../../../Tables/headerTable";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { retornaDiasEntreDatas } from "../../../../utils/retornoEntreDias";
 import { Checkbox } from "primereact/checkbox";
+import Swal from "sweetalert2";
 
 
-export const ActionListaVendasAutorizarTroca = ({ 
-  dadosVendasPrazoExcedido, 
+export const ActionListaVendasAutorizarTroca = ({
+  dadosVendasPrazoExcedido,
   tabelaPrincipal,
   setTabelaPrincipal,
   tabelaSecundaria,
@@ -25,7 +24,7 @@ export const ActionListaVendasAutorizarTroca = ({
   setBtnAlterarVisivel,
   selectedRows,
   setSelectedRows
- }) => {
+}) => {
   const [dadosVisualizarProdutos, setDadosVisualizarProdutos] = useState([])
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
@@ -65,84 +64,79 @@ export const ActionListaVendasAutorizarTroca = ({
 
   const handlePrint = useReactToPrint({
     content: () => dataTableRef.current,
-    documentTitle: 'Vouchers Emitidos',
+    documentTitle: 'Vendas Prazo Excedido',
   });
 
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Valor Pago', 'Data', 'Situação']],
+      head: [['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Vr. Pago', 'Dt. Venda', 'Status', 'St.Cortesia', 'St.Defeito', 'Dias Passados']],
       body: dados.map(item => [
-        item.NUVOUCHER,
-        item.EMPORIGEM,
-        item.DSCAIXAORIGEM,
-        dataFormatada(item.DTINVOUCHER),
-        formatMoeda(item.VRVOUCHER),
-        item.EMPDESTINO,
-        item.DSCAIXADESTINO,
-        dataFormatada(item.DTOUTVOUCHER),
-        item.STATIVO == 'True' ? 'ATIVO' : 'USADO'
-
+        item.contador,
+        item.IDVENDA,
+        item.nomeCliente,
+        item.cpfCnpjCliente,
+        item.NOFANTASIA,
+        formatMoeda(item.VRTOTALPAGO),
+        item.DTHORAFECHAMENTO,
+        item.STCANCELADO == 'False' ? 'Ativa' : 'Cancelada',
+        item.stCortesia,
+        item.stDefeito,
+        item.DIFERENCAEMDIAS
       ]),
       horizontalPageBreak: true,
       horizontalPageBreakBehaviour: 'immediately'
     });
-    doc.save('voucher_emitidos.pdf');
+    doc.save('vendas_prazo_excedido.pdf');
   };
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados);
     const workbook = XLSX.utils.book_new();
-    const header = ['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Valor Pago', 'Data', 'Situação'];
+    const header = ['Nº', 'Nº Venda', 'Cliente', 'CPF/CNPJ', 'Loja', 'Vr. Pago', 'Dt. Venda', 'Status', 'St.Cortesia', 'St.Defeito', 'Dias Passados'];
     worksheet['!cols'] = [
-      { wpx: 100, caption: 'Nº Voucher' },
-      { wpx: 200, caption: 'Loja Emissor' },
-      { wpx: 200, caption: 'Caixa Emissor' },
-      { wpx: 200, caption: 'Data Emissão' },
-      { wpx: 100, caption: 'Valor' },
-      { wpx: 200, caption: 'Loja Recebido' },
-      { wpx: 200, caption: 'Caixa Recebido' },
-      { wpx: 200, caption: 'Data Recebida' },
-      { wpx: 100, caption: 'Situação' }
+      { wpx: 50, caption: 'Nº' },
+      { wpx: 100, caption: 'Nº Venda' },
+      { wpx: 200, caption: 'Cliente' },
+      { wpx: 100, caption: 'CPF/CNPJ' },
+      { wpx: 150, caption: 'Loja' },
+      { wpx: 100, caption: 'Vr. Pago' },
+      { wpx: 100, caption: 'Dt. Venda' },
+      { wpx: 100, caption: 'Status' },
+      { wpx: 100, caption: 'St.Cortesia' },
+      { wpx: 100, caption: 'St.Defeito' },
+      { wpx: 100, caption: 'Dias Passados' }
 
     ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vendas por Vendedor');
-    XLSX.writeFile(workbook, 'voucher_emitidos.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Vendas prazo excedido');
+    XLSX.writeFile(workbook, 'vendas_prazo_excedido.xlsx');
   };
 
 
 
   const dados = dadosVendasPrazoExcedido.map((item, index) => {
     let contador = index + 1;
-    let diasAposCompra;
     let stCortesia;
     let stDefeito;
     let nomeCliente = item.venda.DEST_CPF ? item.venda.DSNOMERAZAOSOCIAL + " " + item.venda.DSAPELIDONOMEFANTASIA : item.venda.DSNOMERAZAOSOCIAL;
     let cpfCnpjCliente = !item.venda.DEST_CNPJ ? item.venda.DEST_CPF : item.venda.DEST_CNPJ;
-    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6,10), (item.venda.DTHORAFECHAMENTO.slice(3,5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3,5)-1 : item.venda.DTHORAFECHAMENTO.slice(3,5)), item.venda.DTHORAFECHAMENTO.slice(0,2));
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6, 10), (item.venda.DTHORAFECHAMENTO.slice(3, 5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3, 5) - 1 : item.venda.DTHORAFECHAMENTO.slice(3, 5)), item.venda.DTHORAFECHAMENTO.slice(0, 2));
     const DATAHORAATUAL = new Date();
-    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime())/(1000*60*60*24));
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
 
-   
     return {
       contador,
       IDVENDA: item.venda.IDVENDA,
-      DSNOMERAZAOSOCIAL: item.venda.DSNOMERAZAOSOCIAL,
-      DSAPELIDONOMEFANTASIA: item.venda.DSAPELIDONOMEFANTASIA,
-      DEST_CPF: item.venda.DEST_CPF,
-      DEST_CNPJ: item.venda.DEST_CNPJ,
+      nomeCliente,
+      cpfCnpjCliente,
       NOFANTASIA: item.venda.NOFANTASIA,
       VRTOTALPAGO: item.venda.VRTOTALPAGO,
       DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
-      STCANCELADO: item.venda.STCANCELADO,
-      DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
-      diasAposCompra: diasAposCompra = retornaDiasEntreDatas(item.venda.DTHORAFECHAMENTO),
-      DIFERENCAEMDIAS:  DIFERENCAEMDIAS,
+      STCANCELADO: item.venda.STCANCELADO == 'False' ? 'Ativa' : 'Cancelada',
       stCortesia: stCortesia = DIFERENCAEMDIAS <= 32 ? 'Ativa' : 'Inativa',
       stDefeito: stDefeito = DIFERENCAEMDIAS <= 90 ? 'Ativa' : 'Inativa',
-      nomeCliente,
-      cpfCnpjCliente
+      DIFERENCAEMDIAS: DIFERENCAEMDIAS,
     }
   });
 
@@ -174,7 +168,7 @@ export const ActionListaVendasAutorizarTroca = ({
     {
       field: 'NOFANTASIA',
       header: 'Loja',
-      body: row => <p style={{width: '200px', fontWeight: 600}} >{row.NOFANTASIA}</p>,
+      body: row => <p style={{ width: '200px', fontWeight: 600 }} >{row.NOFANTASIA}</p>,
       sortable: true,
     },
     {
@@ -192,7 +186,7 @@ export const ActionListaVendasAutorizarTroca = ({
     {
       field: 'STCANCELADO',
       header: 'Status',
-      body: row => <th style={{ color: row.STCANCELADO == 'False' ? '#2196F3' || row.STCANCELADO == 'True' : '#fd3995 ', fontWeight: 900 }} >{row.STCANCELADO == 'False' ? 'Ativa' : 'Cancelada'} </th>,
+      body: row => <th style={{ color: row.STCANCELADO == 'Ativa' ? '#2196F3' : '#fd3995', fontWeight: 900 }} >{row.STCANCELADO} </th>,
       sortable: true,
     },
     {
@@ -211,7 +205,7 @@ export const ActionListaVendasAutorizarTroca = ({
     {
       field: 'DIFERENCAEMDIAS',
       header: 'Dias Passados',
-      body: row => <th style={{color: row.DIFERENCAEMDIAS <= 32 ? '#fd3995' : '#2196F3', fontWeight: 900}}>{row.DIFERENCAEMDIAS}</th>,
+      body: row => <th style={{ color: row.DIFERENCAEMDIAS <= 32 ? '#fd3995' : '#2196F3', fontWeight: 900 }}>{row.DIFERENCAEMDIAS}</th>,
       sortable: true,
     },
     {
@@ -240,11 +234,25 @@ export const ActionListaVendasAutorizarTroca = ({
 
   const handleClickDetalhar = async (row) => {
     if (row.IDVENDA) {
-      handleDetalhar(row.IDVENDA)
+      handleDetalhar(row.IDVENDA, row.stCortesia, row.stDefeito)
     }
   }
 
-  const handleDetalhar = async (IDVENDA) => {
+  const handleDetalhar = async (IDVENDA, stCortesia, stDefeito) => {
+
+    if (stCortesia === 'Ativa' && stDefeito === 'Ativa') {
+      Swal.fire({
+        icon: 'warning',
+        title: 'Atenção!',
+        html:'Venda dentro do prazo de troca! Não há necessidade de autorização para efetuar a troca! <br/> Se não for o caso, verifique os dados da venda!',
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#886ab5',
+        customClass: {
+          container: 'custom-swal',
+        },
+      })
+      return 
+    }
     try {
       const response = await get(`/vendas-prazo-excedido?idVenda=${IDVENDA}`)
       if (response.data && response.data.length > 0) {
@@ -257,13 +265,13 @@ export const ActionListaVendasAutorizarTroca = ({
       console.log(error, "não foi possivel pegar os dados da tabela ")
     }
   }
-  
+
 
   const dadosProdutos = dadosVisualizarProdutos.flatMap((item) => {
     const { venda, detalhe } = item;
-   const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6,10), (item.venda.DTHORAFECHAMENTO.slice(3,5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3,5)-1 : item.venda.DTHORAFECHAMENTO.slice(3,5)), item.venda.DTHORAFECHAMENTO.slice(0,2));
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6, 10), (item.venda.DTHORAFECHAMENTO.slice(3, 5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3, 5) - 1 : item.venda.DTHORAFECHAMENTO.slice(3, 5)), item.venda.DTHORAFECHAMENTO.slice(0, 2));
     const DATAHORAATUAL = new Date();
-    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime())/(1000*60*60*24));
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
 
     return detalhe.map((detalheItem, index) => {
       const contadorIndex = index + 1;
@@ -279,6 +287,7 @@ export const ActionListaVendasAutorizarTroca = ({
 
         CPROD: detalheItem.det.CPROD,
         IDVENDADETALHE: detalheItem.det.IDVENDADETALHE,
+        IDVENDA: detalheItem.det.IDVENDA,
         XPROD: detalheItem.det.XPROD,
         NUCODBARRAS: detalheItem.det.NUCODBARRAS,
         QTD: detalheItem.det.QTD,
@@ -301,14 +310,14 @@ export const ActionListaVendasAutorizarTroca = ({
         isChecked,
         isDisabled,
         // ✅ Tooltip/título para produtos já trocados
-        tooltipText: isDisabled && isChecked ? 
-          (qtdExcecao === quantidade ? 
-            `PRODUTO JÁ AUTORIZADO PARA EXCEÇÃO: ${detalheItem.det.TIPOTROCA}` : 
+        tooltipText: isDisabled && isChecked ?
+          (qtdExcecao === quantidade ?
+            `PRODUTO JÁ AUTORIZADO PARA EXCEÇÃO: ${detalheItem.det.TIPOTROCA}` :
             'ESTE PRODUTO JÁ FOI TROCADO!') :
-          (DIFERENCAEMDIAS >= 33 ? 
+          (DIFERENCAEMDIAS >= 33 ?
             `VENDA FORA DO PRAZO DE 30 DIAS PARA A TROCA DO TIPO CORTESIA, JÁ SE PASSARAM: ${DIFERENCAEMDIAS} DIAS APÓS A COMPRA!` :
-            (DIFERENCAEMDIAS >= 91 ? 
-              `VENDA FORA DO PRAZO DE 90 DIAS PARA A TROCAS DO TIPO CORTESIA OU DEFEITO, JÁ SE PASSARAM: ${DIFERENCAEMDIAS} DIAS APÓS A COMPRA!` : 
+            (DIFERENCAEMDIAS >= 91 ?
+              `VENDA FORA DO PRAZO DE 90 DIAS PARA A TROCAS DO TIPO CORTESIA OU DEFEITO, JÁ SE PASSARAM: ${DIFERENCAEMDIAS} DIAS APÓS A COMPRA!` :
               ''))
 
       };
@@ -316,15 +325,15 @@ export const ActionListaVendasAutorizarTroca = ({
   });
 
   const dadosProdutosVenda = dadosVisualizarProdutos.flatMap((item) => {
-    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6,10), (item.venda.DTHORAFECHAMENTO.slice(3,5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3,5)-1 : item.venda.DTHORAFECHAMENTO.slice(3,5)), item.venda.DTHORAFECHAMENTO.slice(0,2));
+    const DATAHORAVENDA = new Date(item.venda.DTHORAFECHAMENTO.slice(6, 10), (item.venda.DTHORAFECHAMENTO.slice(3, 5) > 1 ? item.venda.DTHORAFECHAMENTO.slice(3, 5) - 1 : item.venda.DTHORAFECHAMENTO.slice(3, 5)), item.venda.DTHORAFECHAMENTO.slice(0, 2));
     const DATAHORAATUAL = new Date();
-    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime())/(1000*60*60*24));
+    const DIFERENCAEMDIAS = Math.ceil(Math.abs((DATAHORAATUAL.setHours(0, 0, 0, 0)) - DATAHORAVENDA.getTime()) / (1000 * 60 * 60 * 24));
 
 
     return {
       IDVENDA: item.venda.IDVENDA,
       DTHORAFECHAMENTO: item.venda.DTHORAFECHAMENTO,
-     
+
       DIFERENCAEMDIAS: DIFERENCAEMDIAS
     };
 
@@ -332,7 +341,7 @@ export const ActionListaVendasAutorizarTroca = ({
 
   const getTituloDinamico = () => {
     if (!dadosProdutosVenda[0]) return null;
-    
+
     const { IDVENDA, DIFERENCAEMDIAS } = dadosProdutosVenda[0];
     const qtdItensTrocados = dadosProdutos.filter(p => p.isDisabled && p.isChecked).length;
     const totalItens = dadosProdutos.length;
@@ -354,7 +363,7 @@ export const ActionListaVendasAutorizarTroca = ({
           <span style={{ fontWeight: 500 }}>
             <i>Produtos - Venda: {IDVENDA}</i> &nbsp;&nbsp;
             <i style={{ color: '#fd3995', fontWeight: 900 }}>
-              Venda Fora do Prazo de <u><b>30 dias</b></u> Para Troca do Tipo <u><b>CORTESIA</b></u>. 
+              Venda Fora do Prazo de <u><b>30 dias</b></u> Para Troca do Tipo <u><b>CORTESIA</b></u>.
               Dias Passados Após a Compra: <u><b>{DIFERENCAEMDIAS} DIAS</b></u>
             </i>
           </span>
@@ -366,7 +375,7 @@ export const ActionListaVendasAutorizarTroca = ({
           <span style={{ fontWeight: 500 }}>
             <i>Produtos - Venda: {IDVENDA}</i> &nbsp;&nbsp;
             <i style={{ color: '#fd3995', fontWeight: 900 }}>
-              Venda Fora do Prazo Para Trocas do Tipo <b>CORTESIA<u>(30 dias)</u></b> ou <b>DEFEITO<u>(90 dias)</u></b>. 
+              Venda Fora do Prazo Para Trocas do Tipo <b>CORTESIA<u>(30 dias)</u></b> ou <b>DEFEITO<u>(90 dias)</u></b>.
               Dias Passados Após a Compra: <u><b>{DIFERENCAEMDIAS} DIAS</b></u>
             </i>
           </span>
@@ -398,7 +407,7 @@ export const ActionListaVendasAutorizarTroca = ({
         <Checkbox
           onChange={e => {
             onRowSelect(row, e.checked);
-            
+
           }}
           checked={row.isChecked || selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex)}
           disabled={row.isDisabled}
@@ -434,7 +443,7 @@ export const ActionListaVendasAutorizarTroca = ({
       field: 'QTD',
       header: 'Quantidade',
       body: row => {
-          const isCheckboxChecked = row.isChecked || selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex);
+        const isCheckboxChecked = row.isChecked || selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex);
         const isDisabled = row.isDisabled || row.QTD <= 1 || isCheckboxChecked;
         const quantidadeAtual = quantidadesProdutos[row.contadorIndex] || row.QTD;
         return (
@@ -467,6 +476,7 @@ export const ActionListaVendasAutorizarTroca = ({
   return (
 
     <Fragment>
+
       {tabelaPrincipal && (
         <>
           <div className="panel">
@@ -484,7 +494,6 @@ export const ActionListaVendasAutorizarTroca = ({
 
             </div>
             <div className="card" ref={dataTableRef}>
-
               <DataTable
                 title="Vendas Voucher por Loja"
                 value={dados}
@@ -509,7 +518,6 @@ export const ActionListaVendasAutorizarTroca = ({
                     key={coluna.field}
                     field={coluna.field}
                     header={coluna.header}
-
                     body={coluna.body}
                     footer={coluna.footer}
                     sortable={coluna.sortable}
@@ -531,54 +539,53 @@ export const ActionListaVendasAutorizarTroca = ({
           <div className="panel">
             <div className="panel-hdr">
               {getTituloDinamico()}
-          
+
             </div>
-              <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-                <HeaderTable
-                  globalFilterValue={globalFilterValue}
-                  onGlobalFilterChange={onGlobalFilterChange}
-                  handlePrint={handlePrint}
-                  exportToExcel={exportToExcel}
-                  exportToPDF={exportToPDF}
-                />
+            <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+              <HeaderTable
+                globalFilterValue={globalFilterValue}
+                onGlobalFilterChange={onGlobalFilterChange}
+                handlePrint={handlePrint}
+                exportToExcel={exportToExcel}
+                exportToPDF={exportToPDF}
+              />
 
-              </div>
-              <div className="card">
+            </div>
+            <div className="card">
+              <DataTable
+                title="Vendas Voucher por Loja"
+                value={dadosProdutos}
+                globalFilter={globalFilterValue}
+                size="small"
+                selectionMode={rowClick ? null : 'single'}
+                selection={rowClick}
+                onSelectionChange={(e) => setRowClick(e.value)}
+                sortOrder={-1}
+                rowsPerPageOptions={[5, 10, 20, 50, 100, dadosProdutos.length]}
+                paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+                filterDisplay="menu"
+                showGridlines
+                stripedRows
+                rowClassName={(row) => row.isDisabled ? 'row-disabled' : ''}
+                emptyMessage={<div className="dataTables_empty">Dados não encontrados, verifique os dados inseridos na pesquisa e tente novamente!</div>}
+              >
+                {colunasProdutoVenda.map(coluna => (
+                  <Column
+                    key={coluna.field}
+                    field={coluna.field}
+                    header={coluna.header}
+                    body={coluna.body}
+                    footer={coluna.footer}
+                    sortable={coluna.sortable}
+                    headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
+                    footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
+                    bodyStyle={{ fontSize: '1rem' }}
 
-                <DataTable
-                  title="Vendas Voucher por Loja"
-                  value={dadosProdutos}
-                  globalFilter={globalFilterValue}
-                  size="small"
-                  selectionMode={rowClick ? null : 'checkbox'}
-                  selection={rowClick}
-                  onSelectionChange={(e) => setRowClick(e.value)}
-                  sortOrder={-1}
-                  rowsPerPageOptions={[5, 10, 20, 50, 100, dadosProdutos.length]}
-                  paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-                  currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
-                  filterDisplay="menu"
-                  showGridlines
-                  stripedRows
-                  emptyMessage={<div className="dataTables_empty">Dados não encontrados, verifique os dados inseridos na pesquisa e tente novamente!</div>}
-                >
-                  {colunasProdutoVenda.map(coluna => (
-                    <Column
-                      key={coluna.field}
-                      field={coluna.field}
-                      header={coluna.header}
-
-                      body={coluna.body}
-                      footer={coluna.footer}
-                      sortable={coluna.sortable}
-                      headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
-                      footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
-                      bodyStyle={{ fontSize: '1rem' }}
-
-                    />
-                  ))}
-                </DataTable>
-              </div>
+                  />
+                ))}
+              </DataTable>
+            </div>
           </div>
         </Fragment>
       )}

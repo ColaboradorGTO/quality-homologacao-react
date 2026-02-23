@@ -16,7 +16,6 @@ import Swal from 'sweetalert2';
 
 export const ActionListaVendaCLiente = ({
   dadosVendasClientes,
-  btnVisivel,
   setBtnVisivel,
   selectedRows,
   setSelectedRows,
@@ -24,8 +23,6 @@ export const ActionListaVendaCLiente = ({
   setDadosVisualizarProdutos,
   tipoTrocaSelecionada,
   setTipoTrocaSelecionada,
-  quantidade,
-  setQuantidade,
   quantidadesProdutos,
   setQuantidadesProdutos,
   tabelaSecundaria,
@@ -36,7 +33,6 @@ export const ActionListaVendaCLiente = ({
   const [rowClick, setRowClick] = useState(true);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
-
 
   const onRowSelect = (row, checked) => {
     if (checked) {
@@ -241,18 +237,6 @@ export const ActionListaVendaCLiente = ({
     return false;
   };
 
-  const handleClickDetalhar = async (row) => {
-    if (row.IDVENDA) {
-      handleDetalhar(row.IDVENDA)
-    }
-  }
-
-  const handleMostrarProdutos = (dadosVenda) => {
-    setDadosVisualizarProdutos([dadosVenda]);
-    setTabelaVenda(false);
-    setTabelaSecundaria(true);
-  };
-
   const handleDetalhar = async (IDVENDA) => {
     try {
       const response = await get(`/lista-venda-cliente?idVenda=${IDVENDA}`)
@@ -403,6 +387,7 @@ export const ActionListaVendaCLiente = ({
 
   return (
     <Fragment>
+
       {tabelaVenda && (
         <div className="panel">
           <div className="panel-hdr">
@@ -509,8 +494,9 @@ export const ActionListaVendaCLiente = ({
                 rowsPerPageOptions={[10, 20, 50, 100, dadosProdutos.length]}
                 showGridlines
                 stripedRows
-                isDataSelectable={isRowSelectable}
-                rowClassName={rowClassName}
+                rowClassName={(row) => row.STTROCA == 'True' ? 'row-disabled' : ''}
+         
+                
                 emptyMessage={<div className="dataTables_empty">Não há Produtos Na Venda</div>}
               >
                 {colunasVouchers2.map(coluna => (

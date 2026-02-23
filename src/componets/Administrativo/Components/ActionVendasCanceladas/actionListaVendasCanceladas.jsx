@@ -49,7 +49,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
     const doc = new jsPDF();
     doc.autoTable({
       head: [['Nº', 'Empresa', 'Caixa', 'Nº Venda', 'NFE/NFCe', 'Abertura', 'Operador', 'Vr.Dinheiro', 'Vr.Cartão', 'Vr.Convênio', 'Vr.POS', 'Vr.Voucher', 'Vr.Venda', 'ST Nota', 'Cancelado Por', 'Função', 'Motivo']],
-      body: dadosListaVendasCanceladas.map(item => [
+      body: dadosVendasAtivas.map(item => [
         item.contador, 
         item.NOFANTASIA,
         item.DSCAIXA,
@@ -105,7 +105,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
   };
   
   const calcularTotal = (field) => {
-    return dadosListaVendasCanceladas.reduce((total, item) => total + parseFloat(item[field]), 0);
+    return dadosVendasAtivas.reduce((total, item) => total + parseFloat(item[field]), 0);
   };
 
 
@@ -166,7 +166,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
 
     }
   });
-  const dadosListaVendasCanceladas = dadosVendasCanceladas.map((item, index) => {
+  const dadosVendasAtivas = dadosVendasCanceladas.map((item, index) => {
     let contador = index + 1;
 
     return {
@@ -416,7 +416,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
   const handleEditPagamento = async (IDVENDA) => {
     try {
       const response = await get(`/recebimento-resumo?idVenda=${IDVENDA}`)
-      if (response) {
+      if (response.data && response.data.length > 0) {
         setDadosPagamentoModal(response.data)
         setDadosDetalheRecebimentos(response.data)
         setModalPagamentoVisivel(true)
@@ -428,7 +428,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
   }
 
   const handleClickPagamento = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'False') {
+    if(optionsModulos[0]?.ALTERAR == 'True') {
       Swal.fire({
         icon: 'warning',
         title: 'Atenção',
@@ -486,55 +486,60 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
   return (
 
     <Fragment>
+      <div className="panel">
+        <div className="panel-hdr">
 
-      <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-        <HeaderTable
-          globalFilterValue={globalFilterValue}
-          onGlobalFilterChange={onGlobalFilterChange}
-          handlePrint={handlePrint}
-          exportToExcel={exportToExcel}
-          exportToPDF={exportToPDF}
-        />
+        </div>
+        <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+          <HeaderTable
+            globalFilterValue={globalFilterValue}
+            onGlobalFilterChange={onGlobalFilterChange}
+            handlePrint={handlePrint}
+            exportToExcel={exportToExcel}
+            exportToPDF={exportToPDF}
+          />
 
-      </div>
-      <div className="card" ref={dataTableRef}>
+        </div>
+        
+        <div className="card" ref={dataTableRef}>
 
-        <DataTable
-          title="Vendas por Loja"
-          value={dadosListaVendasCanceladas}
-          globalFilter={globalFilterValue}
-          size="small"
-          selectionMode="single"
-          selection={rowSelection}
-          onSelectionChange={(e) => setRowSelection(e.value)}
-          footerColumnGroup={footerGroup}
-          rowsPerPageOptions={[10, 20, 50, 100, dadosListaVendasCanceladas.length]}
-          paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
-          filterDisplay="menu"
-          sortOrder={-1}
-          paginator={true}
-          rows={10}
-          showGridlines
-          stripedRows
-          emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
-        >
-          {colunasVendasCanceladas.map(coluna => (
-            <Column
-              key={coluna.field}
-              field={coluna.field}
-              header={coluna.header}
+          <DataTable
+            title="Vendas por Loja"
+            value={dadosVendasAtivas}
+            globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            footerColumnGroup={footerGroup}
+            rowsPerPageOptions={[10, 20, 50, 100, dadosVendasAtivas.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
+            sortOrder={-1}
+            paginator={true}
+            rows={10}
+            showGridlines
+            stripedRows
+            emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
+          >
+            {colunasVendasCanceladas.map(coluna => (
+              <Column
+                key={coluna.field}
+                field={coluna.field}
+                header={coluna.header}
 
-              body={coluna.body}
-              footer={coluna.footer}
-              sortable={coluna.sortable}
-              headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-              footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-              bodyStyle={{ fontSize: '0.8rem' }}
+                body={coluna.body}
+                footer={coluna.footer}
+                sortable={coluna.sortable}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '0.8rem' }}
 
-            />
-          ))}
-        </DataTable>
+              />
+            ))}
+          </DataTable>
+        </div>
       </div>
 
       <ActionDetalheVendaModal
@@ -554,6 +559,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
         handleClose={handleCloseModal}
         dadosPagamentoModal={dadosPagamentoModal}
         dadosDetalheRecebimentos={dadosDetalheRecebimentos}
+        dadosAtivasVendas={dadosVendasAtivas}
         optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}
       />

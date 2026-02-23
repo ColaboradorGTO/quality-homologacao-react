@@ -32,7 +32,6 @@ export const ActionCadastroClienteCPF = ({ show, handleClose, usuarioLogado, opt
             usuarioLogado={usuarioLogado}
             optionsModulos={optionsModulos}
             optionsCPF={optionsCPF}
-            
           />
 
         </Modal.Body>

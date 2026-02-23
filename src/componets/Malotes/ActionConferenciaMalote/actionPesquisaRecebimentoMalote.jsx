@@ -11,7 +11,7 @@ import { ButtonType } from "../../Buttons/ButtonType"
 import { getDataAtual } from "../../../utils/dataAtual"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../utils/animationCarregamento"
 
-export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID }) => {
+export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado }) => {
     const [dataPesquisaInicio, setDataPesquisaInicio] = useState("");
     const [dataPesquisaFim, setDataPesquisaFim] = useState("");
     const [empresaSelecionada, setEmpresaSelecionada] = useState("");
@@ -20,6 +20,7 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID }) => {
     const [statusSelecionado, setStatusSelecionado] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(500);
+    const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
     useEffect(() => {
         const dataInicial = getDataAtual();
@@ -31,16 +32,24 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID }) => {
 
     const { data: optionsEmpresas = [] } = useFetchData('empresas', '/empresas');
 
-    const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-        'menus-usuario-excecao',
-        async () => {
-            const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
 
+    useEffect(() => {
+        const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+        if (menuSalvo) {
+            const menuParsed = JSON.parse(menuSalvo);
+            setMenuFilhoAtual(menuParsed);
+        }
+    }, []);
+    
+    const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+        ['menus-usuario-excecao', menuFilhoAtual?.ID],
+        async () => {
+            const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+            
             return response.data;
         },
-        { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+        { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
     );
-
 
     const fetchListaMalotes = async () => {
         const urlBase = `/malotes-loja?idEmpresa=${empresaSelecionada}&statusMalote=${statusSelecionado}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;

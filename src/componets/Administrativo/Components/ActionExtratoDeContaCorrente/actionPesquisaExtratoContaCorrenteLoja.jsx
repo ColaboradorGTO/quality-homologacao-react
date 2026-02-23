@@ -17,7 +17,7 @@ export const ActionPesquisaExtratoContaCorenteLoja = () => {
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -65,9 +65,7 @@ export const ActionPesquisaExtratoContaCorenteLoja = () => {
   const { data: dadosExtratoLojaPeriodo = [], error: errorExtrato, isLoading: isLoadingExtrato, refetch: refetchListaExtrato } = useQuery(
     ['listaExtratoDaLojaPeriodo',],
     () => fetchListaExtrato(),
-    {
-      enabled: false, 
-    }
+    { enabled: false, }
   );
 
 
@@ -78,10 +76,8 @@ export const ActionPesquisaExtratoContaCorenteLoja = () => {
   };
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1)
     refetchListaExtrato()
     setTabelaVisivel(true)
-    
   }
 
   return (
@@ -122,9 +118,7 @@ export const ActionPesquisaExtratoContaCorenteLoja = () => {
       />
 
       {tabelaVisivel && (
-        
         <ActionListaExtratoContaCorrenteLoja dadosExtratoLojaPeriodo={dadosExtratoLojaPeriodo} />
-        
       )}
     </Fragment>
   )

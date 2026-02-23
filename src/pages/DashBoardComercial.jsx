@@ -24,12 +24,12 @@ const ActionPesquisaPrecoProdutoGrupoSubGrupo = lazy(() => import("../componets/
 
 export const DashBoardComercial = () => {
   const [resumoVisivel, setResumoVisivel] = useState(true);
-  const [actionVisivel, setActionVisivel] = useState(true);
-  const [clickContador, setClickContador] = useState(0);
   const [usuarioLogado, setUsuarioLogado] = useState(null)
   const [componentToShow, setComponentToShow] = useState("");
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
+  const [menuSelected, setMenuSelected] = useState(null);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -47,21 +47,48 @@ export const DashBoardComercial = () => {
     }
   }, [navigate]);
 
+
   useEffect(() => {
+    const storedMenuFilho = JSON.parse(localStorage.getItem('menufilhoSelecionado'));
+
+    if (storedMenuFilho) {
+      setMenuSelected(selectedModule);
+    }
 
   }, [usuarioLogado]);
 
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-      'menus-usuario',
-      async () => {
-        const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
-        
-        return response.data;
-      },
-      { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
-    );
+  const { data: optionsModulosPage = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    'menus-usuario',
+    async () => {
+      const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
+  );
 
   function handleShowComponent(componentName) {
+    const menuFilhoSelecionado = selectedModule.menuPai.menuFilho.find(
+      menu => menu.URL === componentName
+    );
+
+    if (menuFilhoSelecionado) {
+      // Salvar todas as informações do menu selecionado no localStorage
+      localStorage.setItem('menuFilhoSelecionado', JSON.stringify({
+        ID: menuFilhoSelecionado.ID,
+        DSNOME: menuFilhoSelecionado.DSNOME,
+        URL: menuFilhoSelecionado.URL,
+        ALTERAR: menuFilhoSelecionado.ALTERAR,
+        CRIAR: menuFilhoSelecionado.CRIAR,
+        VISUALIZAR: menuFilhoSelecionado.VISUALIZAR,
+        N1: menuFilhoSelecionado.N1,
+        N2: menuFilhoSelecionado.N2,
+        N3: menuFilhoSelecionado.N3,
+        N4: menuFilhoSelecionado.N4,
+        ADMINISTRADOR: menuFilhoSelecionado.ADMINISTRADOR
+      }));
+    }
+
     setComponentToShow(componentName);
   }
 
@@ -90,7 +117,7 @@ export const DashBoardComercial = () => {
       component = <ActionPesquisaProductoPreco />
       break;
     case "/comercial/ActionPesquisaFuncionario":
-      component = <ActionPesquisaFuncionario />
+      component = <ActionPesquisaFuncionario usuarioLogado={usuarioLogado} />
       break;
     case "/comercial/ActionPesquisaVendasRelatorio":
       // component = <ActionPesquisaVendasRelatorioGeral />
@@ -129,7 +156,7 @@ export const DashBoardComercial = () => {
                 handleShowComponent={handleShowComponent}
               />
               <div className="page-content-wrapper">
-                <HeaderMain optionsModulos={optionsModulos}/>
+                <HeaderMain optionsModulosPage={optionsModulosPage} />
 
                 <main id="js-page-content" role="main" className="page-content">
                   <div className="row">

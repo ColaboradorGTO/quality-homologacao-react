@@ -1,5 +1,4 @@
 import React, { Fragment, useEffect, useState, Suspense, lazy } from "react"
-import { useNavigate } from "react-router-dom"
 import { MenuSidebarAdmin } from "../componets/Sidebar/sidebar";
 import { HeaderMain } from "../componets/Header";
 import { MenuButton } from "../componets/Buttons/menuButton";
@@ -8,8 +7,6 @@ import { SidebarProvider } from "../componets/Sidebar/SidebarContext";
 import { useFetchData } from "../hooks/useFetchData";
 import { useQuery } from "react-query";
 import { get } from "../api/funcRequest";
-
-
 
 const ResumoDashBoardGerencia = lazy(() => import("../componets/Gerencia/ResumoGerencia/ResumoDashBoardGerencia").then(module => ({ default: module.ResumoDashBoardGerencia })));
 const ActionPesquisaProdutosQuality = lazy(() => import("../componets/Gerencia/Components/ActionProdutosQuality/actionPesquisaProdutosQuality").then(module => ({ default: module.ActionPesquisaProdutosQuality })));
@@ -45,6 +42,9 @@ const ActionPesquisaVendaVoucher = lazy(() => import("../componets/Gerencia/Comp
 export const DashBoardGerencia = () => {
   const storedModule = localStorage.getItem('moduloselecionado');
   const selectedModule = JSON.parse(storedModule);
+  const [menuSelected, setMenuSelected] = useState(null);
+  const [menuFilhoSelecionado, setMenuFilhoSelecionado] = useState(null);
+  
   const [resumoVisivel, setResumoVisivel] = useState(true);
   const [componentToShow, setComponentToShow] = useState("");
   const [usuarioLogado, setUsuarioLogado] = useState(null);
@@ -58,19 +58,44 @@ export const DashBoardGerencia = () => {
   }, []);
 
   useEffect(() => {
+    const storedMenuFilho = JSON.parse(localStorage.getItem('menufilhoSelecionado'));
+
+    if (storedMenuFilho) {
+      setMenuSelected(selectedModule);
+    }
 
   }, [usuarioLogado]);
 
   function handleShowComponent(componentName) {
+    const menuFilhoSelecionado = selectedModule.menuPai.menuFilho.find(
+      menu => menu.URL === componentName
+    );
+  
+    if (menuFilhoSelecionado) {
+      // Salvar todas as informações do menu selecionado no localStorage
+      localStorage.setItem('menuFilhoSelecionado', JSON.stringify({
+        ID: menuFilhoSelecionado.ID,
+        DSNOME: menuFilhoSelecionado.DSNOME,
+        URL: menuFilhoSelecionado.URL,
+        ALTERAR: menuFilhoSelecionado.ALTERAR,
+        CRIAR: menuFilhoSelecionado.CRIAR,
+        VISUALIZAR: menuFilhoSelecionado.VISUALIZAR,
+        N1: menuFilhoSelecionado.N1,
+        N2: menuFilhoSelecionado.N2,
+        N3: menuFilhoSelecionado.N3,
+        N4: menuFilhoSelecionado.N4,
+        ADMINISTRADOR: menuFilhoSelecionado.ADMINISTRADOR
+      }));
+    }
     setComponentToShow(componentName);
   }
-  
+
   const { data: optionsEmpresas = [] } = useFetchData('empresas', '/empresas');
-  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario',
+  const { data: optionsModulosPage = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario', selectedModule],
     async () => {
       const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
-      
+
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
@@ -79,105 +104,108 @@ export const DashBoardGerencia = () => {
   const permissaoUsuario = selectedModule.menuPai.menuFilho;
   const {   
     ID, 
+    IDPERFIL
   } = permissaoUsuario.map(item => ({
     ID: item.ID,
+    IDPERFIL: item.IDPERFIL,
   })).reduce((acc, curr) => {
+    
     return { ...acc, ...curr };
   }, {});
-
+ 
 
   let component = null;
 
   switch (componentToShow) {
+    case "/gerencia/ResumoDashBoardGerencia":
+      component = <ResumoDashBoardGerencia usuarioLogado={usuarioLogado}  />;
+      break;
     case "/gerencia/ActionPesquisaProdutoEtiqueta":
-      component = <ActionPesquisaProdutoEtiqueta usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>;
+      component = <ActionPesquisaProdutoEtiqueta usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>;
       break;
     case "/gerencia/ActionPesquisaEtiquetaRemarcacao":
-      component = <ActionPesquisaEtiquetaRemarcacao usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>;
-      break;
-    case "/gerencia/ResumoDashBoardGerencia":
-      component = <ResumoDashBoardGerencia usuarioLogado={usuarioLogado} ID={ID} />;
+      component = <ActionPesquisaEtiquetaRemarcacao usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>;
       break;
     case "/gerencia/ActionPesquisaProdutosQuality":
-      component = <ActionPesquisaProdutosQuality usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />;
+      component = <ActionPesquisaProdutosQuality usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />;
       break;
     case "/gerencia/ActionPesquisaProdutosSap":
-      component = <ActionPesquisaProdutosSap usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />;
+      component = <ActionPesquisaProdutosSap usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />;
       break;
     case "/gerencia/ActionPesquisaAdiantamentoSalarioLoja":
-      component = <ActionPesquisaAdiantamentoSalarioLoja  usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaAdiantamentoSalarioLoja  usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaDepositoLoja":
-      component = <ActionPesquisaDepositoLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaDepositoLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaDespesaLoja":
-      component = <ActionPesquisaDespesaLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaDespesaLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaValeTransporte":
-      component = <ActionPesquisaValeTransporte usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaValeTransporte usuarioLogado={usuarioLogado}  />
       break;
     case "/gerencia/ActionPesquisaConferenciaCaixa":
-      component = <ActionPesquisaConferenciaCaixa usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaConferenciaCaixa usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaFaturaLoja":
-      component = <ActionPesquisaFaturaLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaFaturaLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaCreateVoucher":
-      component = <ActionPesquisaCreateVoucher usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaCreateVoucher usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaVoucherEmitido":
-      component = <ActionPesquisaVoucherEmitido usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaVoucherEmitido usuarioLogado={usuarioLogado}  />
       break;
     case "/gerencia/ActionPesquisaQuebraCaixa":
-      component = <ActionPesquisaQuebraCaixa usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaQuebraCaixa usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaConferenciaMalote":
-      component = <ActionPesquisaConferenciaMalote usuarioLogado={usuarioLogado} ID={ID}/>
+      component = <ActionPesquisaConferenciaMalote usuarioLogado={usuarioLogado} />
       break;
     case "/gerencia/ActionPesquisaOT":
-      component = <ActionPesquisaOT usuarioLogado={usuarioLogado} ID={ID}/>
+      component = <ActionPesquisaOT usuarioLogado={usuarioLogado} />
       break;
     case "/gerencia/ActionExtratoDeContasCorrenteLoja":
-      component = <ActionPesquisaExtratoContaCorenteLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaExtratoContaCorenteLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaRecebimentosLoja":
-      component = <ActionPesquisaRecebimentosLoja />
+      component = <ActionPesquisaRecebimentosLoja usuarioLogado={usuarioLogado} />
       break;
     case "/gerencia/ActionPesquisaVendasLojas":
-      component = <ActionPesquisaVendasLojas usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaVendasLojas usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaVendasVendedor":
-      component = <ActionPesquisaVendasVendedor usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaVendasVendedor usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaVendasEstrutura":
-      component = <ActionPesquisaVendasEstrutura usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaVendasEstrutura usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaEstoqueLoja":
-      component = <ActionPesquisaEstoqueLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaEstoqueLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionRelatorioBI":
-      component = <ActionRelatorioBI />
+      component = <ActionRelatorioBI usuarioLogado={usuarioLogado} />
       break;
     case "/gerencia/ActionPesquisaAlteracaoPreco":
-      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado}  />
       break;
     case "/gerencia/ActionPesquisaEmpresas":
-      component = <ActionPesquisaEmpresas usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas} />
+      component = <ActionPesquisaEmpresas usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas} />
       break;
     case "/gerencia/ActionPesquisaClientesVendas":
-      component = <ActionPesquisaClientesVendas usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaClientesVendas usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaVendasDescontoFuncionario":
-      component = <ActionPesquisaVendasDescontoFuncionario usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaVendasDescontoFuncionario usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaBalancoLoja":
-      component = <ActionPesquisaBalancoLoja usuarioLogado={usuarioLogado} ID={ID} optionsEmpresas={optionsEmpresas}/>
+      component = <ActionPesquisaBalancoLoja usuarioLogado={usuarioLogado}  optionsEmpresas={optionsEmpresas}/>
       break;
     case "/gerencia/ActionPesquisaVendaVoucher":
-      component = <ActionPesquisaVendaVoucher />
+      component = <ActionPesquisaVendaVoucher usuarioLogado={usuarioLogado}/>
       break;
     case "/gerencia/ActionPesquisaEtiquetasVolumes":
-      component = <ActionPesquisaEtiquetasVolumes usuarioLogado={usuarioLogado} ID={ID} />
+      component = <ActionPesquisaEtiquetasVolumes usuarioLogado={usuarioLogado}  />
       break;
     default:
       component = null;
@@ -198,7 +226,7 @@ export const DashBoardGerencia = () => {
                 handleShowComponent={handleShowComponent}
               />
               <div className="page-content-wrapper">
-                <HeaderMain optionsModulos={optionsModulos} />
+                <HeaderMain optionsModulosPage={optionsModulosPage} />
 
                 <main id="js-page-content" role="main" className="page-content">
                   <div className="row">
@@ -208,7 +236,7 @@ export const DashBoardGerencia = () => {
                           <div className="panel-content">
                             <Suspense fallback={<div>Loading...</div>}>
                               {resumoVisivel && !componentToShow && (
-                                <ResumoDashBoardGerencia usuarioLogado={usuarioLogado} ID={ID}/>
+                                <ResumoDashBoardGerencia usuarioLogado={usuarioLogado} />
                               )}
 
                               {componentToShow && component}

@@ -22,8 +22,9 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
   const [modalDespesasVisivel, setModalDespesasVisivel] = useState(false);
   const [dadosDespesasLojaDetalhe, setDadosDespesasLojaDetalhe] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
- 
+
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
   };
@@ -39,14 +40,14 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
       head: [['Nº', 'Empresa', 'Data Mov.', 'Descrição', 'Valor', 'Pago A', 'Histórico', 'Tipo Nota', 'Nota Fiscal', 'Situação']],
       body: dados.map(item => [
         item.contador,
-        item.NOFANTASIA, 
-        item.DTDESPESA, 
-        item.DSCATEGORIA, 
-        formatMoeda(item.VRDESPESA), 
-        item.DSPAGOA, 
-        item.DSHISTORIO, 
-        item.TPNOTA, 
-        item.NUNOTAFISCAL, 
+        item.NOFANTASIA,
+        item.DTDESPESA,
+        item.DSCATEGORIA,
+        formatMoeda(item.VRDESPESA),
+        item.DSPAGOA,
+        item.DSHISTORIO,
+        item.TPNOTA,
+        item.NUNOTAFISCAL,
         item.STCANCELADO
       ]),
       horizontalPageBreak: true,
@@ -60,7 +61,7 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
     const workbook = XLSX.utils.book_new();
     const header = ['Nº', 'Empresa', 'Data Mov.', 'Descrição', 'Valor', 'Pago A', 'Histórico', 'Tipo Nota', 'Nota Fiscal', 'Situação'];
     worksheet['!cols'] = [
-      { wpx: 100, caption: 'Nº' }, 
+      { wpx: 100, caption: 'Nº' },
       { wpx: 200, caption: 'Empresa' },
       { wpx: 100, caption: 'Data Mov.' },
       { wpx: 200, caption: 'Descrição' },
@@ -70,8 +71,8 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
       { wpx: 100, caption: 'Tipo Nota' },
       { wpx: 200, caption: 'Nota Fiscal' },
       { wpx: 100, caption: 'Situação' },
-      
-    ]; 
+
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Despesas por Lojas');
     XLSX.writeFile(workbook, 'despesas_loja.xlsx');
@@ -93,10 +94,10 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
       NUNOTAFISCAL: item.NUNOTAFISCAL,
       STCANCELADO: item.STCANCELADO,
 
-      IDCATEGORIARECDESP: item.IDCATEGORIARECEITADESPESA, 
-      
+      IDCATEGORIARECDESP: item.IDCATEGORIARECEITADESPESA,
+
     }
-  }): [];
+  }) : [];
 
   const colunasEmpresas = [
     {
@@ -180,14 +181,14 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
               }}
             >
               <div>
-              
+
                 <ButtonTable
                   titleButton={"Editar Despesa"}
                   onClickButton={() => handleClickEditar(row)}
                   Icon={CiEdit}
                   iconColor={"#fff"}
                   cor={"primary"}
-                  iconSize={25} 
+                  iconSize={25}
                   width="30px"
                   height="30px"
                 />
@@ -244,7 +245,7 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
 
       if (response.data && response.data.length > 0) {
         setDadosDespesasLojaDetalhe(response.data)
-        setModalDespesasVisivel(true); 
+        setModalDespesasVisivel(true);
       } else {
         Swal.fire({
           position: 'center',
@@ -265,7 +266,7 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
 
 
   const handleClickEditar = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDDESPESASLOJA) {
         handleEditar(row.IDDESPESASLOJA);
       }
@@ -310,6 +311,9 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}
@@ -350,4 +354,3 @@ export const ActionListaDespesaLoja = ({ dadosDespesasLoja, usuarioLogado, optio
     </Fragment>
   )
 }
-

@@ -3,14 +3,13 @@ import { FooterModal } from "../../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../../Buttons/ButtonTypeModal"
 import { useForm, Controller } from "react-hook-form"
 import { useCadastrarClienteCPF } from "../hooks/useCadastroClienteCPF"
-import { mascaraCPF, validarCPF } from "../../../../../../utils/formatCPF"
-import { mascaraTelefone } from "../../../../../../utils/mascaraTelefone"
-import { validaTelefoneOrCelular } from "../../../../../../utils/validaTelefoneOrCelular"
+import { mascaraCPF } from "../../../../../../utils/formatCPF"
+import { mascaraTelefone, removerMascaraTelefone } from "../../../../../../utils/mascaraTelefone"
 import FormField from "../../../../../Formularios/FormField"
 import { schema } from "./schemaValidationCPF"
 
 
-export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, optionsCPF, onCpf, onVoucherSuccess }) => {
+export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos, optionsCPF }) => {
   const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
     mode: "onChange"
   });
@@ -53,10 +52,11 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
     estado,
     setEstado,
     onSubmit,
-    readOnlyCpf
-  } = useCadastrarClienteCPF({ usuarioLogado, optionsModulos, handleClose, onCpf, onVoucherSuccess });
+    readOnlyCpf,
+    setCepDigitado
+  } = useCadastrarClienteCPF({ usuarioLogado, optionsModulos, handleClose  });
 
-  const fecharModal = () => {
+    const fecharModal = () => {
     handleClose();
     setIdCliente('');
     setTipo('');
@@ -84,13 +84,13 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
         nomeCliente: nomeClienteRazao,
         sobrenomeCliente: sobrenome,
         dataNascimentoCliente: dataNascimento,
-        telefoneCliente: telefoneCliente,
+        telefoneDoCliente: removerMascaraTelefone(telefoneCliente),
         emailCliente: email,
         cepCliente: cep,
         enderecoCliente: endereco,
         numeroEnderecoCliente: numero,
         complementoCliente: complemento,
-        bairroCliente: bairro,
+        // bairroCliente: bairro,
         nuIBGECliente: nuIBGE,
         cidadeCliente: cidade,
         estadoCliente: estado
@@ -221,9 +221,10 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     placeholder={"DIGITE O NOME"}
                     type="text"
                     value={nomeClienteRazao}
-                    onChange={(e) => setNomeClienteRazao(e.target.value)}
+                    onChange={(e) => setNomeClienteRazao(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />
@@ -240,12 +241,14 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     placeholder={"DIGITE O SOBRENOME"}
                     type="text"
                     value={sobrenome}
-                    onChange={(e) => setSobrenome(e.target.value)}
+                    onChange={(e) => setSobrenome(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />
+              {/* {console.log(sobrenome, 'sobrenome')} */}
             </div>
           </div>
 
@@ -277,11 +280,11 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                 control={control}
                 render={({ field }) => (
                   <FormField
-                    name="TelefoneCliente"
+                    name="TelefoneDoCliente"
                     label={"Telefone"}
                     placeholder={"DIGITE O TELEFONE"}
                     type="text"
-                    id={"TelefoneCliente"}
+                    id={"TelefoneDoCliente"}
                     value={mascaraTelefone(telefoneCliente)}
                     onChange={(e) => setTelefoneCliente(e.target.value)}
                     errors={errors}
@@ -304,7 +307,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="email"
                     id={"email"}
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)} 
                     errors={errors}
                     clearErrors={clearErrors}
                   />
@@ -344,7 +347,10 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"NuCEP"}
                     value={cep}
-                    onChange={(e) => setCep(e.target.value)}
+                    onChange={(e) => { 
+                      setCepDigitado(true);
+                      setCep(e.target.value)
+                    }}
                     errors={errors}
                     clearErrors={clearErrors}
                   />
@@ -364,9 +370,10 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"Endereco"}
                     value={endereco}
-                    onChange={(e) => setEndereco(e.target.value)}
+                    onChange={(e) => setEndereco(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />
@@ -404,9 +411,10 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"Complemento"}
                     value={complemento}
-                    onChange={(e) => setComplemento(e.target.value)}
+                    onChange={(e) => setComplemento(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />
@@ -427,10 +435,11 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"Bairro"}
                     value={bairro}
-                    onChange={(e) => setBairro(e.target.value)}
+                    onChange={(e) => setBairro(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
                     readOnly={true}
+                    style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />
@@ -467,10 +476,11 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
                     type="text"
                     id={"Cidade"}
                     value={cidade}
-                    onChange={(e) => setCidade(e.target.value)}
+                    onChange={(e) => setCidade(e.target.value.toUpperCase())}
                     errors={errors}
                     clearErrors={clearErrors}
                     readOnly={true}
+                     style={{ textTransform: 'uppercase' }}
                   />
                 )}
               />

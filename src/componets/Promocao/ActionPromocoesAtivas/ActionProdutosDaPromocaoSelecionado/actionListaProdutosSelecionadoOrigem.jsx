@@ -6,14 +6,10 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
-import { post, put } from "../../../../api/funcRequest";
-import Swal from "sweetalert2";
+import { post } from "../../../../api/funcRequest";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { IoMdClose } from "react-icons/io";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { FaCheck } from "react-icons/fa";
-import { set } from "react-hook-form";
+
 
 export const ActionListaProdutosSelecionadoOrigem = ({
   produtoOrigemSelecionado,
@@ -24,6 +20,7 @@ export const ActionListaProdutosSelecionadoOrigem = ({
   setFileProdutoOrigem
 }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [idsParaBuscar, setIdsParaBuscar] = useState([]);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -65,32 +62,101 @@ export const ActionListaProdutosSelecionadoOrigem = ({
     XLSX.writeFile(workbook, 'produtos_promocoes.xlsx');
   };
 
-
-  console.log("Produtos Origem Selecionados:", produtoOrigemSelecionado);
-  // Transforma o array de IDs em objetos de produto, se necessário
-  let dados = [];
-  if (
-    Array.isArray(produtoOrigemSelecionado) &&
-    produtoOrigemSelecionado.length > 0
-  ) {
-    if (typeof produtoOrigemSelecionado[0] === "object") {
-      // Já é array de objetos
-      dados = produtoOrigemSelecionado.map((item, index) => ({
-        contador: index + 1,
-        IDPRODUTO: item.IDPRODUTO,
-        NUCODBARRAS: item.NUCODBARRAS,
-        DSNOME: item.DSNOME,
-      }));
-    } else {
-      // É array de IDs, precisa buscar os dados completos dos produtos
-      dados = produtoOrigemSelecionado.map((id, index) => ({
-        contador: index + 1,
-        IDPRODUTO: id,
-        NUCODBARRAS: "", // Preencha conforme necessário
-        DSNOME: "",      // Preencha conforme necessário
-      }));
+  // Detecta quando novos IDs chegam e precisa buscar dados completos
+  useEffect(() => {
+    if (
+      Array.isArray(produtoOrigemSelecionado) &&
+      produtoOrigemSelecionado.length > 0 &&
+      typeof produtoOrigemSelecionado[0] !== "object"
+    ) {
+      setIdsParaBuscar(produtoOrigemSelecionado);
     }
-  }
+  }, [produtoOrigemSelecionado]);
+ 
+  // Busca os dados completos dos produtos quando IDs são definidos
+  useEffect(() => {
+    const fetchProdutosCompletos = async () => {
+      if (idsParaBuscar.length > 0) {
+        try {
+          const ids = idsParaBuscar.join(',');
+          
+          // Primeira tentativa: solicitar todos de uma vez
+          let response = await post(`/criar-produto-promocao-ativa`, {
+            idProduto: ids,
+            pageSize: idsParaBuscar.length // Solicita todos os produtos de uma vez
+          });
+          
+          let allData = [];
+          
+          if (response?.data?.data) {
+            allData = [...response.data.data];
+            
+            // Se há paginação e não obteve todos os dados, busca as páginas restantes
+            if (response.data.rows > allData.length) {
+              const totalPages = Math.ceil(response.data.rows / response.data.pageSize);
+              
+              for (let page = 2; page <= totalPages; page++) {
+                const pageResponse = await post(`/criar-produto-promocao-ativa`, {
+                  idProduto: ids,
+                  page: page,
+                  pageSize: response.data.pageSize
+                });
+                
+                if (pageResponse?.data?.data) {
+                  allData = [...allData, ...pageResponse.data.data];
+                }
+              }
+            }
+            
+            setProdutoOrigemSelecionado(allData);
+            setIdsParaBuscar([]); // Limpa os IDs após buscar
+          }
+        } catch (error) {
+          console.error('Erro ao buscar produtos:', error);
+          setIdsParaBuscar([]); // Limpa os IDs mesmo em caso de erro
+        }
+      }
+    };
+    fetchProdutosCompletos();
+  }, [idsParaBuscar]);
+ 
+  
+   // Transforma o array de IDs em objetos de produto, se necessário
+   let dados = [];
+   
+   // Verifica se é um objeto com propriedade data (resposta da API)
+   if (produtoOrigemSelecionado && typeof produtoOrigemSelecionado === 'object' && produtoOrigemSelecionado.data) {
+     dados = produtoOrigemSelecionado.data.map((item, index) => ({
+       contador: index + 1,
+       IDPRODUTO: item.IDPRODUTO,
+       NUCODBARRAS: item.NUCODBARRAS,
+       DSNOME: item.DSNOME,
+     }));
+    
+   }
+   // Verifica se é um array direto
+   else if (
+     Array.isArray(produtoOrigemSelecionado) &&
+     produtoOrigemSelecionado.length > 0
+   ) {
+     if (typeof produtoOrigemSelecionado[0] === "object") {
+       // Já é array de objetos
+       dados = produtoOrigemSelecionado.map((item, index) => ({
+         contador: index + 1,
+         IDPRODUTO: item.IDPRODUTO,
+         NUCODBARRAS: item.NUCODBARRAS,
+         DSNOME: item.DSNOME,
+       }));
+     } else {
+       // É array de IDs, precisa buscar os dados completos dos produtos
+       dados = produtoOrigemSelecionado.map((id, index) => ({
+         contador: index + 1,
+         IDPRODUTO: id,
+         NUCODBARRAS: "", // Preencha conforme necessário
+         DSNOME: "",      // Preencha conforme necessário
+       }));
+     }
+   }
 
   const colunasProdutos = [
     {

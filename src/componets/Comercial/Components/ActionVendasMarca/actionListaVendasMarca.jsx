@@ -11,10 +11,8 @@ import 'jspdf-autotable';
 
 export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const dataTableRef = useRef();
   const [rowSelection, setRowSelection] = useState(null);
-
-
+  const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -57,21 +55,13 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
       { wpx: 100, caption: 'Desconto' },
       { wpx: 100, caption: 'Venda Bruta ( - Desc)' },
       { wpx: 100, caption: 'Voucher' },
-      { wpx: 100, caption: 'Venda Líquida' },      
+      { wpx: 100, caption: 'Venda Líquida' },
     ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista Vendas Marca');
     XLSX.writeFile(workbook, 'vendas_marca.xlsx');
   };
 
-
-  const calcularValorBruto = (item) => {
-    return (toFloat(item.vendaMarca.VRTOTALLIQUIDO) + toFloat(item.valorDesconto));
-  }
-
-  const calcularValorLiquido = (item) => {
-    return (toFloat(item.valorPago) - toFloat(item.voucher))
-  }
 
   const calcularTotalQtdProduto = () => {
     let total = 0;
@@ -123,8 +113,8 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
 
   const dados = dadosVendasMarca.map((item, index) => {
     let contador = index + 1;
-    const valorProduto = calcularValorBruto(item);
-    const valorLiquido = calcularValorLiquido(item);
+    const valorProduto = toFloat(item.vendaMarca.VRTOTALLIQUIDO) + toFloat(item.valorDesconto);
+    const valorLiquido = toFloat(item.valorPago) - toFloat(item.voucher);
     return {
       contador,
       NOFANTASIA: item.vendaMarca.NOFANTASIA,
@@ -203,7 +193,7 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
 
     <Fragment>
 
-      <div className="panel" style={{ marginTop: "4rem" }}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>Vendas por Marcas e Período</h2>
         </div>
@@ -230,6 +220,9 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
@@ -257,4 +250,3 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
     </Fragment>
   )
 }
-

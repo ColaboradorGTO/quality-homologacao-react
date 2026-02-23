@@ -1,31 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { post } from '../../../../api/funcRequest';
-import axios from 'axios';
 
 export const useAuthFuncionarioCreate = ({ usuarioLogado }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [usuarioAutorizado, setUsuarioAutorizado] = useState([]);
-  const [ipUsuario, setIpUsuario] = useState('');
-
-  const getIPUsuario = async () => {
-    try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
-
-      if (!usuarioIP) {
-        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-        usuarioIP = ipifyData?.ip;
-      }
-
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
-    } catch (error) {
-      console.error("Erro ao buscar IP:", error);
-      return null;
-    }
-  };
-
 
   const openSwal = async (callback, row) => {
     const { value: formValues } = await Swal.fire({
@@ -37,9 +16,9 @@ export const useAuthFuncionarioCreate = ({ usuarioLogado }) => {
             <label class="form-label" for="matricula">Matrícula</label>
             <input type="text" id="matricula" class="swal2-input" placeholder="Matrícula" style="text-align: center;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
           </div>
-
+ 
           <div class="input-group">
-            <label class="form-label" for="senha">Senha</label>
+            <label class="form-label" for="senha" style="margin-top: 1rem;">Senha</label>
             <input type="password" id="senha" class="swal2-input" placeholder="Senha">
           </div>
         </div>      
@@ -47,8 +26,10 @@ export const useAuthFuncionarioCreate = ({ usuarioLogado }) => {
       width: '25rem',
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonText: 'Entrar',
-      cancelButtonText: 'Cancelar',
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Voltar',
+      cancelButtonColor: '#3085d6',
+      confirmButtonColor: '#7A59AD',
       customClass: {
         container: 'container-swal',
       },
@@ -75,20 +56,7 @@ export const useAuthFuncionarioCreate = ({ usuarioLogado }) => {
 
         try {
           const response = await post('/auth-funcionario-update-voucher', data);
-
-          const textDados = JSON.stringify(data)
-          let textoFuncao = 'GERENCIA/CRIAÇÃO FUNCIONARIO VOUCHER';
-          await getIPUsuario();
-
-          const postData = {
-            IDFUNCIONARIO: String(usuarioLogado?.id),
-            PATHFUNCAO: textoFuncao,
-            DADOS: textDados,
-            IP: ipUsuario
-          }
-
-          const responsePost = await post('/log-web', postData)
-
+       
           if (response.data) {
             return response.data;
           } else {

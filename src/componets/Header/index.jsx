@@ -11,7 +11,7 @@ import { InputSwitch } from 'primereact/inputswitch';
 
 
 
-export const HeaderMain = ({ optionsModulos }) => {
+export const HeaderMain = ({ optionsModulosPage }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [contador, setContador] = useState(0);
   const { toggleSidebar } = useSidebar();
@@ -84,7 +84,7 @@ export const HeaderMain = ({ optionsModulos }) => {
   }, [usuarioLogado, navigate]);
      
   const selecioneModulos = (moduloURL) => {
-    const modulos = optionsModulos[0]?.modulos || [];
+    const modulos = optionsModulosPage[0]?.modulos || [];
     const moduloEncontrado = modulos.find(modulo => modulo.DSMODULO == moduloURL);
 
     if (moduloEncontrado) {
@@ -94,7 +94,8 @@ export const HeaderMain = ({ optionsModulos }) => {
     }
   };
 
-  const modulosDisponiveis = optionsModulos[0]?.modulos || [];
+  const modulosDisponiveis = optionsModulosPage[0]?.modulos || [];
+  
   const menuItems = modulosDisponiveis?.map((modulo) => ({
     label: modulo.NOME, 
     icon: modulo.src,

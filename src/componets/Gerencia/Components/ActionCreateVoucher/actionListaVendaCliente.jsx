@@ -16,7 +16,6 @@ import Swal from 'sweetalert2';
 
 export const ActionListaVendaCLiente = ({
   dadosVendasClientes,
-  btnVisivel,
   setBtnVisivel,
   selectedRows,
   setSelectedRows,
@@ -24,17 +23,16 @@ export const ActionListaVendaCLiente = ({
   setDadosVisualizarProdutos,
   tipoTrocaSelecionada,
   setTipoTrocaSelecionada,
-  quantidade,
-  setQuantidade,
   quantidadesProdutos,
-  setQuantidadesProdutos
+  setQuantidadesProdutos,
+  tabelaSecundaria,
+  setTabelaSecundaria,
+  tabelaVenda,
+  setTabelaVenda,
 }) => {
-  const [tabelaVenda, setTabelaVenda] = useState(true);
-  const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
   const [rowClick, setRowClick] = useState(true);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const dataTableRef = useRef();
-
 
   const onRowSelect = (row, checked) => {
     if (checked) {
@@ -141,7 +139,6 @@ export const ActionListaVendaCLiente = ({
     {
       field: 'IDVENDA',
       header: 'Nº Venda',
-      // body: row => <th style={{color: 'blue'}}>{ocultaParteDosDadosVoucher(row.NUVOUCHER)}</th>,
       body: row => <th style={{ color: 'blue' }}>{row.IDVENDA}</th>,
       sortable: true,
     },
@@ -226,13 +223,8 @@ export const ActionListaVendaCLiente = ({
       allowEscapeKey: false,
 
       preConfirm: () => {
-        // if (row.IDVENDA) {
-        //   handleDetalhar(row.IDVENDA)
-        // }
-
-        const dadosVenda = dadosVendasClientes.find(item => item.venda.IDVENDA === row.IDVENDA);
-        if (dadosVenda) {
-          handleMostrarProdutos(dadosVenda);
+        if (row.IDVENDA) {
+          handleDetalhar(row.IDVENDA)
         }
       }
     });
@@ -244,18 +236,6 @@ export const ActionListaVendaCLiente = ({
 
     return false;
   };
-
-  const handleClickDetalhar = async (row) => {
-    if (row.IDVENDA) {
-      handleDetalhar(row.IDVENDA)
-    }
-  }
-
-  const handleMostrarProdutos = (dadosVenda) => {
-    setDadosVisualizarProdutos([dadosVenda]);
-    setTabelaVenda(false);
-    setTabelaSecundaria(true);
-};
 
   const handleDetalhar = async (IDVENDA) => {
     try {
@@ -349,7 +329,7 @@ export const ActionListaVendaCLiente = ({
       header: 'Quantidade',
       body: row => {
         const isCheckboxChecked = selectedRows.some(selectedRow => selectedRow.contadorIndex === row.contadorIndex);
-        const isDisabled = isCheckboxChecked;
+        const isDisabled = row.STTROCA == "True" || row.QTD <= 1 || isCheckboxChecked;
         const quantidadeAtual = getQuantidadeProduto(row.contadorIndex, row.QTD);
 
         return (
@@ -377,9 +357,37 @@ export const ActionListaVendaCLiente = ({
       sortable: true,
     },
   ]
-  
+
+  const isSelectable = (data) => {
+    return !data.disabled;
+  };
+
+  const isRowSelectable = (event) => (event.data ? isSelectable(event.data) : true);
+  const rowClassName = (data) => (isSelectable(data) ? '' : 'p-disabled');
+
+  const calcularProdutosTrocados = (dadosProdutos) => {
+    const produtosAtivos = dadosProdutos.filter(produto => produto.STCANCELADO === 'False');
+    const produtosTrocados = produtosAtivos.filter(produto => produto.STTROCA === 'True');
+
+    return {
+      qtdTotalProdutos: produtosAtivos.length,
+      qtdItensTrocados: produtosTrocados.length,
+      todosTrocados: produtosAtivos.length > 0 && produtosTrocados.length === produtosAtivos.length
+    };
+  };
+
+  const produtosInfo = calcularProdutosTrocados(dadosProdutos);
+
+  const calcularDataAutorizada = (tipoTroca) => {
+    return tipoTroca === 'CORTESIA' ? 32 : 90;
+  };
+
+  const dataAutorizada = calcularDataAutorizada(tipoTrocaSelecionada || 'DEFEITO');
+
+
   return (
     <Fragment>
+
       {tabelaVenda && (
         <div className="panel">
           <div className="panel-hdr">
@@ -393,8 +401,8 @@ export const ActionListaVendaCLiente = ({
               exportToExcel={exportToExcel}
               exportToPDF={exportToPDF}
             />
-
           </div>
+
           <div className="card" ref={dataTableRef}>
             <DataTable
               title="Vouchers "
@@ -417,7 +425,6 @@ export const ActionListaVendaCLiente = ({
                   key={coluna.field}
                   field={coluna.field}
                   header={coluna.header}
-
                   body={coluna.body}
                   footer={coluna.footer}
                   sortable={coluna.sortable}
@@ -437,18 +444,30 @@ export const ActionListaVendaCLiente = ({
         <Fragment>
           <div className="panel">
             <div className="panel-hdr">
-              <h2>Lista Vendas </h2>
-              {dadosProdutosVenda[0].diferenciaDias > 30 && (
+              {produtosInfo.todosTrocados ? (
                 <h2>
-
-                  Produtos - Vendas {dadosProdutosVenda[0].IDVENDA} &nbsp; - &nbsp;
-                  <span style={{ color: '#fd3995' }}>
-                    Dias Passados Após a Compra <b><u>{dadosProdutosVenda[0].diferenciaDias} DIAS</u></b>
+                  <span className="fw-500 todosTrocados">
+                    <i>Produtos _ Venda: {dadosProdutosVenda[0]?.IDVENDA}</i>
+                    &nbsp;&nbsp;
+                    <i className="text-danger h4">Todos os Produtos Desta Venda Já Foram Trocados</i>
                   </span>
                 </h2>
+              ) : dadosProdutosVenda[0]?.diferenciaDias > calcularDataAutorizada(tipoTrocaSelecionada || 'DEFEITO') ? (
+                <h2>
+                  <span className="fw-500">
+                    <i>Produtos - Venda: {dadosProdutosVenda[0]?.IDVENDA}</i>
+                    &nbsp;&nbsp;
+                    <i className="text-danger h4">
+                      Venda Fora do Prazo de <u><b>{calcularDataAutorizada(tipoTrocaSelecionada || 'DEFEITO')} DIAS</b></u> Para Troca do Tipo <u><b>{tipoTrocaSelecionada || 'DEFEITO'}</b></u>.
+                      Dias Passados Após a Compra: <u><b>{dadosProdutosVenda[0]?.diferenciaDias} DIAS</b></u>
+                    </i>
+                  </span>
+                </h2>
+              ) : (
+                <h2>Produtos Vendas</h2>
               )}
-
             </div>
+
             <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
               <HeaderTable
                 globalFilterValue={globalFilterValue}
@@ -457,10 +476,9 @@ export const ActionListaVendaCLiente = ({
                 exportToExcel={exportToExcel}
                 exportToPDF={exportToPDF}
               />
-
             </div>
-            <div className="card" ref={dataTableRef}>
 
+            <div className="card" ref={dataTableRef}>
               <DataTable
                 key={"IDVENDA"}
                 title="Vendas Voucher por Loja"
@@ -469,11 +487,16 @@ export const ActionListaVendaCLiente = ({
                 size="small"
                 sortOrder={-1}
                 selectionMode={rowClick ? null : 'checkbox'}
+                selection={rowClick}
+                onSelectionChange={(e) => setRowClick(e.value)}
                 paginator={true}
                 rows={10}
                 rowsPerPageOptions={[10, 20, 50, 100, dadosProdutos.length]}
                 showGridlines
                 stripedRows
+                rowClassName={(row) => row.STTROCA == 'True' ? 'row-disabled' : ''}
+         
+                
                 emptyMessage={<div className="dataTables_empty">Não há Produtos Na Venda</div>}
               >
                 {colunasVouchers2.map(coluna => (
@@ -481,7 +504,6 @@ export const ActionListaVendaCLiente = ({
                     key={coluna.field}
                     field={coluna.field}
                     header={coluna.header}
-
                     body={coluna.body}
                     footer={coluna.footer}
                     sortable={coluna.sortable}

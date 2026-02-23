@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react"
+import { Fragment, useRef, useState } from "react"
 import { get } from "../../../../api/funcRequest"
 import { formatMoeda } from "../../../../utils/formatMoeda"
 import { DataTable } from 'primereact/datatable';
@@ -8,7 +8,6 @@ import { ColumnGroup } from "primereact/columngroup";
 import { Row } from 'primereact/row';
 import { GrView } from "react-icons/gr";
 import { toFloat } from "../../../../utils/toFloat";
-import { useNavigate } from "react-router-dom";
 import { ActionVendaRecebimentoModal } from "../ActionModaisVendas/actionVendaRecebimentoModal";
 import HeaderTable from "../../../Tables/headerTable"
 import { useReactToPrint } from "react-to-print";
@@ -17,8 +16,11 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 
-
 export const ActionListaVendasRecebidoEletronico = ({ 
+  dadosDespesas,
+  dadosAdiantamentoSalarial,
+  dadosResumoVoucher,
+  dadosDetalheFatura,
   dadosTotalRecebidoEletronico, 
   dadosTotalRecebidoPeriodo, 
   dataPesquisaInicio, 
@@ -74,22 +76,6 @@ export const ActionListaVendasRecebidoEletronico = ({
     XLSX.writeFile(workbook, 'vendas_recebimentos.xlsx');
   };
 
-
-
-  const calcularTotalRecebidoMapaVenda = (item) => {
-    return (
-      toFloat(item.VALORTOTALCONVENIO) +
-      toFloat(item.VALORTOTALDINHEIRO)
-    )
-  }
-
-  const calcularTotalRecebidoMapaDespesas = (item) => {
-    return (
-      toFloat(item.VALORTOTALDESPESA) +
-      toFloat(item.VALORTOTALADIANTAMENTOSALARIAL)
-    )
-  }
-
   const calcularTotalDinheiro = () => {
     let total = 0;
     for (let i = 0; i < dadosTotalRecebidoPeriodo.length; i++) {
@@ -101,14 +87,11 @@ export const ActionListaVendasRecebidoEletronico = ({
 
   const calcularTotalConvenio = () => {
     let total = 0;
-    for (let i = 0; i < dados.length; i++) {
-      const valor = parseFloat(dados[i].VALORRECEBIDO || 0);
+    for (let i = 0; i < dadosPeriodo.length; i++) {
+      const valor = parseFloat(dadosPeriodo[i].VALORTOTALCONVENIO || 0);
       total = parseFloat(total) + valor;  // ← DIFERENÇA CRÍTICA
     }
     return parseFloat(total).toFixed(2);
-    // return dadosTotalRecebidoEletronico.reduce((total, item) =>
-    //   total + parseFloat(item.VALORRECEBIDO), 0
-    // );
   }
 
   const calcularTotalFatura = () => {
@@ -131,7 +114,7 @@ export const ActionListaVendasRecebidoEletronico = ({
     const valorTotalPagamentoMapaDespesas = parseFloat(item.VALORTOTALDESPESA) + parseFloat(item.VALORTOTALADIANTAMENTOSALARIAL)
     const valorTotalDisponivelMapaDinheiro = calcularTotalDinheiro() - parseFloat(item.VALORTOTALDESPESA) + parseFloat(item.VALORTOTALADIANTAMENTOSALARIAL);
     const valorTotalDisponivelMapaDinheiroFatura = valorTotalDisponivelMapaDinheiro + calcularTotalFatura();
-    console.log(valorTotalDisponivelMapaDinheiro, 'valorTotalDisponivelMapaDinheiro')
+    
     return {
 
       VALORTOTALCONVENIO: item.VALORTOTALCONVENIO,
@@ -178,8 +161,23 @@ export const ActionListaVendasRecebidoEletronico = ({
     return parseFloat(total).toFixed(2);
   }
 
-  // como fazer os calculos de headerGroup e footerGroup
-  // const calculoValorTotalRecebidoMapaVenda = dadosPeriodo[0]?.valorTotalRecebidoMapaVenda + calcularTotalValorRecebido();
+  const dadosListaDespesass = dadosDespesas?.map((item, index) => {
+    let contador = index + 1;
+    return {
+
+      VRDESPESA: item.VRDESPESA,
+    }
+  });
+
+  const calcularTotalDespesas = () => {
+    let total = 0;
+    for (let resultado of dadosListaDespesass) {
+      total += toFloat(resultado.VRDESPESA);
+    }
+    return total;
+  }
+
+
   const calculoValorTotalRecebidoMapaVenda = 
   parseFloat(
     (parseFloat(dadosPeriodo[0]?.valorTotalRecebidoMapaVenda || 0) + 
@@ -208,8 +206,6 @@ export const ActionListaVendasRecebidoEletronico = ({
         <Column header="" />
         <Column header="" />
         <Column header={formatMoeda(calcularTotalDinheiro())} />
-
-
       </Row>
 
     </ColumnGroup>
@@ -242,7 +238,7 @@ export const ActionListaVendasRecebidoEletronico = ({
       </Row>
       <Row>
         <Column footer="Pagamento das Despesas:" colSpan={4} style={{ textAlign: 'right' }} />
-        <Column footer={formatMoeda(dadosPeriodo[0]?.valorTotalPagamentoMapaDespesas)} />
+        <Column footer={formatMoeda(calcularTotalDespesas())} />
 
       </Row>
       <Row>
@@ -262,14 +258,6 @@ export const ActionListaVendasRecebidoEletronico = ({
       </Row>
     </ColumnGroup>
   )
-
-  const calcularTotalDespesas = () => {
-    let total = 0;
-    for (let resultado of dados) {
-      total += parseFloat(resultado.VRDESPESA);
-    }
-    return total;
-  }
 
   const colunasEmpresas = [
     {
@@ -333,9 +321,13 @@ export const ActionListaVendasRecebidoEletronico = ({
 
   const handleEditar = async (NOTEF, NOAUTORIZADOR, NPARCELAS) => {
     try {
-      const response = await get(`/venda-detalhe-recebimento-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&nomeTef=${NOTEF}&nomeAutorizador=${NOAUTORIZADOR}&numeroParcelas=${NPARCELAS}`);
-
-      if (response.data) {
+      // Garante que os valores não sejam null/undefined antes de codificar
+      const nomeTefEncoded = NOTEF ? encodeURIComponent(NOTEF.toString()) : '';
+      const nomeAutorizadorEncoded = NOAUTORIZADOR ? encodeURIComponent(NOAUTORIZADOR.toString()) : '';
+      const numeroParcelasEncoded = NPARCELAS ? encodeURIComponent(NPARCELAS.toString()) : '0';
+      
+      const response = await get(`/venda-detalhe-recebimento-eletronico?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&nomeTef=${nomeTefEncoded}&nomeAutorizador=${nomeAutorizadorEncoded}&numeroParcelas=${numeroParcelasEncoded}`);
+      if (response.data && response.data.length > 0) {
         setDadosDetalheRecebimentosEletronico(response.data)
         setModalDetalheRecebimento(true);
       }
@@ -343,12 +335,18 @@ export const ActionListaVendasRecebidoEletronico = ({
       console.error('Erro ao buscar detalhes da despesa: ', error);
     }
   };
-
-
+  
+  
   const handleClickEditar = (row) => {
-
-    if (row && row.NOTEF && row.NOAUTORIZADOR && row.NPARCELAS) {
+    // Verifica se os valores existem e não são vazios
+    if (row && row.NOTEF && row.NOAUTORIZADOR && row.NPARCELAS !== undefined && row.NPARCELAS !== null) {
       handleEditar(row.NOTEF, row.NOAUTORIZADOR, row.NPARCELAS);
+    } else {
+      console.warn('Dados insuficientes para buscar detalhes:', { 
+        NOTEF: row?.NOTEF, 
+        NOAUTORIZADOR: row?.NOAUTORIZADOR, 
+        NPARCELAS: row?.NPARCELAS 
+      });
     }
   };
 
@@ -401,7 +399,7 @@ export const ActionListaVendasRecebidoEletronico = ({
               stripedRows
               emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
             >
-              {/* {colunasEmpresas.map(coluna => (
+              {colunasEmpresas.map(coluna => (
                 <Column
                   key={coluna.field}
                   field={coluna.field}
@@ -414,7 +412,7 @@ export const ActionListaVendasRecebidoEletronico = ({
                   bodyStyle={{ fontSize: '1rem' }}
 
                 />
-              ))} */}
+              ))}
 
             </DataTable>
           </div>

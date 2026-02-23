@@ -12,7 +12,7 @@ import { Row } from "primereact/row";
 import { toFloat } from "../../../../utils/toFloat";
 
 
-export const ActionListaMapaCaixa = ({ dadosMapaCaixa, dadosAdiantamentoSalarial,  dadosResumoVoucher, dadosDetalheFatura }) => {
+export const ActionListaMapaCaixa = ({ dadosDespesas, dadosAdiantamentoSalarial,  dadosResumoVoucher, dadosDetalheFatura }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
@@ -61,7 +61,7 @@ export const ActionListaMapaCaixa = ({ dadosMapaCaixa, dadosAdiantamentoSalarial
     XLSX.writeFile(workbook, 'mapa_caixa_por_loja.xlsx');
   };
 
-  const dados = Array.isArray(dadosMapaCaixa) ? dadosMapaCaixa.map((item, index) => {
+  const dados = Array.isArray(dadosDespesas) ? dadosDespesas.map((item, index) => {
     let contador = index + 1;
     item.contador,
     item.IDCATEGORIARECEITADESPESA, 

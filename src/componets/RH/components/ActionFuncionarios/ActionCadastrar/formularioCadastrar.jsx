@@ -350,6 +350,7 @@ export const FormularioCadastrar = ({
                                     clearErrors("localizacaoFuncionario");
                                 }}
                             />
+                          
                             {errors.localizacaoFuncionario && (
                                 <AlertError
                                     error={errors.localizacaoFuncionario}

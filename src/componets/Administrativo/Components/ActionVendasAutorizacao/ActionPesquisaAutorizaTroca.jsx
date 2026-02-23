@@ -12,9 +12,11 @@ import { MdKeyboardDoubleArrowLeft } from "react-icons/md";
 import { ActionListaVendasAutorizarTroca } from "./actionListaVendasAutorizarTroca";
 import { CiEdit } from "react-icons/ci";
 import { useAutorizarTroca } from "./hooks/useAutorizarTroca";
+import Swal from "sweetalert2";
 
 
-export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
+
+export const ActionPesquisaAutorizaTroca = ({ usuarioLogado }) => {
   const [tabelaPrincipal, setTabelaPrincipal] = useState(true);
   const [tabelaSecundaria, setTabelaSecundaria] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
@@ -24,10 +26,10 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
   const [cpfNumeroVenda, setCPFNumeroVenda] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
-  const [currentPage, setCurrentPage] = useState(1);
   const [btnVisivel, setBtnVisivel] = useState(false);
   const [btnAlterarVisivel, setBtnAlterarVisivel] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
   useEffect(() => {
     const dataInicial = getDataAtual()
@@ -37,14 +39,22 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
 
   }, []);
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
@@ -104,8 +114,8 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
 
   const handleClick = () => {
     refetchListaVendasPrazoExcedido()  
-    // setTabelaVisivel(true)
     setTabelaPrincipal(true)
+    setTabelaSecundaria(false)
   }
 
   const handleClickReturn = () => {
@@ -114,11 +124,26 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
     setBtnVisivel(false)
   }
 
+  const handleAutorizarExcecao = () => {
+
+    if(optionsModulos[0]?.ALTERAR == 'False') {
+        Swal.fire({
+        icon: 'warning',
+        title: 'Acesso Negado!',
+        html: `${usuarioLogado?.NOFUNCIONARIO} </br> Você não tem permissão para autorizar exceção.`,
+        confirmButtonText: 'OK',
+        customClass: {
+            container: 'custom-swal',
+        },
+        });
+        return;
+    } else {
+      onAuthFuncionario()
+    }
+  }
   const {
     onAuthFuncionario
   } = useAutorizarTroca({
-    usuarioLogado,
-    optionsModulos,
     selectedRows,
     setSelectedRows,
     handleClick
@@ -184,13 +209,12 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado, ID }) => {
         onButtonClickCadastro={handleClickReturn}
         corCadastro={"danger"}
         IconCadastro={MdKeyboardDoubleArrowLeft}
-        // IconCadastro={LuArrowBigLeft}
         styleCadastro={btnVisivel ? { display: 'block' } : { display: 'none' }}
 
         ButtonTypeVendasEstrutura={ButtonType}
         linkNomeVendasEstrutura={"Autorizar Exceção"}
         corVendasEstrutura={"info"}
-        onButtonClickVendasEstrutura={onAuthFuncionario}
+        onButtonClickVendasEstrutura={handleAutorizarExcecao}
         iconVendasEstrutura={CiEdit}
         styleVendasEstrutura={btnAlterarVisivel ? { display: 'block' } : { display: 'none' }}
 

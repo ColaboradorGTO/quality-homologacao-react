@@ -40,7 +40,6 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
         cnae,
         telefoneComercial,
         clienteExistente,
-
         setIdCliente,
         setTipo,
         setDataCadastro,

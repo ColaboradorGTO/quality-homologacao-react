@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 
 export const ActionListaVendasPixConsolidadoEmpresa = ({ dadosVendasPixConsolidado }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -59,8 +60,8 @@ export const ActionListaVendasPixConsolidadoEmpresa = ({ dadosVendasPixConsolida
       NOFANTASIA: item.NOFANTASIA,
       PIX: item.PIX,
     }
-  }): [];
-  
+  }) : [];
+
   const colunasVendasPix = [
     {
       field: 'Numero',
@@ -121,6 +122,9 @@ export const ActionListaVendasPixConsolidadoEmpresa = ({ dadosVendasPixConsolida
                     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
                     filterDisplay="menu"
                     size="small"
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)}
                     sortOrder={-1}
                     rows={10}
                     showGridlines
@@ -153,4 +157,3 @@ export const ActionListaVendasPixConsolidadoEmpresa = ({ dadosVendasPixConsolida
     </Fragment>
   )
 }
-

@@ -2,14 +2,12 @@ import { Fragment, useEffect, useState } from "react"
 import { ActionMain } from "../../../Actions/actionMain"
 import { ButtonType } from "../../../Buttons/ButtonType"
 import { AiOutlineSearch } from "react-icons/ai"
-import { MultSelectAction } from "../../../Select/MultSelectAction"
 import { InputField } from "../../../Buttons/Input"
 import { get } from "../../../../api/funcRequest"
 import { getDataAtual } from "../../../../utils/dataAtual"
 import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { ActionListaVendasConciliacao } from "./actionListaVendasConciliacao"
 import { useQuery } from 'react-query';
-import Swal from 'sweetalert2';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData"
 
@@ -20,10 +18,7 @@ export const ActionPesquisaVendasConciliacao = () => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
-  const [isQueryData, setIsQueryData] = useState(false);
+
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -89,10 +84,7 @@ export const ActionPesquisaVendasConciliacao = () => {
   }
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
     setTabelaVisivel(true)
-    setIsLoadingPesquisa(true);
-    setIsQueryData(true);
     refetch();
   }
 

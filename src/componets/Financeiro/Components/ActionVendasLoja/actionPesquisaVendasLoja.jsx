@@ -8,9 +8,7 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { ActionListaVendasLoja } from "./actionListaVendasLoja";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
-import Swal from 'sweetalert2';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
-import { useFetchData } from "../../../../hooks/useFetchData";
 
 
 export const ActionPesquisaVendasLoja = () => {
@@ -19,12 +17,7 @@ export const ActionPesquisaVendasLoja = () => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [isQueryData, setIsQueryData] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(1000);
   
-
   useEffect(() => {
     const dataInicial = getDataAtual();
     const dataFinal = getDataAtual();
@@ -32,9 +25,16 @@ export const ActionPesquisaVendasLoja = () => {
     setDataPesquisaFim(dataFinal);
   }, []);
 
-  const { data: optionsEmpresas = [] } = useFetchData('empresas', '/empresas');
-  
-  
+  const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
+    ['empresas',],
+    async () => {
+      const response = await get(`/empresas`);
+      
+      return response.data;
+    },
+    { enabled: true, staleTime: 60 * 60 * 1000,}
+  );
+
   const fetchListaVendasLojaPeriodo = async () => {
     const urlBase = `/venda-periodo-loja?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
@@ -71,12 +71,8 @@ export const ActionPesquisaVendasLoja = () => {
   const { data: dadosVendasLoja = [], error: errorVendasLoja, isLoading: isLoadingVendasLoja, refetch } = useQuery(
     ['venda-periodo-loja'],
     () => fetchListaVendasLojaPeriodo(),
-    {
-      enabled: false 
-    }
+    { enabled: false }
   );
-
-
 
   const handleChangeEmpresa = (e) => {
     if( e.value === '') {
@@ -87,12 +83,8 @@ export const ActionPesquisaVendasLoja = () => {
       setEmpresaSelecionadaNome(empresa.NOFANTASIA);
     }
   }
-
   
   const handleClick = () => {
-    setIsQueryData(true);
-    setCurrentPage(prevPage => prevPage + 1); 
-    setIsLoadingPesquisa(true);
     refetch(); 
     setTabelaVisivel(true);
   };
@@ -139,10 +131,9 @@ export const ActionPesquisaVendasLoja = () => {
       />
       
       {tabelaVisivel && (
-        <div >
-          <ActionListaVendasLoja dadosVendasLoja={dadosVendasLoja}  />
+        
+        <ActionListaVendasLoja dadosVendasLoja={dadosVendasLoja}  />
       
-        </div>
       )}
     </Fragment>
   );

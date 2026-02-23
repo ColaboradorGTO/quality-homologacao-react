@@ -27,30 +27,37 @@ import { useQuery } from "react-query";
 import Swal from "sweetalert2";
 import { ActionTabelaMainExtrato } from "./Components/ActionExtrato/actionTabelaMainExtrato";
 
-export const ResumoDashBoardAdministrativo = ({ usuarioLogado, ID }) => {
+export const ResumoDashBoardAdministrativo = ({ usuarioLogado }) => {
   const [resumoVisivel, setResumoVisivel] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [dadosDetalheDespesas, setDadosDetalheDespesas] = useState([])
   const [dataPesquisa, setDataPesquisa] = useState('')
   const [dadosExtratoLojaPeriodo, setDadosExtratoLojaPeriodo] = useState([])
-
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
   useEffect(() => {
     const dataAtual = getDataAtual()
     setDataPesquisa(dataAtual)
   }, []);
 
-
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+     
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
-
 
   const { data: dadosEmpresas = [], } = useFetchData('empresas', '/empresas');
 

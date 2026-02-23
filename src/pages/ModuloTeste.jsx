@@ -26,7 +26,7 @@ import permissoesImg from '../../public/img/icons/permissoes.png';
 import promocaoImg from '../../public/img/icons/promocao.png';
 
 
-export const ModuloTeste = ({ }) => {
+export const ModuloTeste = () => {
   const [selectedModule, setSelectedModule] = useState(null);
   const [moduloSelecionado, setModuloSelecionado] = useState(null);
   const [usuarioLogado, setUsuarioLogado] = useState(null);
@@ -39,13 +39,13 @@ export const ModuloTeste = ({ }) => {
     }
   }, []);
 
-  useEffect(() => {
+  // useEffect(() => {
 
-  }, [usuarioLogado]);
+  // }, [usuarioLogado]);
 
  
   const navigate = useNavigate();
-  const { data: optionsModulos = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
+  const { data: optionsModulosPage = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
     'menus-usuario',
     async () => {
       const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}`);
@@ -65,7 +65,7 @@ export const ModuloTeste = ({ }) => {
   const selecioneModulo = (event, moduloURL) => {
     event.preventDefault();
     
-    const modulos = optionsModulos[0]?.modulos || [];
+    const modulos = optionsModulosPage[0]?.modulos || [];
     const moduloEncontrado = modulos.find(modulo => modulo.DSMODULO === moduloURL);
 
     if (moduloEncontrado) {
@@ -76,7 +76,7 @@ export const ModuloTeste = ({ }) => {
     }
   };
 
-  const modulosDisponiveis = optionsModulos[0]?.modulos || [];
+  const modulosDisponiveis = optionsModulosPage[0]?.modulos || [];
   useEffect(() => {
     if (moduloSelecionado) {
       refetchMenus();

@@ -1,27 +1,8 @@
 import React, { Fragment, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { get } from "../../../../api/funcRequest";
 
-export const ActionRelatorioBI = () => {
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
+export const ActionRelatorioBI = ({usuarioLogado}) => {
   const [dadosBI, setDadosBI] = useState([]);
-  const navigate = useNavigate();
-
-
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
 
   useEffect(() => {
    

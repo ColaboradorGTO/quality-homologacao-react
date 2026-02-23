@@ -7,7 +7,6 @@ import { ButtonType } from "../../../Buttons/ButtonType";
 import { AiOutlineSearch } from "react-icons/ai";
 import { ActionListaEstoqueProduto } from "./actionListaEstoqueProdutos";
 import { getDataAtual } from "../../../../utils/dataAtual";
-import { useFetchData } from "../../../../hooks/useFetchData";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 
@@ -83,14 +82,12 @@ export const ActionPesquisaEstoqueProdutos = () => {
       const response = await get(`/lista-marca-produto?idSubGrupo=${subGrupoSelecionado}`);
       return response.data;
     },
-
     {  staleTime: 5 * 60 * 1000, }
-
   );
 
 
 
-    const fetchVendasEstoque = async () => {
+  const fetchVendasEstoque = async () => {
     try {
 
       const urlApi = `/vendasEstoqueProduto?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&dataPesquisaInicioB=${dataPesquisaInicioB}&dataPesquisaFimB=${dataPesquisaFimB}&dataPesquisaInicioC=${dataPesquisaInicioC}&dataPesquisaFimC=${dataPesquisaFimC}&descricaoProduto=${descricaoProduto}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idGrade=${subGrupoSelecionado}&idMarcaProduto=${marcaProduto}`;
@@ -133,7 +130,7 @@ export const ActionPesquisaEstoqueProdutos = () => {
   const { data: dadosEstoqueVendas = [], error: erroVendasEstoque, isLoading: isLoadingVendasEstoque, refetch: refetchVendasEstoque } = useQuery(
     'vendasEstoqueProduto',
     () => fetchVendasEstoque(dataPesquisaInicio, dataPesquisaFim, dataPesquisaInicioB, dataPesquisaFimB, dataPesquisaInicioC, dataPesquisaFimC, descricaoProduto, fornecedorSelecionado, grupoSelecionado, subGrupoSelecionado, marcaProduto, currentPage, pageSize),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000}
   );
 
 

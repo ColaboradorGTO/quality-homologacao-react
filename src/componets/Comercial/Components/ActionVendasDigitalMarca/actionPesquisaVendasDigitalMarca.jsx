@@ -66,9 +66,9 @@ export const ActionPesquisaVendasDigitalMarca = () => {
   };
 
   const { data: dadosVendasMarca = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchListaVendasMarca } = useQuery(
-    ['venda-digital-marca', dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
-    () => fetchListaVendasMarca(dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
-    { enabled: Boolean(dataPesquisaInicio && dataPesquisaFim), staleTime: 5 * 60 * 1000 }
+    ['venda-digital-marca'],
+    () => fetchListaVendasMarca(),
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
   const handleClick = () => {

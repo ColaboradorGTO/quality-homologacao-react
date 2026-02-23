@@ -5,7 +5,7 @@ export const CardModulos = ({nome, alt, src, handleClick }) => {
   return (
 
     <Fragment>
-      <div class="col-6 " >
+      <div className="col-6 " >
         <a 
           href="" 
           onClick={handleClick}

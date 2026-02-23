@@ -133,6 +133,8 @@ export const ActionListaMetas = ({ dadosVendasMarca }) => {
                 iconSize={22}
                 iconColor={"#fff"}
                 cor={"success"}
+                width="30px"
+                height="30px"
 
               />
 
@@ -145,7 +147,8 @@ export const ActionListaMetas = ({ dadosVendasMarca }) => {
                 iconSize={22}
                 iconColor={"#fff"}
                 cor={"info"}
-
+                width="30px"
+                height="30px"
               />
 
             </div>
@@ -157,7 +160,8 @@ export const ActionListaMetas = ({ dadosVendasMarca }) => {
                 iconSize={22}
                 iconColor={"#fff"}
                 cor={"danger"}
-
+                width="30px"
+                height="30px"
               />
 
             </div>

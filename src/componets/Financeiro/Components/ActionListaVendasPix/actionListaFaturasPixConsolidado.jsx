@@ -10,6 +10,7 @@ import * as XLSX from 'xlsx';
 
 export const ActionListaFaturasPixConsolidado = ({ dadosVendasFaturasPixConsolidadoPeriodo }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -59,8 +60,8 @@ export const ActionListaFaturasPixConsolidado = ({ dadosVendasFaturasPixConsolid
       DSSUBGRUPOEMPRESARIAL: item.DSSUBGRUPOEMPRESARIAL,
       VRRECEBIDO: item.VRRECEBIDO,
     }
-  }): [];
-  
+  }) : [];
+
   const colunasVendasPix = [
     {
       field: 'contador',
@@ -114,9 +115,12 @@ export const ActionListaFaturasPixConsolidado = ({ dadosVendasFaturasPixConsolid
                     value={dadosListaVendasPix}
                     globalFilter={globalFilterValue}
                     size="small"
+                    selectionMode="single"
+                    selection={rowSelection}
+                    onSelectionChange={(e) => setRowSelection(e.value)}
                     sortOrder={-1}
                     rows={dadosListaVendasPix.length}
-                    paginator   paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    paginator paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                     currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
                     filterDisplay="menu"
                     showGridlines
@@ -134,7 +138,7 @@ export const ActionListaFaturasPixConsolidado = ({ dadosVendasFaturasPixConsolid
                         sortable={coluna.sortable}
                         headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '1rem' }}
                         footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }}
-                        bodyStyle={{ fontSize: '1rem',color: '#d1cdc7' }}
+                        bodyStyle={{ fontSize: '1rem', color: '#d1cdc7' }}
 
                       />
                     ))}

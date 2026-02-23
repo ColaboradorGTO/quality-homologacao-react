@@ -1,6 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from "react"
-import { DataTable } from 'primereact/datatable';
-import { Column } from 'primereact/column';
+import { Fragment, useEffect, useState } from "react"
 import { AiOutlineSearch } from "react-icons/ai"
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
@@ -17,7 +15,7 @@ import { ActionListaPorVendasEstrutura } from "./actionListaVendasPorEstrutura";
 import { ActionListaProdutoVendidoColaborador } from "./actionListaProdutoVendidoColaborador";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
-import { useFetchData } from "../../../../hooks/useFetchData";
+
 
 export const ActionPesquisaVendasRelatorio = () => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
@@ -26,7 +24,6 @@ export const ActionPesquisaVendasRelatorio = () => {
   const [tabelaVisivelVendasEstrutura, setTabelaVisivelVendasEstrutura] = useState(false);
   const [tabelaVisivelEstoqueVendasPosicionamento, setTabelaVisivelEstoqueVendasPosicionamento] = useState(false);
   const [tabelaVisivelColaborador, setTabelaVisivelColaborador] = useState(false);
-  const [clickContador, setClickContador] = useState(0);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
   const [marcaProdutoSelecionada, setMarcaProdutoSelecionada] = useState('')
@@ -56,105 +53,98 @@ export const ActionPesquisaVendasRelatorio = () => {
       const response = await get(`/marcasLista`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
-    const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
+  const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
     'listaEmpresaComercial',
     async () => {
       const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
-    const { data: dadosGrupos = [], error: errorGrupo, isLoading: isLoadingGrupo, refetch: refetchGrupo } = useQuery(
+  const { data: dadosGrupos = [], error: errorGrupo, isLoading: isLoadingGrupo, refetch: refetchGrupo } = useQuery(
     'grupo-produto',
     async () => {
       const response = await get(`/grupo-produto`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
-    const { data: dadosSubGrupos = [], error: errorSubGrupo, isLoading: isLoadingSubGrupo, refetch: refetchSubGrupo } = useQuery(
+  const { data: dadosSubGrupos = [], error: errorSubGrupo, isLoading: isLoadingSubGrupo, refetch: refetchSubGrupo } = useQuery(
     'subgrupo-produto',
     async () => {
       const response = await get(`/subgrupo-produto?idGrupo=${grupoSelecionado}`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
-    const { data: dadosFornecedor = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch: refetchFornecedor } = useQuery(
+  const { data: dadosFornecedor = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch: refetchFornecedor } = useQuery(
     'lista-fornecedor-produto',
     async () => {
       const response = await get(`/lista-fornecedor-produto`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
-    const { data: dadosColaborador = [], error: errorColaborador, isLoading: isLoadingColaborador, refetch: refetchColaborador } = useQuery(
+  const { data: dadosColaborador = [], error: errorColaborador, isLoading: isLoadingColaborador, refetch: refetchColaborador } = useQuery(
     'funcionarioRelatorio',
     async () => {
       const response = await get(`/funcionarioRelatorio?idEmpresa=${empresaSelecionada}`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
-   const { data: dadosMarcaProduto = [], error: errorMarcaProduto, isLoading: isLoadingMarcaProduto, refetch: refetchMarcaProduto } = useQuery(
+  const { data: dadosMarcaProduto = [], error: errorMarcaProduto, isLoading: isLoadingMarcaProduto, refetch: refetchMarcaProduto } = useQuery(
     'lista-marca-produto',
     async () => {
       const response = await get(`/lista-marca-produto?idSubGrupo=${subGrupoSelecionado}`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000, }
   );
 
 
 
-        const fetchVendasCustoLojas = async () => {
+  const fetchVendasCustoLojas = async () => {
+    const urlBase = `/custoPorLoja?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idGrupoEmpresarial=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&descricaoProduto=${descricaoProduto}&ufPesquisa=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idGrade=${subGrupoSelecionado}&idMarcaProduto=${produtoPesquisado}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
+      animacaoCarregamento('Carregando dados...', true);
 
-      const urlApi = `/custoPorLoja?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idGrupoEmpresarial=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&descricaoProduto=${descricaoProduto}&ufPesquisa=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idGrade=${subGrupoSelecionado}&idMarcaProduto=${produtoPesquisado}`;
-      const response = await get(urlApi);
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+      let allData = [...(primeiraResposta.data || [])];
 
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
       }
+
+      return allData;
     } catch (error) {
-      console.error('Erro ao buscar dados:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -164,45 +154,37 @@ export const ActionPesquisaVendasRelatorio = () => {
 
   const { data: dadosCustosLojas = [], error: erroVendasCusto, isLoading: isLoadingVendasCusto, refetch: refetchVendasCustoLojas } = useQuery(
     'custo-por-loja',
-    () => fetchVendasCustoLojas(empresaSelecionada, dataPesquisaInicio, dataPesquisaFim, produtoPesquisado, fornecedorSelecionado, grupoSelecionado, subGrupoSelecionado, marcaSelecionada, currentPage, pageSize),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    () => fetchVendasCustoLojas( ),
+    { enabled: false, staleTime: 60 * 60 * 1000, }
   );
 
   const fetchVendasVendedor = async () => {
+    const urlBase = `/vendas-vendedor-estrutura?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupoEmpresarial=${marcaSelecionada}&idGrupoGrade=${grupoSelecionado}&idGrade=${subGrupoSelecionado}&idMarcaProduto=${produtoPesquisado}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
+      animacaoCarregamento('Carregando dados...', true);
 
-      const urlApi = `/vendas-vendedor-estrutura?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupoEmpresarial=${grupoSelecionado}&idGrade=${subGrupoSelecionado}&idMarca=${marcaSelecionada}`;
-      const response = await get(urlApi);
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+      let allData = [...(primeiraResposta.data || [])];
 
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
       }
 
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -211,45 +193,37 @@ export const ActionPesquisaVendasRelatorio = () => {
 
   const { data: dadosVendasVendedor = [], error: erroVendasVendedor, isLoading: isLoadingVendasVendedor, refetch: refetchVendasVendedor } = useQuery(
     'vendas-vendedor-estrutura',
-    () => fetchVendasVendedor(usuarioLogado.IDEMPRESA, dataPesquisaInicio, dataPesquisaFim, codProduto, fornecedorSelecionado, grupoSelecionado, subGrupoSelecionado, marcaSelecionada, currentPage, pageSize),
+    () => fetchVendasVendedor(),
     { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
   const fetchVendasEstrutura = async () => {
+    const urlBase = `/vendas-por-estrutura?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idSubGrupo=${subGrupoSelecionado}&idMarcaProduto=${produtoPesquisado}&uf=${ufSelecionado}&idGrupoEmpresarial=${marcaSelecionada}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
+      animacaoCarregamento('Carregando dados...', true);
 
-      const urlApi = `/vendas-por-estrutura?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idSubGrupo=${subGrupoSelecionado}&idMarcaProduto=${marcaSelecionada}`;
-      const response = await get(urlApi);
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+      let allData = [...(primeiraResposta.data || [])];
 
-        async function fetchNextPage(page) {
-          try {
-            page++;
-            const responseNextPage = await get(`${urlApi}&page=${page}`);
-            if (responseNextPage.data.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(page);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
       }
 
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -258,45 +232,37 @@ export const ActionPesquisaVendasRelatorio = () => {
 
   const { data: dadosVendasEstrutura = [], error: erroVendasEstrutura, isLoading: isLoadingVendasEstrutura, refetch: refetchVendasEstrutura } = useQuery(
     'vendas-por-estrutura',
-    () => fetchVendasEstrutura(usuarioLogado.IDEMPRESA, dataPesquisaInicio, dataPesquisaFim, produtoPesquisado, fornecedorSelecionado, grupoSelecionado, subGrupoSelecionado, marcaSelecionada, currentPage, pageSize),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    () => fetchVendasEstrutura(),
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
   const fetchVendasEstoque = async () => {
+    const urlBase = `/vendasPosicionamentoEstoque?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&ufPesquisa=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idGrade=${subGrupoSelecionado}&idMarcaProduto=${marcaProdutoSelecionada}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
+      animacaoCarregamento('Carregando dados...', true);
 
-      const urlApi = `/vendasPosicionamentoEstoque?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&ufPesquisa=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idGrade=${subGrupoSelecionado}&idMarcaProduto=${marcaProdutoSelecionada}`;
-      const response = await get(urlApi);
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+      let allData = [...(primeiraResposta.data || [])];
 
-        async function fetchNextPage(page) {
-          try {
-            page++;
-            const responseNextPage = await get(`${urlApi}&page=${page}`);
-            if (responseNextPage.data.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(page);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
       }
 
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -310,40 +276,32 @@ export const ActionPesquisaVendasRelatorio = () => {
   );
 
   const fetchVendasColaborador = async () => {
+    const urlBase = `/colaboradorProdutosVendidos?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&ufPesquisa=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idGrade=${subGrupoSelecionado}&idMarcaProduto=${marcaProdutoSelecionada}&idFuncionario=${funcionarioSelecionado}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
+      animacaoCarregamento('Carregando dados...', true);
 
-      const urlApi = `/colaboradorProdutosVendidos?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&ufPesquisa=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idGrade=${subGrupoSelecionado}&idMarcaProduto=${marcaProdutoSelecionada}&idFuncionario=${funcionarioSelecionado}`;
-      const response = await get(urlApi);
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+      let allData = [...(primeiraResposta.data || [])];
 
-        async function fetchNextPage(page) {
-          try {
-            page++;
-            const responseNextPage = await get(`${urlApi}&page=${page}`);
-            if (responseNextPage.data.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(page);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
       }
 
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -352,45 +310,37 @@ export const ActionPesquisaVendasRelatorio = () => {
 
   const { data: dadosColaboradorProdutosVendidos = [], error: erroVendasColaborador, isLoading: isLoadingVendasColaborador, refetch: refetchVendasColaborador } = useQuery(
     'colaboradorProdutosVendidos',
-    () => fetchVendasColaborador(empresaSelecionada, dataPesquisaInicio, dataPesquisaFim, produtoPesquisado, fornecedorSelecionado, grupoSelecionado, subGrupoSelecionado, marcaSelecionada, currentPage, pageSize),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    () => fetchVendasColaborador(),
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
   const fetchProdutosMaisVendidos = async () => {
+    const urlBase = `/produtos-mais-vendidos?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&uf=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idSubGrupo=${subGrupoSelecionado}&idGrupoEmpresarial=${marcaSelecionada}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
+      animacaoCarregamento('Carregando dados...', true);
 
-      const urlApi = `/produtos-mais-vendidos?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idEmpresa=${empresaSelecionada}&descricaoProduto=${produtoPesquisado}&uf=${ufSelecionado}&idFornecedor=${fornecedorSelecionado}&idGrupo=${grupoSelecionado}&idSubGrupo=${subGrupoSelecionado}&idMarca=${marcaSelecionada}`;
-      const response = await get(urlApi);
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
 
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
+      let allData = [...(primeiraResposta.data || [])];
 
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-
-        return response.data;
       }
 
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -399,7 +349,7 @@ export const ActionPesquisaVendasRelatorio = () => {
 
   const { data: dadosProdutosMaisVendidos = [], error: erroProdutosMaisVendidos, isLoading: isLoadingProdutosMaisVendidos, refetch: refetchProdutosMaisVendidos } = useQuery(
     'produtos-mais-vendidos',
-    () => fetchProdutosMaisVendidos(dataPesquisaInicio, dataPesquisaFim, grupoSelecionado, empresaSelecionada, produtoPesquisado, ufSelecionado, fornecedorSelecionado, grupoSelecionado, subGrupoSelecionado, marcaSelecionada, currentPage, pageSize),
+    () => fetchProdutosMaisVendidos(),
     { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
@@ -412,7 +362,7 @@ export const ActionPesquisaVendasRelatorio = () => {
 
     const values = selectedOptions.map((option) => option.value);
     setEmpresaSelecionada(values);
-    getListaVendasCustoLojas(values)
+
 
   }
 
@@ -468,7 +418,7 @@ export const ActionPesquisaVendasRelatorio = () => {
     setTabelaVisivelVendasEstrutura(false)
     setTabelaVisivelEstoqueVendasPosicionamento(false)
     setTabelaVisivelColaborador(false)
-    
+
   }
 
   const handleClickVendasVendedor = () => {
@@ -491,7 +441,7 @@ export const ActionPesquisaVendasRelatorio = () => {
     setTabelaVisivelProdutosMaisVendidos(false)
     setTabelaVisivelEstoqueVendasPosicionamento(false)
     setTabelaVisivelColaborador(false)
-    
+
   }
 
 
@@ -504,7 +454,7 @@ export const ActionPesquisaVendasRelatorio = () => {
     setTabelaVisivelProdutosMaisVendidos(false)
     setTabelaVisivelVendasEstrutura(false)
     setTabelaVisivelColaborador(false)
-    
+
   }
 
   const handleClickColaboradorProdutosVendidos = () => {

@@ -12,6 +12,7 @@ import { mascaraValor } from "../../../../utils/mascaraValor";
 
 export const ActionListaVendasDigital = ({ dadosVendasDetalhadas }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -171,6 +172,9 @@ export const ActionListaVendasDigital = ({ dadosVendasDetalhadas }) => {
           value={dadosListaVendas}
           globalFilter={globalFilterValue}
           size="small"
+          selectionMode="single"
+          selection={rowSelection}
+          onSelectionChange={(e) => setRowSelection(e.value)}
           sortOrder={-1}
           paginator={true}
           rows={10}

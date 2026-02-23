@@ -18,10 +18,6 @@ export const ActionPesquisaDepositosLoja = () => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
-  const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
-  const [isQueryData, setIsQueryData] = useState(false);
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -81,7 +77,7 @@ export const ActionPesquisaDepositosLoja = () => {
   const { data: dadosListaDepositosLoja = [], error: errorListaDepositosLoja, isLoading: isLoadingListaDepositosLoja, refetch: refetchListaDepositosLoja } = useQuery(
     ['depositoLoja'],
     () => fetchListaDepositosLoja(),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
   const handleChangeEmpresa = (e) => {
@@ -97,7 +93,6 @@ export const ActionPesquisaDepositosLoja = () => {
   const handleClick = () => {
     refetchListaDepositosLoja();
     setTabelaVisivel(true)
-    setIsLoadingPesquisa(true);
 
   }
 

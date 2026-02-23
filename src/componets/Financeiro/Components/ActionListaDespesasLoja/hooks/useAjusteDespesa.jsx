@@ -21,23 +21,24 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, hand
     let usuarioIP = null;
 
     try {
-        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-        usuarioIP = ipWhoisData?.ip;
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
     } catch (error) {
-        console.error("Erro ao buscar IP via ipwho.is:", error);
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
 
     if (!usuarioIP) {
-        try {
+      try {
         const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
         usuarioIP = ipifyData?.ip;
-        } catch (error) {
+      } catch (error) {
         console.error("Erro ao buscar IP via ipify.org:", error);
-        }
+      }
     }
     setIpUsuario(usuarioIP);
     return usuarioIP;
   };
+
 
   const { data: dadosReceitaDespesa = [], error: errorDespesasLoja, isLoading: isLoadingDespesasLoja } = useQuery(
     'categoria-receita-despesa',
@@ -45,7 +46,7 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, hand
       const response = await get(`/categoria-receita-despesa`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
 

@@ -6,30 +6,28 @@ import { useState } from "react";
 export const useEditarDespesa = (usuarioLogado,  optionsModulos, handleClick) => {
   const [ipUsuario, setIpUsuario] = useState('');
 
-  
   const getIPUsuario = async () => {
     let usuarioIP = null;
 
     try {
-        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-        usuarioIP = ipWhoisData?.ip;
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
     } catch (error) {
-        console.error("Erro ao buscar IP via ipwho.is:", error);
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
 
     if (!usuarioIP) {
-        try {
+      try {
         const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
         usuarioIP = ipifyData?.ip;
-        } catch (error) {
+      } catch (error) {
         console.error("Erro ao buscar IP via ipify.org:", error);
-        }
+      }
     }
     setIpUsuario(usuarioIP);
     return usuarioIP;
   };
 
- 
   const onSubmit = async (row, status) => {
     if (optionsModulos[0]?.ALTERAR !== 'True') {
       Swal.fire({

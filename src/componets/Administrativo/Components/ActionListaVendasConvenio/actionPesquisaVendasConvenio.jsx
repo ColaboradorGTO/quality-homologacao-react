@@ -20,7 +20,7 @@ export const ActionPesquisaVendasConvenio = () => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [tabelaVisivelDescontoFuncionario, setTabelaVisivelDescontoFuncionario] = useState(false);
   const [isLoadingPesquisa, setIsLoadingPesquisa] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
+
 
   useEffect(() => {
     const dataInicio = getDataAtual();
@@ -122,7 +122,6 @@ export const ActionPesquisaVendasConvenio = () => {
     setTabelaVisivel(true);
     setTabelaVisivelDescontoFuncionario(false);
     setIsLoadingPesquisa(true);
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaVendasConvenio();
   };
 
@@ -130,7 +129,6 @@ export const ActionPesquisaVendasConvenio = () => {
     setTabelaVisivelDescontoFuncionario(true);
     setTabelaVisivel(false);
     setIsLoadingPesquisa(true);
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaVendasConvenioDescontoFuncionario();
   }
 

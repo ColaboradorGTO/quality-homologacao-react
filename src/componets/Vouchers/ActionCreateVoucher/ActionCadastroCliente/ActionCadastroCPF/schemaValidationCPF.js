@@ -1,6 +1,6 @@
 import * as yup from "yup";
 import { validarCPF } from "../../../../../utils/formatCPF";
-import { validaEmail } from "../../../../../utils/validaEmail"; // Importar sua função
+import { validaEmail } from "../../../../../utils/validaEmail";
 
 export const schema = yup.object({
   cpfCliente: yup.string()

@@ -192,7 +192,7 @@ export const ActionListaVendasPeriodoProduto = ({ dadosVendasConsolidadas }) => 
 
     <Fragment>
 
-      <div className="panel" style={{ marginTop: "4rem" }}>
+      <div className="panel" >
         <div className="panel-hdr">
           <h2>Vendas por Produtos </h2>
         </div>
@@ -218,6 +218,9 @@ export const ActionListaVendasPeriodoProduto = ({ dadosVendasConsolidadas }) => 
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

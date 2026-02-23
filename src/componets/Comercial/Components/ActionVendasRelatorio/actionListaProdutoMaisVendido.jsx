@@ -10,11 +10,10 @@ import HeaderTable from "../../../Tables/headerTable";
 
 export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
-  const [size, setSize] = useState('small');
   const [first, setFirst] = useState(0);
   const [rows, setRows] = useState(10);
-  const dataTableRef = useRef();
   const [rowSelection, setRowSelection] = useState(null);
+  const dataTableRef = useRef();
 
 
   const onPageChange = (event) => {
@@ -70,43 +69,6 @@ export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
   };
 
 
-  const calcularTotalQuantidadePorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for(let i = firstIndex; i < lastIndex && i < dadosProdutosMaisVendidos.length; i++) {
-      if(dadosProdutosMaisVendidos[i]) {
-        total += parseFloat(dadosProdutosMaisVendidos[i].QTD);
-      }
-    }
-    return total;
-  }
- 
-
-  const calcularTotalValorUnitarioPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for(let i = firstIndex; i < lastIndex && i < dadosProdutosMaisVendidos.length; i++) {
-      if(dadosProdutosMaisVendidos[i]) {
-        total += parseFloat(dadosProdutosMaisVendidos[i].VALOR_UNITARIO);
-      }
-    }
-    return total;
-  }
-
-  const calcularTotalValorTotalPorPagina = () => {
-    let total = 0;
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    for(let i = firstIndex; i < lastIndex && i < dadosProdutosMaisVendidos.length; i++) {
-      if(dadosProdutosMaisVendidos[i]) {
-        total += parseFloat(dadosProdutosMaisVendidos[i].VALOR_TOTAL);
-      }
-    }
-    return total;
-  }
-
   const dados = dadosProdutosMaisVendidos.map((item, index) => {
     let contador = index + 1;
 
@@ -131,6 +93,59 @@ export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
 
   const calcularTotalValorTotal = () => {
     return dados.reduce((total, dados) => total + parseFloat(dados.VALOR_TOTAL), 0);
+  }
+
+   const filtrarDados = (dados, filtro) => {
+    if (!filtro) return dados;
+    
+    return dados.filter(item => {
+      return Object.values(item).some(value => {
+        if (value === null || value === undefined) return false;
+        return value.toString().toLowerCase().includes(filtro.toLowerCase());
+      });
+    });
+  };
+
+  const calcularTotalGeral = (field) => {
+    return dados.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotalPagina = (field) => {
+    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
+    const firstIndex = first;
+    const lastIndex = first + rows;
+    const dataPaginada = dadosFiltrados.slice(firstIndex, lastIndex);
+    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotalValorTotalPorPagina = () => {
+    const totalPagina = calcularTotalPagina('VALOR_TOTAL');
+    const totalGeral = calcularTotalGeral('VALOR_TOTAL');
+
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalValorUnitarioPorPagina = () => {
+    const totalPagina = calcularTotalPagina('VALOR_UNITARIO');
+    const totalGeral = calcularTotalGeral('VALOR_UNITARIO');
+
+    if (globalFilterValue) {
+      return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+    }
+    return `${formatMoeda(totalPagina)} (${formatMoeda(totalGeral)} total)`;
+  }
+
+  const calcularTotalQuantidadePorPagina = () => {
+    const totalPagina = calcularTotalPagina('QTD');
+    const totalGeral = calcularTotalGeral('QTD');
+
+    if (globalFilterValue) {
+      return `${totalPagina} (${totalGeral} total)`;
+    }
+    return `${totalPagina} (${totalGeral} total)`;
   }
 
   const colunasProdutoMaisVendidos = [
@@ -165,9 +180,7 @@ export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
       footer: () => {
         return(
           <div>          
-            <th style={{ fontWeight: 600, }}>Total Página: {parseFloat(calcularTotalQuantidadePorPagina())}</th>
-            <hr/>
-            <th style={{ fontWeight: 600, }}>Total: {parseFloat(calcularTotalQuantidade())}</th>
+            <th style={{ fontWeight: 600, }}> {calcularTotalQuantidadePorPagina()}</th>
           </div>
         )
       },
@@ -176,13 +189,11 @@ export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
     {
       field: 'VALOR_UNITARIO',
       header: 'Valor Unitário',
-      body: row => formatMoeda(row.VALOR_UNITARIO),
+      body: row => <th>{formatMoeda(row.VALOR_UNITARIO)}</th>,
       footer: () => {
         return(
           <div>          
-            <th style={{ fontWeight: 600, }}>Total Página: {formatMoeda(calcularTotalValorUnitarioPorPagina())}</th>
-            <hr/>
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalValorUnitario())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalValorUnitarioPorPagina()}</th>
           </div>
         )
       },
@@ -191,13 +202,11 @@ export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
     {
       field: 'VALOR_TOTAL',
       header: 'Valor Total',
-      body: row => formatMoeda(row.VALOR_TOTAL),
+      body: row => <th>{formatMoeda(row.VALOR_TOTAL)}</th>,
       footer: () => {
         return(
           <div>          
-            <th style={{ fontWeight: 600, }}>Total Página: {formatMoeda(calcularTotalValorTotalPorPagina())}</th>
-            <hr/>
-            <th style={{ fontWeight: 600, }}>Total: {formatMoeda(calcularTotalValorTotal())}</th>
+            <th style={{ fontWeight: 600, }}>{calcularTotalValorTotalPorPagina()}</th>
           </div>
         )
       },
@@ -228,7 +237,7 @@ export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
             title="Produtos Mais Vendidos"
             value={dados}
             globalFilter={globalFilterValue}
-            size={size}
+            size={'small'}
             sortOrder={-1}
             paginator={true}
             rows={rows}
@@ -239,6 +248,9 @@ export const ActionListaProdutoMaisVendido  = ({dadosProdutosMaisVendidos}) => {
             onPage={onPageChange}
             totalRecords={dados.length}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

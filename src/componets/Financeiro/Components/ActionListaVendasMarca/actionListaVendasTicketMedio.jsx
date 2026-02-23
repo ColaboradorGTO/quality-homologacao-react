@@ -1,6 +1,5 @@
 import { Fragment, useRef, useState } from "react"
 import { formatMoeda } from "../../../../utils/formatMoeda";
-import { dataFormatada } from "../../../../utils/dataFormatada";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { toFloat } from "../../../../utils/toFloat";
@@ -10,8 +9,9 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 
-export const ActionListaVendasTicketMedio = ({dadosListaVendasMarca}) => {
+export const ActionListaVendasTicketMedio = ({ dadosListaVendasMarca }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -28,10 +28,10 @@ export const ActionListaVendasTicketMedio = ({dadosListaVendasMarca}) => {
     doc.autoTable({
       head: [['IDEMPRESA', 'Loja', 'QTD Clientes', 'Total Vendas', 'Ticket Médio']],
       body: dadosVendasMarca.map(item => [
-        item.IDEMPRESA, 
-        item.NOFANTASIA, 
-        parseFloat(item.QTDVENDA), 
-        formatMoeda(item.valorDisponivelBrutoVoucherTiketM), 
+        item.IDEMPRESA,
+        item.NOFANTASIA,
+        parseFloat(item.QTDVENDA),
+        formatMoeda(item.valorDisponivelBrutoVoucherTiketM),
         formatMoeda(item.valorTiketMedio)
       ]),
       horizontalPageBreak: true,
@@ -46,11 +46,11 @@ export const ActionListaVendasTicketMedio = ({dadosListaVendasMarca}) => {
     const workbook = XLSX.utils.book_new();
     const header = ['ID', 'Loja', 'QTD Clientes', 'Total Vendas', 'Ticket Médio'];
     worksheet['!cols'] = [
-      { wpx: 30,  caption: 'ID', }, 
-      { wpx: 200, caption: 'Loja' }, 
-      { wpx: 100, caption: 'QTD Clientes' }, 
-      { wpx: 150, caption: 'Total Vendas' }, 
-      { wpx: 100, caption: 'Ticket Médio' },]; 
+      { wpx: 30, caption: 'ID', },
+      { wpx: 200, caption: 'Loja' },
+      { wpx: 100, caption: 'QTD Clientes' },
+      { wpx: 150, caption: 'Total Vendas' },
+      { wpx: 100, caption: 'Ticket Médio' },];
 
 
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
@@ -93,7 +93,7 @@ export const ActionListaVendasTicketMedio = ({dadosListaVendasMarca}) => {
       IDEMPRESA: item.IDEMPRESA,
       NOFANTASIA: item.NOFANTASIA,
       QTDVENDA: parseFloat(item.QTDVENDA),
-      
+
       valorDisponivelBrutoVoucherTiketM: formatMoeda(valorDisponivelBrutoVoucherTiketM),
       valorTiketMedio: formatMoeda(valorTiketMedio),
     }
@@ -107,7 +107,7 @@ export const ActionListaVendasTicketMedio = ({dadosListaVendasMarca}) => {
       IDEMPRESA: item.IDEMPRESA,
       NOFANTASIA: item.NOFANTASIA,
       QTDVENDA: item.QTDVENDA,
-      
+
       valorDisponivelBrutoVoucherTiketM: valorDisponivelBrutoVoucherTiketM,
       valorTiketMedio: toFloat(valorTiketMedio),
     }
@@ -206,6 +206,9 @@ export const ActionListaVendasTicketMedio = ({dadosListaVendasMarca}) => {
             value={dadosVendasMarca}
             globalFilter={globalFilterValue}
             size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator
             rows={10}
