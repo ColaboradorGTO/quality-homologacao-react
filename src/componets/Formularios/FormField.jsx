@@ -25,13 +25,13 @@ const FormField = ({
     ...props
 }) => {
     const fieldLabel = required ? `${label}*` : label;
-    
+
     // Campo Select
     if (children) {
         return (
             <div className={`form-field ${className}`}>
                 <label className="form-label">{fieldLabel}</label>
-                <select 
+                <select
                     className="select2 form-control"
                     {...props}
                 >
@@ -47,7 +47,30 @@ const FormField = ({
             </div>
         );
     }
-
+    if (type === "textarea") {
+        return (
+            <div className={`form-field ${className}`}>
+                <label className="form-label">{fieldLabel}</label>
+                <textarea
+                    className="form-control"
+                    readOnly={readOnly}
+                    placeholder={placeholder}
+                    value={mask ? mask(value) : value}
+                    onChange={onChange}
+                    onFocus={onFocus}
+                    style={{ width: "100%", minHeight: "120px", ...style }}
+                    {...props}
+                />
+                {errors[name] && (
+                    <AlertError
+                        error={errors[name]}
+                        onClose={clearErrors}
+                        fieldName={name}
+                    />
+                )}
+            </div>
+        );
+    }
     // Campo Input
     return (
         <div className={`form-field ${className}`}>
@@ -61,10 +84,10 @@ const FormField = ({
                 onFocus={onFocus}
                 {...props}
                 styleInputFieldModal={style}
-                // {...register(name, {
-                //     required: required ? `${label} é obrigatório` : false,
-                //     ...validation
-                // })}
+            // {...register(name, {
+            //     required: required ? `${label} é obrigatório` : false,
+            //     ...validation
+            // })}
             />
             {errors[name] && (
                 <AlertError

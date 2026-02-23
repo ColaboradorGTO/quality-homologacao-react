@@ -37,6 +37,7 @@ export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, optionsEmpresas 
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
+
   useEffect(() => {
     const dataInicio = getDataAtual()
     const dataFinal = getDataAtual()
