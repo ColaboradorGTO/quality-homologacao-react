@@ -5,44 +5,71 @@ import { FooterModal } from "../../../../../../Modais/FooterModal/footerModal";
 import { Controller, useForm } from "react-hook-form";
 import FormField from "../../../../../../Formularios/FormField";
 //import { schema } from "./schemaCadastrarQuebraCaixa";
-import { useCadastrarAlvara } from "../../../hooks/actionCriarAlvara";
 import { BsBuilding, BsPerson } from "react-icons/bs";
 import Select from "react-select"
 import { AiOutlineFileText } from "react-icons/ai";
 import { ActionEditarListaArquivosAnexados } from "./actionEditarListaArquivoAnexado";
+import { AlertError } from "../../../../../../Inputs/alertError";
+import { useEditarAlvara } from "../../../hooks/actionEditarAlvara";
+import { useCriarArquivoAlvara } from "../../../hooks/actionCriarArquivoAlvara";
+import { converterArquivosParaBase64 } from "../../../../../../../utils/converterFileBase64";
 
 //import { ActionListaAlvaraPrefeitura } from "./ActionAvaraPrefeituraLista/actionListaAlvaraPrefeitura.jsx";
 
-export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchAlvaraEmpresa }) => {
+export const FormularioEditarDetalhesAlvara = ({ dadosAlvaraSelecionado, handleClose, usuarioLogado, optionsModulos, refetchAlvaraEmpresa }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, register } = useForm({
         mode: "onChange"
     });
-    const {
-        onSubmit,
-        empresa,
-        setEmpresa,
-        motivoAjuste,
-        setMotivoAjuste,
-        dataLancamento,
-        dataAtualFormatada,
-        setDataAtualFormatada,
-        dinheiroInformado,
-        setDinheiroInformado,
-        dinheiroAjuste,
-        setDinheiroAjuste,
-        dadosQuebraCaixasModal,
-        setDadosQuebraCaixasModal,
-        modalVisivelImprimir,
-        setModalVisivelImprimir,
-        modalQuebraVisivel,
-        setModalQuebraVisivel,
-        dados,
-        operador,
-        setOperador,
-        setDataLancamento,
-        dataTableRef
-    } = useCadastrarAlvara({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos });
 
+    const {
+        optionsStatusAlvara,
+        optionsStatus,
+        arquivoAlvara,
+        setArquivoAlvara,
+        descricaoDetalheAndamento,
+        setDescricaoDetalheAndamento,
+        dataFimCompetencia,
+        setDataFimCompetencia,
+        dataIncioCompetencia,
+        setDataIncioCompetencia,
+        statusAndamento,
+        setStatusAndamento,
+        statusAlvara,
+        setStatusAlvara,
+        metragemLoja,
+        setMetragemLoja,
+        onSubmit
+    } = useEditarAlvara({ handleClose, usuarioLogado, optionsModulos, dadosAlvaraSelecionado, refetchAlvaraEmpresa });
+
+
+    const {
+        onCriarArquivo
+    } = useCriarArquivoAlvara({ usuarioLogado, optionsModulos, dadosAlvaraSelecionado, refetchAlvaraEmpresa });
+
+    const handleUploadArquivo = async (e) => {
+        const filesList = e.target.files;
+        if (!filesList?.length) return;
+
+        try {
+            
+            const arquivosConvertidos = await converterArquivosParaBase64(filesList);
+
+            if (!arquivosConvertidos?.length) return;
+
+            const idVinculo = dadosAlvaraSelecionado?.[0]?.IDVINCULO;
+
+            await onCriarArquivo(idVinculo, arquivosConvertidos);
+
+            e.target.value = null; // limpa input
+        } catch (error) {
+            console.error("Erro ao enviar arquivo:", error);
+        }
+    };
+
+    const arquivosAlvara =
+        dadosAlvaraSelecionado?.[0]?.ARQUIVOSALVARAS || [];
+
+    const temArquivos = arquivosAlvara.length > 0;
     const handleValidatedSubmit = async () => {
         try {
 
@@ -79,14 +106,10 @@ export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, h
         }
     };
 
-    const options = [
-        { value: 'Todos', label: 'Todos' },
-        { value: 'Ativo', label: 'Ativo' },
-        { value: 'Inativo', label: 'Inativo' },
-    ];
+    //console.log(dataFimCompetencia, "dataIncioCompetencia")
     return (
         <Fragment>
-            <form onSubmit={handleSubmit(handleValidatedSubmit)} >
+            <form onSubmit={handleSubmit(onSubmit)} >
                 <span class="d-flex align-items-center">
                     <AiOutlineFileText size={25} />
                     <h4 class="font-weight-bold" style={{ margin: 0, marginLeft: "10px" }}>
@@ -98,7 +121,30 @@ export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, h
                     <div class="row mt-3">
 
                         <div class="col-sm-6 col-xl-6">
-                            <Controller
+                            <label className="form-label" htmlFor={""}>Status:</label>
+                            <Select
+                                className="basic-single"
+                                classNamePrefix={"select"}
+                                name="departamentoFuncionario"
+                                options={optionsStatus?.map((item) => ({
+                                    value: item.value,
+                                    label: item.label
+                                }))}
+                                value={statusAlvara}
+                                onChange={(opt) => {
+                                    setStatusAlvara(opt ?? null);
+                                    clearErrors("contaSelecionada");
+                                }}
+                            //onChange={(e) => setStatusAlvara(e.value)}
+                            />
+                            {errors.moduloEscolhido && (
+                                <AlertError
+                                    error={errors.moduloEscolhido?.value || errors.moduloEscolhido}
+                                    onClose={clearErrors}
+                                    fieldName="moduloEscolhido"
+                                />
+                            )}
+                            {/* <Controller
                                 name="Status:"
                                 control={control}
                                 render={({ field }) => (
@@ -112,7 +158,7 @@ export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, h
                                         clearErrors={clearErrors}
                                     />
                                 )}
-                            />
+                            /> */}
                         </div>
                     </div>
 
@@ -126,9 +172,10 @@ export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, h
                                         label={"Dt. Inicio:"}
                                         name="Dt. Inicio:"
                                         type="date"
-                                        value={dadosAlvaraSelecionado?.[0]?.DTINICIOCOMPETENCIAALVARA}
+                                        value={dataIncioCompetencia}
+                                        onChange={(e) => setDataIncioCompetencia(e.target.value)}
                                         errors={errors}
-                                        readOnly={true}
+
                                         clearErrors={clearErrors}
                                     />
                                 )}
@@ -143,9 +190,9 @@ export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, h
                                         label={"Dt. Fim:"}
                                         name="Dt. Fim:"
                                         type="date"
-                                        value={dadosAlvaraSelecionado?.[0]?.DTFIMCOMPETENCIAALVARA}
+                                        value={dataFimCompetencia}
+                                        onChange={(e) => setDataFimCompetencia(e.target.value)}
                                         errors={errors}
-                                        readOnly={true}
                                         clearErrors={clearErrors}
                                     />
                                 )}
@@ -156,22 +203,49 @@ export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, h
 
                     <div class="row mt-3">
                         <div class="col-sm-6 col-xl-6">
-                            <Controller
-                                name="Status:"
+
+                            <label className="form-label" htmlFor={""}>Status:</label>
+                            <Select
+                                className="basic-single"
+                                classNamePrefix={"select"}
+                                name="departamentoFuncionario"
+                                options={optionsStatusAlvara?.map((item) => ({
+                                    value: item.IDSTATUS,
+                                    label: item.DESCRICAO
+
+                                }))}
+
+                                value={statusAndamento}
+                                onChange={(opt) => {
+                                    setStatusAndamento(opt ?? null);
+                                    clearErrors("contaSelecionada");
+                                }}
+                            //onChange={(e) => setStatusAndamento(e.value)}
+                            />
+                            {errors.moduloEscolhido && (
+                                <AlertError
+                                    error={errors.moduloEscolhido?.value || errors.moduloEscolhido}
+                                    onClose={clearErrors}
+                                    fieldName="moduloEscolhido"
+                                />
+                            )}
+
+                            {/*  <Controller
+                                name="Status Andamento:"
                                 control={control}
                                 render={({ field }) => (
                                     <FormField
-                                        label={"Status:"}
-                                        name="Status:"
+                                        label={"Status Andamento:"}
+                                        name="Status Andamento:"
                                         type="text"
                                         readOnly={true}
                                         value={dadosAlvaraSelecionado?.[0]?.DESCRICAOSTATUS}
-                                        onChange={(e) => setMetragem(e.target.value).replace(/\D/g, "")}
+                                        onChange={(e) => setMetragem(e.value)}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
                                 )}
-                            />
+                            /> */}
                         </div>
                         <div class="col-sm-6 col-xl-6">
                             <Controller
@@ -182,9 +256,8 @@ export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, h
                                         label={"Metragem:"}
                                         name="Metragem:"
                                         type="text"
-                                        value={dadosAlvaraSelecionado?.[0]?.METRAGEMEMPRESA}
-                                        readOnly={true}
-                                        onChange={(e) => setMetragem(e.target.value).replace(/\D/g, "")}
+                                        value={metragemLoja}
+                                        onChange={(e) => setMetragemLoja(e.target.value).replace(/\D/g, "")}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -202,11 +275,11 @@ export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, h
                                         {...field}
                                         label="Detalhe Andamento"
                                         type="textarea"
-                                        value={dadosAlvaraSelecionado?.[0]?.DESCRICAODETALHEANDAMENTO}
+                                        value={descricaoDetalheAndamento}
+                                        onChange={(e) => setDescricaoDetalheAndamento(e.target.value)}
                                         errors={errors}
                                         width="100%"
                                         height="120px"
-                                        readOnly={true}
                                         clearErrors={clearErrors}
                                     />
                                 )}
@@ -215,22 +288,34 @@ export const FormularioEditarDetalhesAlvara = ({ show, dadosAlvaraSelecionado, h
                     </div>
                 </div>
             </form>
+
             <div style={{ marginTop: "3rem" }}>
-                <ActionEditarListaArquivosAnexados
-                    dadosAlvaraSelecionado={dadosAlvaraSelecionado}
-                    optionsModulos={optionsModulos}
-                    usuarioLogado={usuarioLogado}
-                    refetchAlvaraEmpresa={refetchAlvaraEmpresa}
-                    handleClose={handleClose}
-                />
+                {temArquivos ? (
+                    <ActionEditarListaArquivosAnexados
+                        dadosAlvaraSelecionado={dadosAlvaraSelecionado}
+                        optionsModulos={optionsModulos}
+                        usuarioLogado={usuarioLogado}
+                        refetchAlvaraEmpresa={refetchAlvaraEmpresa}
+                        handleClose={handleClose}
+                    />
+                ) : (
+                    <div className="form-group ">
+                        <label className="form-label mr-2" htmlFor={""}>Anexar Arquivo:</label>
+                        <input
+                            type="file"
+                            accept="application/pdf"
+                            onChange={handleUploadArquivo}
+                        />
+                    </div>
+                )}
             </div>
             <FooterModal
-                /*   ButtonTypeCadastrar={ButtonTypeModal}
-                  onClickButtonCadastrar={handleValidatedSubmit}
-                  tipoBtnCadastrar={"submit"}
-                  textButtonCadastrar={"Adicionar"}
-                  corCadastrar="success"
-   */
+                ButtonTypeCadastrar={ButtonTypeModal}
+                onClickButtonCadastrar={onSubmit}
+                tipoBtnCadastrar={"submit"}
+                textButtonCadastrar={"Salvar Alterações"}
+                corCadastrar="success"
+
                 ButtonTypeFechar={ButtonTypeModal}
                 textButtonFechar={"Fechar"}
                 onClickButtonFechar={handleClose}

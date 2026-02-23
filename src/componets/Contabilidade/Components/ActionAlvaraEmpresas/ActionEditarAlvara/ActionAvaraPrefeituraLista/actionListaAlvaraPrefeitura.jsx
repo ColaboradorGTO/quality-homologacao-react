@@ -219,7 +219,7 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
             console.log(response, 'response.data')
             if (response.data && response.data.length > 0) {
                 setDadosAlvaraSelecionado(response.data);
-                setModalVisualizarAlvaraEmpresa(true);
+                setModalEditarAlvaraEmpresa(true);
             }
         } catch (error) {
             console.error('Erro ao buscar dados Alvaras: ', error);
@@ -315,18 +315,27 @@ export const ActionListaAlvaraPrefeitura = ({ dadosAlvaraEmpresaSelecionada, opt
                 show={modalCadastrarAlvaraEmpresa}
                 handleClose={() => setModalCadastrarAlvaraEmpresa(false)}
                 dadosAlvaraEmpresa={dadosAlvaraEmpresaSelecionada}
+                optionsModulos={optionsModulos}
+                usuarioLogado={usuarioLogado}
+                refetchAlvaraEmpresa={refetchAlvaraEmpresa}
             />
 
             <ActionVisualizarDetalhesAlvaraModal
                 show={modalVisualizarAlvaraEmpresa}
                 handleClose={() => setModalVisualizarAlvaraEmpresa(false)}
                 dadosAlvaraSelecionado={dadosAlvaraSelecionado}
+                optionsModulos={optionsModulos}
+                usuarioLogado={usuarioLogado}
+                refetchAlvaraEmpresa={refetchAlvaraEmpresa}
             />
 
             <ActionEditarDetalhesAlvaraModal
                 show={modalEditarAlvaraEmpresa}
                 handleClose={() => setModalEditarAlvaraEmpresa(false)}
                 dadosAlvaraSelecionado={dadosAlvaraSelecionado}
+                optionsModulos={optionsModulos}
+                usuarioLogado={usuarioLogado}
+                refetchAlvaraEmpresa={refetchAlvaraEmpresa}
             />
         </Fragment>
     )

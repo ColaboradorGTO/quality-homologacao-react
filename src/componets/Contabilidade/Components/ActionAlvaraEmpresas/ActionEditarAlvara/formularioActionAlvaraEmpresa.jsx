@@ -5,7 +5,7 @@ import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { Controller, useForm } from "react-hook-form";
 import FormField from "../../../../Formularios/FormField";
 //import { schema } from "./schemaCadastrarQuebraCaixa";
-import { useCadastrarAlvara } from "../hooks/actionCriarAlvara";
+//import { useCadastrarAlvara } from "../hooks/actionCriarAlvara";
 import { BsBuilding, BsPerson } from "react-icons/bs";
 import Select from "react-select"
 import { AiOutlineHome } from "react-icons/ai";
@@ -14,6 +14,7 @@ import { CiUser } from "react-icons/ci";
 import { mascaraCNPJ } from "../../../../../utils/mascaraCNPJ";
 import { mascaraTelefone } from "../../../../../utils/mascaraTelefone";
 import { ActionListaAlvaraPrefeitura } from "./ActionAvaraPrefeituraLista/actionListaAlvaraPrefeitura.jsx";
+import { useCriarAlvara } from "../hooks/actionCriarAlvara.jsx";
 
 export const FormularioActionAlvaraEmpresa = ({ show, dadosAlvaraEmpresaSelecionada, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos, refetchAlvaraEmpresa }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, register } = useForm({
@@ -43,7 +44,7 @@ export const FormularioActionAlvaraEmpresa = ({ show, dadosAlvaraEmpresaSelecion
         setOperador,
         setDataLancamento,
         dataTableRef
-    } = useCadastrarAlvara({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos });
+    } = useCriarAlvara({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos });
 
     const handleValidatedSubmit = async () => {
         try {

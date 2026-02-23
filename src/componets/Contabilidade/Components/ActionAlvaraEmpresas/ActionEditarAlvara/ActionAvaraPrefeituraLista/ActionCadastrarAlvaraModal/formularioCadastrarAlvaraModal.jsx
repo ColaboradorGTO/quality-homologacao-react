@@ -5,10 +5,12 @@ import { FooterModal } from "../../../../../../Modais/FooterModal/footerModal";
 import { Controller, useForm } from "react-hook-form";
 import FormField from "../../../../../../Formularios/FormField";
 //import { schema } from "./schemaCadastrarQuebraCaixa";
-import { useCadastrarAlvara } from "../../../hooks/actionCriarAlvara";
+import { useCriarAlvara } from "../../../hooks/actionCriarAlvara";
 import { BsBuilding, BsPerson } from "react-icons/bs";
 import Select from "react-select"
 import { AiOutlineFileText } from "react-icons/ai";
+import { AlertError } from "../../../../../../Inputs/alertError";
+import { converterArquivosParaBase64 } from "../../../../../../../utils/converterFileBase64";
 
 //import { ActionListaAlvaraPrefeitura } from "./ActionAvaraPrefeituraLista/actionListaAlvaraPrefeitura.jsx";
 
@@ -17,32 +19,48 @@ export const FormularioCadastrarActionAlvara = ({ show, dadosAlvaraEmpresaSeleci
         mode: "onChange"
     });
     const {
-        onSubmit,
-        empresa,
-        setEmpresa,
-        motivoAjuste,
-        setMotivoAjuste,
-        dataLancamento,
-        dataAtualFormatada,
-        setDataAtualFormatada,
-        dinheiroInformado,
-        setDinheiroInformado,
-        dinheiroAjuste,
-        setDinheiroAjuste,
-        dadosQuebraCaixasModal,
-        setDadosQuebraCaixasModal,
-        modalVisivelImprimir,
-        setModalVisivelImprimir,
-        modalQuebraVisivel,
-        setModalQuebraVisivel,
-        dados,
-        operador,
-        setOperador,
-        setDataLancamento,
-        dataTableRef
-    } = useCadastrarAlvara({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos });
+        optionsStatusAlvara,
+        optionsStatus,
+        arquivoAlvara,
+        setArquivoAlvara,
+        descricaoDetalheAndamento,
+        setDescricaoDetalheAndamento,
+        dataFimCompetencia,
+        setDataFimCompetencia,
+        dataIncioCompetencia,
+        setDataIncioCompetencia,
+        statusAndamento,
+        setStatusAndamento,
+        statusAlvara,
+        setStatusAlvara,
+        metragemLoja,
+        setMetragemLoja,
+        onSubmit
+    } = useCriarAlvara({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos });
 
-    const handleValidatedSubmit = async () => {
+    console.log(arquivoAlvara, "arquivoAlvara form");
+    const handleUploadArquivo = async (e) => {
+        const filesList = e.target.files;
+        if (!filesList?.length) return;
+
+        try {
+
+            const arquivosConvertidos = await converterArquivosParaBase64(filesList);
+
+            if (!arquivosConvertidos?.length) return;
+
+            const idVinculo = dadosAlvaraSelecionado?.[0]?.IDVINCULO;
+
+            await onCriarArquivo(idVinculo, arquivosConvertidos);
+
+            e.target.value = null; // limpa input
+        } catch (error) {
+            console.error("Erro ao enviar arquivo:", error);
+        }
+    };
+
+
+   /*  const handleValidatedSubmit = async () => {
         try {
 
             const dadosParaValidar = {
@@ -76,16 +94,166 @@ export const FormularioCadastrarActionAlvara = ({ show, dadosAlvaraEmpresaSeleci
             const errorMessages = validationError.errors || [validationError.message];
             //console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
-    };
+    }; */
 
-    const options = [
-        { value: 'Todos', label: 'Todos' },
-        { value: 'Ativo', label: 'Ativo' },
-        { value: 'Inativo', label: 'Inativo' },
-    ];
     return (
+        /*   <Fragment>
+              <form onSubmit={handleSubmit(handleValidatedSubmit)} >
+                  <span class="d-flex align-items-center">
+                      <AiOutlineFileText size={25} />
+                      <h4 class="font-weight-bold" style={{ margin: 0, marginLeft: "10px" }}>
+                          PREFEITURA (LICENÇA DE FUNCIONAMENTO)
+                      </h4>
+                  </span>
+                  <div class="form-group">
+  
+                      <div class="row mt-3">
+  
+                          <div class="col-sm-6 col-xl-6">
+                              <label className="form-label" htmlFor={""}>Status</label>
+                              <Select
+  
+                                  label={"Despesa"}
+                                  options={options.map((item) => ({
+                                      value: item.value,
+                                      label: item.label
+                                  }))}
+                                  value={""}
+                                  onChange={(e) => setTipoIndicacaoIE(e)}
+                                  isSearchable={true}
+                                  menuIsOpen={false}
+                              />
+                          </div>
+                      </div>
+  
+                      <div class="row mt-3">
+                          <div class="col-sm-6 col-xl-6">
+                              <Controller
+                                  name="Dt. Inicio:"
+                                  control={control}
+                                  render={({ field }) => (
+                                      <FormField
+                                          label={"Dt. Inicio:"}
+                                          name="Dt. Inicio:"
+                                          type="date"
+                                          value={""}
+                                          errors={errors}
+                                          clearErrors={clearErrors}
+                                      />
+                                  )}
+                              />
+                          </div>
+                          <div class="col-sm-6 col-xl-6">
+                              <Controller
+                                  name="Dt. Inicio:"
+                                  control={control}
+                                  render={({ field }) => (
+                                      <FormField
+                                          label={"Dt. Fim:"}
+                                          name="Dt. Fim:"
+                                          type="date"
+                                          value={""}
+                                          errors={errors}
+                                          clearErrors={clearErrors}
+                                      />
+                                  )}
+                              />
+  
+                          </div>
+                      </div>
+  
+                      <div class="row mt-3">
+                          <div class="col-sm-6 col-xl-6">
+                              <label className="form-label" htmlFor={""}>Status</label>
+                              <Select
+  
+                                  label={"Despesa"}
+                                  options={options.map((item) => ({
+                                      value: item.value,
+                                      label: item.label
+                                  }))}
+                                  defaultInputValue={"Todos"}
+                                  //onChange={(e) => setTipoIndicacaoIE(e)}
+                                  isSearchable={true}
+                                  menuIsOpen={false}
+                              />
+                          </div>
+                          <div class="col-sm-6 col-xl-6">
+                              <Controller
+                                  name="Metragem:"
+                                  control={control}
+                                  render={({ field }) => (
+                                      <FormField
+                                          label={"Metragem:"}
+                                          name="Metragem:"
+                                          type="text"
+                                          value={"metragem"}
+                                          onChange={(e) => setMetragem(e.target.value).replace(/\D/g, "")}
+                                          errors={errors}
+                                          clearErrors={clearErrors}
+                                      />
+                                  )}
+                              />
+                          </div>
+                      </div>
+                      <div class="row mt-3">
+                          <div class="col-sm-6 col-xl-6">
+                              <Controller
+                                  name="DETALHEANDAMENTO"
+                                  control={control}
+                                  render={({ field }) => (
+                                      <FormField
+                                          {...field}
+                                          label="Detalhe Andamento"
+                                          type="textarea"
+                                          errors={errors}
+                                          width="100%"
+                                          height="120px"
+                                          clearErrors={clearErrors}
+                                      />
+                                  )}
+                              />
+                          </div>
+                      </div>
+                      <div class="row mt-3">
+                          <div class="col-sm-6 col-xl-6">
+                              <Controller
+                                  name="Anexar Arquivos:"
+                                  control={control}
+                                  render={({ field }) => (
+                                      <FormField
+                                          label={"Anexar Arquivos:"}
+                                          name="Anexar Arquivos:"
+                                          type="file"
+                                          value={""}
+                                          errors={errors}
+                                          width="100px"
+                                          height="100px"
+                                          clearErrors={clearErrors}
+                                      />
+                                  )}
+                              />
+                          </div>
+                      </div>
+                  </div>
+  
+              </form>
+  
+              <FooterModal
+                  ButtonTypeCadastrar={ButtonTypeModal}
+                  onClickButtonCadastrar={handleValidatedSubmit}
+                  tipoBtnCadastrar={"submit"}
+                  textButtonCadastrar={"Adicionar"}
+                  corCadastrar="success"
+  
+                  ButtonTypeFechar={ButtonTypeModal}
+                  textButtonFechar={"Fechar"}
+                  onClickButtonFechar={handleClose}
+                  corFechar="secondary"
+              />
+          </Fragment> */
         <Fragment>
-            <form onSubmit={handleSubmit(handleValidatedSubmit)} >
+            <form onSubmit={onSubmit} >
                 <span class="d-flex align-items-center">
                     <AiOutlineFileText size={25} />
                     <h4 class="font-weight-bold" style={{ margin: 0, marginLeft: "10px" }}>
@@ -97,19 +265,45 @@ export const FormularioCadastrarActionAlvara = ({ show, dadosAlvaraEmpresaSeleci
                     <div class="row mt-3">
 
                         <div class="col-sm-6 col-xl-6">
-                            <label className="form-label" htmlFor={""}>Status</label>
+                            <label className="form-label" htmlFor={""}>Status:</label>
                             <Select
-
-                                label={"Despesa"}
-                                options={options.map((item) => ({
+                                className="basic-single"
+                                classNamePrefix={"select"}
+                                name="departamentoFuncionario"
+                                isDisabled={true}
+                                options={optionsStatus?.map((item) => ({
                                     value: item.value,
                                     label: item.label
                                 }))}
-                                value={""}
-                                onChange={(e) => setTipoIndicacaoIE(e)}
-                                isSearchable={true}
-                                menuIsOpen={false}
+                                value={optionsStatus.find(opt => opt.value === 'True')}
+                                onChange={(opt) => {
+                                    setStatusAlvara(opt ?? null);
+                                    clearErrors("contaSelecionada ");
+                                }}
+                            //onChange={(e) => setStatusAlvara(e.value)}
                             />
+                            {errors.moduloEscolhido && (
+                                <AlertError
+                                    error={errors.moduloEscolhido?.value || errors.moduloEscolhido}
+                                    onClose={clearErrors}
+                                    fieldName="moduloEscolhido"
+                                />
+                            )}
+                            {/* <Controller
+                                name="Status:"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Status:"}
+                                        name="Status:"
+                                        type="text"
+                                        value={dadosAlvaraSelecionado?.[0]?.STATIVO === "True" ? "Ativo" : "Inativo"}
+                                        errors={errors}
+                                        readOnly={true}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            /> */}
                         </div>
                     </div>
 
@@ -123,8 +317,10 @@ export const FormularioCadastrarActionAlvara = ({ show, dadosAlvaraEmpresaSeleci
                                         label={"Dt. Inicio:"}
                                         name="Dt. Inicio:"
                                         type="date"
-                                        value={""}
+                                        value={dataIncioCompetencia}
+                                        onChange={(e) => setDataIncioCompetencia(e.target.value)}
                                         errors={errors}
+
                                         clearErrors={clearErrors}
                                     />
                                 )}
@@ -139,7 +335,8 @@ export const FormularioCadastrarActionAlvara = ({ show, dadosAlvaraEmpresaSeleci
                                         label={"Dt. Fim:"}
                                         name="Dt. Fim:"
                                         type="date"
-                                        value={""}
+                                        value={dataFimCompetencia}
+                                        onChange={(e) => setDataFimCompetencia(e.target.value)}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -151,19 +348,49 @@ export const FormularioCadastrarActionAlvara = ({ show, dadosAlvaraEmpresaSeleci
 
                     <div class="row mt-3">
                         <div class="col-sm-6 col-xl-6">
-                            <label className="form-label" htmlFor={""}>Status</label>
-                            <Select
 
-                                label={"Despesa"}
-                                options={options.map((item) => ({
-                                    value: item.value,
-                                    label: item.label
+                            <label className="form-label" htmlFor={""}>Status:</label>
+                            <Select
+                                className="basic-single"
+                                classNamePrefix={"select"}
+                                name="departamentoFuncionario"
+                                options={optionsStatusAlvara?.map((item) => ({
+                                    value: item.IDSTATUS,
+                                    label: item.DESCRICAO
+
                                 }))}
-                                defaultInputValue={"Todos"}
-                                //onChange={(e) => setTipoIndicacaoIE(e)}
-                                isSearchable={true}
-                                menuIsOpen={false}
+
+                                value={statusAndamento}
+                                onChange={(opt) => {
+                                    setStatusAndamento(opt ?? null);
+                                    clearErrors("contaSelecionada");
+                                }}
+                            //onChange={(e) => setStatusAndamento(e.value)}
                             />
+                            {errors.moduloEscolhido && (
+                                <AlertError
+                                    error={errors.moduloEscolhido?.value || errors.moduloEscolhido}
+                                    onClose={clearErrors}
+                                    fieldName="moduloEscolhido"
+                                />
+                            )}
+
+                            {/*  <Controller
+                                name="Status Andamento:"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label={"Status Andamento:"}
+                                        name="Status Andamento:"
+                                        type="text"
+                                        readOnly={true}
+                                        value={dadosAlvaraSelecionado?.[0]?.DESCRICAOSTATUS}
+                                        onChange={(e) => setMetragem(e.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            /> */}
                         </div>
                         <div class="col-sm-6 col-xl-6">
                             <Controller
@@ -174,8 +401,8 @@ export const FormularioCadastrarActionAlvara = ({ show, dadosAlvaraEmpresaSeleci
                                         label={"Metragem:"}
                                         name="Metragem:"
                                         type="text"
-                                        value={"metragem"}
-                                        onChange={(e) => setMetragem(e.target.value).replace(/\D/g, "")}
+                                        value={metragemLoja}
+                                        onChange={(e) => setMetragemLoja(e.target.value).replace(/\D/g, "")}
                                         errors={errors}
                                         clearErrors={clearErrors}
                                     />
@@ -193,6 +420,8 @@ export const FormularioCadastrarActionAlvara = ({ show, dadosAlvaraEmpresaSeleci
                                         {...field}
                                         label="Detalhe Andamento"
                                         type="textarea"
+                                        value={descricaoDetalheAndamento}
+                                        onChange={(e) => setDescricaoDetalheAndamento(e.target.value)}
                                         errors={errors}
                                         width="100%"
                                         height="120px"
@@ -202,33 +431,23 @@ export const FormularioCadastrarActionAlvara = ({ show, dadosAlvaraEmpresaSeleci
                             />
                         </div>
                     </div>
+
                     <div class="row mt-3">
                         <div class="col-sm-6 col-xl-6">
-                            <Controller
-                                name="Anexar Arquivos:"
-                                control={control}
-                                render={({ field }) => (
-                                    <FormField
-                                        label={"Anexar Arquivos:"}
-                                        name="Anexar Arquivos:"
-                                        type="file"
-                                        value={""}
-                                        errors={errors}
-                                        width="100px"
-                                        height="100px"
-                                        clearErrors={clearErrors}
-                                    />
-                                )}
+                            <label className="form-label mr-2" htmlFor={""}>Anexar Arquivo:</label>
+                            <input
+                                type="file"
+                                accept="application/pdf"
+                                onChange={(e) => setArquivoAlvara(e.target.files[0])}
                             />
                         </div>
                     </div>
                 </div>
-
             </form>
 
             <FooterModal
                 ButtonTypeCadastrar={ButtonTypeModal}
-                onClickButtonCadastrar={handleValidatedSubmit}
+                onClickButtonCadastrar={onSubmit}
                 tipoBtnCadastrar={"submit"}
                 textButtonCadastrar={"Adicionar"}
                 corCadastrar="success"

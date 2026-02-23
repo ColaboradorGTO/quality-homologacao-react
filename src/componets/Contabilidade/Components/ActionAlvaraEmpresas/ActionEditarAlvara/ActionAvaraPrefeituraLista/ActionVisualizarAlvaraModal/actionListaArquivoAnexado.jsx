@@ -166,7 +166,11 @@ export const ActionListaArquivosAnexados = ({ dadosAlvaraSelecionado, optionsMod
         }
     ]
 
-    const handleVisualizarArquivo = (row) => {
+    const handleVisualizarArquivo = async (row) => {
+
+        //const url = await get(`/visualizar-anexo-alvara?idArquivoAlvara=${row.IDARQUIVOSALVARA}`);
+
+
         //const url = `/visualizar-anexo-alvara?idArquivoAlvara=${row.IDARQUIVOSALVARA}`;
         const url = `http://164.152.245.77:8000/quality/concentrador_homologacao/api/contabilidade/arquivos-anexos-alvaras-empresa.xsjs?id=${row.IDARQUIVOSALVARA}`;
 

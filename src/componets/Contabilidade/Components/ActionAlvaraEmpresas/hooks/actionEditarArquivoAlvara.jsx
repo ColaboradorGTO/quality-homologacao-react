@@ -5,9 +5,8 @@ import axios from "axios";
 import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 import { useEffect } from "react";
 import { useQuery } from "react-query";
-import { converterArquivosParaBase64 } from "../../../../../utils/converterFileBase64";
 
-export const useCriarAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLogado, optionsModulos, refetchAlvaraEmpresa }) => {
+export const useEditarArquivoAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLogado, optionsModulos, refetchAlvaraEmpresa }) => {
     const [arquivoAlvara, setArquivoAlvara] = useState([])
     const [descricaoDetalheAndamento, setDescricaoDetalheAndamento] = useState('')
     const [dataFimCompetencia, setDataFimCompetencia] = useState('')
@@ -15,6 +14,7 @@ export const useCriarAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLog
     const [statusAndamento, setStatusAndamento] = useState('')
     const [statusAlvara, setStatusAlvara] = useState('')
     const [metragemLoja, setMetragemLoja] = useState('')
+
     const [ipUsuario, setIpUsuario] = useState('')
 
     const getIPUsuario = async () => {
@@ -48,19 +48,22 @@ export const useCriarAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLog
         },
         { enabled: true, staleTime: 60 * 60 * 1000, }
     );
+    //  console.log(optionsStatusAlvara , 'optionsStatusAlvara')
 
-    const arquivoConvertido = converterArquivosParaBase64(arquivoAlvara)
-    console.log(arquivoConvertido, 'arquivoConvertido')
 
-    /*     useEffect(() => {
-            setStatusAlvara({ value: dadosAlvaraSelecionado?.[0]?.STATIVO == 'True' || "False", label: dadosAlvaraSelecionado?.[0]?.STATIVO == 'True' ? 'Ativo' : 'Inativo' })
-            setDataIncioCompetencia(dadosAlvaraSelecionado?.[0]?.DTINICIOCOMPETENCIAALVARA)
-            setDataFimCompetencia(dadosAlvaraSelecionado?.[0]?.DTFIMCOMPETENCIAALVARA)
-            setStatusAndamento({ value: dadosAlvaraSelecionado?.[0]?.IDSTATUS, label: dadosAlvaraSelecionado?.[0]?.DESCRICAOSTATUS })
-            setMetragemLoja(dadosAlvaraSelecionado?.[0]?.METRAGEMEMPRESA)
-            setDescricaoDetalheAndamento(dadosAlvaraSelecionado?.[0]?.DESCRICAODETALHEANDAMENTO)
-            setArquivoAlvara(dadosAlvaraSelecionado?.[0]?.ARQUIVOSALVARAS)
-        }, [dadosAlvaraSelecionado]) */
+    useEffect(() => {
+        setStatusAlvara(dadosAlvaraSelecionado?.[0]?.STATIVO)
+        setDataIncioCompetencia(dadosAlvaraSelecionado?.[0]?.DTINICIOCOMPETENCIAALVARA)
+        setDataFimCompetencia(dadosAlvaraSelecionado?.[0]?.DTFIMCOMPETENCIAALVARA)
+        setStatusAndamento(dadosAlvaraSelecionado?.[0]?.DESCRICAOSTATUS)
+        setMetragemLoja(dadosAlvaraSelecionado?.[0]?.METRAGEMEMPRESA)
+        setDescricaoDetalheAndamento(dadosAlvaraSelecionado?.[0]?.DESCRICAODETALHEANDAMENTO)
+        setArquivoAlvara(
+            Array.isArray(dadosAlvaraSelecionado?.[0]?.ARQUIVALVARA)
+                ? dadosAlvaraSelecionado?.[0]?.ARQUIVALVARA
+                : []
+        );
+    }, [dadosAlvaraSelecionado])
 
 
     const optionsStatus = [
@@ -68,10 +71,32 @@ export const useCriarAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLog
         { value: 'False', label: 'Inativo' },
     ];
 
-    //console.log(IDSTATUSANDAMENTO, 'arquivoAlvara')
-    console.log(dadosAlvaraSelecionado, 'dadosAlvaraSelecionado hook')
+/*     const handleSelecionarArquivos = async (event) => {
+        const files = Array.from(event.target.files || []);
 
-    const onSubmit = async (data) => {
+        const arquivosConvertidos = await Promise.all(
+            files.map(file => {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+
+                    reader.onload = () => {
+                        resolve({
+                            ARQUIVOBASE64: reader.result.split(',')[1],
+                            NOMEARQUIVO: file.name,
+                            TIPOARQUIVO: file.type
+                        });
+                    };
+
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            })
+        );
+
+        return arquivosConvertidos;
+    }; */
+
+    const onEditarArquivo = async (row, arquivos) => {
         if (optionsModulos[0]?.ALTERAR !== 'True') {
             Swal.fire({
                 title: 'Acesso Negado',
@@ -85,9 +110,10 @@ export const useCriarAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLog
             return;
         }
 
+        console.log(row, 'row')
         const confirmacao = await Swal.fire({
             title: 'Tem certeza?',
-            text: `Certeza que deseja salvar os dados do Alvará?`,
+            text: `Certeza que deseja substituir o anexo selecionado?`,
             icon: 'question',
             showCancelButton: true,
             confirmButtonText: 'Sim',
@@ -102,47 +128,28 @@ export const useCriarAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLog
 
         if (!confirmacao.isConfirmed) return;
 
-        /*   const postData = {
-              IDVINCULO: dadosAlvaraSelecionado?.[0]?.IDVINCULO,
-              STATIVO: String(statusAlvara?.value),
-              DTINICIOCOMPETENCIA: dataIncioCompetencia,
-              DTFIMCOMPETENCIA: dataFimCompetencia,
-              IDSTATUSANDAMENTO: Number(statusAndamento?.value),
-              DESCRICAODETALHEANDAMENTO: descricaoDetalheAndamento,
-              METRAGEMEMPRESA: Number(metragemLoja),
-              IDFUNCIONARIO: Number(usuarioLogado.id),
-              ARQUIVOSALVARA: arquivoConvertido,
-          }
-   */
-        const postData = {
-            IDEMPRESA: dadosAlvaraSelecionado?.[0]?.IDVINCULO,
-            IDALVARA: String(statusAlvara?.value),
-            STATIVO: dataIncioCompetencia,
-            DTINICIOCOMPETENCIA: dataFimCompetencia,
-            DTFIMCOMPETENCIA: Number(statusAndamento?.value),
-            IDSTATUSANDAMENTO: descricaoDetalheAndamento,
-            DESCRICAODETALHEANDAMENTO: Number(metragemLoja),
-            METRAGEMEMPRESA:Number(metragemLoja),//
-            IDFUNCIONARIO: Number(usuarioLogado.id),//
-            ARQUIVOSALVARA: arquivoConvertido,
+        const putData = {
+            ARQUIVOSALVARA: arquivos,
+            IDVINCULOALVARAEMPRESA: row.IDVINCULO,
+            IDFUNCIONARIO: String(usuarioLogado.id),
+            IDARQUIVOSALVARA: row.IDARQUIVOSALVARA,
         }
-
-
         try {
-            const response = await post('vinculoAlvarasEmpresa', postData)
+            const stCancelar = 'False';
+            const response = await put(`/arquivosAnexosAlvara/:id?cancelar=${stCancelar}`, putData);
 
-            const textDados = JSON.stringify(postData)
+            const textDados = JSON.stringify(putData)
             let textoFuncao = 'CONTABILIDADE/EDITAR ALVARA PREFEITURA';
             const ipUsuario = await getIPUsuario();
 
-            const CreateLog = {
+            const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
 
-            await post('/log-web', CreateLog)
+            await post('/log-web', postData)
 
             Swal.fire({
                 title: 'Atualização',
@@ -153,23 +160,22 @@ export const useCriarAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLog
                     container: 'custom-swal',
                 }
             });
-            handleClose()
-            refetchAlvaraEmpresa()
+            //handleClose()
             return response.data;
         } catch (error) {
 
-            const textDados = JSON.stringify(postData)
+            const textDados = JSON.stringify(putData)
             const ipUsuario = await getIPUsuario();
             let textoFuncao = 'CONTABILIDADE/ERRO AOEDITAR ALVARA PREFEITURA';
 
-            const CreateLog = {
+            const postData = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
                 IP: ipUsuario
             }
 
-            const responsPost = await post('/log-web', CreateLog)
+            const responsPost = await post('/log-web', postData)
 
             Swal.fire({
                 title: 'Cadastro',
@@ -201,7 +207,8 @@ export const useCriarAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLog
         setStatusAlvara,
         metragemLoja,
         setMetragemLoja,
-        onSubmit
+        onEditarArquivo,
+
     }
 
 }

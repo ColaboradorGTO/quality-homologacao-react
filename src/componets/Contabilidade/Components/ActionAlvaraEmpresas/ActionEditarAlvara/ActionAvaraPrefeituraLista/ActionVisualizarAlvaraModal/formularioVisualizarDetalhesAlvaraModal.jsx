@@ -5,11 +5,12 @@ import { FooterModal } from "../../../../../../Modais/FooterModal/footerModal";
 import { Controller, useForm } from "react-hook-form";
 import FormField from "../../../../../../Formularios/FormField";
 //import { schema } from "./schemaCadastrarQuebraCaixa";
-import { useCadastrarAlvara } from "../../../hooks/actionCriarAlvara";
+//import { useCadastrarAlvara } from "../../../hooks/actionCriarAlvara";
 import { BsBuilding, BsPerson } from "react-icons/bs";
 import Select from "react-select"
 import { AiOutlineFileText } from "react-icons/ai";
 import { ActionListaArquivosAnexados } from "./actionListaArquivoAnexado";
+import { useCriarAlvara } from "../../../hooks/actionCriarAlvara";
 
 //import { ActionListaAlvaraPrefeitura } from "./ActionAvaraPrefeituraLista/actionListaAlvaraPrefeitura.jsx";
 
@@ -41,7 +42,7 @@ export const FormularioVisualizarDetalhesAlvara = ({ show, dadosAlvaraSelecionad
         setOperador,
         setDataLancamento,
         dataTableRef
-    } = useCadastrarAlvara({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos });
+    } = useCriarAlvara({ show, handleClose, dadosDetelheCaixa, usuarioLogado, optionsModulos });
 
     const handleValidatedSubmit = async () => {
         try {
