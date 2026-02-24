@@ -98,9 +98,9 @@ export const ActionPesquisaVendasRelatorio = () => {
 
 
   const { data: dadosColaborador = [], error: errorColaborador, isLoading: isLoadingColaborador, refetch: refetchColaborador } = useQuery(
-    'funcionarioRelatorio',
+    'funcionario-relatorio',
     async () => {
-      const response = await get(`/funcionarioRelatorio?idEmpresa=${empresaSelecionada}`);
+      const response = await get(`/funcionario-relatorio?idEmpresa=${empresaSelecionada}`);
       return response.data;
     },
     { enabled: Boolean(empresaSelecionada), staleTime: 60 * 60 * 1000, }

@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from "react"
+import React, { Fragment,  useState } from "react"
 import { ActionListaProductoPreco } from "./actionListaProdutosPreco";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ActionMain } from "../../../Actions/actionMain";
@@ -67,7 +67,7 @@ export const ActionPesquisaProductoPreco = () => {
   };
 
   const { data: dadosProdutos = [], error: errorPrdoutos, isLoading: isLoadingProdutos, refetch: refetchListaProdutos } = useQuery(
-    ['produtos',],
+    ['lista-produtos',],
     () => fetchListaProdutos(),
     { enabled: false, staleTime: 60 * 60 * 1000 }
   );
