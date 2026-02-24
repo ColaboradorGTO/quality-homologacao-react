@@ -1,19 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Swal from "sweetalert2";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import { post, get } from "../../../../../api/funcRequest";
-import { useQuery } from "react-query";
 
 export const useCopiarPermissaoUsuario = ({
-  usuarioOrigemId,
-  usuarioDestinoId,
-  permissoesSelecionadas,
-  usuarioClonado,
   selectedItems,
-  usuarioSelecionado,
   setSelectedItems,
   usuarioLogado,
+  usuarioOrigem, 
+  usuarioDestino,
   optionsModulos
 }) => {
   const [moduloSelecionado, setModuloSelecionado] = useState('');
@@ -32,32 +27,41 @@ export const useCopiarPermissaoUsuario = ({
 
 
   const getIPUsuario = async () => {
+    let usuarioIP = null;
+
     try {
-      const response = await axios.get('https://api.ipify.org?format=json9');
-      if (response.data && response.data.ip) {
-        return response.data.ip;
-      }
-      throw new Error("Resposta inválida do ipfy.org");
+      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      usuarioIP = ipWhoisData?.ip;
     } catch (error) {
-      const responseIP2 = await axios.get('https://api.ipwho.org/me');
-      return responseIP2.data?.data?.ip;
-      
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
 
   const handleSubmit = async () => {
-    // if (optionsModulos[0]?.ALTERAR === 'False') {
-    //   Swal.fire({
-    //     icon: 'error',
-    //     title: 'Atenção',
-    //     text: 'Você não tem permissão para alterar as permissões de usuário.',
-    //     showConfirmButton: false,
-    //     timer: 1500
-    //   });
-    //   return;
-    // }
+    if (optionsModulos[0]?.ALTERAR === 'False') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Atenção',
+        html: `${usuarioLogado?.NOFUNCIONARIO} Você não tem permissão para alterar as permissões de usuário.`,
+        showConfirmButton: false,
+        timer: 1500
+      });
+      return;
+    }
 
-    if (!usuarioClonado) {
+
+    if (!usuarioDestino) {
       Swal.fire({
         icon: 'error',
         title: 'Atenção',
@@ -77,7 +81,7 @@ export const useCopiarPermissaoUsuario = ({
 
     try {
 
-      const response = await get(`/menus-filho-usuario?idUsuario=${usuarioClonado}&idMenuFilho=${encodeURIComponent(selectedItems.map(item => item.IDMENUFILHO).join(','))}`);
+      const response = await get(`/menus-filho-usuario?idUsuario=${usuarioDestino}&idMenuFilho=${encodeURIComponent(selectedItems.map(item => item.IDMENUFILHO).join(','))}`);
 
       const menusExistentes = response.data || [];
 
@@ -128,7 +132,7 @@ export const useCopiarPermissaoUsuario = ({
       for (let i = 0; i < menuFilhosNovos.length; i++) {
         const sel = menuFilhosNovos[i];
         const payload = {
-          IDUSUARIO: Number(usuarioClonado),
+          IDUSUARIO: Number(usuarioDestino),
           IDMODULOADMINISTRATIVO: String(sel.IDMODULOADMINISTRATIVO ?? ''),
           IDMODULOGERENCIA: String(sel.IDMODULOGERENCIA ?? ''),
           IDMODULOINFORMATICA: String(sel.IDMODULOINFORMATICA ?? ''),
