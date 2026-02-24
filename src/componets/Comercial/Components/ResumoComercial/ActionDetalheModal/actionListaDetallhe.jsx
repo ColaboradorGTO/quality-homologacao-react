@@ -351,10 +351,12 @@ export const ActionListaDetalhe = ({ dadosDetalheFechamento }) => {
                     sortOrder={-1}
                     // paginator={true}
                     rows={10}
-
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+                    filterDisplay="menu"
                     showGridlines
                     stripedRows
-                    emptyMessage="Sem Registros para Exibir"
+                    emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
                 >
                     {colunasFechamento.map(coluna => (
                         <Column
@@ -367,7 +369,7 @@ export const ActionListaDetalhe = ({ dadosDetalheFechamento }) => {
                             sortable={coluna.sortable}
                             headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
                             footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                            bodyStyle={{ fontSize: '0.8rem' }}
+                            bodyStyle={{ fontSize: '1rem' }}
 
                         />
                     ))}
