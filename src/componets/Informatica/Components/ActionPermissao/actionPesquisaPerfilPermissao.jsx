@@ -18,6 +18,7 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [usuarioOrigem, setUsuarioOrigem] = useState('');
   const [usuarioDestino, setUsuarioDestino] = useState('');
+  const [usuarioDestinoSelecionado, setUsuarioDestinoSelecionado] = useState('');
   const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]);
   const [btnVisivel, setBtnVisivel] = useState(false)
@@ -151,9 +152,14 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
     }
   }
 
+  const handleUserDestinoChange = (e) => {
+    setUsuarioDestino(String(e.value ?? ""));
+    setUsuarioDestinoSelecionado(e);
+  }
+
   const {
     handleSubmit
-  } = useCopiarPermissaoUsuario({ selectedItems,  usuarioLogado, optionsModulos, usuarioOrigem, usuarioDestino });
+  } = useCopiarPermissaoUsuario({ selectedItems,  usuarioLogado, optionsModulos, usuarioOrigem, usuarioDestino, usuarioDestinoSelecionado });
   
   const handleClonar = () => {
     if(selectedItems.length === 0) {
@@ -165,6 +171,7 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
       });
       return;
     } else {
+   
       handleSubmit();
     }
   }
@@ -195,12 +202,12 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
         optionsEmpresas={[
           ...dadosFuncionarios.map((item) => ({
             value: item.ID,
-            label: `${item.NOLOGIN} -  ${item.NOFUNCIONARIO}`
+            label: `${item.NOLOGIN} -  ${item.NOFUNCIONARIO} - ${item.DEPARTAMENTO}`
           }))
         ]}
 
         labelSelectEmpresa={"Origem da Permissão"}
-        valueSelectEmpresa={console.log(usuarioOrigem)}
+        valueSelectEmpresa={usuarioOrigem}
         onChangeSelectEmpresa={(e) => setUsuarioOrigem(String(e.value ?? ""))}
 
         InputSelectGrupoComponent={InputSelectAction}
@@ -208,7 +215,7 @@ export const ActionPesquisaPerfilPermissao = ({ usuarioLogado, ID }) => {
           { value: '', label: 'Selecione...' },
           ...dadosFuncionarios.map((item) => ({
             value: item.ID,
-            label: `${item.NOLOGIN} -  ${item.NOFUNCIONARIO}`
+            label: `${item.NOLOGIN} -  ${item.NOFUNCIONARIO} - ${item.DEPARTAMENTO}`
           }))
         ]}
         labelSelectGrupo={"Destino da Permissão"}
