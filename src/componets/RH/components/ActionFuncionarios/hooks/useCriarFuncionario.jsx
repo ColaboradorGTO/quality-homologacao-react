@@ -47,27 +47,27 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     setDataAdmissao(dataAtual)
   }, [])
 
-  const getIPUsuario = async () => {
-    let usuarioIP = null;
+   const getIPUsuario = async () => {
+        let usuarioIP = null;
 
-    try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      usuarioIP = ipWhoisData?.ip;
-    } catch (error) {
-      console.error("Erro ao buscar IP via ipwho.is:", error);
-    }
+        try {
+        const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+        usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+        console.error("Erro ao buscar IP via ipwho.is:", error);
+        }
 
-    if (!usuarioIP) {
-      try {
-        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-        usuarioIP = ipifyData?.ip;
-      } catch (error) {
-        console.error("Erro ao buscar IP via ipify.org:", error);
-      }
-    }
-    setIpUsuario(usuarioIP);
-    return usuarioIP;
-  };
+        if (!usuarioIP) {
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
+    };
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresa } = useQuery(
     'listaEmpresasIformatica',
