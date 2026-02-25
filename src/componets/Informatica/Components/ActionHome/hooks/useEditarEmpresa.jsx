@@ -27,21 +27,25 @@ export const useEditarEmpresa = ({
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
-            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
-
-            if (!usuarioIP) {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
+        const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+        usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
+        console.error("Erro ao buscar IP via ipwho.is:", error);
         }
+
+        if (!usuarioIP) {
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
     useEffect(() => {
@@ -75,7 +79,6 @@ export const useEditarEmpresa = ({
 
         try {
 
-            const ipUsuario = await getIPUsuario();
             const postData = {
                 IDEMPRESA: dadosListaCaixa[0]?.IDEMPRESA,
                 HORAATUALIZA: horaAtualizado,
@@ -83,23 +86,20 @@ export const useEditarEmpresa = ({
                 STLOJAABERTA: statusAtualizado || '',
                 IDFUNCIONARIOSUPERVISOR: idFuncionarioSupervisor,
             }
-
-
+            
+            
             const postDataSTCaixa = {
                 STATUALIZA: String(caixaListaAtualiza),
                 STLIMPAR: String(caixaListaLimpar)
             };
-
+            
             const response = await put('/atualiza-empresa-diario/:id', postData)
             const responseSTCaixa = await put('/atualizar-todos-caixa', postDataSTCaixa)
-            //console.log('responseSTCaixa', responseSTCaixa.data)
-            //console.log(postDataSTCaixa, 'postDataSTCaixa')
+            const ipUsuario = await getIPUsuario();
             const textDados = JSON.stringify(postData);
             let textFuncao = 'INFORMATICA/EDIÇÃO DE ATUALIZAÇÃO DIÁRIA DOS PDVs DA EMPRESA';
 
             const postDataEditarCaixa = {
-
-
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,

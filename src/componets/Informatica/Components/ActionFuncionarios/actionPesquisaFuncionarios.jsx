@@ -18,8 +18,6 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [cpf, setCpf] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
   const [modalCadastro, setModalCadastro] = useState(false);
 
  
@@ -40,43 +38,42 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
       return response.data;
     },
     {
-      staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 
+      staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000 
     }
   );
 
-  
   const fetchListaFuncionarios = async () => {
     const urlBase = `/funcionarios-loja?idEmpresa=${empresaSelecionada}&noFuncionarioCPF=${cpf}`;
-     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
     
-          animacaoCarregamento('Carregando dados...', true);
-    
-          const primeiraPagina = 1;
-          const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
-          const page = primeiraResposta.page || primeiraPagina;
-          const pageSize = primeiraResposta.pageSize || 1000;
-          const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
-          const totalPages = Math.ceil(totalRows / pageSize);
-    
-          let allData = [...(primeiraResposta.data || [])];
-    
-          if (totalPages > 1) {
-            for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-              animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-              const responsePage = await get(`${urlApi}&page=${currentPage}`);
-              allData.push(...(responsePage.data || []));
-            }
-          }
-    
-          return allData;
-        } catch (error) {
-          console.error('Erro ao buscar dados da api:', error);
-          throw error;
-        } finally {
-          fecharAnimacaoCarregamento();
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
+      }
+
+      return allData;
+    } catch (error) {
+      console.error('Erro ao buscar dados da api:', error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
   };
 
   const { data: dadosFuncionarios = [], error: errorFuncionario, isLoading: isLoadingFuncionario, refetch } = useQuery(
@@ -114,7 +111,6 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
   }
 
   const handleClick = () => {
-
     refetch();
     setTabelaVisivel(true);
   }
@@ -165,6 +161,7 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
         optionsModulos={optionsModulos}  
         usuarioLogado={usuarioLogado}
         handleClick={handleClick}
+        refetch={refetch}
       />
       
 
@@ -178,4 +175,3 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
     </Fragment>
   )
 }
-
