@@ -1,26 +1,31 @@
 import React, { Fragment, useEffect, useState } from "react"
-import { get, post, put } from "../../../../api/funcRequest";
+import { get } from "../../../../api/funcRequest";
 import { ActionMain } from "../../../Actions/actionMain";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { AiOutlineSearch } from "react-icons/ai";
 import { GoDownload } from "react-icons/go";
 import { ActionListaEmpresas } from "./actionListaEmpresas";
 import { useQuery } from "react-query";
-import Swal from "sweetalert2";
+import { useAtualizarTodosCaixas } from "./hooks/useAtualizarTodosCaixas";
 
-import axios from "axios";
-
-export const InformaticaActionHome = ({ usuarioLogado, ID }) => {
+export const InformaticaActionHome = ({ usuarioLogado }) => {
   const [clickContador, setClickContador] = useState(0);
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [actionVisivel, setActionVisivel] = useState(true);
-  const [ipUsuario, setIpUsuario] = useState('');
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
-
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
 
       return response.data;
     },
@@ -28,90 +33,17 @@ export const InformaticaActionHome = ({ usuarioLogado, ID }) => {
   );
 
 
-  const getIPUsuario = async () => {
-    try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
-
-      if (!usuarioIP) {
-        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-        usuarioIP = ipifyData?.ip;
-      }
-
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
-    } catch (error) {
-      console.error("Erro ao buscar IP:", error);
-      return null;
-    }
-  };
-
   const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch } = useQuery(
     'listaEmpresasIformatica',
     async () => {
       const response = await get(`/listaEmpresasIformatica`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
-  const atualizarDiariaEmpresa = async () => {
-    if (optionsModulos[0]?.ALTERAR === 'False') {
-      Swal.fire({
-        position: 'center',
-        icon: 'error',
-        title: 'Você não tem permissão!',
-        text: 'Acesso Negado para Atualizar Caixas',
-        showConfirmButton: true,
-        timer: 3000
-      })
-      return;
-    }
-    try {
 
-      const putData = {
-        STATUALIZA: 'True',
-      }
-
-      const response = await put('/atualizar-todos-caixa', putData)
-      const textDados = JSON.stringify(putData);
-      let textFuncao = 'INFORMATICA/ATUALIZAR TODOS OS CAIXA';
-
-      const ipUsuario = await getIPUsuario();
-      const postData = {
-        IDFUNCIONARIO: String(usuarioLogado.id),
-        PATHFUNCAO: textFuncao,
-        DADOS: textDados,
-        IP: ipUsuario
-      }
-
-      const responseLog = await post('/log-web', postData)
-
-      Swal.fire({
-        position: 'center',
-        icon: 'success',
-        title: 'Caixas atualizado com sucesso!',
-        showConfirmButton: false,
-        timer: 1500
-      })
-
-      return responseLog.data;
-
-    } catch (error) {
-      Swal.fire({
-        position: 'center',
-        icon: 'error',
-        title: 'Erro ao atualizar Caixas!',
-        showConfirmButton: false,
-        timer: 1500
-      });
-
-      console.error('Erro na atualização:', error);
-      return null;
-
-    }
-
-  }
+  const { atualizarDiariaEmpresa } = useAtualizarTodosCaixas({ usuarioLogado, optionsModulos });
 
   const handleClick = () => {
     setClickContador(prevContador => prevContador + 1);
@@ -166,5 +98,3 @@ export const InformaticaActionHome = ({ usuarioLogado, ID }) => {
     </Fragment>
   )
 }
-
-
