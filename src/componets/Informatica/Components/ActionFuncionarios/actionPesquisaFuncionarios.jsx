@@ -3,7 +3,7 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputField } from "../../../Buttons/Input";
 import { ButtonType } from "../../../Buttons/ButtonType";
-import { get, put } from "../../../../api/funcRequest";
+import { get } from "../../../../api/funcRequest";
 import { AiOutlineSearch } from "react-icons/ai";
 import { ActionListaFuncionarios } from "./actionListaFuncionarios";
 import { ActionCadastrarFuncionarioModal } from "./ActionCadastrar/actionCadastrarFuncionario";
@@ -11,21 +11,32 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { IoIosAdd } from "react-icons/io";
 import Swal from "sweetalert2";
+import { useEffect } from "react";
 
 
-export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
+export const ActionPesquisaFuncionarios = ({ usuarioLogado}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('');
   const [cpf, setCpf] = useState("");
   const [modalCadastro, setModalCadastro] = useState(false);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
- 
+  
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-        const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-        return response.data;
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+
+      return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
@@ -34,11 +45,11 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
     'listaEmpresasIformatica',
     async () => {
       const response = await get(`/listaEmpresasIformatica`);
-     
+
       return response.data;
     },
     {
-      staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000 
+      staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000
     }
   );
 
@@ -47,7 +58,7 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
-    
+
       animacaoCarregamento('Carregando dados...', true);
 
       const primeiraPagina = 1;
@@ -80,24 +91,24 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
     ['funcionarios-loja',],
     () => fetchListaFuncionarios(),
     {
-      enabled: true, staleTime: 60 * 60 * 1000, 
+      enabled: true, staleTime: 60 * 60 * 1000,
     }
   );
-  
-  
+
+
   const handlChangeEmpresa = (e) => {
-    if(e.value === '') {
+    if (e.value === '') {
       setEmpresaSelecionada('');
-    }else{
+    } else {
       const selectedEmpresa = optionsEmpresas.find(empresa => empresa.IDEMPRESA === e.value);
       setEmpresaSelecionadaNome(selectedEmpresa.NOFANTASIA);
       setEmpresaSelecionada(e.value);
-      }
+    }
   }
 
-  
+
   const handleCadastro = () => {
-    if(optionsModulos[0]?.CRIAR == 'True') {
+    if (optionsModulos[0]?.CRIAR == 'True') {
       setModalCadastro(true);
     } else {
       Swal.fire({
@@ -107,7 +118,7 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
         confirmButtonText: 'OK',
         confirmButtonColor: '#3085d6'
       })
-    } 
+    }
   }
 
   const handleClick = () => {
@@ -156,16 +167,16 @@ export const ActionPesquisaFuncionarios = ({usuarioLogado, ID}) => {
       />
 
 
-      <ActionListaFuncionarios 
-        dadosFuncionarios={dadosFuncionarios} 
-        optionsModulos={optionsModulos}  
+      <ActionListaFuncionarios
+        dadosFuncionarios={dadosFuncionarios}
+        optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}
         handleClick={handleClick}
         refetch={refetch}
       />
-      
 
-      <ActionCadastrarFuncionarioModal 
+
+      <ActionCadastrarFuncionarioModal
         show={modalCadastro}
         handleClose={() => setModalCadastro(false)}
         usuarioLogado={usuarioLogado}
