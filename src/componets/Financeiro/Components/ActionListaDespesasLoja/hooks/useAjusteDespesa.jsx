@@ -21,19 +21,19 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, hand
     let usuarioIP = null;
 
     try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+      const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
       usuarioIP = ipWhoisData?.ip;
     } catch (error) {
       console.error("Erro ao buscar IP via ipwho.is:", error);
     }
 
     if (!usuarioIP) {
-      try {
+    try {
         const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
         usuarioIP = ipifyData?.ip;
-      } catch (error) {
+    } catch (error) {
         console.error("Erro ao buscar IP via ipify.org:", error);
-      }
+    }
     }
     setIpUsuario(usuarioIP);
     return usuarioIP;
@@ -48,7 +48,6 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, hand
     },
     { staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
-
 
 
   useEffect(() => {
@@ -110,7 +109,7 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, hand
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario
+        IP: ipUsuario || 'IP não disponível'
       }
       
       await post('/log-web', createData)
@@ -136,7 +135,7 @@ export const useAjusteDespesa = ({ dadosDespesasLojaDetalhe, usuarioLogado, hand
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario
+        IP: ipUsuario || 'IP não disponível'
       }
       
       const response = await post('/log-web', createData)
