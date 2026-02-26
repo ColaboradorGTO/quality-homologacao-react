@@ -4,53 +4,46 @@ import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { post, put } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 import { useForm } from "react-hook-form";
 import { getDataAtual } from "../../../../../utils/dataAtual";
 
-export const InformaticaActionCertificadoModal = ({ show, handleClose, dadosDetalheEmpresas }) => {
+export const InformaticaActionCertificadoModal = ({ show, handleClose, dadosDetalheEmpresas, usuarioLogado, optionsModulos }) => {
   const { register, handleSubmit, errors } = useForm();
   const [senha, setSenha] = useState('');
   const [dataAlteracao, setDataAlteracao] = useState('');
   const [validadeCertificadoNovo, setValidadeCertificadoNovo] = useState('');
   const [novoCertificado, setNovoCertificado] = useState('');
-  const [usuarioLogado, setUsuarioLogado] = useState(null);
   const [ipUsuario, setIpUsuario] = useState('');
-  const navigate = useNavigate();
 
   useEffect(() => {
     const dataAtual = getDataAtual();
     setDataAlteracao(dataAtual);
   }, [])
 
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
-
-  useEffect(() => {
-    getIPUsuario();
-  }, [usuarioLogado]);
 
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
-    return response.data;
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
 
   const onSubmit = async (data) => {
@@ -113,7 +106,7 @@ export const InformaticaActionCertificadoModal = ({ show, handleClose, dadosDeta
 
       const textDados = JSON.stringify(putData);
       let textoFuncao = 'INFORMATICA/ATUALIZAR LINK RELATORIO BI';
-
+      const ipUsuario = await getIPUsuario();
       const postData = {
         IDFUNCIONARIO: usuarioLogado.id,
         PATHFUNCAO: textoFuncao,
