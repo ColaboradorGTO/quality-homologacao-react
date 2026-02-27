@@ -1,22 +1,19 @@
 import React, { Fragment } from "react"
 import Modal from 'react-bootstrap/Modal';
-
 import { FormularioCadastrar } from "./formularioCadastrar";
 import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
-
 
 export const ActionCadastroDepositoBonificacaoModal = ({ 
   show, 
   handleClose, 
   usuarioLogado,
-  funcionarioSelecionado, 
-  setFuncionarioSelecionado, 
+  funcionario, 
+  setFuncionario, 
   optionsModulos,
   optionsFuncionarios
 }) => {
 
   return (
-
     <Fragment>
       <Modal
         show={show}
@@ -38,8 +35,8 @@ export const ActionCadastroDepositoBonificacaoModal = ({
           <FormularioCadastrar 
             handleClose={handleClose} 
             usuarioLogado={usuarioLogado}
-            funcionarioSelecionado={funcionarioSelecionado}
-            setFuncionarioSelecionado={setFuncionarioSelecionado}  
+            funcionario={funcionario}
+            setFuncionario={setFuncionario}  
             optionsModulos={optionsModulos}
             optionsFuncionarios={optionsFuncionarios}
           />

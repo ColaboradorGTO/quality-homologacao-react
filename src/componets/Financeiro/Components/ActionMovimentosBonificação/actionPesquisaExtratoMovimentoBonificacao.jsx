@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { Fragment, useState, useEffect } from "react"
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { ActionMain } from "../../../Actions/actionMain";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
@@ -7,19 +7,33 @@ import { ActionListaExtratoMovimentoBonificacao } from "./actionListaExtratoMovi
 import { get } from "../../../../api/funcRequest";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
+import { MdOutlineAdd } from "react-icons/md";
+import { ActionCadastroDepositoBonificacaoModal } from "./CadastrarBonificao/actionCadastroDepositoBonificacaoModal";
+import Swal from "sweetalert2";
 
-export const ActionPesquisaExtratoMovimentoBonificacao = ({usuarioLogado, ID}) => {
+export const ActionPesquisaExtratoMovimentoBonificacao = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
+  const [funcionario, setFuncionario] = useState([]);
+  const [modalVisivel, setModalVisivel] = useState(false);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
+
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
 
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const fetchListaFuntionarios = async () => {
@@ -56,7 +70,7 @@ export const ActionPesquisaExtratoMovimentoBonificacao = ({usuarioLogado, ID}) =
   const { data: optionsFuncionarios = [], error: errorFuncionario, isLoading: isLoadingFuncionario, refetch } = useQuery(
     ['todos-funcionario'],
     () => fetchListaFuntionarios(),
-    { enabled: true, staleTime: 5 * 60 * 1000 }
+    { enabled: true, staleTime: 60 * 60 * 1000 }
   );
 
 
@@ -94,17 +108,35 @@ export const ActionPesquisaExtratoMovimentoBonificacao = ({usuarioLogado, ID}) =
   const { data: dadosExtratoBonificacao = [], error: errorDescontoVendas, isLoading: isLoadingDescontoVendas, refetch: refetchDadosExtratoBoniFicacao } = useQuery(
     ['movimento-saldo-bonificacao'],
     () => fetchDadosExtratoBoniFicacao(),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
   const handleClick = () => {
     setTabelaVisivel(true)
-    setCurrentPage(prevPage => prevPage + 1);
     refetchDadosExtratoBoniFicacao()
   }
 
+  const handleChangeFuncionario = (e) => {
+    setFuncionarioSelecionado(e.value);
+    setFuncionario(e);
+  }
 
-  
+  const handleShowModal = () => {
+    if (optionsModulos[0]?.CRIAR == 'True') {
+      setModalVisivel(true);
+    } else {
+      Swal.fire({
+        icon: 'info',
+        title: 'Acesso Negado!',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para cadastrar!`,
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        },
+      })
+    }
+  }
+
   return (
 
     <Fragment>
@@ -112,7 +144,6 @@ export const ActionPesquisaExtratoMovimentoBonificacao = ({usuarioLogado, ID}) =
         linkComponentAnterior={["Home"]}
         linkComponent={["Extrato de Contas Correntes das Lojas"]}
         title="Extrato de Bonificações Funcionários"
-        // subTitle="Nome da Loja"
 
         InputSelectEmpresaComponent={InputSelectAction}
         optionsEmpresas={[
@@ -123,30 +154,43 @@ export const ActionPesquisaExtratoMovimentoBonificacao = ({usuarioLogado, ID}) =
           }))
         ]}
         labelSelectEmpresa={"Funcionário"}
-        valueSelectEmpresa={funcionarioSelecionado} 
-        onChangeSelectEmpresa={(e) => setFuncionarioSelecionado(e.value)}
+        valueSelectEmpresa={funcionarioSelecionado}
+        onChangeSelectEmpresa={handleChangeFuncionario}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
         onButtonClickSearch={handleClick}
         corSearch={"primary"}
         IconSearch={AiOutlineSearch}
+
+        ButtonTypeCadastro={ButtonType}
+        linkNome={"Cadastrar Bonificação"}
+        onButtonClickCadastro={handleShowModal}
+        corCadastro="success"
+        IconCadastro={MdOutlineAdd}
+        styleCadastro={{ display: funcionarioSelecionado ? 'block' : 'none' }}
       />
 
       {tabelaVisivel && (
-
-        <div className="card">
-          
-          <ActionListaExtratoMovimentoBonificacao 
-            dadosExtratoBonificacao={dadosExtratoBonificacao} 
-            usuarioLogado={usuarioLogado}
-            optionsModulos={optionsModulos}
-            funcionarioSelecionado={funcionarioSelecionado}  
-            setFuncionarioSelecionado={setFuncionarioSelecionado}
-            optionsFuncionarios={optionsFuncionarios}
-          />
-        </div>
+        <ActionListaExtratoMovimentoBonificacao
+          dadosExtratoBonificacao={dadosExtratoBonificacao}
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}
+          funcionarioSelecionado={funcionarioSelecionado}
+          setFuncionarioSelecionado={setFuncionarioSelecionado}
+          optionsFuncionarios={optionsFuncionarios}
+        />
       )}
+
+      <ActionCadastroDepositoBonificacaoModal
+        show={modalVisivel}
+        handleClose={() => setModalVisivel(false)}
+        usuarioLogado={usuarioLogado}
+        funcionario={funcionario}
+        setFuncionario={setFuncionario}
+        optionsModulos={optionsModulos}
+        optionsFuncionarios={optionsFuncionarios}
+      />
     </Fragment>
   )
 }

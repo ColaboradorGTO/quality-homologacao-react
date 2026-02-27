@@ -1,10 +1,6 @@
 import { Fragment, useRef, useState } from "react"
-import { MdOutlineAdd } from "react-icons/md";
-import { ButtonType } from "../../../Buttons/ButtonType";
-import { get } from "../../../../api/funcRequest";
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { ActionCadastroDepositoBonificacaoModal } from "./CadastrarBonificao/actionCadastroDepositoBonificacaoModal";
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import { toFloat } from "../../../../utils/toFloat";
 import HeaderTable from "../../../Tables/headerTable";
@@ -13,18 +9,10 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { dataFormatada } from "../../../../utils/dataFormatada";
-import Swal from "sweetalert2";
-
 
 export const ActionListaExtratoMovimentoBonificacao = ({
-  usuarioLogado, 
-  dadosExtratoBonificacao, 
-  optionsModulos, 
-  funcionarioSelecionado, 
-  setFuncionarioSelecionado, 
-  optionsFuncionarios
+  dadosExtratoBonificacao,
 }) => {
-  const [modalVisivel, setModalVisivel] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
@@ -63,21 +51,21 @@ export const ActionListaExtratoMovimentoBonificacao = ({
     const workbook = XLSX.utils.book_new();
     const header = ['DT Lançamento', 'Funcionario', 'Tipo Movimento', 'Cod. Venda', 'Valor Anterior (R$)', 'Valor Mov (R$)', 'Saldo(R$)', 'Observação'];
     worksheet['!cols'] = [
-      { wpx: 100, caption: 'DT Lançamento' }, 
-      { wpx: 100, caption: 'Funcionario' }, 
-      { wpx: 100, caption: 'Tipo Movimento' }, 
-      { wpx: 100, caption: 'Cod. Venda' }, 
-      { wpx: 100, caption: 'Valor Anterior (R$)' }, 
-      { wpx: 100, caption: 'Valor Mov (R$)' }, 
-      { wpx: 100, caption: 'Saldo(R$)' }, 
+      { wpx: 100, caption: 'DT Lançamento' },
+      { wpx: 100, caption: 'Funcionario' },
+      { wpx: 100, caption: 'Tipo Movimento' },
+      { wpx: 100, caption: 'Cod. Venda' },
+      { wpx: 100, caption: 'Valor Anterior (R$)' },
+      { wpx: 100, caption: 'Valor Mov (R$)' },
+      { wpx: 100, caption: 'Saldo(R$)' },
       { wpx: 100, caption: 'Observação' }
-      
-    ]; 
+
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista Mov Bonificação');
     XLSX.writeFile(workbook, 'movimento_bonificacao.xlsx');
   };
-  
+
   const dados = dadosExtratoBonificacao.map((item) => {
 
     return {
@@ -142,145 +130,83 @@ export const ActionListaExtratoMovimentoBonificacao = ({
       body: row => <th>{row.OBSERVACAO}</th>,
       sortable: true,
     },
-
   ]
 
-  const handleEditar = async (IDFUNCIONARIO) => {
-    try {
-      const response = await get(`/despesaTodasLojas?idEmpresa=${IDFUNCIONARIO}`);
-
-      if (response.data) {
-        setDadosDespesasLojaDetalhe(response.data)
-        setModalDespesasVisivel(true);
-      }
-    } catch (error) {
-      console.error('Erro ao buscar detalhes da despesa: ', error);
-    }
-  };
-  
-  const handleClickEditar = (row) => {
-    if (row && row.IDFUNCIONARIO) {
-      handleEditar(row.IDFUNCIONARIO);
-    }
-  };
-
-
-  const handleShowModal = () => {
-    if(optionsModulos[0]?.CRIAR == 'True')  {
-      setModalVisivel(true);
-    } else {
-      Swal.fire({
-        position: 'center',
-        icon: 'error',
-        title: 'Acesso Negado!',
-        text: 'Você não tem permissão para editar esta despesa.',
-        showConfirmButton: false,
-        timer: 1500,
-        customClass: {
-          container: 'custom-swal',
-        }
-      })
-    }
-  }
 
   return (
 
     <Fragment>
+      <div className="panel">
+        <div className="panel-hdr">
+          <table id="" class="table table-bordered  table-responsive-lg table-striped " width="100%">
+            <tbody >
+              <tr class="table-primary">
+                <td colspan="3" style={{ textAlign: "right", fontSize: "12px" }}><b>Saldo Atual</b></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td style={{ textAlign: "right", fontSize: "12px" }}><b> {formatMoeda(toFloat(dados[0]?.VRATUAL)) ? formatMoeda(toFloat(dados[0]?.VRATUAL)) : '0, 00'}</b></td>
+                <td colspan="2"></td>
+              </tr>
+              <tr>
+                <td colspan="9"></td>
+              </tr>
+              <tr>
+                <td colspan="9"></td>
+              </tr>
+            </tbody>
 
-        <div className="resultado">
-          <div className="mb-4">
-            <ButtonType
+          </table>
+        </div>
+        <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+          <HeaderTable
+            globalFilterValue={globalFilterValue}
+            onGlobalFilterChange={onGlobalFilterChange}
+            handlePrint={handlePrint}
+            exportToExcel={exportToExcel}
+            exportToPDF={exportToPDF}
+          />
+        </div>
+        <div className="card" ref={dataTableRef}>
+          <DataTable
+            value={dados}
+            globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            sortField="VRTOTALPAGO"
+            sortOrder={-1}
+            paginator={true}
+            rows={10}
+            rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
+            showGridlines
+            stripedRows
+            emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
+          >
+            {colunasExtratoBonificacao.map(coluna => (
+              <Column
+                key={coluna.field}
+                field={coluna.field}
+                header={coluna.header}
 
-              textButton="Cadastrar Bonificação"
-              type="button"
-              cor="success"
-              Icon={MdOutlineAdd}
-              iconColor="#fff"
-              iconSize={25}
-              onClickButtonType={handleShowModal}
-            />
-          </div>
+                body={coluna.body}
+                footer={coluna.footer}
+                sortable={coluna.sortable}
+                headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
+                footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
+                bodyStyle={{ fontSize: '1rem' }}
 
-          <div>
-            <table id="" class="table table-bordered  table-responsive-lg table-striped " width="100%">
-            
-              <tbody >
-                <tr class="table-primary">
-                  <td colspan="3" style={{ textAlign: "right", fontSize: "12px" }}><b>Saldo Atual</b></td>
-                  <td></td>
-                  <td></td>
-                  <td></td>
-                  <td style={{ textAlign: "right", fontSize: "12px" }}><b> {formatMoeda(dados[0]?.VRATUAL) ? '0, 00' : '0, 00'}</b></td>
-                  <td colspan="2"></td>
-                </tr>
-                <tr>
-                  <td colspan="9"></td>
-                </tr>
-                <tr>
-                  <td colspan="9"></td>
-                </tr>
-              </tbody>
-
-            </table>
-          </div>
-          <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
-            <HeaderTable
-              globalFilterValue={globalFilterValue}
-              onGlobalFilterChange={onGlobalFilterChange}
-              handlePrint={handlePrint}
-              exportToExcel={exportToExcel}
-              exportToPDF={exportToPDF}
-            />
-          </div>
-          <div className="card" ref={dataTableRef}>
-            <DataTable
-              value={dados}
-              globalFilter={globalFilterValue}
-              size="small"
-              selectionMode="single"
-              selection={rowSelection}
-              onSelectionChange={(e) => setRowSelection(e.value)}
-              sortField="VRTOTALPAGO"
-              sortOrder={-1}
-              paginator={true}
-              rows={10}
-              rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
-              paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
-              currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
-              filterDisplay="menu"
-              showGridlines
-              stripedRows
-              emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
-            >
-              {colunasExtratoBonificacao.map(coluna => (
-                <Column
-                  key={coluna.field}
-                  field={coluna.field}
-                  header={coluna.header}
-
-                  body={coluna.body}
-                  footer={coluna.footer}
-                  sortable={coluna.sortable}
-                  headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
-                  footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                  bodyStyle={{ fontSize: '1rem' }}
-
-                />
-              ))}
-            </DataTable>
-          </div>
-
+              />
+            ))}
+          </DataTable>
         </div>
 
-      <ActionCadastroDepositoBonificacaoModal 
-        show={modalVisivel}
-        handleClose={() => setModalVisivel(false)}
-        usuarioLogado={usuarioLogado}
-        funcionarioSelecionado={funcionarioSelecionado}
-        setFuncionarioSelecionado={setFuncionarioSelecionado}
-        optionsModulos={optionsModulos}
-        optionsFuncionarios={optionsFuncionarios}
-      />
+      </div>
+
     </Fragment>
   )
 }

@@ -2,102 +2,44 @@ import Swal from "sweetalert2";
 import { post } from "../../../../../api/funcRequest";
 import { useState } from "react";
 import axios from "axios"
+import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
 
-export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsModulos }) => {
+export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsModulos, funcionario }) => {
   const [ipUsuario, setIpUsuario] = useState('');
-  const [funcionario, setFuncionario] = useState('');
   const [tipoSelecionado, setTipoSelecionado] = useState('');
-  const [valorBonificao, setValorBonificacao] = useState('');
+  const [valorBonificacao, setValorBonificacao] = useState('');
   const [txtHistorico, setTxtHistorico] = useState('');
 
   const getIPUsuario = async () => {
+    let usuarioIP = null;
+
     try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
-
-      if (!usuarioIP) {
-      const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-      usuarioIP = ipifyData?.ip;
-      }
-
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
+      const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+      usuarioIP = ipWhoisData?.ip;
     } catch (error) {
-      console.error("Erro ao buscar IP:", error);
-      return null;
+      console.error("Erro ao buscar IP via ipwho.is:", error);
     }
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
 
   const onSubmit = async () => {
     if (optionsModulos[0]?.CRIAR == 'False') {
       Swal.fire({
-        icon: 'error',
-        title: 'Erro!',
-        text: 'Você não tem permissão para cadastrar!',
+        icon: 'info',
+        title: 'Acesso Negado!',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para cadastrar!`,
         timer: 3000,
         customClass: {
-          confirmButton: "btn btn-primary btn-lg",
-          cancelButton: "btn btn-danger btn-lg",
-          container: 'custom-swal',
-        },
-      })
-      return;
-    }
-
-    if (tipoSelecionado == '') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro!',
-        text: 'Informe o tipo de movimento!',
-        timer: 3000,
-        customClass: {
-          confirmButton: "btn btn-primary btn-lg",
-          cancelButton: "btn btn-danger btn-lg",
-          container: 'custom-swal',
-        },
-      })
-      return;
-    }
-
-    if (funcionario == '') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro!',
-        text: 'Informe o funcionário!',
-        timer: 3000,
-        customClass: {
-          confirmButton: "btn btn-primary btn-lg",
-          cancelButton: "btn btn-danger btn-lg",
-          container: 'custom-swal',
-        },
-      })
-      return;
-    }
-
-    if (valorBonificao == '' || valorBonificao == '0') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro!',
-        text: 'Informe o valor da bonificação!',
-        timer: 3000,
-        customClass: {
-          confirmButton: "btn btn-primary btn-lg",
-          cancelButton: "btn btn-danger btn-lg",
-          container: 'custom-swal',
-        },
-      })
-      return;
-    }
-
-    if (txtHistorico == '') {
-      Swal.fire({
-        icon: 'error',
-        title: 'Erro!',
-        text: 'Informe o histórico!',
-        timer: 3000,
-        customClass: {
-          confirmButton: "btn btn-primary btn-lg",
-          cancelButton: "btn btn-danger btn-lg",
           container: 'custom-swal',
         },
       })
@@ -105,9 +47,9 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
     }
 
     const data = {
-      IDFUNCIONARIO: funcionario,
-      TIPOMOVIMENTO: tipoSelecionado,
-      VRMOVIMENTO: valorBonificao,
+      IDFUNCIONARIO: funcionario?.value,
+      TIPOMOVIMENTO: tipoSelecionado?.value,
+      VRMOVIMENTO: removerFormatacaoMoeda(valorBonificacao),
       OBSERVACAO: txtHistorico,
       IDFUNCIONARIORESP: usuarioLogado.id
     }
@@ -122,7 +64,7 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario
+        IP: ipUsuario || 'IP não disponível'
       }
 
 
@@ -131,7 +73,7 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
         position: 'center',
         icon: 'success',
         title: 'Cadastrado com sucesso!',
-        customClass:{
+        customClass: {
           container: 'custom-swal',
         },
         showConfirmButton: false,
@@ -148,7 +90,7 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario
+        IP: ipUsuario || 'IP não disponível'
       }
 
       const responsePost = await post('/log-web', postData)
@@ -174,9 +116,7 @@ export const useCadastrarBonificaoca = ({ handleClose, usuarioLogado, optionsMod
   ]
 
   return {
-    funcionario,
-    setFuncionario,
-    valorBonificao,
+    valorBonificacao,
     setValorBonificacao,
     tipoSelecionado,
     txtHistorico,

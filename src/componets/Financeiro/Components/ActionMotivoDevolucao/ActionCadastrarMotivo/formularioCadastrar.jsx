@@ -4,7 +4,6 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
 import { InputFieldModal } from "../../../../Buttons/InputFieldModal"
 import { useForm } from "react-hook-form";
 import { useCadastrarMotivoDevolucao } from "../hooks/useCadastrarMotivoDevolucao";
-import { Message } from 'primereact/message';
 
 export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
@@ -35,12 +34,13 @@ export const FormularioCadastrar = ({ handleClose, optionsModulos, usuarioLogado
                     </div>
                 </div>
                 
-                <FooterModal
-    
+                <FooterModal   
                     ButtonTypeCadastrar={ButtonTypeModal}
                     onClickButtonCadastrar={handleSubmit(onSubmit)}
                     textButtonCadastrar={"Criar"}
                     corCadastrar={"success"}
+                    loadingTextCadastrar={"Criando..."}
+                    autoLoadingCadastrar={true}
         
                     ButtonTypeFechar={ButtonTypeModal}
                     onClickButtonFechar={handleClose}
