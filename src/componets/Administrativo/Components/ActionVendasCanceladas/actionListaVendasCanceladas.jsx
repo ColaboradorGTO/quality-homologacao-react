@@ -374,10 +374,18 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
   const handleEditProduto = async (IDVENDA) => {
     try {
       const response = await get(`/detalhe-venda?idEmpresa=0&idVenda=${IDVENDA}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosProdutoModal(response.data)
         setModalProdutoVisivel(true)
 
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Atenção',
+          text: 'Nenhum produto encontrado para esta venda.',
+          confirmButtonText: 'OK'
+        });
+        return;
       }
       return response.data;
     } catch (error) {
@@ -401,9 +409,17 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
 
     try {
       const response = await get(`/resumo-venda-caixa-detalhado?idEmpresa=0&idVenda=${IDVENDA}`)
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosVendas(response.data)
         setModalVendaVisivel(true)
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Atenção',
+          text: 'Nenhum detalhe encontrado para esta venda.',
+          confirmButtonText: 'OK'
+        });
+        return;
       }
 
       return response.data;
@@ -420,6 +436,14 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
         setDadosPagamentoModal(response.data)
         setDadosDetalheRecebimentos(response.data)
         setModalPagamentoVisivel(true)
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Atenção',
+          text: 'Nenhum detalhe de pagamento encontrado para esta venda.',
+          confirmButtonText: 'OK'
+        });
+        return;
       }
       return response.data;
     } catch (error) {
@@ -452,9 +476,18 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
   const handleDetalharVendaXML = async (IDVENDA) => {
     try {
       const response = await get(`/venda-xml?idVenda=${IDVENDA}`);
-      setModalXmlVisivel(true);
-      setDadosVendasXML(response.data)
-
+      if(response.data && response.data.length > 0) { 
+        setModalXmlVisivel(true);
+        setDadosVendasXML(response.data)
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Atenção',
+          text: 'Nenhum XML encontrado para esta venda.',
+          confirmButtonText: 'OK'
+        });
+        return;
+      }
     } catch (error) {
       console.error(error);
     }
