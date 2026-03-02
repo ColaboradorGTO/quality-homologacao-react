@@ -43,21 +43,19 @@ export const DashBoardAdministrativo = () => {
 
   useEffect(() => {
     const usuarioArmazenado = localStorage.getItem('usuario');
-
     if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
+      const parsedUsuario = JSON.parse(usuarioArmazenado);
+      setUsuarioLogado(parsedUsuario);
     }
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
-   
+    const storedMenuFilho = JSON.parse(localStorage.getItem('menufilhoSelecionado'));
+
+    if (storedMenuFilho) {
+      setMenuSelected(selectedModule);
+    }
+
   }, [usuarioLogado]);
 
   const { data: optionsModulosPage = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
