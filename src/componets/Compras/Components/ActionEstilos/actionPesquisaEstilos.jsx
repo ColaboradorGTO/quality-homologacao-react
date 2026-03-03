@@ -164,6 +164,7 @@ export const ActionPesquisaEstilos = ({usuarioLogado }) => {
         handleClose={(e) => setModalVisivel(false)} 
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
+        handleClick={handleClick}
       />
     </Fragment>
   )

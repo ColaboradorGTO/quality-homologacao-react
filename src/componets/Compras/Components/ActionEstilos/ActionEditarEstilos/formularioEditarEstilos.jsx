@@ -1,4 +1,3 @@
-
 import { Fragment } from "react"
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
 import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
@@ -30,7 +29,7 @@ export const FormularioEditarEstilos = ({ dadosDetalheEstilos, handleClose, hand
             const dadosParaValidar = {
                 descricaoEstilo: descricao,
             };
-            console.log(dadosParaValidar, 'dadosParaValidar')
+          
             await schema.validate(dadosParaValidar, { abortEarly: false });
             await onSubmit();
         } catch (validationError) {

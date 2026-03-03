@@ -9,7 +9,7 @@ import { schema } from "./schemaValidarEstilos";
 import FormField from "../../../../Formularios/FormField"
 import { AlertError } from "../../../../Inputs/alertError"
 
-export const Formulario = ({ handleClose, usuarioLogado, optionsModulos }) => {
+export const Formulario = ({ handleClose, usuarioLogado, optionsModulos, handleClick }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
         mode: "onChange"
     });
@@ -24,12 +24,14 @@ export const Formulario = ({ handleClose, usuarioLogado, optionsModulos }) => {
         dadosGrupoEstrutura,
         onSubmit,
 
-    } = useCadastrarEstilos({handleClose, usuarioLogado, optionsModulos})
+    } = useCadastrarEstilos({handleClose, usuarioLogado, optionsModulos, handleClick})
 
     const handleValidatedSubmit = async () => {
         try {
             const dadosParaValidar = {
                 descricaoEstilo: descricao,
+                subGrupoEstilo: subGrupoSelecionado,
+                situacaoEstilo: statusSelecionado,
             };
             
             await schema.validate(dadosParaValidar, { abortEarly: false });
@@ -87,14 +89,12 @@ export const Formulario = ({ handleClose, usuarioLogado, optionsModulos }) => {
                                 classNamePrefix="select"
                                 name="subGrupoEstilo"
                                 value={subGrupoSelecionado}
-                                options={[
-                                    { value: '', label: 'Selecione...' },
-                                    ...dadosGrupoEstrutura.map((item) => {
-                                        return {
-                                            value: item.IDGRUPOESTRUTURA,
-                                            label: `${item.CODGRUPOESTRUTURA} - ${item.DSGRUPOESTRUTURA}`
-                                        }
-                                })]}
+                                options={dadosGrupoEstrutura.map((item) => ({
+                                        
+                                    value: item.IDGRUPOESTRUTURA,
+                                    label: `${item.CODGRUPOESTRUTURA} - ${item.DSGRUPOESTRUTURA}`
+                                        
+                                }))}
                                 onChange={(e) => { 
                                     setSubGrupoSelecionado(e)
                                     clearErrors("subGrupoEstilo")
@@ -123,11 +123,12 @@ export const Formulario = ({ handleClose, usuarioLogado, optionsModulos }) => {
                                         label: item.label
                                     }
                                 })}
-                                onChange={(e) => { 
-                                    setStatusSelecionado(e)
+                                onChange={(selected) => { 
+                                    setStatusSelecionado(selected)
                                     clearErrors("situacaoEstilo")
                                 }}
                             />
+                           
                             {errors.situacaoEstilo && (
                                 <AlertError
                                     error={errors.situacaoEstilo}
