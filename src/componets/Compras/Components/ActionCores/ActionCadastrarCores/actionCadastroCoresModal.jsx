@@ -14,7 +14,6 @@ export const ActionCadastroCoresModal = ({
   return (
 
     <Fragment>
-
       <Modal
         show={show}
         onHide={handleClose}
@@ -22,7 +21,6 @@ export const ActionCadastroCoresModal = ({
         size="xl"
         centered
       >
-
         <HeaderModal
           title={"Cores"}
           subTitle={"Inclusão de uma Nova Cor"}
@@ -34,6 +32,7 @@ export const ActionCadastroCoresModal = ({
             usuarioLogado={usuarioLogado}
             refetchListaCores={refetchListaCores}
             optionsModulos={optionsModulos}
+            handleClose={handleClose}
            
           />
         </Modal.Body>

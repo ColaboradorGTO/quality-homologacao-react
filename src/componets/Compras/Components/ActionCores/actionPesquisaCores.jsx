@@ -10,24 +10,33 @@ import { ActionListaCores } from "./actionListaCores";
 import { ActionCadastroCoresModal } from "./ActionCadastrarCores/actionCadastroCoresModal";
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
+import { useEffect } from "react";
+import Swal from "sweetalert2";
 
 
-export const ActionPesquisaCores = ({ usuarioLogado, ID }) => {
+export const ActionPesquisaCores = ({ usuarioLogado }) => {
   const [descricao, setDescricao] = useState("")
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [corSelecionada, setCorSelecionada] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
   const { data: optionsCores = [], error: errorCores, isLoading: isLoadingCores, refetch: refetchCores } = useQuery(
@@ -76,13 +85,12 @@ export const ActionPesquisaCores = ({ usuarioLogado, ID }) => {
   };
 
   const { data: dadosCores = [], error: errorAdiantamento, isLoading: isLoadingAdiantamento, refetch: refetchListaCores } = useQuery(
-    ['listaCores', corSelecionada, descricao, currentPage, pageSize],
-    () => fetchListaCores(corSelecionada, descricao, currentPage, pageSize),
+    ['listaCores',],
+    () => fetchListaCores(),
     { enabled: true, staleTime: 5 * 60 * 1000 }
   )
 
   const handlePesquisar = () => {
-    setCurrentPage(prevPage => prevPage + 1)
     refetchListaCores()
     setTabelaVisivel(true)
   }
@@ -90,8 +98,23 @@ export const ActionPesquisaCores = ({ usuarioLogado, ID }) => {
   const handleChangeCor = (e) => {
     setCorSelecionada(e.value)
   }
+
   const handleModal = () => {
-    setModalVisivel(true)
+    if(optionsModulos[0]?.CRIAR == 'True') {
+
+      setModalVisivel(true)
+    } else {
+      Swal.fire({
+        icon: 'info',
+        title: 'Acesso Negado!',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para cadastrar!`,
+        timer: 5000,
+        customClass: {
+          container: 'custom-swal',
+        },
+      })
+      return;
+    } 
   }
 
   const handleClose = () => {
@@ -143,14 +166,14 @@ export const ActionPesquisaCores = ({ usuarioLogado, ID }) => {
 
       />
 
-      {tabelaVisivel && (
-        <ActionListaCores 
-          dadosCores={dadosCores} 
-          usuarioLogado={usuarioLogado}
-          optionsModulos={optionsModulos}
-          refetchListaCores={refetchListaCores}  
-        />
-      )}
+    
+      <ActionListaCores 
+        dadosCores={dadosCores} 
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        refetchListaCores={refetchListaCores}  
+      />
+     
 
       <ActionCadastroCoresModal 
         show={modalVisivel} 
