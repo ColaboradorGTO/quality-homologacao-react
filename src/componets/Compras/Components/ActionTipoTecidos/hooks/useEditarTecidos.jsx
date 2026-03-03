@@ -1,36 +1,35 @@
 import { useState, useEffect } from "react";
 import { post, put } from "../../../../../api/funcRequest";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from 'sweetalert2'
 
 
-export const useEditarTecido = ({ dadosDetalheTipoTecido, usuarioLogado, optionsModulos }) => {
+export const useEditarTecido = ({ dadosDetalheTipoTecido, usuarioLogado, optionsModulos, handleClose }) => {
   const [descricao, setDescricao] = useState('')
   const [statusSelecionado, setStatusSelecionado] = useState('')
   const [ipUsuario, setIpUsuario] = useState('');
-  const navigate = useNavigate();
-
 
   const getIPUsuario = async () => {
-    try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
+    let usuarioIP = null;
 
-      if (!usuarioIP) {
+    try {
+      const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ifconfig.me:", error);
+    }
+
+    if (!usuarioIP) {
+      try {
         const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
         usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
       }
-
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
-    } catch (error) {
-      console.error("Erro ao buscar IP:", error);
-      return null;
     }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
-
-
 
   useEffect(() => {
     if (dadosDetalheTipoTecido.length) {
@@ -39,10 +38,6 @@ export const useEditarTecido = ({ dadosDetalheTipoTecido, usuarioLogado, options
     }
   }, [])
 
-  const optionsStatus = [
-    { value: 'True', label: 'ATIVO' },
-    { value: 'False', label: 'INATIVO' }
-  ]
 
   const onSubmit = async () => {
     if (optionsModulos[0]?.ALTERAR == 'False') {
@@ -86,24 +81,24 @@ export const useEditarTecido = ({ dadosDetalheTipoTecido, usuarioLogado, options
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ip
+        IP: ip || 'IP não disponível'
       }
 
-      const responsePost = await post('/log-web', createData)
+      await post('/log-web', createData)
 
-
+      handleClose();
       return response.data;
     } catch (error) {
       const textDados = JSON.stringify(postData);
       let textoFuncao = 'COMPRAS/ERRO AO CADASTRAR TIPOS DE TECIDOS';
 
       const ip = await getIPUsuario();
-      
+
       const createData = {
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ip
+        IP: ip || 'IP não disponível'
       }
 
       const response = await post('/log-web', createData)
@@ -130,10 +125,6 @@ export const useEditarTecido = ({ dadosDetalheTipoTecido, usuarioLogado, options
     statusSelecionado,
     setStatusSelecionado,
     usuarioLogado,
-    ipUsuario,
-    navigate,
-    getIPUsuario,
-    optionsStatus,
     onSubmit,
   }
 }

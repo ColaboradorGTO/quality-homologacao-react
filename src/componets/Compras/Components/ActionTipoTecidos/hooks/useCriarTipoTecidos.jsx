@@ -1,6 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { post } from "../../../../../api/funcRequest";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import Swal from 'sweetalert2'
 
@@ -10,35 +9,47 @@ export const useCriarTipoTecido = ({ handleClose, usuarioLogado, optionsModulos 
   const [statusSelecionado, setStatusSelecionado] = useState([])
   const [ipUsuario, setIpUsuario] = useState('');
 
-
   const getIPUsuario = async () => {
-    try {
-      const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-      let usuarioIP = ipWhoisData?.ip;
+    let usuarioIP = null;
 
-      if (!usuarioIP) {
+    try {
+      const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ifconfig.me:", error);
+    }
+
+    if (!usuarioIP) {
+      try {
         const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
         usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
       }
-
-      setIpUsuario(usuarioIP);
-      return usuarioIP;
-    } catch (error) {
-      console.error("Erro ao buscar IP:", error);
-      return null;
     }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
 
-  const optionsStatus = [
-    { value: 'True', label: 'ATIVO' },
-    { value: 'False', label: 'INATIVO' }
-  ]
+  const onSubmit = async () => {
+    if (optionsModulos[0]?.CRIAR == 'False') {
+      Swal.fire({
+        icon: 'info',
+        title: 'Acesso Negado!',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para cadastrar!`,
+        timer: 3000,
+        customClass: {
+          container: 'custom-swal',
+        },
+      })
+      return;
+    }
 
-  const handleCriar = async () => {
     const postData = {
       DSTIPOTECIDO: descricao,
-      STATIVO: statusSelecionado.value,
+      STATIVO: statusSelecionado?.value,
     }
+
     try {
 
       const response = await post('/cadastrar-tipo-tecido', postData)
@@ -50,11 +61,11 @@ export const useCriarTipoTecido = ({ handleClose, usuarioLogado, optionsModulos 
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario
+        IP: ipUsuario || 'IP não disponível'
       }
-      
-      const responsePost = await post('/log-web', createData)
-      
+
+      await post('/log-web', createData)
+
       Swal.fire({
         position: 'center',
         icon: 'success',
@@ -65,8 +76,8 @@ export const useCriarTipoTecido = ({ handleClose, usuarioLogado, optionsModulos 
           container: 'custom-swal',
         }
       });
-
-      return responsePost.data;
+      handleClose();
+      return response.data;
     } catch (error) {
       const textDados = JSON.stringify(postData);
       let textoFuncao = 'COMPRAS/ERRO AO CADASTRAR TIPOS DE TECIDOS';
@@ -75,7 +86,7 @@ export const useCriarTipoTecido = ({ handleClose, usuarioLogado, optionsModulos 
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario
+        IP: ipUsuario || 'IP não disponível'
       }
 
       const responsePost = await post('/log-web', createData)
@@ -101,7 +112,6 @@ export const useCriarTipoTecido = ({ handleClose, usuarioLogado, optionsModulos 
     setDescricao,
     statusSelecionado,
     setStatusSelecionado,
-    optionsStatus,
-    handleCriar
+    onSubmit
   }
 }
