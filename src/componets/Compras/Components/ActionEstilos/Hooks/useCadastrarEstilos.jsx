@@ -21,32 +21,29 @@ export const useCadastrarEstilos = ({ handleClose, handleClick, usuarioLogado, o
         { enabled: true, staleTime: 60 * 60 * 1000, }
     );
 
-
-    const optionsStatus = [
-        { value: 'True', label: 'ATIVO' },
-        { value: 'False', label: 'INATIVO' }
-    ]
-
-
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
-            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-            let usuarioIP = ipWhoisData?.ip;
-
-            if (!usuarioIP) {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            }
-
-            setIpUsuario(usuarioIP);
-            return usuarioIP;
+            const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+            usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP:", error);
-            return null;
+            console.error("Erro ao buscar IP via ifconfig.me:", error);
         }
+
+        if (!usuarioIP) {
+            try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+            } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+            }
+        }
+        setIpUsuario(usuarioIP);
+        return usuarioIP;
     };
 
-    const cadastrarEstilo = async () => {
+    const onSubmit = async () => {
 
         if(optionsModulos[0]?.CRIAR == 'False') {
             Swal.fire({
@@ -60,25 +57,14 @@ export const useCadastrarEstilos = ({ handleClose, handleClick, usuarioLogado, o
             return;
         }
 
-        if (descricao == '') {
-            Swal.fire({
-                position: 'center',
-                icon: 'error',
-                title: 'O campo descrição é obrigatório.',
-                showConfirmButton: false,
-                timer: 1500
-            });
-            return;
-        }
-
-        const putData = [{
+        const putData = {
             DSESTILO: descricao,
             IDESTILO: null,
             IDGRUPOESTRUTURAANTIGA: null,
             IDVINCESTILOSESTRUTURA: null,
             IDGRUPOESTRUTURA: Number(subGrupoSelecionado?.value),
             STATIVO: statusSelecionado?.value,
-        }]
+        }
         try {
 
             const response = await post('/criarlistaEstilos', putData)
@@ -89,10 +75,10 @@ export const useCadastrarEstilos = ({ handleClose, handleClick, usuarioLogado, o
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ip
+                IP: ip || 'Indisponível'
             }
 
-            const responseLog = await post('/log-web', createtLog)
+            await post('/log-web', createtLog)
 
             Swal.fire({
                 position: 'top-end',
@@ -117,7 +103,7 @@ export const useCadastrarEstilos = ({ handleClose, handleClick, usuarioLogado, o
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ip
+                IP: ip || 'Indisponível'
             }
 
             const responseLog = await post('/log-web', createtLog)
@@ -146,11 +132,7 @@ export const useCadastrarEstilos = ({ handleClose, handleClick, usuarioLogado, o
         setStatusSelecionado,
         subGrupoSelecionado,
         setSubGrupoSelecionado,
-        usuarioLogado,
-        ipUsuario,
         dadosGrupoEstrutura,
-        getIPUsuario,
-        optionsStatus,
-        cadastrarEstilo
+        onSubmit
     };
 };

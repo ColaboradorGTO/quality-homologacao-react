@@ -81,7 +81,7 @@ export const useEditarTecido = ({ dadosDetalheTipoTecido, usuarioLogado, options
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ip || 'IP não disponível'
+        IP: ip || 'Indisponível'
       }
 
       await post('/log-web', createData)
@@ -98,7 +98,7 @@ export const useEditarTecido = ({ dadosDetalheTipoTecido, usuarioLogado, options
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ip || 'IP não disponível'
+        IP: ip || 'Indisponível'
       }
 
       const response = await post('/log-web', createData)

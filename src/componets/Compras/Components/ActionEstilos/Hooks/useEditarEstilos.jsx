@@ -21,12 +21,6 @@ export const useEditarEstilos = ({dadosDetalheEstilos, handleClose, handleClick,
         { enabled: true, staleTime: 60 * 60 * 1000, }
     );
 
-
-    const optionsStatus = [
-        { value: 'True', label: 'ATIVO' },
-        { value: 'False', label: 'INATIVO' }
-    ]
-
     useEffect(() => {
         if (dadosDetalheEstilos) {
             setDescricao(dadosDetalheEstilos[0]?.DS_ESTILOS || '')
@@ -36,24 +30,28 @@ export const useEditarEstilos = ({dadosDetalheEstilos, handleClose, handleClick,
     }, [dadosDetalheEstilos])
 
     const getIPUsuario = async () => {
+        let usuarioIP = null;
+
         try {
-        const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
-        let usuarioIP = ipWhoisData?.ip;
+            const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+            usuarioIP = ipWhoisData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ifconfig.me:", error);
+        }
 
         if (!usuarioIP) {
+        try {
             const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
             usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
         }
-
+        }
         setIpUsuario(usuarioIP);
         return usuarioIP;
-        } catch (error) {
-        console.error("Erro ao buscar IP:", error);
-        return null;
-        }
     };
 
-    const atualizarEstilo = async () => {
+    const onSubmit = async () => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 title: 'Erro!',
@@ -67,17 +65,6 @@ export const useEditarEstilos = ({dadosDetalheEstilos, handleClose, handleClick,
             return;
         }
 
-        if (descricao == '') {
-            Swal.fire({
-                position: 'top-end',
-                icon: 'error',
-                title: 'O campo descrição é obrigatório.',
-                showConfirmButton: false,
-                timer: 1500
-            });
-            return;
-        }
-
         const postData = {
             IDVINCESTILOSESTRUTURA: parseInt(dadosDetalheEstilos[0]?.IDVINCESTILOSESTRUTURA),
             IDGRUPOESTRUTURAANTIGA: parseInt(dadosDetalheEstilos[0]?.ID_GRUPOESTILOS),
@@ -86,27 +73,29 @@ export const useEditarEstilos = ({dadosDetalheEstilos, handleClose, handleClick,
             IDGRUPOESTRUTURA: subGrupoSelecionado.value,
             STATIVO: statusSelecionado.value,
         }
+        
         try {
 
             const response = await put('/listaEstilos/:id', postData)
             const textDados = JSON.stringify(postData)
             let textFuncao = 'COMPRAS / ATUALIZAÇÃO DE ESTILOS';
             const ip = await getIPUsuario();
+
             const createtLog = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ip
+                IP: ip || 'Indisponível'
             }
 
-            const responseLog = await post('/log-web', createtLog)
+            await post('/log-web', createtLog)
 
             Swal.fire({
                 position: 'top-end',
                 icon: 'success',
                 title: 'Atualizado com sucesso!',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 5000,
                 customClass: {
                     container: 'custom-swal',
                 }
@@ -123,7 +112,7 @@ export const useEditarEstilos = ({dadosDetalheEstilos, handleClose, handleClick,
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ip
+                IP: ip || 'Indisponível'
             }
 
             const responseLog = await post('/log-web', createtLog)
@@ -155,10 +144,7 @@ export const useEditarEstilos = ({dadosDetalheEstilos, handleClose, handleClick,
         subGrupoSelecionado,
         setSubGrupoSelecionado,
         usuarioLogado,
-        ipUsuario,
         dadosGrupoEstrutura,
-        getIPUsuario,
-        optionsStatus,
-        atualizarEstilo
+        onSubmit
     };
 };
