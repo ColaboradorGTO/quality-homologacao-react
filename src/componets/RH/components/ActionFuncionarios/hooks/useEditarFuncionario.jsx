@@ -85,7 +85,7 @@ export const useEditarFuncionario = ({
       setSubGrupoEmpresarialSelecionado(dadosAtualizarFuncionarios[0]?.IDSUBGRUPOEMPRESARIAL);
       setFuncaoSelecionada({ value: dadosAtualizarFuncionarios[0]?.DSFUNCAO, label: dadosAtualizarFuncionarios[0]?.DSFUNCAO });
       setNomeFuncionario(dadosAtualizarFuncionarios[0]?.NOFUNCIONARIO);
-      setLocalizacaoSelecionada({ value: dadosAtualizarFuncionarios[0]?.STLOJA == 'True' || "False", label: dadosAtualizarFuncionarios[0]?.STLOJA == 'True' ? 'Loja' : 'Escritório' });
+      setLocalizacaoSelecionada({ value: dadosAtualizarFuncionarios[0]?.STLOJA == 'True' ? 'True' : 'False', label: dadosAtualizarFuncionarios[0]?.STLOJA == 'True' ? 'Loja' : 'Escritório' });
       setCategoriaContratacao(dadosAtualizarFuncionarios[0].DSTIPO);
       if (dadosAtualizarFuncionarios[0]?.DATA_ADMISSAO) {
         const dataFormatada = dadosAtualizarFuncionarios[0]?.DATA_ADMISSAO.split('T')[0];
@@ -225,8 +225,8 @@ export const useEditarFuncionario = ({
       DSFUNCAO: funcaoSelecionada.value,
       STCONVENIO: categoriaContratacao === 'CLT' ? 'True' : 'False',
       STDESCONTOFOLHA: categoriaContratacao === 'CLT' ? 'True' : 'False',
-      STATIVO: situacaoSelecionada.value == 'Ativo' ? "True" : "False",
-      STLOJA: localizacaoSelcionada.value == 'Loja' ? "True" : "False",
+      STATIVO: situacaoSelecionada.value,
+      STLOJA: localizacaoSelcionada.value,
       IDFUNCALTERACAO: usuarioLogado.id,
       MOTIVODESC: '',
       TELEFONE: removerMascaraTelefone(telefone) || '',

@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { Fragment, useState, useEffect } from "react"
 import { get } from "../../../../api/funcRequest";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
@@ -12,23 +12,29 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import Swal from "sweetalert2";
 
-
-export const ActionPesquisaGrupoEstrutura = ({usuarioLogado, ID }) => {
+export const ActionPesquisaGrupoEstrutura = ({usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [descricao, setDescricao] = useState("")
   const [grupoSelecionado, setGrupoSelecionado] = useState("")
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
   const fetchListaGrupo = async () => {
@@ -66,29 +72,21 @@ export const ActionPesquisaGrupoEstrutura = ({usuarioLogado, ID }) => {
   };
 
   const { data: dadosGrupoEstrutura = [], error: errorAdiantamento, isLoading: isLoadingAdiantamento, refetch: refetchListaGrupo } = useQuery(
-    ['grupoEstrutura', grupoSelecionado, descricao, currentPage, pageSize],
-    () => fetchListaGrupo(grupoSelecionado, descricao, currentPage, pageSize),
-    { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    ['grupoEstrutura', ],
+    () => fetchListaGrupo(),
+    { enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   )
 
-
-
-  const handleChangeGrupo = (e) => {
-    setGrupoSelecionado(e.value)
-  }
-
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1)
     refetchListaGrupo()
-    setTabelaVisivel(true)
-      
+    setTabelaVisivel(true)   
   }
 
   const handleCriar = () => {
     if(optionsModulos[0]?.CRIAR == 'False') {
       Swal.fire({
-        title: 'Erro!',
-        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para criar SubGrupo de Estrutura Mercadológica!`,
+        title: 'Acesso Negado!',
+        text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para criar Grupo de Estrutura Mercadológica!`,
         icon: 'error',
         customClass: {
           container: 'custom-swal',
@@ -110,7 +108,6 @@ export const ActionPesquisaGrupoEstrutura = ({usuarioLogado, ID }) => {
         linkComponentAnterior={["Home"]}
         linkComponent={["Lista de Grupo Estrutura"]}
 
-
         InputFieldComponent={InputField}
         labelInputField={"Descrição"}
         valueInputField={descricao}
@@ -128,8 +125,7 @@ export const ActionPesquisaGrupoEstrutura = ({usuarioLogado, ID }) => {
           })
         ]}
         valueSelectGrupo={grupoSelecionado}
-        onChangeSelectGrupo={handleChangeGrupo}
-
+        onChangeSelectGrupo={(e) => setGrupoSelecionado(e.value)}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar Grupo Estrutura"}
@@ -144,8 +140,6 @@ export const ActionPesquisaGrupoEstrutura = ({usuarioLogado, ID }) => {
         corSearch={"primary"}
 
       />
-
-    
 
       <ActionListaGrupoEstrutura 
         dadosGrupoEstrutura={dadosGrupoEstrutura}  
