@@ -7,7 +7,15 @@ import { useEditarFatura } from "../hooks/useEditarFatura";
 import FormField from "../../../../Formularios/FormField";
 import { schema } from "./schema/useEditarSchema";
 
-export const Formulario = ({ handleClose, dadosDetalheFatura, usuarioLogado, optionsModulos, handleClick, refetchListaFaturas }) => {
+export const Formulario = ({
+    handleClose,
+    dadosDetalheFatura,
+    usuarioLogado,
+    optionsModulos,
+    handleClick,
+    refetchListaFaturas
+}) => {
+    
     const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
         mode: "onChange"
     });
@@ -33,8 +41,8 @@ export const Formulario = ({ handleClose, dadosDetalheFatura, usuarioLogado, opt
             }
 
             await schema.validate(dadosParaValidar, { abortEarly: false });
-            
-            onSubmit();
+
+            await onSubmit();
         } catch (validationError) {
             clearErrors();
 
@@ -178,6 +186,8 @@ export const Formulario = ({ handleClose, dadosDetalheFatura, usuarioLogado, opt
                 textButtonConfirmar={"Confirmar Alteração"}
                 onClickButtonConfirmar={handleSubmit(handleValidatedSubmit)}
                 corConfirmar="success"
+                autoLoadingCadastrar={true}
+                loadingTextCadastrar={"Cadastrando..."}
 
                 ButtonTypeFechar={ButtonTypeModal}
                 textButtonFechar={"Fechar"}
