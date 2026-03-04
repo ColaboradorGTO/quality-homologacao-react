@@ -14,7 +14,7 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { useQuery } from "react-query";
 
 
-export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
+export const ActionPesquisaVendasEstrutura = ({ usuarioLogado }) => {
   const [tabelaProdutosMaisVendidos, setTabelaProdutosMaisVendidos] = useState(false);
   const [tabelaVendasPorVendedor, setTabelaVendasPorVendedor] = useState(false);
   const [tabelaVendasPorEstrutura, setTabelaVendasPorEstrutura] = useState(false);
@@ -44,7 +44,7 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
       const response = await get(`/lista-fornecedor-produto`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, cacheTime: 10 * 60 * 1000 }
+    { staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
 
   const { data: dadosGrupos = [], error: errorGrupo, isLoading: isLoadingGrupo } = useQuery(
@@ -53,7 +53,7 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
       const response = await get(`/grupo-produto`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, cacheTime: 10 * 60 * 1000 }
+    { staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
 
   const { data: dadosSubGrupos = [], error: errorSubGrupo, isLoading: isLoadingSubGrupo } = useQuery(
@@ -62,7 +62,7 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
       const response = await get(`/subgrupo-produto`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, cacheTime: 10 * 60 * 1000 }
+    { staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
 
   const { data: dadosMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useQuery(
@@ -71,7 +71,7 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
       const response = await get(`/lista-marca-produto`);
       return response.data;
     },
-    { staleTime: 5 * 60 * 1000, cacheTime: 10 * 60 * 1000 }
+    { staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
 
   const fetchVendasEstrutura = async () => {
@@ -81,7 +81,7 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
-                                  
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -108,10 +108,10 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
     }
   };
 
-  const { data: dadosVendasEstrutura = [], error: erroVendasEstrutura , isLoading: isLoadingVendasEstrutura, refetch: refetchVendasEstrutura } = useQuery(
+  const { data: dadosVendasEstrutura = [], error: erroVendasEstrutura, isLoading: isLoadingVendasEstrutura, refetch: refetchVendasEstrutura } = useQuery(
     'vendas-por-estrutura',
     () => fetchVendasEstrutura(),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
 
   const fetchProdutosMaisVendidos = async () => {
@@ -120,7 +120,7 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
-                                   
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -147,10 +147,10 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
     }
   };
 
-  const { data: dadosProdutosMaisVendidos = [], error: erroProdutosMaisVendidos , isLoading: isLoadingProdutosMaisVendidos, refetch: refetchProdutosMaisVendidos } = useQuery(
+  const { data: dadosProdutosMaisVendidos = [], error: erroProdutosMaisVendidos, isLoading: isLoadingProdutosMaisVendidos, refetch: refetchProdutosMaisVendidos } = useQuery(
     'produtos-mais-vendidos',
     () => fetchProdutosMaisVendidos(),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
 
   const fetchVendasVendedor = async () => {
@@ -159,7 +159,7 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
-                                   
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -186,10 +186,10 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
     }
   };
 
-  const { data: dadosVendasVendedor = [], error: erroVendasVendedor , isLoading: isLoadingVendasVendedor, refetch: refetchVendasVendedor } = useQuery(
+  const { data: dadosVendasVendedor = [], error: erroVendasVendedor, isLoading: isLoadingVendasVendedor, refetch: refetchVendasVendedor } = useQuery(
     'vendas-vendedor-estrutura',
     () => fetchVendasVendedor(),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
 
 
@@ -201,7 +201,7 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
     const values = selectedOptions.map(option => option.value);
     setSubGrupoSelecionado(values);
   };
-  
+
   const handleChangeFornecedor = (selectedOptions) => {
     const values = selectedOptions.map(option => option.value);
     setFornecedorSelecionado(values);
@@ -219,32 +219,32 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
       setTabelaProdutosMaisVendidos(true);
       setTabelaVendasPorEstrutura(false);
       setTabelaVendasPorVendedor(false);
-    } 
-          
+    }
+
   }
 
   const handleClickVendasEstrutura = () => {
-    
+
     if (usuarioLogado && usuarioLogado.IDEMPRESA) {
       setCurrentPage(+1);
-      refetchVendasEstrutura( );
+      refetchVendasEstrutura();
       setTabelaVendasPorEstrutura(true);
       setTabelaProdutosMaisVendidos(false);
       setTabelaVendasPorVendedor(false);
-    } 
-      
+    }
+
   }
 
   const handleClickVendasVendedor = () => {
-    
+
     if (usuarioLogado && usuarioLogado.IDEMPRESA) {
       setCurrentPage(+1);
       refetchVendasVendedor();
       setTabelaVendasPorVendedor(true);
       setTabelaProdutosMaisVendidos(false);
       setTabelaVendasPorEstrutura(false);
-    } 
-   
+    }
+
   }
 
 
@@ -336,17 +336,23 @@ export const ActionPesquisaVendasEstrutura = ({usuarioLogado }) => {
       />
 
 
-      {tabelaVendasPorEstrutura &&  (
-        <ActionListaVendasEstrutura dadosVendasEstrutura={dadosVendasEstrutura} />
-      )}
-    
-      {tabelaProdutosMaisVendidos &&  (
-        <ActionListaProdutoVendido dadosProdutosMaisVendidos={dadosProdutosMaisVendidos} />
+      {tabelaVendasPorEstrutura && (
+        <ActionListaVendasEstrutura
+          dadosVendasEstrutura={dadosVendasEstrutura}
+        />
       )}
 
-      {tabelaVendasPorVendedor &&  (
-        <ActionListaVendasVendedor dadosVendasVendedor={dadosVendasVendedor} />
-      )} 
+      {tabelaProdutosMaisVendidos && (
+        <ActionListaProdutoVendido
+          dadosProdutosMaisVendidos={dadosProdutosMaisVendidos}
+        />
+      )}
+
+      {tabelaVendasPorVendedor && (
+        <ActionListaVendasVendedor
+          dadosVendasVendedor={dadosVendasVendedor}
+        />
+      )}
     </Fragment>
   )
 }

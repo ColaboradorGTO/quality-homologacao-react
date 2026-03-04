@@ -10,7 +10,6 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 
-
 export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, optionsEmpresas }) => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
@@ -83,7 +82,7 @@ export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, optionsEmpresas 
   const { data: dadosMovimentosCaixa = [], error: erroQuality, isLoading: isLoadingQuality, refetch: refetchCaixaMovimento } = useQuery(
     'movimento-caixa-gerencia',
     () => fetchCaixaMovimento(),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
   const handleClick = () => {

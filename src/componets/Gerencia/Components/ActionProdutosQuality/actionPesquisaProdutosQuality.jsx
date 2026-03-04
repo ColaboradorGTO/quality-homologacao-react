@@ -72,7 +72,7 @@ export const ActionPesquisaProdutosQuality = ({ optionsEmpresas, usuarioLogado }
   const { data: dadosProdutos = [], error: erroQuality, isLoading: isLoadingQuality, refetch: refetchProdutosQuality } = useQuery(
     'produtoQuality',
     () => fetchProdutosQuality(),
-    { enabled: false, staleTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
 
@@ -124,7 +124,9 @@ export const ActionPesquisaProdutosQuality = ({ optionsEmpresas, usuarioLogado }
       />
 
       {tabelaVisivel &&
-        <ActionListaProdutosQuality dadosProdutos={dadosProdutos} />
+        <ActionListaProdutosQuality
+         dadosProdutos={dadosProdutos}
+          />
       }
     </Fragment>
   )
