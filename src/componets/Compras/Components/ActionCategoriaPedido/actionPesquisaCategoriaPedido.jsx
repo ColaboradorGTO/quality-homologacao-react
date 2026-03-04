@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { Fragment, useState, useEffect } from "react"
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { InputField } from "../../../Buttons/Input";
@@ -14,25 +14,31 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { useFetchData } from "../../../../hooks/useFetchData";
 import { useVincularTamanhoPedido } from "./hooks/useVincularTamanhoPedido";
 
-
-export const ActionPesquisaCategoriaPedido = ({ usuarioLogado, ID }) => {
+export const ActionPesquisaCategoriaPedido = ({ usuarioLogado }) => {
   const [descricao, setDescricao] = useState('');
   const [tamanhoSelecionado, setTamanhoSelecionado] = useState('');
   const [categoriaSelecionada, setCategoriaSelecionada] = useState('');
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [tabelaTamanhoCategoria, setTabelaTamanhoCategoria] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
-
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
   const { data: dadosTamanho = [], error: errorTamanhos, isLoading: isLoadingTamanhos } = useFetchData('tamanhosPedidos', '/tamanhosPedidos');
@@ -72,9 +78,9 @@ export const ActionPesquisaCategoriaPedido = ({ usuarioLogado, ID }) => {
   };
 
   const { data: dadosCategoria = [], error: errorCategoria, isLoading: isLoadingCategoria, refetch: refetchListaCategoria } = useQuery(
-    ['categoriaPedidos', categoriaSelecionada, descricao, currentPage, pageSize],
-    () => fetchListaCategoria(categoriaSelecionada, descricao, currentPage, pageSize),
-    { enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    ['categoriaPedidos', ],
+    () => fetchListaCategoria(),
+    { enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   )
 
   const fetchListaCategoriaTamanhos = async () => {
@@ -112,66 +118,46 @@ export const ActionPesquisaCategoriaPedido = ({ usuarioLogado, ID }) => {
   };
 
   const { data: dadosCategoriaTamanhos = [], error: errorCategoriaTamanhos, isLoading: isLoadingCategoriaTamanhos, refetch: refetchListaCategoriaTamanhos } = useQuery(
-    ['vinculo-tamanho-categoria', categoriaSelecionada, descricao, tamanhoSelecionado, currentPage, pageSize],
-    () => fetchListaCategoriaTamanhos(categoriaSelecionada, descricao, currentPage, tamanhoSelecionado, pageSize),
-    { enabled: Boolean(descricao), staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    ['vinculo-tamanho-categoria', ],
+    () => fetchListaCategoriaTamanhos(),
+    { enabled: false, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   )
 
-
   const { data: dadosVinculados = [], error: errorVinculo, isLoading: isLoadingVinculo, refetch: refetchVinculo } = useQuery(
-    // vinculo-tamanho-categoria
     ['vinculo-tamanho-categoria', categoriaSelecionada, descricao, tamanhoSelecionado],
     async () => {
       const response = await get(`/vinculo-tamanho-categoria?idCategoriaPedido=${categoriaSelecionada}&descricao=${descricao}&idTamanho=${tamanhoSelecionado}`);
       return response.data;
     },
-    { enabled: Boolean(categoriaSelecionada, tamanhoSelecionado), staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { enabled: Boolean(categoriaSelecionada || tamanhoSelecionado), staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
 
-  const handleChangeCategoria = (e) => {
-    setCategoriaSelecionada(e.value)
-  }
-
-  const handleChangeTamanho = (e) => {
-    setTamanhoSelecionado(e.value)
-  }
-
   const handleClick = () => {
-    setCurrentPage(+1)
     refetchListaCategoria()
     setTabelaVisivel(true)
     setTabelaTamanhoCategoria(false)
   }
 
   const handlePesquisarTamanhoCategoria = () => {
-    setCurrentPage(+1)
     refetchListaCategoriaTamanhos()
     setTabelaTamanhoCategoria(true)
     setTabelaVisivel(false)
   }
 
-
   const {vincularCategoriaTamanho} = useVincularTamanhoPedido({  usuarioLogado, optionsModulos, categoriaSelecionada, tamanhoSelecionado, dadosVinculados, refetchVinculo})
-
 
   const handleModal = () => {
     setModalVisivel(true)
   }
 
-  const handleClose = () => {
-    setModalVisivel(false)
-  }
 
   return (
-
     <Fragment>
-
       <ActionMain
         title="Relatórios -  Categorias de Pedido"
         subTitle=""
         linkComponentAnterior={["Home"]}
         linkComponent={["Lista de Categorias de Pedido"]}
-
 
         InputFieldComponent={InputField}
         labelInputField={"Descrição"}
@@ -187,7 +173,7 @@ export const ActionPesquisaCategoriaPedido = ({ usuarioLogado, ID }) => {
           })
         ]}
         valueSelectEmpresa={tamanhoSelecionado}
-        onChangeSelectEmpresa={handleChangeTamanho}
+        onChangeSelectEmpresa={(e) => setTamanhoSelecionado(e.value)}
 
         InputSelectGrupoComponent={InputSelectAction}
         labelSelectGrupo={"Por Categorias de Pedido"}
@@ -201,7 +187,7 @@ export const ActionPesquisaCategoriaPedido = ({ usuarioLogado, ID }) => {
           })
         ]}
         valueSelectGrupo={categoriaSelecionada}
-        onChangeSelectGrupo={handleChangeCategoria}
+        onChangeSelectGrupo={(e) => setCategoriaSelecionada(e.value)}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Categorias de Pedido"}
@@ -226,8 +212,6 @@ export const ActionPesquisaCategoriaPedido = ({ usuarioLogado, ID }) => {
         onButtonClickVendasEstrutura={vincularCategoriaTamanho}
         corVendasEstrutura={"warning"}
         iconVendasEstrutura={MdAdd}
-
-
       />
 
       {tabelaVisivel && (
@@ -244,6 +228,7 @@ export const ActionPesquisaCategoriaPedido = ({ usuarioLogado, ID }) => {
           dadosCategoriaTamanhos={dadosCategoriaTamanhos}
           usuarioLogado={usuarioLogado}
           optionsModulos={optionsModulos}
+          handleClick={handleClick}
         />
 
       )}

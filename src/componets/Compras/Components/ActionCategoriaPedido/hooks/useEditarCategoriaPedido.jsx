@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { post, put } from "../../../../../api/funcRequest"
 import Swal from 'sweetalert2'
 import axios from "axios"
-
+import { situacao, optionsTipoCategoria } from "../../../../../../parceiro.json"
 
 export const useEditarCategoriaPedido = ({dadosDetalheCategoriaPedido, handleClose, usuarioLogado, optionsModulos, handleClick}) => {
     const [statusSelecionado, setStatusSelecionado] = useState('')
@@ -14,48 +14,45 @@ export const useEditarCategoriaPedido = ({dadosDetalheCategoriaPedido, handleClo
         let usuarioIP = null;
 
         try {
-            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
             usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP via ipwho.is:", error);
+            console.error("Erro ao buscar IP via ifconfig.me:", error);
         }
 
         if (!usuarioIP) {
-            try {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            } catch (error) {
-                console.error("Erro ao buscar IP via ipify.org:", error);
-            }
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
         }
         setIpUsuario(usuarioIP);
         return usuarioIP;
     };
 
-    const optionsStatus = [
-        { value: 'True', label: 'ATIVO' },
-        { value: 'False', label: 'INATIVO' }
-    ]
-
-    const optionsTipoCategoria = [
-        { value: 'VESTUARIO', label: 'VESTUARIO' },
-        { value: 'CALCADOS', label: 'CALCADOS' },
-        { value: 'ARTIGOS', label: 'ARTIGOS' },
-    ]
-
     useEffect(() => {
-        setStatusSelecionado({value: dadosDetalheCategoriaPedido[0]?.STATIVO, label: dadosDetalheCategoriaPedido[0]?.STATIVO == 'True' ? 'ATIVO' : 'INATIVO'})
-        setDescricao(dadosDetalheCategoriaPedido[0].DSCATEGORIAPEDIDO)
-        setTipoCategoriaSelecionado({value: dadosDetalheCategoriaPedido[0]?.TIPOPEDIDO , label: dadosDetalheCategoriaPedido[0]?.TIPOPEDIDO})
+        if(dadosDetalheCategoriaPedido) {
+
+            setStatusSelecionado({value: dadosDetalheCategoriaPedido[0]?.STATIVO, label: dadosDetalheCategoriaPedido[0]?.STATIVO == 'True' ? 'ATIVO' : 'INATIVO'})
+            setDescricao(dadosDetalheCategoriaPedido[0]?.DSCATEGORIAPEDIDO)
+            setTipoCategoriaSelecionado({
+                value: dadosDetalheCategoriaPedido[0]?.TIPOPEDIDO == 'VESTURARIO' ? 'CALCADOS' : dadosDetalheCategoriaPedido[0]?.TIPOPEDIDO ? dadosDetalheCategoriaPedido[0]?.TIPOPEDIDO: 'ARTIGOS',  
+                label: dadosDetalheCategoriaPedido[0]?.TIPOPEDIDO == 'VESTURARIO' ? 'CALCADOS' : dadosDetalheCategoriaPedido[0]?.TIPOPEDIDO ? dadosDetalheCategoriaPedido[0]?.TIPOPEDIDO: 'ARTIGOS'
+            })
+
+
+        }
     }, [dadosDetalheCategoriaPedido])
 
 
-    const handleEditar = async () => {
+    const onSubmit = async () => {
 
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
-                title: 'Erro!',
-                text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para alterar uma Categoria de Pedido!`,
+                title: 'Acesso Negado!',
+                html    : `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para alterar uma Categoria de Pedido!`,
                 icon: 'error',
                 customClass: {
                     container: 'custom-swal',
@@ -64,19 +61,8 @@ export const useEditarCategoriaPedido = ({dadosDetalheCategoriaPedido, handleClo
             return;
         }
 
-        if (descricao == '') {
-            Swal.fire({
-                position: 'center',
-                icon: 'error',
-                title: 'O campo descrição é obrigatório.',
-                showConfirmButton: false,
-                timer: 1500
-            });
-            return;
-        }
-
         const putData = {
-            IDCATEGORIAPEDIDO: parseInt(dadosDetalheCategoriaPedido[0].IDCATEGORIAPEDIDO),
+            IDCATEGORIAPEDIDO: parseInt(dadosDetalheCategoriaPedido[0]?.IDCATEGORIAPEDIDO),
             DSCATEGORIAPEDIDO: descricao,
             TIPOPEDIDO: tipoCategoriaSelecionado.value,
             STATIVO: statusSelecionado.value,
@@ -86,17 +72,7 @@ export const useEditarCategoriaPedido = ({dadosDetalheCategoriaPedido, handleClo
 
             const response = await put('/categoriaPedidos/:id', putData)
 
-            Swal.fire({
-                position: 'center',
-                icon: 'success',
-                title: 'Atualizado com sucesso!',
-                showConfirmButton: false,
-                timer: 3000,
-                customClass: {
-                    container: 'custom-swal',
-                }
-            })
-
+            
             const textDados = JSON.stringify(putData)
             let textFuncao = 'COMPRAS/ALTERAÇÃO DE CATEGORIA DE PEDIDO';
             const ip = await getIPUsuario();
@@ -105,10 +81,20 @@ export const useEditarCategoriaPedido = ({dadosDetalheCategoriaPedido, handleClo
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ip
+                IP: ip || 'Indisponível'
             }
-
+            
             await post('/log-web', createtLog)
+            Swal.fire({
+                position: 'center',
+                icon: 'success',
+                title: 'Atualizado com sucesso!',
+                showConfirmButton: false,
+                timer: 5000,
+                customClass: {
+                    container: 'custom-swal',
+                }
+            })
             
             handleClick();
             handleClose();
@@ -121,7 +107,7 @@ export const useEditarCategoriaPedido = ({dadosDetalheCategoriaPedido, handleClo
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ip
+                IP: ip || 'Indisponível'
             }
 
             await post('/log-web', createtLog)
@@ -131,7 +117,7 @@ export const useEditarCategoriaPedido = ({dadosDetalheCategoriaPedido, handleClo
                 icon: 'error',
                 title: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 5000,
                 customClass: {
                     container: 'custom-swal',
                 },
@@ -141,7 +127,7 @@ export const useEditarCategoriaPedido = ({dadosDetalheCategoriaPedido, handleClo
     }
 
     return {
-        optionsStatus,
+        situacao,
         optionsTipoCategoria,
         statusSelecionado,
         setStatusSelecionado,
@@ -149,6 +135,6 @@ export const useEditarCategoriaPedido = ({dadosDetalheCategoriaPedido, handleClo
         setDescricao,
         tipoCategoriaSelecionado,
         setTipoCategoriaSelecionado,
-        handleEditar
+        onSubmit
     }
 }

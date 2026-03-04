@@ -47,27 +47,27 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     setDataAdmissao(dataAtual)
   }, [])
 
-   const getIPUsuario = async () => {
-        let usuarioIP = null;
+  const getIPUsuario = async () => {
+    let usuarioIP = null;
 
-        try {
-        const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
-        usuarioIP = ipWhoisData?.ip;
-        } catch (error) {
-        console.error("Erro ao buscar IP via ipwho.is:", error);
-        }
+    try {
+      const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ipwho.is:", error);
+    }
 
-        if (!usuarioIP) {
-        try {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
-        } catch (error) {
-            console.error("Erro ao buscar IP via ipify.org:", error);
-        }
-        }
-        setIpUsuario(usuarioIP);
-        return usuarioIP;
-    };
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+    setIpUsuario(usuarioIP);
+    return usuarioIP;
+  };
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresa } = useQuery(
     'listaEmpresasIformatica',
@@ -76,7 +76,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       
       return response.data;
     },
-    {enabled: true, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    {enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
   const { data: optionsCPF = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
@@ -97,12 +97,12 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       setSubGrupoEmpresarialSelecionado(funcionarioExistente?.IDSUBGRUPOEMPRESARIAL);
       setFuncaoSelecionada({ value: funcionarioExistente?.DSFUNCAO, label: funcionarioExistente?.DSFUNCAO });
       setNomeFuncionario(funcionarioExistente?.NOFUNCIONARIO);
-      setLocalizacaoSelecionada({ value: funcionarioExistente?.STLOJA == 'True' ? 'Loja' : 'Escritório', label: funcionarioExistente?.STLOJA == 'True' ? 'Loja' : 'Escritório' });
+      setLocalizacaoSelecionada({ value: funcionarioExistente?.STLOJA == 'True' ? 'True' : 'False', label: funcionarioExistente?.STLOJA == 'True' ? 'Loja' : 'Escritório' });
       setCategoriaContratacao(funcionarioExistente.DSTIPO);
       setDataAdmissao(funcionarioExistente.DATA_ADMISSAO);
       setValorSalario(funcionarioExistente.VALORSALARIO);
       setValorDesconto(funcionarioExistente.PERC);
-      setSituacaoSelecionada({ value: funcionarioExistente?.STATIVO == 'True' ? 'Ativo' : 'Inativo', label: funcionarioExistente?.STATIVO == 'True' ? 'Ativo' : 'Inativo' });
+      setSituacaoSelecionada({ value: funcionarioExistente?.STATIVO == 'True' ? 'True' : 'False', label: funcionarioExistente?.STATIVO == 'True' ? 'Ativo' : 'Inativo' });
       setTipoSelecionado({ value: funcionarioExistente?.DSTIPO, label: funcionarioExistente?.DSTIPO });
       setNoLogin(funcionarioExistente.NOLOGIN);
       setIdPerfil(funcionarioExistente.IDPERFIL);
@@ -267,7 +267,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       VALORDISPONIVEL: 0,
       STCONVENIO: String(categoriaContratacao) === 'CLT' ? "True" : "False",
       STDESCONTOFOLHA: String(categoriaContratacao) === 'CLT' ? "True" : "False",
-      STLOJA: localizacaoSelcionada?.value == 'Loja' ? "True" : "False",
+      STLOJA: localizacaoSelcionada?.value,
       DATA_ADMISSAO: String(dataAdmissao),
       TELEFONE: removerMascaraTelefone(telefone),
       DEPARTAMENTO: departamentoSelecionado?.value
@@ -293,8 +293,8 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       IDPERFIL: idPerfil,
       STCONVENIO: String(categoriaContratacao) === 'CLT' ? "True" : "False",
       STDESCONTOFOLHA: String(categoriaContratacao) === 'CLT' ? "True" : "False",
-      STATIVO: situacaoSelecionada.value == 'Ativo' ? "True" : "False",
-      STLOJA: localizacaoSelcionada.value == 'Loja' ? "True" : "False",
+      STATIVO: situacaoSelecionada.value,
+      STLOJA: localizacaoSelcionada.value,
       TELEFONE: removerMascaraTelefone(telefone),
       DEPARTAMENTO: departamentoSelecionado?.value
     }

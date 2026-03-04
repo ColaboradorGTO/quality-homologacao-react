@@ -13,9 +13,7 @@ export const ActionEditarCategoriaPedidoModal = ({
 }) => {
 
   return (
-
     <Fragment>
-
       <Modal
         show={show}
         onHide={handleClose}
@@ -23,14 +21,11 @@ export const ActionEditarCategoriaPedidoModal = ({
         size="xl"
         centered
       >
-
         <HeaderModal
           title={"Categoria de Pedidos"}
           subTitle={"Editar Categoria de Pedidos"}
           handleClose={handleClose}
         />
-
-
         <Modal.Body>
           <FormularioEditar 
             handleClose={handleClose} 
@@ -39,7 +34,6 @@ export const ActionEditarCategoriaPedidoModal = ({
             optionsModulos={optionsModulos}
             handleClick={handleClick}
           />
-
         </Modal.Body>
       </Modal>
     </Fragment>
