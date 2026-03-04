@@ -100,11 +100,11 @@
   "localizacao": [
     {
       "label": "Loja",
-      "value": "Loja"
+      "value": "True"
     },
     {
       "label": "Escritório",
-      "value": "Escritório"
+      "value": "False"
     }
   ],
   "InscricaoEstadual": [
