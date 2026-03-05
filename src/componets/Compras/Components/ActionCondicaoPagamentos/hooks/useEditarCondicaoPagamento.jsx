@@ -1,42 +1,39 @@
 import { useEffect, useState } from "react"
 import axios from 'axios'
 import Swal from "sweetalert2"
-import { post, put } from "../../../../../api/funcRequest"
+import { post, put, get } from "../../../../../api/funcRequest"
 import { toFloat } from "../../../../../utils/toFloat"
 import { getDataHoraAtual } from "../../../../../utils/dataAtual"
 import { useQuery } from "react-query"
+import { situacao, optionsParcelado } from "../../../../../../parceiro.json"
 
-export const useEditarCondicaoPagamento = ({dadosDetalheCondPagamento,handleClose, usuarioLogado, optionsModulos, handleClick}) => {
+export const useEditarCondicaoPagamento = ({
+    dadosDetalheCondPagamento, 
+    handleClose, 
+    usuarioLogado, 
+    optionsModulos, 
+    handleClick
+}) => {
     const [statusSelecionado, setStatusSelecionado] = useState('')
     const [descricao, setDescricao] = useState('')
     const [parceladoSelecionado, setParceladoSelecionado] = useState('')
-    const [numeroParcelas, setNumeroParcelas] = useState('')
-    const [dias1Pagamento, setDias1Pagamento] = useState('')
-    const [qtdDiasPagamento, setQtdDiasPagamento] = useState('')
+    const [numeroParcelas, setNumeroParcelas] = useState(0)
+    const [dias1Pagamento, setDias1Pagamento] = useState(0)
+    const [qtdDiasPagamento, setQtdDiasPagamento] = useState(0)
     const [tipoDocumentoSelecionado, setTipoDocumentoSelecionado] = useState('')
-    const [condPagamento, setCondPagamento] = useState('')
     const [dataUltimaAlteracao, setDataUltimaAlteracao] = useState('');
     const [ipUsuario, setIpUsuario] = useState('');
 
-    const { data: dadosTipoDocumentos = [], error: errorDocumento, isLoading: isLoadingDocumento } = useQuery(
+    const { data: dadosTipoDocumentos = [], error: errorDocumento, isLoading: isLoadingDocumento, refetch } = useQuery(
         'tipoDocumento',
         async () => {
           const response = await get(`/tipoDocumento`);
     
+          console.log('dadosTipoDocumentos', response.data);
           return response.data;
         },
         { enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000, }
     );
- 
-    const optionsStatus = [
-        { value: 'True', label: 'ATIVO' },
-        { value: 'False', label: 'INATIVO' }
-    ]
-
-    const optionsParcelado = [
-        { value: 'True', label: 'SIM' },
-        { value: 'False', label: 'NÃO' }
-    ]
 
     useEffect(() => {
         const dataAtual = getDataHoraAtual();
@@ -47,19 +44,19 @@ export const useEditarCondicaoPagamento = ({dadosDetalheCondPagamento,handleClos
         let usuarioIP = null;
 
         try {
-            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
             usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP via ipwho.is:", error);
+            console.error("Erro ao buscar IP via ifconfig.me:", error);
         }
 
         if (!usuarioIP) {
-            try {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            } catch (error) {
-                console.error("Erro ao buscar IP via ipify.org:", error);
-            }
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
         }
         setIpUsuario(usuarioIP);
         return usuarioIP;
@@ -78,27 +75,18 @@ export const useEditarCondicaoPagamento = ({dadosDetalheCondPagamento,handleClos
         }
     }, [dadosDetalheCondPagamento])
 
-    const handleEditar = async () => {
+    const onSubmit = async () => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
-                title: 'Erro!',
-                text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para criar uma Condição de Pagamento!`,
                 icon: 'error',
+                title: 'Acesso Negado!',
+                html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para criar uma Condição de Pagamento!`,
+                timer: 5000,
+                showConfirmButton: false,
                 customClass: {
                     container: 'custom-swal',
                 },
             })
-            return;
-        }
-
-        if (descricao == '') {
-            Swal.fire({
-                position: 'center',
-                icon: 'error',
-                title: 'O campo descrição é obrigatório.',
-                showConfirmButton: false,
-                timer: 1500
-            });
             return;
         }
 
@@ -141,16 +129,16 @@ export const useEditarCondicaoPagamento = ({dadosDetalheCondPagamento,handleClos
             const response = await put('/condicaoPagamento/:id', postData)
  
             const textDados = JSON.stringify(postData)
-            let textFuncao = 'COMPRAS/EDITAR CATEGORIA DE PEDIDO';
+            let textFuncao = 'COMPRAS/EDITAR CONDIÇÃO DE PAGAMENTO';
             const ipUsuario = await getIPUsuario();
             const createtLog = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || 'Indisponível'
             }
 
-            const responseLog = await post('/log-web', createtLog)
+            await post('/log-web', createtLog)
 
         
             Swal.fire({
@@ -158,22 +146,23 @@ export const useEditarCondicaoPagamento = ({dadosDetalheCondPagamento,handleClos
                 icon: 'success',
                 title: 'Atualizado com sucesso!',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 5000,
                 customClass: {
                     container: 'custom-swal',
                 }
             })
-
-            return responseLog.data;
+            handleClick();
+            handleClose();
+            return response.data;
         } catch (error) {
             const textDados = JSON.stringify(postData)
-            let textFuncao = 'COMPRAS/EDITAR CATEGORIA DE PEDIDO';
+            let textFuncao = 'COMPRAS/EDITAR CONDIÇÃO DE PAGAMENTO';
             const ipUsuario = await getIPUsuario();
             const createtLog = {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || 'Indisponível'
             }
 
             const responseLog = await post('/log-web', createtLog)
@@ -182,12 +171,13 @@ export const useEditarCondicaoPagamento = ({dadosDetalheCondPagamento,handleClos
                 icon: 'error',
                 title: 'Ocorreu um erro ao enviar o formulário. Por favor, tente novamente.',
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 5000,
                 customClass: {
                     container: 'custom-swal',
                 },
             });
-            console.error('Erro ao criar categoria pedido:', error);
+            console.error('Erro ao Editar Condição de Pagamento:', error);
+            return responseLog.data;
         }
     }
 
@@ -206,13 +196,9 @@ export const useEditarCondicaoPagamento = ({dadosDetalheCondPagamento,handleClos
         setQtdDiasPagamento,
         tipoDocumentoSelecionado,
         setTipoDocumentoSelecionado,
-        condPagamento,
-        setCondPagamento,
-        usuarioLogado,
-        ipUsuario,
-        optionsStatus,
+        situacao,
         optionsParcelado,
         dadosTipoDocumentos,
-        handleEditar
+        onSubmit
     }
 }
