@@ -2,94 +2,55 @@ import Swal from "sweetalert2";
 import { post, put } from "../../../../../api/funcRequest";
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { useQuery } from "react-query";
+import { situacao } from "../../../../../../parceiro.json"
 
 export const useEditarVinculoFornecedorFabricante = ({ handleClose, dadosDetalheFornecedorFabricante, usuarioLogado, optionsModulos, handleClick}) => {
     const [statusSelecionado, setStatusSelecionado] = useState(null)
     const [fabricante, setFabricante] = useState('')
-    const [nomeFabricante, setNomeFabricante] = useState('')
     const [fornecedorSelecionado, setFornecedorSelecionado] = useState('')
     const [ipUsuario, setIpUsuario] = useState('');
-
-
-    const optionsStatus = [
-        { value: 'True', label: 'ATIVO' },
-        { value: 'False', label: 'INATIVO' }
-    ]
 
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
         try {
-            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
             usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP via ipwho.is:", error);
+            console.error("Erro ao buscar IP via ifconfig.me:", error);
         }
 
         if (!usuarioIP) {
-            try {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            } catch (error) {
-                console.error("Erro ao buscar IP via ipify.org:", error);
-            }
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
         }
         setIpUsuario(usuarioIP);
         return usuarioIP;
     };
 
-    
-    const { data: dadosFabricantes = [], error: errorFabricantes, isLoading: isLoadingFabricantes, refetch: refetchFabricantes } = useQuery(
-    'fabricantes',
-    async () => {
-        const response = await get(`/fabricantes`);
-        
-        return response.data;
-    },{ enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, });
-    
+
     useEffect(() => {
         setStatusSelecionado({value: dadosDetalheFornecedorFabricante[0]?.STATIVO, label: dadosDetalheFornecedorFabricante[0]?.STATIVO == 'True' ? 'ATIVO' : 'INATIVO'})
-        setFornecedorSelecionado({value: dadosDetalheFornecedorFabricante[0]?.IDFORNECEDOR, label: `${dadosDetalheFornecedorFabricante[0]?.IDFABRICANTE} - ${dadosDetalheFornecedorFabricante[0]?.DSFABRICANTE}`})
+        setFornecedorSelecionado({value: dadosDetalheFornecedorFabricante[0]?.IDFORNECEDOR, label: `${dadosDetalheFornecedorFabricante[0]?.IDFORNECEDOR} - ${dadosDetalheFornecedorFabricante[0]?.DSFORNECEDOR} - ${dadosDetalheFornecedorFabricante[0]?.CNPJFORNECEDOR} - ${dadosDetalheFornecedorFabricante[0]?.RSFORNECEDOR}`})
         setFabricante(dadosDetalheFornecedorFabricante[0]?.DSFABRICANTE)
-        setNomeFabricante(dadosDetalheFornecedorFabricante[0]?.DSFORNECEDOR)
-    }, [dadosDetalheFornecedorFabricante])
+      
+    }, [dadosDetalheFornecedorFabricante[0]])
 
  
 
     const onSubmit = async () => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
-                title: 'Erro!',
-                text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para alterar um Vínculo de Fornecedor / Fabricante!`,
                 icon: 'error',
+                title: 'Acesso Negado!',
+                html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para alterar um Vínculo de Fornecedor / Fabricante!`,
                 customClass: {
                     container: 'custom-swal',
                 },
-            });
-            return;
-        }
-
-        if (fabricante === '') {
-            Swal.fire({
-                position: 'center',
-                icon: 'error',
-                title: `Informe o NOME do Fabricante.`,
-                type: 'warning',
-                showConfirmButton: false,
-                timer: 3000
-            });
-            return;
-        }
-
-        if(statusSelecionado == '') {
-            Swal.fire({
-                position: 'center',
-                icon: 'error',
-                title: `Informe a SITUAÇÃO do vínculo.`,
-                type: 'warning',
-                showConfirmButton: false,
-                timer: 3000
             });
             return;
         }
@@ -112,7 +73,7 @@ export const useEditarVinculoFornecedorFabricante = ({ handleClose, dadosDetalhe
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || 'Indisponível'
             }
             
             await post('/log-web', createtLog)
@@ -138,7 +99,7 @@ export const useEditarVinculoFornecedorFabricante = ({ handleClose, dadosDetalhe
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || 'Indisponível'
             }
             
             const response = await post('/log-web', createtLog)
@@ -163,10 +124,9 @@ export const useEditarVinculoFornecedorFabricante = ({ handleClose, dadosDetalhe
         fabricante,
         fornecedorSelecionado,
         setFornecedorSelecionado,
-        optionsStatus,
+        situacao,
         setStatusSelecionado,
         setFabricante,
-        dadosFabricantes,
         onSubmit,
     }
 }

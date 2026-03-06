@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { Fragment, useState, useEffect } from "react"
 import { ActionMain } from "../../../Actions/actionMain"
 import { InputField } from "../../../Buttons/Input"
 import { InputSelectAction } from "../../../Inputs/InputSelectAction"
@@ -13,26 +13,35 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { useCadastrarVinculoFabricanteFornecedor } from "../ActionVincularFabricanteFornecedor/hooks/useCadastrarViculoFabricanteFornecedor"
 
 
-export const ActionPesquisaFabricante = ({ usuarioLogado, ID }) => {
+export const ActionPesquisaFabricante = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [modalVisivel, setModalVisivel] = useState(false);
   const [modalCadastrarFabricante, setModalCadastrarFabricante] = useState(false);
   const [nomeFabricante, setNomeFabricante] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [fabricanteSelecionado, setFabricanteSelecionado] = useState('')
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState('')
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
+
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
       
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
-  const { data: dadosFornecedores = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch: refetchFornecdor } = useQuery(
+  const { data: dadosFornecedores = [], error: errorFabricantes, isLoading: isLoadingFabricantes, refetch: refetchFabricante } = useQuery(
     'fornecedores',
     async () => {
       const response = await get(`/fornecedores`);
@@ -41,18 +50,50 @@ export const ActionPesquisaFabricante = ({ usuarioLogado, ID }) => {
     },
     { enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000}
   );
-  
-  const { data: dadosFabricantes = [], error: errorFabricantes, isLoading: isLoadingFabricantes, refetch: refetchFabricante } = useQuery(
-    'fabricante-fornecedor',
-    async () => {
-      const response = await get(`/fabricante-fornecedor`);
 
-      return response.data;
-    },
-    { enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000}
+  const fetchListaFornecedores = async () => {
+    const urlBase = `/fabricantes`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    try {
+
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      console.log('Primeira resposta:', primeiraResposta);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
+        }
+      }
+
+      return allData;
+    } catch (error) {
+      console.error('Erro ao buscar dados da api:', error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
+  };
+
+  const { data: dadosFabricantes = [], error: errorFornecedor, isLoading: isLoadingFornecedor, refetch } = useQuery(
+    ['fabricantes'],
+    async () => fetchListaFornecedores(),
+    { enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000}
   );
 
-  const fetchListaFabricante = async () => {
+
+  const fetchListaFabricanteFornecedor = async () => {
     const urlBase = `/fabricante-fornecedor?idFabricante=${fabricanteSelecionado}&descricaoFabricante=${nomeFabricante}&idFornecedor=${fornecedorSelecionado}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
@@ -86,10 +127,10 @@ export const ActionPesquisaFabricante = ({ usuarioLogado, ID }) => {
     }
   };
 
-  const { data: dadosFabricantesFornecedor = [], error: errorFabricanteFornecedor, isLoading: isLoadingFabricanteFornecedor, refetch: refetchListaFabricante } = useQuery(
+  const { data: dadosFabricantesFornecedor = [], error: errorFabricanteFornecedor, isLoading: isLoadingFabricanteFornecedor, refetch: refetchListaFabricanteFornecedor } = useQuery(
     ['fabricante-fornecedor'],
-    () => fetchListaFabricante(),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    () => fetchListaFabricanteFornecedor(),
+    { enabled: false, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   )
 
   const { data: dadosVinculosFornecedores = [], error: errorVinculos, isLoading: isLoadingVinculos, refetch: refetchVinculos } = useQuery(
@@ -99,12 +140,11 @@ export const ActionPesquisaFabricante = ({ usuarioLogado, ID }) => {
 
       return response.data;
     },
-    { enabled: Boolean(fabricanteSelecionado && fornecedorSelecionado), staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000}
+    { enabled: Boolean(fabricanteSelecionado && fornecedorSelecionado), staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000}
   );
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
-    refetchListaFabricante();
+    refetchListaFabricanteFornecedor();
     setTabelaVisivel(false)
   }
 
@@ -186,6 +226,7 @@ export const ActionPesquisaFabricante = ({ usuarioLogado, ID }) => {
 
       <ActionListaFabricantes
         dadosFabricantesFornecedo={dadosFabricantesFornecedor}
+        dadosFornecedores={dadosFornecedores}
         usuarioLogado={usuarioLogado}
         optionsModulos={optionsModulos}
         handleClick={handleClick}
