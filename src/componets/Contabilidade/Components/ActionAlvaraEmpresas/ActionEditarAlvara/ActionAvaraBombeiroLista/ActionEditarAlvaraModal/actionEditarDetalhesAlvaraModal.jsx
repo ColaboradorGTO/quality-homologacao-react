@@ -1,17 +1,20 @@
 import { Fragment } from "react"
 import Modal from 'react-bootstrap/Modal';
-import { HeaderModal } from "../../../../Modais/HeaderModal/HeaderModal";
-import { FormularioActionAlvaraEmpresa } from "./formularioActionAlvaraEmpresa";
+import { HeaderModal } from "../../../../../../Modais/HeaderModal/HeaderModal";
+import { FormularioEditarDetalhesAlvara } from "./formularioEditarDetalhesAlvaraModal";
 
-export const ActionAlvaraEmpresaModal = ({
+export const ActionEditarDetalhesAlvaraModal = ({
     show,
-    dadosAlvaraEmpresaSelecionada,
+    dadosAlvaraSelecionado,
     dadosAlvaraEmpresa,
     optionsModulos,
     usuarioLogado,
     refetchAlvaraEmpresa,
     handleClose,
-    refetchAlvaraSelecionado
+    refetchAlvaraSelecionado,
+    refetchVinculoAlvara,
+    
+
 }) => {
 
     return (
@@ -19,31 +22,29 @@ export const ActionAlvaraEmpresaModal = ({
             <Modal
                 show={show}
                 onHide={handleClose}
-                size="xl"
+                size="lg"
                 className="modal fade"
-                id="ModalAlvaraEmpresa"
+                id="EditarAlvaraEmpresa"
                 tabIndex={-1}
                 role="dialog"
                 aria-hidden="true"
             >
                 <HeaderModal
-                    title={"Dados da Empresa - Alvarás"}
-                    subTitle={"Detalhes da Empresa - Alvarás"}
+                    title={"Detalhes do Alvará"}
                     handleClose={handleClose}
                 />
                 <Modal.Body>
-                    <FormularioActionAlvaraEmpresa
+                    <FormularioEditarDetalhesAlvara
                         dadosAlvaraEmpresa={dadosAlvaraEmpresa}
                         usuarioLogado={usuarioLogado}
                         optionsModulos={optionsModulos}
-                        refetchAlvaraEmpresa={refetchAlvaraEmpresa}
                         handleClose={handleClose}
-                        dadosAlvaraEmpresaSelecionada={dadosAlvaraEmpresaSelecionada}
+                        dadosAlvaraSelecionado={dadosAlvaraSelecionado}
+                        refetchAlvaraEmpresa={refetchAlvaraEmpresa}
                         refetchAlvaraSelecionado={refetchAlvaraSelecionado}
+                        refetchVinculoAlvara={refetchVinculoAlvara}
                     />
-
                 </Modal.Body>
-
             </Modal>
         </Fragment>
     )

@@ -21,7 +21,7 @@ export const FormularioVisualizarDetalhesAlvara = ({
                 <span class="d-flex align-items-center">
                     <AiOutlineFileText size={25} />
                     <h4 class="font-weight-bold" style={{ margin: 0, marginLeft: "10px" }}>
-                        PREFEITURA (LICENÇA DE FUNCIONAMENTO)
+                        ALVARÁS - VIGILÂNCIA SANITÁRIA (LICENÇA SANITÁRIA)
                     </h4>
                 </span>
 

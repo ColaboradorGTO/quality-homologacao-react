@@ -10,7 +10,7 @@ export const FormularioVisualizarDetalhesAlvara = ({
     dadosAlvaraSelecionado,
     handleClose,
 }) => {
-
+console.log(dadosAlvaraSelecionado, "dadosAlvaraSelecionado")
     const { formState: { errors }, clearErrors, control } = useForm({
         mode: "onChange"
     });
@@ -21,7 +21,7 @@ export const FormularioVisualizarDetalhesAlvara = ({
                 <span class="d-flex align-items-center">
                     <AiOutlineFileText size={25} />
                     <h4 class="font-weight-bold" style={{ margin: 0, marginLeft: "10px" }}>
-                        PREFEITURA (LICENÇA DE FUNCIONAMENTO)
+                        BOMBEIRO (CERTIFICADO DE CONFORMIDADE - CERCON)
                     </h4>
                 </span>
 
@@ -122,7 +122,27 @@ export const FormularioVisualizarDetalhesAlvara = ({
                             />
                         </div>
                     </div>
-
+                    <div class="row mt-3">
+                        <div class="col-sm-6 col-xl-6">
+                            <Controller
+                                name="projetoAprovadoDigitado"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        {...field}
+                                        label={"Projeto Aprovado:"}
+                                        name="projetoAprovadoDigitado"
+                                        type="text"
+                                        value={dadosAlvaraSelecionado?.[0]?.NUMEROPROJETOAPROVADO}
+                                        onChange={(e) => setProjetoAprovado(e.target.value)}
+                                        readOnly={true}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
                     <div class="row mt-3">
                         <div class="col-sm-6 col-xl-6">
                             <Controller

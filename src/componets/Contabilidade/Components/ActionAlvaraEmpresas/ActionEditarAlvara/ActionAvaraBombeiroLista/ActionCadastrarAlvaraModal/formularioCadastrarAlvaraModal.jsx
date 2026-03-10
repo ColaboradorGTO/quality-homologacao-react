@@ -3,29 +3,24 @@ import { ButtonTypeModal } from "../../../../../../Buttons/ButtonTypeModal";
 import { FooterModal } from "../../../../../../Modais/FooterModal/footerModal";
 import { Controller, useForm } from "react-hook-form";
 import FormField from "../../../../../../Formularios/FormField";
+import { useCriarAlvara } from "../../../hooks/actionCriarAlvara";
 import Select from "react-select"
 import { AiOutlineFileText } from "react-icons/ai";
 import { AlertError } from "../../../../../../Inputs/alertError";
-import { useEditarAlvara } from "../../../hooks/actionEditarAlvara";
-import { useCriarArquivoAlvara } from "../../../hooks/actionCriarArquivoAlvara";
-import { converterArquivosParaBase64 } from "../../../../../../../utils/converterFileBase64";
-import { ActionEditarListaArquivosAnexados } from "./actionEditarListaArquivoAnexado";
-import { schema } from "./schema/schemaValidarEditarAlvara";
+import { schema } from "./schema/schemaValidacaoCadastroAlvara";
 
-export const FormularioEditarDetalhesAlvara = ({
+export const FormularioCadastrarActionAlvara = ({
     dadosAlvaraSelecionado,
     handleClose,
     usuarioLogado,
     optionsModulos,
     refetchAlvaraEmpresa,
-    refetchAlvaraSelecionado,
-    refetchVinculoAlvara
+    idAlvaraSelecionado,
+    refetchAlvaraSelecionado
 }) => {
-
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, register } = useForm({
         mode: "onChange"
     });
-
     const {
         optionsStatusAlvara,
         optionsStatus,
@@ -43,51 +38,25 @@ export const FormularioEditarDetalhesAlvara = ({
         setStatusAlvara,
         metragemLoja,
         setMetragemLoja,
+        projetoAprovado,
+        setProjetoAprovado,
         onSubmit
 
-    } = useEditarAlvara({
+    } = useCriarAlvara({
         handleClose,
         usuarioLogado,
         optionsModulos,
         dadosAlvaraSelecionado,
+        idAlvaraSelecionado,
         refetchAlvaraEmpresa,
-        refetchAlvaraSelecionado,
-        refetchVinculoAlvara
+        refetchAlvaraSelecionado
     });
 
-    const {
-        onCriarArquivo
-
-    } = useCriarArquivoAlvara({
-        usuarioLogado,
-        optionsModulos,
-        refetchVinculoAlvara
-    });
-
-    const handleUploadArquivo = async (e) => {
-        const filesList = e.target.files;
-        if (!filesList?.length) return;
-
-        try {
-            const arquivosConvertidos = await converterArquivosParaBase64(filesList);
-
-            if (!arquivosConvertidos?.length) return;
-            const idVinculo = dadosAlvaraSelecionado?.[0]?.IDVINCULO;
-            await onCriarArquivo(idVinculo, arquivosConvertidos);
-
-            e.target.value = null;
-        } catch (error) {
-            console.error("Erro ao enviar arquivo:", error);
-        }
-    };
-
-    const arquivosAlvara = dadosAlvaraSelecionado?.[0]?.ARQUIVOSALVARAS || [];
-    const temArquivos = arquivosAlvara.length > 0;
 
     const handleValidatedSubmit = async () => {
         try {
+
             const dadosParaValidar = {
-                statusAlvaraSelecionado: statusAlvara,
                 dataInicioCompetenciaSelecionada: dataIncioCompetencia,
                 dataFimCompetenciaSelecionada: dataFimCompetencia,
                 statusAndamento: statusAndamento,
@@ -113,6 +82,7 @@ export const FormularioEditarDetalhesAlvara = ({
                     }
                 });
             }
+
             const errorMessages = validationError.errors || [validationError.message];
             //console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
         }
@@ -124,36 +94,38 @@ export const FormularioEditarDetalhesAlvara = ({
                 <span class="d-flex align-items-center">
                     <AiOutlineFileText size={25} />
                     <h4 class="font-weight-bold" style={{ margin: 0, marginLeft: "10px" }}>
-                        PREFEITURA (LICENÇA DE FUNCIONAMENTO)
+                        BOMBEIRO (CERTIFICADO DE CONFORMIDADE - CERCON)
                     </h4>
                 </span>
 
                 <div class="form-group">
                     <div class="row mt-3">
-                        <div class="col-sm-6 col-xl-6">
 
+                        <div class="col-sm-6 col-xl-6">
                             <label className="form-label" htmlFor={""}>Status:</label>
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
-                                name="statusAlvaraSelecionado"
+                                name="statusAlvara"
+                                isDisabled={true}
                                 options={optionsStatus?.map((item) => ({
                                     value: item.value,
                                     label: item.label
                                 }))}
-                                value={statusAlvara}
+                                value={optionsStatus.find(opt => opt.value === "True")}
                                 onChange={(opt) => {
                                     setStatusAlvara(opt ?? null);
-                                    clearErrors("contaSelecionada");
+                                    clearErrors("contaSelecionada ");
                                 }}
                             />
-                            {errors.statusAlvaraSelecionado && (
+                            {errors.statusAlvara && (
                                 <AlertError
-                                    error={errors.statusAlvaraSelecionado?.value || errors.statusAlvaraSelecionado}
+                                    error={errors.statusAlvara?.value || errors.statusAlvara}
                                     onClose={clearErrors}
-                                    fieldName="statusAlvaraSelecionado"
+                                    fieldName="statusAlvara"
                                 />
                             )}
+
                         </div>
                     </div>
 
@@ -165,19 +137,17 @@ export const FormularioEditarDetalhesAlvara = ({
                                 render={({ field }) => (
                                     <FormField
                                         {...field}
-                                        label={"Dt. Inicio:"}
                                         name="dataInicioCompetenciaSelecionada"
+                                        label={"Dt. Inicio:"}
                                         type="date"
+                                        errors={errors}
+                                        clearErrors={clearErrors}
                                         value={dataIncioCompetencia}
                                         onChange={(e) => setDataIncioCompetencia(e.target.value)}
-                                        errors={errors}
-
-                                        clearErrors={clearErrors}
                                     />
                                 )}
                             />
                         </div>
-                        
                         <div class="col-sm-6 col-xl-6">
                             <Controller
                                 name="dataFimCompetenciaSelecionada"
@@ -185,8 +155,8 @@ export const FormularioEditarDetalhesAlvara = ({
                                 render={({ field }) => (
                                     <FormField
                                         {...field}
-                                        label={"Dt. Fim:"}
                                         name="dataFimCompetenciaSelecionada"
+                                        label={"dataFimCompetencia"}
                                         type="date"
                                         value={dataFimCompetencia}
                                         onChange={(e) => setDataFimCompetencia(e.target.value)}
@@ -211,6 +181,7 @@ export const FormularioEditarDetalhesAlvara = ({
                                     label: item.DESCRICAO
 
                                 }))}
+
                                 value={statusAndamento}
                                 onChange={(opt) => {
                                     setStatusAndamento(opt ?? null);
@@ -225,7 +196,6 @@ export const FormularioEditarDetalhesAlvara = ({
                                 />
                             )}
                         </div>
-
                         <div class="col-sm-6 col-xl-6">
                             <Controller
                                 name="metragemLojaDigitado"
@@ -246,7 +216,26 @@ export const FormularioEditarDetalhesAlvara = ({
                             />
                         </div>
                     </div>
-
+                    <div class="row mt-3">
+                        <div class="col-sm-6 col-xl-6">
+                            <Controller
+                                name="projetoAprovadoDigitado"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        {...field}
+                                        label={"Projeto Aprovado:"}
+                                        name="projetoAprovadoDigitado"
+                                        type="text"
+                                        value={projetoAprovado}
+                                        onChange={(e) => setProjetoAprovado(e.target.value)}
+                                        errors={errors}
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
                     <div class="row mt-3">
                         <div class="col-sm-6 col-xl-6">
                             <Controller
@@ -255,8 +244,8 @@ export const FormularioEditarDetalhesAlvara = ({
                                 render={({ field }) => (
                                     <FormField
                                         {...field}
-                                        name="descricaoDetalheAndamentoDigitado"
                                         label="Detalhe Andamento"
+                                        name="descricaoDetalheAndamentoDigitado"
                                         type="textarea"
                                         value={descricaoDetalheAndamento}
                                         onChange={(e) => setDescricaoDetalheAndamento(e.target.value)}
@@ -269,35 +258,35 @@ export const FormularioEditarDetalhesAlvara = ({
                             />
                         </div>
                     </div>
+                    <div class="row mt-3">
+                        <div class="col-sm-6 col-xl-6">
+                            <Controller
+                                name="arquivoAlvara"
+                                control={control}
+                                render={({ field }) => (
+                                    <FormField
+                                        label="Detalhe Andamento"
+                                        name="arquivoAlvara"
+                                        type="file"
+                                        accept="application/pdf"
+                                        onChange={(e) => setArquivoAlvara(e.target.files)}
+                                        errors={errors}
+                                        width="100%"
+                                        height="120px"
+                                        clearErrors={clearErrors}
+                                    />
+                                )}
+                            />
+                        </div>
+                    </div>
                 </div>
             </form>
 
-            <div style={{ marginTop: "3rem" }}>
-                {temArquivos ? (
-                    <ActionEditarListaArquivosAnexados
-                        dadosAlvaraSelecionado={dadosAlvaraSelecionado}
-                        refetchAlvaraEmpresa={refetchAlvaraEmpresa}
-                        refetchVinculoAlvara={refetchVinculoAlvara}
-                        handleClose={handleClose}
-                        usuarioLogado={usuarioLogado}
-                        optionsModulos={optionsModulos}
-                    />
-                ) : (
-                    <div className="form-group ">
-                        <label className="form-label mr-2" htmlFor={""}>Anexar Arquivo:</label>
-                        <input
-                            type="file"
-                            accept="application/pdf"
-                            onChange={handleUploadArquivo}
-                        />
-                    </div>
-                )}
-            </div>
             <FooterModal
                 ButtonTypeCadastrar={ButtonTypeModal}
                 onClickButtonCadastrar={handleSubmit(handleValidatedSubmit)}
                 tipoBtnCadastrar={"submit"}
-                textButtonCadastrar={"Salvar Alterações"}
+                textButtonCadastrar={"Adicionar"}
                 corCadastrar="success"
 
                 ButtonTypeFechar={ButtonTypeModal}
