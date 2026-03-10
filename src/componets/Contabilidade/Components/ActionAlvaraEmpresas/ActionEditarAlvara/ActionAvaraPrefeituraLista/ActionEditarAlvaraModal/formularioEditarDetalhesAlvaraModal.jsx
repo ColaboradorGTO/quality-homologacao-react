@@ -96,7 +96,7 @@ export const FormularioEditarDetalhesAlvara = ({
             };
 
             await schema.validate(dadosParaValidar, { abortEarly: false });
-            onSubmit();
+            await onSubmit();
 
         } catch (validationError) {
             console.error('❌ Erro de validação:', validationError);
@@ -177,7 +177,7 @@ export const FormularioEditarDetalhesAlvara = ({
                                 )}
                             />
                         </div>
-                        
+
                         <div class="col-sm-6 col-xl-6">
                             <Controller
                                 name="dataFimCompetenciaSelecionada"
@@ -296,8 +296,9 @@ export const FormularioEditarDetalhesAlvara = ({
             <FooterModal
                 ButtonTypeCadastrar={ButtonTypeModal}
                 onClickButtonCadastrar={handleSubmit(handleValidatedSubmit)}
-                tipoBtnCadastrar={"submit"}
                 textButtonCadastrar={"Salvar Alterações"}
+                autoLoadingCadastrar={true}
+                loadingTextCadastrar={"Cadastrando..."}
                 corCadastrar="success"
 
                 ButtonTypeFechar={ButtonTypeModal}

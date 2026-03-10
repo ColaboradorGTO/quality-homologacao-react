@@ -10,7 +10,7 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { useFetchData, useFetchEmpresas, useFetchEmpresasContabilidade } from "../../../../hooks/useFetchData";
 
-export const ActionPesquisaVendasContingencia = ({usuarioLogado, ID }) => {
+export const ActionPesquisaVendasContingencia = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [marcaSelecionada, setMarcaSelecionada] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
@@ -18,37 +18,59 @@ export const ActionPesquisaVendasContingencia = ({usuarioLogado, ID }) => {
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
   useEffect(() => {
     const dataInical = getDataAtual();
     const dataFinal = getDataAtual();
     setDataPesquisaInicio(dataInical);
-    setDataPesquisaFim(dataFinal);    
+    setDataPesquisaFim(dataFinal);
   }, [])
 
-  const { data: marcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useFetchData('marcasLista', '/marcasLista');
-  const { data: empresas = [],} = useFetchEmpresasContabilidade(marcaSelecionada);
-
+  
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
-    async () => {
-        const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+  ['menus-usuario-excecao', menuFilhoAtual?.ID],
+  async () => {
+    const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
+    return response.data;
+  },
+  { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,});
 
-        return response.data;
+  const { data: marcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useFetchData('marcasLista', '/marcasLista');
+
+  const { data: empresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas
+  } = useQuery(
+    ['empresasLista', marcaSelecionada],
+    async () => {
+      const response = await get(
+        `/todas-empresas?idSubGrupoEmpresa=${marcaSelecionada}`
+      );
+
+      return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    { staleTime: 60 * 60 * 1000 }
   );
+
 
   const fetchListaVendasContigencia = async () => {
     try {
 
-      const urlApi = `/listaVendasContigencia?idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+      const urlApi = `/listaVendasContigencia?idGrupo=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
       const response = await get(urlApi);
-      
+
       if (response.data.length && response.data.length === pageSize) {
         let allData = [...response.data];
         animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
+
         async function fetchNextPage(currentPage) {
           try {
             currentPage++;
@@ -64,11 +86,11 @@ export const ActionPesquisaVendasContingencia = ({usuarioLogado, ID }) => {
             throw error;
           }
         }
-  
+
         await fetchNextPage(currentPage);
         return allData;
       } else {
-       
+
         return response.data;
       }
     } catch (error) {
@@ -82,7 +104,7 @@ export const ActionPesquisaVendasContingencia = ({usuarioLogado, ID }) => {
   const { data: dadosVendasContigencia = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchVendasContigencia } = useQuery(
     ['listaVendasContigencia', marcaSelecionada, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
     () => fetchListaVendasContigencia(marcaSelecionada, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
-    { enabled: Boolean(marcaSelecionada), staleTime: 5 * 60 * 1000 }
+    { enabled: Boolean(marcaSelecionada), staleTime: 60 * 60 * 1000 }
   );
 
   const handleChangeMarca = (e) => {
@@ -119,7 +141,7 @@ export const ActionPesquisaVendasContingencia = ({usuarioLogado, ID }) => {
 
         InputSelectMarcasComponent={InputSelectAction}
         optionsMarcas={[
-          { value: "", label: "Selecione a Marca" }, 
+          { value: "", label: "Selecione a Marca" },
           ...marcas.map((marca) => ({
             value: marca.IDGRUPOEMPRESARIAL,
             label: marca.DSGRUPOEMPRESARIAL
@@ -131,7 +153,7 @@ export const ActionPesquisaVendasContingencia = ({usuarioLogado, ID }) => {
 
         InputSelectEmpresaComponent={InputSelectAction}
         optionsEmpresas={[
-          { value: "", label: "Selecione a Loja" }, 
+          { value: "", label: "Selecione a Loja" },
           ...empresas.map((marca) => ({
             value: marca.IDEMPRESA,
             label: marca.NOFANTASIA
@@ -140,7 +162,7 @@ export const ActionPesquisaVendasContingencia = ({usuarioLogado, ID }) => {
         labelSelectEmpresa={"Filial"}
         valueSelectEmpresa={empresaSelecionada}
         onChangeSelectEmpresa={handleChangeEmpresa}
-        
+
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Atualizar Dados"}
@@ -151,8 +173,8 @@ export const ActionPesquisaVendasContingencia = ({usuarioLogado, ID }) => {
       <div id="resultado">
         {tabelaVisivel &&
 
-          <ActionListaVendasContingencia 
-            dadosVendasContigencia={dadosVendasContigencia} 
+          <ActionListaVendasContingencia
+            dadosVendasContigencia={dadosVendasContigencia}
             optionsModulos={optionsModulos}
           />
         }
