@@ -6,17 +6,17 @@ import { ButtonTable } from '../../../ButtonsTabela/ButtonTable';
 import { CiEdit } from 'react-icons/ci';
 import { AiOutlineDelete } from 'react-icons/ai';
 import { get } from '../../../../api/funcRequest';
-
-import { ActionEditarFornecedorModal} from './ActionEditar/actionEditarFornecedorModal';
 import HeaderTable from '../../../Tables/headerTable';
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
-import { ActionEditarVinculoFornecedorFabricanteModal } from './ActionEditarVinculoFornecedor/actionEditarVincularFabricanterModal';
-import { useExcluirVinculoFabricanteFornecedor } from '../ActionVincularFabricanteFornecedor/hooks/useExluirViculoFabricanteFornecedor';
+import { ActionEditarFornecedorModal} from './ActionEditar/actionEditarFornecedorModal';
 import { mascaraCNPJ } from '../../../../utils/mascaraCNPJ';
 import Swal from 'sweetalert2';
+import { ActionEditarVinculoFornecedorFabricanteModal } from './ActionEditarVinculoFornecedor/actionEditarVincularFabricanterModal';
+import { useExcluirVinculoFornecedorFabricante } from './hooks/useExluirViculoFornecedorFabricante';
+import { useMigrarFornecedorSAP } from './hooks/useMigrarFornecedorSap';
 
 const formatarCNPJ = (cnpj) => {
   const x = cnpj.replace(/\D/g, '').match(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/);
@@ -35,8 +35,10 @@ export const ActionListaFornecedores = ({
   const [modalEditarFornecedor, setModalEditarFornecedor] = useState(false);
   const [modalEditarVinculo, setModalEditarVinculo] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
-  const { handleExcluir } = useExcluirVinculoFabricanteFornecedor({usuarioLogado, optionsModulos, handleClick});
+  const { handleExcluir } = useExcluirVinculoFornecedorFabricante({usuarioLogado, optionsModulos, handleClick});
+  const { handleMigrarSAP } = useMigrarFornecedorSAP({usuarioLogado, optionsModulos, handleClick});
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -103,7 +105,7 @@ export const ActionListaFornecedores = ({
       CIDADEFORN: item.CIDADEFORN,
       UFFORN: item.UFFORN,
       IDFORNECEDORSAP: item.IDFORNECEDORSAP,
-      STMIGRADOSAP: item.STMIGRADOSAP == 'True' ? 'MIGRADO COM SUCESSO' : 'NÃO MIGRADO SAP',
+      STMIGRADOSAP: item.STMIGRADOSAP,
       IDFABRICANTE: item.IDFABRICANTE,
 
 
@@ -146,7 +148,7 @@ export const ActionListaFornecedores = ({
         if (row.IDFABRICANTE > 0) {
           return (
             <div>
-              <th>{row.DSFABRICANTE?.toUpperCase()}</th>
+              <th style={{textTransform: 'uppercase'}} >{row.DSFABRICANTE}</th>
             </div>
           )
 
@@ -191,103 +193,198 @@ export const ActionListaFornecedores = ({
       body: (row) => {
         return (
 
-          <th style={{ color: row.STMIGRADOSAP == 'MIGRADO COM SUCESSO' ? '#2196F3' : '#fd3995', fontWeight: 700 }}>{row.STMIGRADOSAP}</th>
+          <th style={{ color: row.STMIGRADOSAP == 'True' ? '#2196F3' : '#fd3995', fontWeight: 700 }}>
+            {row.STMIGRADOSAP == 'True' ? 'MIGRADO COM SUCESSO' : 'NÃO MIGRADO SAP'}
+          </th>
 
         )
       },
       sortable: true
     },
     {
-      field: 'IDFABRICANTEFORN',
+      field: 'IDFABRICANTE',
       header: 'Opções',
       body: (row) => {
-        if (row.IDFABRICANTE > 0) {
-          return (
-            <div className="p-1 "
-              style={{ justifyContent: "space-between", width: "150px", display: "flex" }}
-            >
-              <div className="p-1">
-                <ButtonTable
-                  Icon={CiEdit}
-                  cor={"info"}
-                  iconColor={"white"}
-                  onClickButton={() => clickEditarFonecedor(row)}
-                  titleButton={"Editar Fornecedor"}
-                  iconSize={25}
-                  width="30px"
-                  height="30px"
-                />
+       const migradoSAP = row.STMIGRADOSAP == 'True';
+       const temVinculo = row.IDFABRICANTE > 0;
+        if(migradoSAP){
+          if (temVinculo) {
+            return (
+              <div className="p-1 "
+                style={{ justifyContent: "space-between", width: "150px", display: "flex" }}
+              >
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={CiEdit}
+                    cor={"success"}
+                    iconColor={"white"}
+                    onClickButton={() => clickEditarFonecedor(row)}
+                    titleButton={"Editar Fornecedor"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={CiEdit}
+                    cor={"warning"}
+                    iconColor={"white"}
+                    onClickButton={() => clickVinculoFonecedorFabricante(row)}
+                    titleButton={"Editar Vínculo Fornecedor/Fabricante"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={AiOutlineDelete}
+                    cor={"danger"}
+                    iconColor={"white"}
+                    onClickButton={() => handleExcluir(row.IDFABRICANTEFORN)}
+                    titleButton={"Excluir Vínculo Fabricante/Fornecedor"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={GrView}
+                    cor={"primary"}
+                    iconColor={"white"}
+                    onClickButton={() => hanldeClickVisualizarFornecedorSap(row)}
+                    titleButton={"Consultar Fornecedor SAP"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
               </div>
-              <div className="p-1">
-                <ButtonTable
-                  Icon={CiEdit}
-                  cor={"warning"}
-                  iconColor={"white"}
-                  onClickButton={() => clickVinculoFonecedorFabricante(row)}
-                  titleButton={"Editar Vínculo Fornecedor/Fabricante"}
-                  iconSize={25}
-                  width="30px"
-                  height="30px"
-                />
-              </div>
-              <div className="p-1">
-                <ButtonTable
-                  Icon={AiOutlineDelete}
-                  cor={"danger"}
-                  iconColor={"white"}
-                  onClickButton={() => handleExcluir(row.IDFABRICANTEFORN)}
-                  titleButton={"Excluir Vínculo Fabricante/Fornecedor"}
-                  iconSize={25}
-                  width="30px"
-                  height="30px"
-                />
-              </div>
-              <div className="p-1">
-                <ButtonTable
-                  Icon={GrView}
-                  cor={"success"}
-                  iconColor={"white"}
-                  onClickButton={() => hanldeClickVisualizarFornecedorSap(row)}
-                  titleButton={"Consultar Fornecedor SAP"}
-                  iconSize={25}
-                  width="30px"
-                  height="30px"
-                />
-              </div>
-            </div>
-          )
+            )
 
+          } else {
+            return (
+              <div style={{ display: "flex" }}>
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={CiEdit}
+                    cor={"success"}
+                    iconColor={"white"}
+                    onClickButton={() => clickEditarFonecedor(row)}
+                    titleButton={"Editar Fornecedor"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={GrView}
+                    cor={"primary"}
+                    iconColor={"white"}
+                    onClickButton={() => hanldeClickVisualizarFornecedorSap(row)}
+                    titleButton={"Consultar Fornecedor SAP"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+              </div>
+
+            )
+          }
         } else {
-          return (
-            <div style={{ display: "flex" }}>
-              <div className="p-1">
-                <ButtonTable
-                  Icon={CiEdit}
-                  cor={"info"}
-                  iconColor={"white"}
-                  onClickButton={() => clickEditarFonecedor(row)}
-                  titleButton={"Editar Fornecedor"}
-                  iconSize={25}
-                  width="30px"
-                  height="30px"
-                />
+          if (temVinculo) {
+            return (
+              <div className="p-1 "
+                style={{ justifyContent: "space-between", width: "150px", display: "flex" }}
+              >
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={CiEdit}
+                    cor={"success"}
+                    iconColor={"white"}
+                    onClickButton={() => clickEditarFonecedor(row)}
+                    titleButton={"Editar Fornecedor"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={CiEdit}
+                    cor={"warning"}
+                    iconColor={"white"}
+                    onClickButton={() => clickVinculoFonecedorFabricante(row)}
+                    titleButton={"Editar Vínculo Fornecedor/Fabricante"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={AiOutlineDelete}
+                    cor={"danger"}
+                    iconColor={"white"}
+                    onClickButton={() => handleExcluir(row.IDFABRICANTEFORN)}
+                    titleButton={"Excluir Vínculo Fabricante/Fornecedor"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={GrView}
+                    cor={"primary"}
+                    iconColor={"white"}
+                    onClickButton={() => handleMigrarSAP(row.IDFORNECEDOR)}
+                    titleButton={"Migrar Fornecedor SAP"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+              </div>
+            )
+
+          } else {
+            return (
+              <div style={{ display: "flex" }}>
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={CiEdit}
+                    cor={"success"}
+                    iconColor={"white"}
+                    onClickButton={() => clickEditarFonecedor(row)}
+                    titleButton={"Editar Fornecedor"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
+
+                <div className="p-1">
+                  <ButtonTable
+                    Icon={GrView}
+                    cor={"primary"}
+                    iconColor={"white"}
+                    onClickButton={() => hanldeClickVisualizarFornecedorSap(row)}
+                    titleButton={"Consultar Fornecedor SAP"}
+                    iconSize={25}
+                    width="30px"
+                    height="30px"
+                  />
+                </div>
               </div>
 
-              <div className="p-1">
-                <ButtonTable
-                  Icon={GrView}
-                  cor={"success"}
-                  iconColor={"white"}
-                  onClickButton={() => hanldeClickVisualizarFornecedorSap(row)}
-                  titleButton={"Consultar Fornecedor SAP"}
-                  iconSize={25}
-                  width="30px"
-                  height="30px"
-                />
-              </div>
-            </div>
-
-          )
+            )
+          }
         }
       }
     }
@@ -297,10 +394,20 @@ export const ActionListaFornecedores = ({
     try {
       const response = await get(`/fornecedores?idFornecedor=${IDFORNECEDOR}`);
 
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosDetalheFornecedor(response.data)
         setModalEditarFornecedor(true);
    
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'erro ao buscar dados detalhe',
+          customClass: {
+            container: 'custom-swal',
+          }
+        })
+        return;
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes da despesa: ', error);
@@ -319,12 +426,15 @@ export const ActionListaFornecedores = ({
       const cnpjFormatado = formatarCNPJ(NUCNPJFORN);
       const response = await get(`/consulta-fornecedor-sap?nomeFornecedor=${NORAZAOFORN}&cnpjFinal=${cnpjFormatado}&cnpjFornecedorSemFormatar=${NUCNPJFORN}`);
 
-      if (response.data) {
+      if (response.data && response.data.length > 0) {
         setDadosFornecedorSap(response.data)
         Swal.fire({
           icon: 'success',
           title: `ID Fornecedor no SAP - ${response.data[0]?.CardCode || ''}`,
           showConfirmButton: true,
+          customClass: {
+            container: 'custom-swal',
+          }
         })
         return response.data;
       } else {
@@ -332,6 +442,9 @@ export const ActionListaFornecedores = ({
           icon: 'error',
           title: `Fornecedor não Cadastrado no SAP`,
           showConfirmButton: true,
+          customClass: {
+            container: 'custom-swal',
+          }
         })
       }
     } catch (error) {
@@ -354,6 +467,16 @@ export const ActionListaFornecedores = ({
         setDadosDetalheFornecedorFabricante(response.data)
         setModalEditarVinculo(true);
 
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'erro ao buscar dados detalhe',
+          customClass: {
+            container: 'custom-swal',
+          }
+        })
+        return;
       }
     } catch (error) {
       console.error('Erro ao buscar detalhes da despesa: ', error);
@@ -365,8 +488,6 @@ export const ActionListaFornecedores = ({
       editarVinculoFornecedorFabricante(row.IDFABRICANTEFORN);
     }
   };
-
-
 
 
   return (
@@ -393,6 +514,9 @@ export const ActionListaFornecedores = ({
             size="small"
             value={dados}
             globalFilter={globalFilterValue}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) =>     (e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}
