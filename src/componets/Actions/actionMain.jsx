@@ -605,6 +605,8 @@ export const ActionMain = ({
   corTypeSaldo,
   corProdutoVendido,
 
+  keyGrupo,
+
   MenuTreeSelectComponent,
   valueTreeSelect,
   optionsTreeSelect,
@@ -994,10 +996,11 @@ export const ActionMain = ({
 
                     {InputSelectGrupoComponent && (
                       <InputSelectGrupoComponent
+                      key={keyGrupo}
                         label={labelSelectGrupo}
                         nome={nomeSelectGrupo}
                         isVisible={stylesGrupo}
-                        defaultValue={[defaultValueSelectGrupo]}
+                        defaultValue={defaultValueSelectGrupo}
                         isDisabled={isDisabledGrupo}
                         options={optionsGrupos}
                         value={valueSelectGrupo}
