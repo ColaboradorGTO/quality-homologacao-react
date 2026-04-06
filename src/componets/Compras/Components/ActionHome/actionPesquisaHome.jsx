@@ -41,6 +41,7 @@ export const ActionPesquisaHome = ({usuarioLogado, ID}) => {
     setDataPesquisaFim(dataFinal);
   }, [])
  
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     'menus-usuario-excecao',
     async () => {

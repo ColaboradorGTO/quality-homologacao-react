@@ -1,4 +1,4 @@
-import { Fragment, useState } from "react"
+import { Fragment, useState, useEffect } from "react"
 import { ActionMain } from "../../../Actions/actionMain"
 import { InputField } from "../../../Buttons/Input"
 import { get } from "../../../../api/funcRequest"
@@ -12,28 +12,34 @@ import { useFetchData } from "../../../../hooks/useFetchData"
 import { useQuery } from "react-query"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 
-
-export const ActionPesquisaProduto = ({usuarioLogado, ID}) => {
+export const ActionPesquisaProduto = ({ usuarioLogado }) => {
   const [referencia, setReferencia] = useState('');
   const [fabricanteSelecionado, setFabricanteSelecionado] = useState('');
   const [estruturaSelecionada, setEstruturaSelecionada] = useState('');
   const [pedido, setPedido] = useState('');
   const [modalCadastro, setModalCadastro] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1);
- 
-
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
+    
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
       
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
 
   const fetchListaProdutos = async () => {
-    const urlBase = `/imagemProdutos?nuRefImagemProduto=${referencia}&idFabricante=${fabricanteSelecionado}&idSubGrupoEstrutura=${estruturaSelecionada}&idPedido=${pedido}`;
+    const urlBase = `/imagemProdutos?numeroRefProduto=${referencia}&idFabricante=${fabricanteSelecionado}&idSubEstrutura=${estruturaSelecionada}&idPedido=${pedido}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
@@ -69,26 +75,15 @@ export const ActionPesquisaProduto = ({usuarioLogado, ID}) => {
   const { data: dadosProdutos = [], error: errorProdutos, isLoading: isLoadingProdutos, refetch: refetchListaProdutos } = useQuery(
     ['imagemProdutos'],
     () => fetchListaProdutos(),
-    { enabled: false, staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   )
 
   const { data: dadosMercadoria = [], error: errorFornecedor, isLoading: isLoadingFornecedor } = useFetchData('subGrupoEstrutura', '/subGrupoEstrutura');
   const { data: dadosFabricantes = [], error: errorFabricantes, isLoading: isLoadingFabricantes } = useFetchData('fabricantes', '/fabricantes');
   
-
-  const handleSelectFabricante = (e) => {
-    setFabricanteSelecionado(e.value);
-  }
-
-  const handleSelectStrutura = (e) => {
-    setEstruturaSelecionada(e.value);
-  }
-
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1)
     refetchListaProdutos()
   }
-
 
   return (
     <Fragment>
@@ -121,7 +116,7 @@ export const ActionPesquisaProduto = ({usuarioLogado, ID}) => {
         ]}
         labelSelectFornecedor={"Por Estrutura"}
         valueSelectFornecedor={estruturaSelecionada}
-        onChangeSelectFornecedor={handleSelectStrutura}
+        onChangeSelectFornecedor={(e) => setEstruturaSelecionada(e.value)}
 
         InputSelectFabricanteComponent={InputSelectAction}
         optionsFabricantes={[
@@ -133,7 +128,7 @@ export const ActionPesquisaProduto = ({usuarioLogado, ID}) => {
         ]}
         labelSelectFabricantes={"Por Fabricante"}
         valueSelectFabricante={fabricanteSelecionado}
-        onChangeSelectFabricante={handleSelectFabricante}
+        onChangeSelectFabricante={(e) => setFabricanteSelecionado(e.value)}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
@@ -154,7 +149,7 @@ export const ActionPesquisaProduto = ({usuarioLogado, ID}) => {
         optionsModulos={optionsModulos}
         handleClick={handleClick}  
       />
-     
+
       <ActionCadastroImagemProdutoModal 
         show={modalCadastro}
         handleClose={() => setModalCadastro(false)}
@@ -162,6 +157,7 @@ export const ActionPesquisaProduto = ({usuarioLogado, ID}) => {
         optionsModulos={optionsModulos}
         handleClick={handleClick}
       />
+   
     </Fragment>
   )
 }

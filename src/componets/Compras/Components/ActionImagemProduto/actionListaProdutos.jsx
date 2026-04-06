@@ -13,6 +13,7 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import { useExcluirImagemProduto } from "./hooks/useExluirImagemProduto";
+import Swal from "sweetalert2";
 
 export const ActionListaProduto = ({ 
   dadosProdutos,
@@ -24,6 +25,7 @@ export const ActionListaProduto = ({
   const [dadosDetalheProdutos, setDadosDetalheProdutos] = useState([])
   const [modalDetalhe, setModalDetalhe] = useState(false)
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -167,9 +169,29 @@ export const ActionListaProduto = ({
 
   const handleDetalhe = async (IDIMAGEM) => {
     try {
+      Swal.fire({
+        title: 'Carregando...',
+        html: 'Carregando dados do produtos',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
       const response = await get(`/listaProdutosImagem?idImagem=${IDIMAGEM}`);
-      setDadosDetalheProdutos(response.data);
-      setModalDetalhe(true);
+      if(response.data && response.data.length > 0) {
+        Swal.close();
+        setDadosDetalheProdutos(response.data);
+        setModalDetalhe(true);
+        return response.data;
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          text: 'Detalhes do produto não encontrados.',
+          customClass: {
+            container: 'custom-swal',
+          }
+        })
+        return;
+      }
     } catch (error) {
       console.error(error);
     }
@@ -196,8 +218,11 @@ export const ActionListaProduto = ({
           <DataTable
             title="Vendas por Loja"
             value={dados}
-            size="small"
             globalFilter={globalFilterValue}
+            size="small"
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) =>  setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}
@@ -236,6 +261,7 @@ export const ActionListaProduto = ({
         optionsModulos={optionsModulos}
         handleClick={handleClick}
       />
+      
     </Fragment>
   )
 }

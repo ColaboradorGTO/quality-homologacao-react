@@ -4,7 +4,6 @@ import axios from "axios";
 import { useState } from "react";
 import { useQuery } from "react-query";
 
-
 export const useCadastrarImagemProduto = ({usuarioLogado, optionsModulos}) => {
     const [ipUsuario, setIpUsuario] = useState(null);
     const [referencia, setReferencia] = useState('');
@@ -20,36 +19,37 @@ export const useCadastrarImagemProduto = ({usuarioLogado, optionsModulos}) => {
             const response = await get(`/produtos-imagens?numeroRefProduto=${referencia}`);
             return response.data;
         },
-        { enabled: Boolean(referencia.length > 4), staleTime: 5 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+        { enabled: Boolean(referencia.length > 4), staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
     );
 
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
         try {
-            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
             usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-            console.error("Erro ao buscar IP via ipwho.is:", error);
+            console.error("Erro ao buscar IP via ifconfig.me:", error);
         }
 
         if (!usuarioIP) {
-            try {
-                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-                usuarioIP = ipifyData?.ip;
-            } catch (error) {
-                console.error("Erro ao buscar IP via ipify.org:", error);
-            }
+        try {
+            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+            usuarioIP = ipifyData?.ip;
+        } catch (error) {
+            console.error("Erro ao buscar IP via ipify.org:", error);
+        }
         }
         setIpUsuario(usuarioIP);
         return usuarioIP;
     };
 
+  
     const onSubmit = async () => {
         if (optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
                 title: 'Erro!',
-                text: `${usuarioLogado?.NOFUNCIONARIO},\nVocê não tem permissão para editar um Fornecedor!`,
+                html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para editar um Fornecedor!`,
                 icon: 'error',
                 customClass: {
                     container: 'custom-swal',
@@ -58,46 +58,32 @@ export const useCadastrarImagemProduto = ({usuarioLogado, optionsModulos}) => {
             return;
         }
 
-        if(numeroPedido == '' ) {
+        if(novoProduto.length === 0){ 
             Swal.fire({
-                position: 'center',
-                icon: 'warning',
-                title: 'Informe o Nº Pedido e tente novamente!',
-                showConfirmButton: false,
-                timer: 3000,
+                title: 'Erro!',
+                html: `Nenhum produto selecionado para cadastrar a imagem!`,
+                icon: 'error',
                 customClass: {
                     container: 'custom-swal',
                 },
-            });
-            return;
-        }
 
-        if(referencia == '' )  {
-            Swal.fire({
-                position: 'center',
-                icon: 'warning',
-                title: 'Informe a Referência e tente novamente!',
-                showConfirmButton: false,
-                timer: 3000,
-                customClass: {
-                    container: 'custom-swal',
-                },
-            });
+            })
             return;
         }
 
         const postData = {
-            IDRESUMOPEDIDO: numeroPedido,
+            IDRESUMOPEDIDO: parseInt(numeroPedido),
             NUREF: referencia,
             IMAGEM: codImgProd,
             STATIVO: 'True',
-            IDPRODIMAGEM: [{
-                IDPRODUTO: novoProduto.map(item => item.IDPRODUTO).join(','),
-                IDSUBGRUPOESTRUTURA: novoProduto.map(item => item.IDSUBGRUPOESTRUTURA).join(','),
-                IDFABRICANTE: novoProduto.map(item => item.IDFABRICANTE).join(','),
-                IDFORNECEDOR: novoProduto.map(item => item.IDFORNECEDOR).join(','),
-            }],
+            IDPRODIMAGEM: novoProduto.map(item => ({
+                IDProduto: String(item.IDPRODUTO),
+                IDForProduto: parseInt(item.IDFORNECEDOR),
+                IDFabProduto: parseInt(item.IDFABRICANTE),
+                IDSubEstrutProduto: parseInt(item.IDSUBGRUPO),
+            }))
         }
+
         try {
 
             const response = await post('/cadastrar-imagem-produto', postData)
@@ -110,7 +96,7 @@ export const useCadastrarImagemProduto = ({usuarioLogado, optionsModulos}) => {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || 'Indisponível'
             }
 
             Swal.fire({
@@ -135,7 +121,7 @@ export const useCadastrarImagemProduto = ({usuarioLogado, optionsModulos}) => {
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || 'Indisponível' 
             }
             await post('/log-web', createtLog)
             Swal.fire({
