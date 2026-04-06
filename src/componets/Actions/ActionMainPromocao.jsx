@@ -79,9 +79,12 @@ export const ActionMainPromocao = ({
   InputSelectAplicacaoDestino,
   InputSelectTipoDesconto,
   InputSelectEmpresaComponentAync,
-  InputSelectSubGrupoComponentAync,
+  InputSelectSubGrupoOrigemComponentAync,
+  InputSelectSubGrupoDestinoComponentAync,
   InputSelectStatus,
   InputGrupoEstrutura,
+  InputProduto,
+  
 
   labelSelectCategoria,
   labelSelectMarcas,
@@ -91,9 +94,11 @@ export const ActionMainPromocao = ({
   labelSelectAplicacaoDestino,
   labelSelectTipoDesconto,
   labelSelectEmpresaAsync,
-  labelSelectSubGrupoAsync,
+  labelSelectSubGrupoOrigemAsync,
+  labelSelectSubGrupoDestinoAsync,
   labelSelectStatus,
   labelInputGrupoEstrutura,
+  labelInputProduto,
   optionsCategorias,
   optionsMarcas,
   optionsFornecedores,
@@ -102,7 +107,8 @@ export const ActionMainPromocao = ({
   optionsAplicacaoDestino,
   optionsTipoDesconto,
   optionsEmpresasAsync,
-  optionsSubGrupoAsync,
+  optionsSubGrupoOrigemAsync,
+  optionsSubGrupoDestinoAsync,
   optionsStatus,
 
   valueSelectMarca,
@@ -112,10 +118,12 @@ export const ActionMainPromocao = ({
   valueSelectAplicacaoDestino,
   valueSelectTipoDesconto,
   valueSelectEmpresaAsync,
-  valueSelectSubGrupoAsync,
+  valueSelectSubGrupoOrigemAsync,
+  valueSelectSubGrupoDestinoAsync,
   valueSelectCategoria,
   valueSelectStatus,
   valueInputGrupoEstrutura,
+  valueInputProduto,
 
   onChangeSelectCategoria,
   onChangeSelectMarcas,
@@ -125,9 +133,11 @@ export const ActionMainPromocao = ({
   onChangeSelectAplicacaoDestino,
   onChangeSelectTipoDesconto,
   onChangeSelectEmpresaAsync,
-  onChangeSelectSubGrupoAsync,
+  onChangeSelectSubGrupoOrigemAsync,
+  onChangeSelectSubGrupoDestinoAsync,
   onChangeSelectStatus, 
   onChangeInputGrupoEstrutura,
+  onChangeInputProduto,
 
   acceptFileProdutoOigem,
   acceptFileProdutoDestino,
@@ -143,6 +153,7 @@ export const ActionMainPromocao = ({
   ButtonTypeVisualizarProduto,
   ButtonTypeProdutoPesquisadoOrigem,
   ButtonTypeProdutoPesquisadoDestino,
+  ButtonTypeRetornar,
 
   linkNomeSearch,
   linkNome,
@@ -155,6 +166,7 @@ export const ActionMainPromocao = ({
   linkNomeVisualizarProduto,
   linkNomeProdutoPesquisadoOrigem,
   linkNomeProdutoPesquisadoDestino,
+  linkRetornar,
 
   onButtonClickSearch,
   onButtonClickCadastro,
@@ -167,6 +179,7 @@ export const ActionMainPromocao = ({
   onButtonClickVisualizarProduto,
   onButtonClickProdutoPesquisadoOrigem,
   onButtonClickProdutoPesquisadoDestino,
+  onButtonClickRetornar,
 
   corSearch,
   corCadastro,
@@ -179,6 +192,7 @@ export const ActionMainPromocao = ({
   corVisualizarProduto,
   corProdutoPesquisadoOrigem,
   corProdutoPesquisadoDestino,
+  corRetornar,
 
   IconSearch,
   IconCadastro,
@@ -191,6 +205,7 @@ export const ActionMainPromocao = ({
   IconVisualizarProduto,
   IconProdutoPesquisadoOrigem,
   IconProdutoPesquisadoDestino,
+  IconRetornar,
 
   readOnlyDTInicio,
   readOnlyDTFim,
@@ -217,7 +232,9 @@ export const ActionMainPromocao = ({
   readOnlyEditarMecanica,
   readOnlyStatus,
   readOnlyGrupoEstrutura,
-  loadOptionsEmpresasAsync,
+  readOnlyProduto,
+  readOnlyButtonProdutoPesquisadoDestino,
+  readOnlyVisualizarProduto,
 
   defaultValueSelectCategoria,
   defaultValueSelectMarca,
@@ -228,6 +245,22 @@ export const ActionMainPromocao = ({
   defaultValueSelectTipoDesconto,
   defaultOptionsEmpresasAsync,
   defaultValueSelectStatus,
+
+  MenuTreeSelectOrigemComponent,
+  valueTreeSelectOrigem,
+  onChangeTreeSelectOrigem,
+  optionsTreeSelectOrigem,
+  placeholderTreeSelectOrigem,
+  onNodeTreeSelectOrigem,
+  onNodeTreeUnselectOrigem,
+
+  MenuTreeSelectDestinoComponent,
+  valueTreeSelectDestino,
+  onChangeTreeSelectDestino,
+  optionsTreeSelectDestino,
+  placeholderTreeSelectDestino,
+  onNodeTreeSelectDestino,
+  onNodeTreeUnselectDestino,
 
   styleQTDInicio,
   styleQTDFim,
@@ -602,41 +635,105 @@ export const ActionMainPromocao = ({
                     </div>
                      
                   </div>
-
-                  <div style={styleEstrutura}>
-
+                    
+                  <div>
                     <hr style={{ borderColor: 'black', width: '100%', height: '10px' }} />
 
-                    <h2 style={{paddingLeft: '1rem'}} >Promoção Por Estrutura Mercadlógica</h2>
-                    <div className="row mt-3"  >
-
-                      <div className="col-sm-6 col-md-6 col-xl-6">
-                          {InputSelectSubGrupoComponentAync && (
-                            <InputSelectSubGrupoComponentAync
-                            label={labelSelectSubGrupoAsync}
-                            // defaultValue={defaultOptionsSubGrupoAsync}
-                            value={valueSelectSubGrupoAsync}
-                            optionsMultSelect={optionsSubGrupoAsync}
-                            onChange={onChangeSelectSubGrupoAsync}
-                    
-                            isMulti={true}
+                  
+                    <h2 style={{paddingLeft: '1rem'}} >Criar Promoção Por </h2>
+                    <div className="row">
+                        <div className="col-sm-6 col-md-4 col-xl-4">
+                          {InputProduto && (
+                            <InputProduto
+                              label={labelInputProduto}
+                              // type="radio"
+                              className="form-check-input"
+                              checked={valueInputProduto}
+                              onChange={onChangeInputProduto}
+                              readOnly={readOnlyProduto}
+                            
                             />
                           )}
 
-                      </div>
+                        </div>
+                        
+                        <div className="col-sm-6 col-md-4 col-xl-4">
 
-                      <div className="col-sm-6 col-md-6 col-xl-6">
                           {InputGrupoEstrutura && (
                             <InputGrupoEstrutura 
                               label={labelInputGrupoEstrutura}
                               type="checkbox"
-                              className=""
+                              className="form-check-input"
                               checked={valueInputGrupoEstrutura}
                               onChange={onChangeInputGrupoEstrutura}
                               readOnly={readOnlyGrupoEstrutura}
                             
                             />
                           )}
+
+                        </div>
+                        
+                    </div>
+                  </div>
+                  <div style={styleEstrutura}>
+
+                    <hr style={{ borderColor: 'black', width: '100%', height: '10px' }} />
+
+                    <h2 style={{paddingLeft: '1rem'}} >Promoção Por Estrutura Mercadológica</h2>
+                    
+                    <div className="row mt-3 "  >
+
+                      <div className="col-sm-6 col-md-6 col-xl-6">
+                          {/* {InputSelectSubGrupoOrigemComponentAync && (
+                            <InputSelectSubGrupoOrigemComponentAync
+                            label={labelSelectSubGrupoOrigemAsync}
+                            // defaultValue={defaultOptionsSubGrupoAsync}
+                            value={valueSelectSubGrupoOrigemAsync}
+                            optionsMultSelect={optionsSubGrupoOrigemAsync}
+                            onChange={onChangeSelectSubGrupoOrigemAsync}
+                    
+                            isMulti={true}
+                            />
+                          )} */}
+                        {MenuTreeSelectOrigemComponent && (
+                          <MenuTreeSelectOrigemComponent
+                            valueMenuSelect={valueTreeSelectOrigem}
+                            onChangeMenuSelect={onChangeTreeSelectOrigem}
+                            optionsMenuSelect={optionsTreeSelectOrigem}
+                            placeholderMenuSelect={placeholderTreeSelectOrigem}
+                            onNodeMenuSelect={onNodeTreeSelectOrigem}
+                            onNodeMenuUnselect={onNodeTreeUnselectOrigem}
+                            label={labelSelectSubGrupoOrigemAsync}
+                          />
+                        )}
+
+                      </div>
+
+                      <div className="col-sm-6 col-md-6 col-xl-6">
+                          {/* {InputSelectSubGrupoDestinoComponentAync && (
+                            <InputSelectSubGrupoDestinoComponentAync
+                            label={labelSelectSubGrupoDestinoAsync}
+                            // defaultValue={defaultOptionsSubGrupoAsync}
+                            value={valueSelectSubGrupoDestinoAsync}
+                            optionsMultSelect={optionsSubGrupoDestinoAsync}
+                            onChange={onChangeSelectSubGrupoDestinoAsync}
+                    
+                            isMulti={true}
+                            />
+                          )} */}
+                          
+                          {/* <p htmlFor="">Sub Grupo Destino</p> */}
+                        {MenuTreeSelectDestinoComponent && (
+                          <MenuTreeSelectDestinoComponent
+                            valueMenuSelect={valueTreeSelectDestino}
+                            onChangeMenuSelect={onChangeTreeSelectDestino}
+                            optionsMenuSelect={optionsTreeSelectDestino}
+                            placeholderMenuSelect={placeholderTreeSelectDestino}
+                            onNodeMenuSelect={onNodeTreeSelectDestino}
+                            onNodeMenuUnselect={onNodeTreeUnselectDestino}
+                            label={labelSelectSubGrupoDestinoAsync}
+                          />
+                        )}
                       </div>
                     </div>
                   </div>
@@ -730,6 +827,7 @@ export const ActionMainPromocao = ({
                             Icon={IconProdutoPesquisadoDestino}
                             iconColor="#fff"
                             iconSize={16}
+                            disabledBTN={readOnlyButtonProdutoPesquisadoDestino}
                           />
                         )}
 
@@ -779,6 +877,7 @@ export const ActionMainPromocao = ({
                         Icon={IconVisualizarProduto}
                         iconColor="#fff"
                         iconSize={25}
+                        disabledBTN={readOnlyVisualizarProduto}
                       />
                     )}
                   </div>
@@ -823,6 +922,20 @@ export const ActionMainPromocao = ({
                         cor={corTXT}
                         tipo="button"
                         Icon={IconTXT}
+                        iconColor="#000"
+                        iconSize={25}
+                        style={{ color: 'white' }}
+                      />
+                    )}
+
+                    {ButtonTypeRetornar && (
+                      <ButtonTypeRetornar
+                        textButton={linkRetornar}
+                        onClickButtonType={onButtonClickRetornar}
+                        // cor="danger"
+                        cor={corRetornar}
+                        tipo="button"
+                        Icon={IconRetornar}
                         iconColor="#000"
                         iconSize={25}
                         style={{ color: 'white' }}

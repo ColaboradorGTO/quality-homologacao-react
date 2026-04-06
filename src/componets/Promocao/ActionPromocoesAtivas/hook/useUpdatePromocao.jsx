@@ -58,8 +58,13 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
   const [modalEmpresasPromocao, setModalEmpresasPromocao] = useState(false);
   const [modalPodutoSelecionadoOrigem, setModalPodutoSelecionadoOrigem] = useState(false);
   const [modalPodutoSelecionadoDestino, setModalPodutoSelecionadoDestino] = useState(false);
-  
- 
+  const [isCheckedGrupo, setIsCheckedGrupo] = useState(false)
+  const [isCheckedProduto, setIsCheckedProduto] = useState(false)
+  const [subGrupoDestino, setSubGrupoDestino] = useState([])
+  const [subGrupoOrigem, setSubGrupoOrigem] = useState([])
+  const [grupoSelecionadoOrigem, setGrupoSelecionadoOrigem] = useState([])
+  const [grupoSelecionadoDestino, setGrupoSelecionadoDestino] = useState([])
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -83,12 +88,27 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
   }, [usuarioLogado]);
 
   const getIPUsuario = async () => {
-    const response = await axios.get('http://ipwho.is/');
-    if (response.data) {
-      setIpUsuario(response.data.ip);
+    let usuarioIP = null;
+
+    try {
+      const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+      usuarioIP = ipWhoisData?.ip;
+    } catch (error) {
+      console.error("Erro ao buscar IP via ifconfig.me:", error);
     }
-    return response.data;
+
+    if (!usuarioIP) {
+      try {
+        const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+        usuarioIP = ipifyData?.ip;
+      } catch (error) {
+        console.error("Erro ao buscar IP via ipify.org:", error);
+      }
+    }
+      setIpUsuario(usuarioIP);
+    return usuarioIP;
   };
+  
 
   useEffect(() => {
     const dataInicial = getDataTresMesesAtras()
@@ -117,12 +137,21 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
   );
 
   const { data: dadosGrupo = [], error: errorGrupo, isLoading: isLoadingGrupo, refetch: refetchGrupo } = useQuery(
+    'grupoEstrutura',
+    async () => {
+      const response = await get(`/grupoEstrutura`);
+      return response.data;
+    },
+    {enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000, }
+  );
+
+  const { data: dadosSubGrupo = [], error: errorSubGrupo, isLoading: isLoadingSubGrupo, refetch: refetchSubGrupo } = useQuery(
     'subGrupoEstrutura',
     async () => {
       const response = await get(`/subGrupoEstrutura`);
       return response.data;
     },
-    { staleTime: 1000 * 60 * 60, cacheTime: 1000 * 60 * 60, }
+    {enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000, }
   );
 
   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
@@ -165,8 +194,18 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
     const statusValue = dadosPromocao[0]?.STATIVO == "True" ?  "True" : "False"; 
     
     setStatusSelecionado(statusValue);
+
+
    }
-   
+
+   if(dadosPromocao[0]?.STPRODUTO == "False") {
+    setIsCheckedProduto(false)
+    setIsCheckedGrupo(true)
+   } else {
+    setIsCheckedProduto(true)
+    setIsCheckedGrupo(false)
+   }
+
     if (dadosPromocao && dadosPromocao[0]?.FATORPROMOPERC !== undefined) {
       const valor = parseFloat(dadosPromocao[0].FATORPROMOPERC);
       if (!isNaN(valor)) {
@@ -187,7 +226,7 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
 
       return response.data;
     },
-    { enabled: Boolean(idResumoPromocao), staleTime: 1000 * 60 * 60 }
+    { enabled: Boolean(idResumoPromocao), staleTime: 5 * 60 * 60 }
   );
 
   const { data: optionsProdutosPromocoes = [], error: errorProdutosPromocoes, isLoading: isLoadingProdutosPromocoes, refetch: refetchProdutosPromocoes } = useQuery(
@@ -197,8 +236,9 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
 
       return response.data;
     },
-    { enabled: Boolean(idResumoPromocao), staleTime: 1000 * 60 * 60 }
+    { enabled: Boolean(idResumoPromocao), staleTime: 5 * 60 * 60 }
   );
+
 
   const { data: dadosEmpresasPromocoes = [], error: errorEmpresasPromocoess, isLoading: isLoadingEmpresasPromocoess, refetch: refetchEmpresasPromocoess } = useQuery(
     ['empresa-promocoes-ativas', idResumoPromocao],
@@ -206,7 +246,7 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
       const response = await get(`/empresa-promocoes-ativas?idResumoPromocao=${idResumoPromocao}`);
       return response.data;
     },
-    { enabled: Boolean(idResumoPromocao), staleTime: 1000 * 60 * 60 }
+    { enabled: Boolean(idResumoPromocao), staleTime: 5 * 60 * 60 }
   );
 
   useEffect(() => {
@@ -219,6 +259,18 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
   const handleFileUpload = async (file, isOrigem) => {
     try {
       const data = await processFile(file);
+
+      if (data.length > 1000) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Limite Excedido',
+          html: `
+            Limite máximo permitido: 1.000 produtos por promoção.
+            Caso contrário, os produtos não serão inseridos na promoção.
+          `,
+        });
+        return; // Interrompe o processamento
+      }
 
       if (isOrigem) {
         setFileProdutoOrigem(JSON.stringify(data));
@@ -944,7 +996,7 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
       });
 
       const response = await put('/promocoes-ativas/:id', putData);
-
+      const ipUsuario = await getIPUsuario();
       const textDados = JSON.stringify(putData)
       let textoFuncao = 'PROMOÇÃO/ATUALIZANDO UMA PROMOÇÃO';
       
@@ -953,7 +1005,7 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
           IDFUNCIONARIO: String(usuarioLogado.id),
           PATHFUNCAO:  textoFuncao,
           DADOS: textDados,
-          IP: ipUsuario
+          IP: ipUsuario || 'Indisponível'
       }
 
        await post('/log-web', postData)
@@ -1016,12 +1068,13 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
       };
       
       const textDados = JSON.stringify(putDataLog)
+      const ipUsuario = await getIPUsuario();
       let textoFuncao = 'PROMOÇÃO/ERRO AO ATUALIZAR UMA PROMOÇÃO';
       const postData = {  
           IDFUNCIONARIO: String(usuarioLogado.id),
           PATHFUNCAO:  textoFuncao,
           DADOS: textDados,
-          IP: ipUsuario
+          IP: ipUsuario || 'Indisponível'
       }
 
       await post('/log-web', postData)
@@ -1040,6 +1093,129 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
     }
   };
 
+  const onSubmitEstrutura = async (data) => {
+      try {
+        if (!mecanicaSelecionada) {
+          Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: 'Selecione uma mecânica!',
+            customClass: {
+              container: 'custom-swal',
+            },
+            showConfirmButton: false,
+            timer: 3000,
+          })
+          return;
+        }
+
+  
+        if(!subGrupoDestino && !subGrupoOrigem) {
+          Swal.fire({
+            position: 'center',
+            icon: 'error',
+            title: 'Selecione um subgrupo para origem e destino!',
+            customClass: {
+              container: 'custom-swal',
+            },
+            showConfirmButton: false,
+            timer: 5000,
+          })
+          return;
+        }
+  
+        if (descricao.length > 80) {
+            Swal.fire({
+              position: 'center',
+              icon: 'error',
+              title: 'Descrição deve ter no máximo 80 caracteres!',
+              customClass: {
+                container: 'custom-swal',
+              },
+              showConfirmButton: false,
+              timer: 3000,
+            })
+            return;
+        }
+  
+  
+        const postData = {
+          IDRESUMOPROMOCAOMARKETING: dadosPromocao[0]?.IDRESUMOPROMOCAOMARKETING,
+          IDMECANICARESUMOPROMOCAOMARKETING: dadosPromocao[0]?.IDMECANICARESUMOPROMOCAOMARKETING,
+          TPAPARTIRDE: dadosPromocao[0]?.TPAPARTIRDE,
+          TPAPLICADOA: dadosPromocao[0]?.TPAPLICADOA,
+          TPFATORPROMO: dadosPromocao[0]?.TPFATORPROMO,
+          APARTIRDEQTD: Number(qtdInicio),
+          APARTIRDOVLR: valorInicio,
+          FATORPROMOVLR: vrDesconto,
+          FATORPROMOPERC: porcentoDesconto,
+          VLPRECOPRODUTO: Number(precoProduto),
+          DTHORAINICIO: dataInicio,
+          DTHORAFIM: dataFim + ' 23:59:59',
+          DSPROMOCAOMARKETING: descricao.toUpperCase(),
+          IDEMPRESA: empresasSelecionadasValues,
+          STATIVO: statusSelecionado,
+          STEMPRESAPROMO: "True",
+          STDETPROMOORIGEM: "True",
+          STDETPROMODESTINO: "True",
+          IDSUBGRUPOEMDESTINO: subGrupoDestino,
+          IDSUBGRUPOEMORIGEM: subGrupoOrigem,    
+         
+        };
+  
+        let timerInterval;
+        Swal.fire({
+          title: 'Processando sua promoção...',
+          html: 'Aguarde enquanto enviamos os dados <b></b>',
+          timerProgressBar: true,
+          timer: 30000,
+          didOpen: () => {
+            Swal.showLoading();
+            timerInterval = setInterval(() => {
+              const content = Swal.getHtmlContainer();
+              if (content) {
+                const b = content.querySelector('b');
+                if (b) {
+                  b.textContent = `${Math.floor(Swal.getTimerLeft() / 1000)}s`;
+                }
+              }
+            }, 100);
+          },
+          willClose: () => {
+            clearInterval(timerInterval);
+          }
+        });
+  
+        const response = await put('/promocoes-ativas-subGrupo/:id', postData);
+  
+        Swal.fire({
+          position: 'center',
+          icon: 'success',
+          title: 'Cadastro realizado com sucesso!',
+          customClass: {
+            container: 'custom-swal',
+          },
+          showConfirmButton: false,
+          timer: 1500,
+        });
+  
+        return response.data;
+      } catch (error) {
+        console.error('Erro ao cadastrar promoção:', error);
+        Swal.fire({
+          position: 'top-end',
+          icon: 'error',
+          title: 'Erro ao Cadastrar Promoção!',
+          text: error.message || 'Ocorreu um erro durante o cadastro',
+          customClass: {
+            container: 'custom-swal',
+          },
+          showConfirmButton: false,
+          timer: 3000,
+        });
+        return null;
+      }
+  };
 
   const handleSalvarMecanica = async () => {
       // if(optionsModulos[0]?.ALTERAR == 'False') {
@@ -1165,6 +1341,7 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
     precoProduto,
     setPrecoProduto,
     dadosFornecedorProduto,
+    dadosSubGrupo,
     dadosGrupo,
     optionsMarcas,
     optionsEmpresas,
@@ -1227,6 +1404,20 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
     mostrarProdutosSelecionadosDestino,
     refetchEmpresasPromocoes,
     refetchEmpresasPromocoess,
-    onSubmit
+    onSubmit,
+    optionsProdutosPromocoes,
+    isCheckedGrupo, 
+    setIsCheckedGrupo,
+    isCheckedProduto,
+    setIsCheckedProduto,
+    subGrupoDestino,
+    setSubGrupoDestino,
+    subGrupoOrigem,
+    setSubGrupoOrigem,
+    grupoSelecionadoOrigem, 
+    setGrupoSelecionadoOrigem,
+    grupoSelecionadoDestino,
+    setGrupoSelecionadoDestino,
+    onSubmitEstrutura
   }
 }
