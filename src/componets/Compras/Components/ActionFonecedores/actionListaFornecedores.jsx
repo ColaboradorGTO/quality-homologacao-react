@@ -516,7 +516,7 @@ export const ActionListaFornecedores = ({
             globalFilter={globalFilterValue}
             selectionMode="single"
             selection={rowSelection}
-            onSelectionChange={(e) =>     (e.value)}
+            onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
             rows={10}
