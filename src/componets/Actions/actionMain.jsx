@@ -608,8 +608,6 @@ export const ActionMain = ({
   corTypeSaldo,
   corProdutoVendido,
 
-  keyGrupo,
-
   MenuTreeSelectComponent,
   valueTreeSelect,
   optionsTreeSelect,
