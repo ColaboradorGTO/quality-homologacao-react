@@ -13,6 +13,7 @@ import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 import Swal from "sweetalert2";
 import { dataHoraFormatada } from "../../../../utils/dataFormatada";
+import { GrView } from "react-icons/gr";
 
 
 export const ActionListaVendasContingencia = ({ dadosVendasContigencia, optionsModulos }) => {
@@ -160,12 +161,12 @@ export const ActionListaVendasContingencia = ({ dadosVendasContigencia, optionsM
           <ButtonTable
             titleButton={"Detalhar Produtos da Venda"}
             onClickButton={() => handleClickEdit(row)}
-            Icon={CiEdit}
-            iconSize={25}
+            Icon={GrView}
+            iconSize={20}
             iconColor={"#fff"}
             cor={"primary"}
             width="30px"
-            height="30px" 
+            height="30px"
           />
 
         </div>
@@ -176,15 +177,22 @@ export const ActionListaVendasContingencia = ({ dadosVendasContigencia, optionsM
   const handleEdit = async (IDVENDA) => {
     try {
       const response = await get(`/vendasPagamentoContigencia?idVenda=${IDVENDA}`);
-      const resonseDetalhe = await get(`/vendasDetalheContigencia?idVenda=${IDVENDA}`);
-      if (response.data && response.data.length > 0) {
+      const responseDetalhe = await get(`/vendasDetalheContigencia?idVenda=${IDVENDA}`);
+      if (response.data && responseDetalhe.data) {
         setDadosDetalhePagamento(response.data)
+        setDadosDetalheVendas(responseDetalhe.data)
         setModalVendas(true);
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Erro',
+          html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Não foi possível buscar os detalhes da venda.`,
+          confirmButtonText: 'OK',
+          timer: 3000,
+        })
+        return;
       }
-      if (resonseDetalhe.data) {
-        setDadosDetalheVendas(resonseDetalhe.data)
-        setModalVendas(true);
-      }
+
     } catch (error) {
       console.error('Erro ao buscar detalhes da venda: ', error);
     }
@@ -192,7 +200,7 @@ export const ActionListaVendasContingencia = ({ dadosVendasContigencia, optionsM
 
 
   const handleClickEdit = (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDVENDA) {
         handleEdit(row.IDVENDA);
       }
@@ -200,11 +208,12 @@ export const ActionListaVendasContingencia = ({ dadosVendasContigencia, optionsM
       Swal.fire({
         icon: 'error',
         title: 'Atenção',
-        text: 'Você não tem permissão para alterar este registro.',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para alterar este registro.`,
         confirmButtonText: 'OK',
         timer: 3000,
       })
-    }  
+      return;
+    }
   };
 
 
@@ -214,7 +223,7 @@ export const ActionListaVendasContingencia = ({ dadosVendasContigencia, optionsM
       <div className="panel">
         <div className="panel-hdr mb-4">
 
-          <h3>Lista de Vendas Contigência</h3>
+          <h2>Lista de Vendas Contigência</h2>
         </div>
         <div style={{ marginBottom: "1rem" }}>
           <HeaderTable

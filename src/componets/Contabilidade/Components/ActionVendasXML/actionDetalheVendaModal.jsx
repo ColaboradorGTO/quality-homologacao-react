@@ -223,13 +223,13 @@ export const ActionDetalheVendaModal = ({ show, handleClose, dadosDetalheVendas,
     },
     {
       field: 'VALORRECEBIDO',
-      header: 'Valor Recebido',
+      header: 'Vr. Recebido',
       body: row => <th style={{ color: 'blue' }}> {formatMoeda(row.VALORRECEBIDO)}</th>,
       sortable: true,
     },
     {
       field: 'VALORLIQUIDO',
-      header: 'Valor Liquido',
+      header: 'Vr. Liquido',
       body: row => <th style={{ color: 'blue' }}> {formatMoeda(row.VALORLIQUIDO)}</th>,
       sortable: true,
     }
