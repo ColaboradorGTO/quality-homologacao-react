@@ -622,7 +622,9 @@ export const ActionMain = ({
   labelCheckBox,
   nomeChekBox,
   isChekedBox,
-  onChangeCheckBox
+  onChangeCheckBox,
+  
+  keyGrupo
 }) => {
   const Options = [
     { value: 0, label: "Todos" },
@@ -999,7 +1001,7 @@ export const ActionMain = ({
 
                     {InputSelectGrupoComponent && (
                       <InputSelectGrupoComponent
-                      key={keyGrupo}
+                        key={keyGrupo}
                         label={labelSelectGrupo}
                         nome={nomeSelectGrupo}
                         isVisible={stylesGrupo}
