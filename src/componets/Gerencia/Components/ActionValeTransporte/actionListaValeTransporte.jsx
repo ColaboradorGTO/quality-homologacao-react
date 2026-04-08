@@ -198,7 +198,7 @@ export const ActionListaValeTransporte = ({ dadosDespesasLoja, optionsModulos, u
       sortable: true,
     },
     {
-      field: 'DTDESPESA',
+      field: 'Opções',
       header: 'Opções',
       body: (row) => {
 

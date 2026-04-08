@@ -525,6 +525,8 @@ export const ActionMain = ({
   linkNomeLoja,
   linkNomeSaldo,
   linkNomeBalanco,
+  linkSalvar,
+  
   labelSelectPagamento,
   labelSelectUsoPrinicipal,
   labelSelectFrete,
@@ -595,6 +597,7 @@ export const ActionMain = ({
   IconSearch,
   iconTypeSaldo,
   iconSizeCadastro,
+  IconSalvar,
 
   corCadastro,
   corCancelar,
@@ -604,6 +607,8 @@ export const ActionMain = ({
   corVendasVendedor,
   corTypeSaldo,
   corProdutoVendido,
+
+  keyGrupo,
 
   MenuTreeSelectComponent,
   valueTreeSelect,
@@ -1000,7 +1005,7 @@ export const ActionMain = ({
                         label={labelSelectGrupo}
                         nome={nomeSelectGrupo}
                         isVisible={stylesGrupo}
-                        defaultValue={[defaultValueSelectGrupo]}
+                        defaultValue={defaultValueSelectGrupo}
                         isDisabled={isDisabledGrupo}
                         options={optionsGrupos}
                         value={valueSelectGrupo}
@@ -1964,13 +1969,14 @@ export const ActionMain = ({
                     {ButtonTypeSalvar && (
                       <ButtonTypeSalvar
                         // nome="Vendas por Produto"
-                        textButton={linkNome}
+                        textButton={linkSalvar}
                         onClickButtonType={onButtonClickSalvar}
-                        cor="info"
+                        cor={corSalvar || 'info'}
                         tipo="button"
-                        Icon={AiOutlineSave}
+                        Icon={IconSalvar || AiOutlineSave}
                         iconColor="#fff"
                         iconSize={16}
+                        style={styleSalvar}
                       />
                     )}
 

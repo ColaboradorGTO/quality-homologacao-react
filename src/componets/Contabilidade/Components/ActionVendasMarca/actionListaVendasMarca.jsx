@@ -9,6 +9,7 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 
+
 export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
@@ -127,16 +128,12 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
     },
   ]
 
-
-
   return (
-
     <Fragment>
-
       <div className="panel">
         <div className="panel-hdr mb-4">
 
-          <h3>Lista de Vendas Por Marca</h3>
+          <h2>Lista de Vendas Por Marca</h2>
         </div>
         <div style={{ marginBottom: "1rem" }}>
           <HeaderTable
@@ -185,11 +182,8 @@ export const ActionListaVendasMarca = ({ dadosVendasMarca }) => {
               />
             ))}
           </DataTable>
-
         </div>
       </div>
-
     </Fragment>
   )
 }
-

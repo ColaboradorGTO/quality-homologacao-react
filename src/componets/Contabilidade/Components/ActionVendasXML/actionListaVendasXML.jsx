@@ -13,9 +13,15 @@ import HeaderTable from "../../../Tables/headerTable";
 import { ActionVendaXMLModal } from "./actionVendaXMLModal";
 import { GrView } from "react-icons/gr";
 import { TbFileTypeXml } from "react-icons/tb";
+import Swal from "sweetalert2";
 
-export const ActionListaVendasXML = ({ dadosVendasXML }) => {
+export const ActionListaVendasXML = ({
+  dadosVendasXML,
+  usuarioLogado,
+  optionsModulos,
+}) => {
   const [dadosDetalheVendas, setDadosDetalheVendas] = useState([]);
+  const [rowSelection, setRowSelection] = useState(null);
   const [dadosDetalhePagamento, setDadosDetalhePagamento] = useState([]);
   const [detalheVendaXMLModal, setDetalheVendaXMLModal] = useState(false);
   const [dadosDetalheVendasXML, setDadosDetalheVendasXML] = useState([]);
@@ -88,7 +94,7 @@ export const ActionListaVendasXML = ({ dadosVendasXML }) => {
       TXTMOTIVOCANCELAMENTO: item.TXTMOTIVOCANCELAMENTO,
       VRTOTALPAGO: item.VRTOTALPAGO,
       PROTNFE_INFPROT_XMOTIVO: item.PROTNFE_INFPROT_XMOTIVO,
-      XML_FORMATADO: item.XML_FORMATADO || '' ,
+      XML_FORMATADO: item.XML_FORMATADO || '',
     }
 
   })
@@ -103,7 +109,7 @@ export const ActionListaVendasXML = ({ dadosVendasXML }) => {
     {
       field: 'NOFANTASIA',
       header: 'Empresa',
-      body: row => <th style={{ width: '200px', margin: '0px'}}>{row.NOFANTASIA}</th>,
+      body: row => <th style={{ width: '200px', margin: '0px' }}>{row.NOFANTASIA}</th>,
       sortable: true,
     },
     {
@@ -127,7 +133,7 @@ export const ActionListaVendasXML = ({ dadosVendasXML }) => {
     {
       field: 'CHAVENFE',
       header: 'Chave NF',
-      body: row => <p style={{ width: '150px', margin: '0px', fontWeight: 600}}>{row.CHAVENFE}</p>,
+      body: row => <p style={{ width: '150px', margin: '0px', fontWeight: 600 }}>{row.CHAVENFE}</p>,
       sortable: true,
     },
     {
@@ -145,7 +151,7 @@ export const ActionListaVendasXML = ({ dadosVendasXML }) => {
     {
       field: 'PROTNFE_INFPROT_XMOTIVO',
       header: 'Motivo',
-      body: row => <th>{row.STCANCELADO == 'True' ?  row.TXTMOTIVOCANCELAMENTO : row.PROTNFE_INFPROT_XMOTIVO || 'Sem Motivo'}</th>,
+      body: row => <th>{row.STCANCELADO == 'True' ? row.TXTMOTIVOCANCELAMENTO : row.PROTNFE_INFPROT_XMOTIVO || 'Sem Motivo'}</th>,
       sortable: true,
     },
     {
@@ -166,24 +172,21 @@ export const ActionListaVendasXML = ({ dadosVendasXML }) => {
             />
 
           </div>
-          
-            <div className="p-1">
-              <ButtonTable
-                titleButton={`${row.XML_FORMATADO.length > 0 ? 'Visualizar Xml da Venda' : 'Venda Sem XML'}` }
-                disabledBTN={row.XML_FORMATADO.length === 0}
-                onClickButton={() => clickDetalharVendaXML(row)}
-                Icon={TbFileTypeXml}
-                iconSize={20}
-                iconColor={"#fff"}
-                cor={"info"}
-                width="30px"
-                height="30px"
 
-              />
+          <div className="p-1">
+            <ButtonTable
+              titleButton={`${row.XML_FORMATADO.length > 0 ? 'Visualizar Xml da Venda' : 'Venda Sem XML'}`}
+              disabledBTN={row.XML_FORMATADO.length === 0}
+              onClickButton={() => clickDetalharVendaXML(row)}
+              Icon={TbFileTypeXml}
+              iconSize={20}
+              iconColor={"#fff"}
+              cor={"info"}
+              width="30px"
+              height="30px"
 
-            </div>
-
-       
+            />
+          </div>
         </div>
       ),
     }
@@ -192,15 +195,21 @@ export const ActionListaVendasXML = ({ dadosVendasXML }) => {
   const handleEdit = async (IDVENDA) => {
     try {
       const response = await get(`/vendasPagamentoContigencia?idVenda=${IDVENDA}`);
-      const resonseDetalhe = await get(`/vendasDetalheContigencia?idVenda=${IDVENDA}`);
-      if (response.data && response.data.length > 0) {
+      const responseDetalhe = await get(`/vendasDetalheContigencia?idVenda=${IDVENDA}`);
+      if (response.data && responseDetalhe.data) {
         setDadosDetalhePagamento(response.data)
+        setDadosDetalheVendas(responseDetalhe.data)
         setModalVendas(true);
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Sem Detalhes',
+          html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Não foi possível encontrar os detalhes para esta venda.`,
+          customClass: {
+          }
+        })
       }
-      if (resonseDetalhe.data) {
-        setDadosDetalheVendas(resonseDetalhe.data)
-        setModalVendas(true);
-      }
+
     } catch (error) {
       console.error('Erro ao buscar detalhes da venda: ', error);
     }
@@ -222,23 +231,28 @@ export const ActionListaVendasXML = ({ dadosVendasXML }) => {
   const handleDetalharVendaXML = async (IDVENDA) => {
     try {
       const response = await get(`/venda-xml?idVenda=${IDVENDA}`);
-      setDetalheVendaXMLModal(true);
-      setDadosDetalheVendasXML(response.data)
-      
+      if (response.data && response.data.length > 0) {
+        setDadosDetalheVendasXML(response.data)
+        setDetalheVendaXMLModal(true);
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Venda sem XML',
+          html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Não foi encontrado o XML para esta venda.`,
+        });
+      }
     } catch (error) {
       console.error(error);
     }
   }
 
-
-
   return (
 
     <Fragment>
-      <div className="panel" style={{marginTop: '6rem'}}>
+      <div className="panel" >
         <div className="panel-hdr mb-4">
 
-          <h3>Lista de Vendas Contigência</h3>
+          <h2>Lista de Vendas Contigência</h2>
         </div>
         <div style={{ marginBottom: "1rem" }}>
           <HeaderTable
@@ -259,6 +273,8 @@ export const ActionListaVendasXML = ({ dadosVendasXML }) => {
             sortOrder={-1}
             paginator={true}
             rows={10}
+            selectionMode={'single'}
+            selection={rowSelection}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"

@@ -10,87 +10,104 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { AiOutlineDownload, AiOutlineSearch } from "react-icons/ai";
 import Swal from "sweetalert2";
-import { useFetchData, useFetchEmpresas, useFetchEmpresasContabilidade } from "../../../../hooks/useFetchData";
+import { useFetchData } from "../../../../hooks/useFetchData";
 import JSZip from 'jszip';
 
-export const ActionPesquisaVendasXML = () => {
+export const ActionPesquisaVendasXML = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [marcaSelecionada, setMarcaSelecionada] = useState('');
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [statusSelecionado, setStatusSelecionado] = useState('')
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
+
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+  
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+  );
 
   useEffect(() => {
     const dataInical = getDataAtual();
     const dataFinal = getDataAtual();
     setDataPesquisaInicio(dataInical);
     setDataPesquisaFim(dataFinal);
-    
+
   }, [])
 
   const { data: marcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useFetchData('marcasLista', '/marcasLista');
-  const { data: empresas = [],} = useFetchEmpresasContabilidade(marcaSelecionada);
-  
+  const { data: empresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
+    ['empresasLista', marcaSelecionada],
+    async () => {
+      const response = await get(`/todas-empresas?idSubGrupoEmpresa=${marcaSelecionada}`);
+
+      return response.data;
+    },
+    { staleTime: 60 * 60 * 1000 }
+  );
 
   const fetchListaVendasContigencia = async () => {
-    
     try {
       let stContigencia = ''
       let stCancelado = ''
-      switch(statusSelecionado) {
-        case  'AUTORIZADA': 
+      const urlBase = `/venda-xml?idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&stContigencia=${stContigencia}&stCancelado=${stCancelado}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+      let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+      urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+      switch (statusSelecionado) {
+        case 'AUTORIZADA':
           stContigencia = 'False',
-          stCancelado = 'False'
+            stCancelado = 'False'
           break;
         case 'CONTIGENCIA':
           stContigencia = 'True',
-          stCancelado = 'False'
+            stCancelado = 'False'
           break;
-        case 'CANCELADA':
+        case 'CANCELADO':
           stContigencia = '',
-          stCancelado = 'True'
+            stCancelado = 'True'
           break;
         case '':
-          default:
-            stContigencia = '';
-            stCancelado = '';
-            break
+        default:
+          stContigencia = '';
+          stCancelado = '';
+          break
       }
 
-      const urlApi = `/venda-xml?idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&stContigencia=${stContigencia}&stCancelado=${stCancelado}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      animacaoCarregamento('Carregando dados...', true);
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-       
-        return response.data;
       }
+
+      return allData;
     } catch (error) {
-      console.error('Erro ao buscar dados:', error);
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -98,14 +115,12 @@ export const ActionPesquisaVendasXML = () => {
   };
 
   const { data: dadosVendasXML = [], error: errorVendas, isLoading: isLoadingVendas, refetch: refetchVendasContigencia } = useQuery(
-    ['venda-xml', empresaSelecionada, marcaSelecionada, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize],
-    () => fetchListaVendasContigencia(empresaSelecionada, marcaSelecionada, dataPesquisaInicio, dataPesquisaFim, currentPage, pageSize),
-    { enabled: Boolean(empresaSelecionada), staleTime: 5 * 60 * 1000 }
+    ['venda-xml', ],
+    () => fetchListaVendasContigencia(),
+    { enabled: false, staleTime: 60 * 60 * 1000 }
   );
 
-
   const xmlData = dadosVendasXML[0]?.XML_FORMATADO;
-
 
   const handleCopyXML = () => {
     if (xmlData) {
@@ -117,20 +132,20 @@ export const ActionPesquisaVendasXML = () => {
           timer: 3000,
           showConfirmButton: false,
           customClass: {
-            container: 'custom-swal', 
+            container: 'custom-swal',
           },
         });
-       
+
       }).catch(() => {
         Swal.fire({
           icon: 'error',
           title: 'Erro',
           text: 'Não foi possível copiar o XML',
           customClass: {
-            container: 'custom-swal', 
+            container: 'custom-swal',
           },
         });
-      
+
       });
     }
   };
@@ -140,7 +155,6 @@ export const ActionPesquisaVendasXML = () => {
     const newTabUrl = URL.createObjectURL(xmlBlob);
     window.open(newTabUrl, '_blank');
   };
-
 
   const handleDownloadXML = async () => {
     const vendasData = await fetchListaVendasContigencia();
@@ -158,83 +172,81 @@ export const ActionPesquisaVendasXML = () => {
     }
   };
 
+  const retornoDownloadXmlEmLote = async (dadosVendas) => {
+    try {
+      const { data } = dadosVendas || [];
+      let listaVendasSemXML = '';
+      let contador = 0;
 
+      if (data?.length) {
+        animacaoCarregamento('Gerando arquivo...', true);
 
+        const periodo = `${new Date(dataPesquisaInicio).toLocaleDateString('pt-BR')}_A_${new Date(dataPesquisaFim).toLocaleDateString('pt-BR')}`;
+        const zip = new JSZip();
 
-const retornoDownloadXmlEmLote = async (dadosVendas) => {
-  try {
-    const { data } = dadosVendas || [];
-    let listaVendasSemXML = '';
-    let contador = 0;
+        for (let venda of data) {
+          const { IDVENDA, XML_FORMATADO } = venda;
 
-    if (data?.length) {
-      animacaoCarregamento('Gerando arquivo...', true);
+          if (XML_FORMATADO?.length) {
+            const parsedXml = new DOMParser().parseFromString(XML_FORMATADO, 'text/xml');
+            const nomeArquivo = parsedXml.getElementsByTagName('infNFe')[0]?.getAttribute('Id');
 
-      const periodo = `${new Date(dataPesquisaInicio).toLocaleDateString('pt-BR')}_A_${new Date(dataPesquisaFim).toLocaleDateString('pt-BR')}`;
-      const zip = new JSZip(); // Certifique-se de criar uma instância de JSZip
-
-      for (let venda of data) {
-        const { IDVENDA, XML_FORMATADO } = venda;
-
-        if (XML_FORMATADO?.length) {
-          const parsedXml = new DOMParser().parseFromString(XML_FORMATADO, 'text/xml');
-          const nomeArquivo = parsedXml.getElementsByTagName('infNFe')[0]?.getAttribute('Id');
-
-          if (nomeArquivo) {
-            const serializedXml = new XMLSerializer().serializeToString(parsedXml);
-            zip.file(`${nomeArquivo}.xml`, serializedXml);
+            if (nomeArquivo) {
+              const serializedXml = new XMLSerializer().serializeToString(parsedXml);
+              zip.file(`${nomeArquivo}.xml`, serializedXml);
+            }
+          } else {
+            listaVendasSemXML += `${IDVENDA}, `;
+            contador++;
           }
-        } else {
-          listaVendasSemXML += `${IDVENDA}, `;
-          contador++;
         }
-      }
 
-      const totalGerado = data.length - contador;
-      const zipBlob = await zip.generateAsync({ type: 'blob' });
+        const totalGerado = data.length - contador;
+        const zipBlob = await zip.generateAsync({ type: 'blob' });
 
-      const url = URL.createObjectURL(zipBlob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `XML_VENDAS_${periodo.replace(/\//g, '-')}.zip`;
+        const url = URL.createObjectURL(zipBlob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `XML_VENDAS_${periodo.replace(/\//g, '-')}.zip`;
 
-      if (contador > 0) {
-        await Swal.fire({
-          icon: 'warning',
-          title: 'Atenção',
-          html: `Arquivo gerado, porém não foi possível gerar o XML das seguintes vendas: (${listaVendasSemXML}).<br><br>
-          Total de vendas: ${data.length}.<br>
-          XMLs gerados: ${totalGerado}.<br>
-          Faltando: ${contador}.`,
-        });
+        if (contador > 0) {
+          await Swal.fire({
+            icon: 'warning',
+            title: 'Atenção',
+            html: `Arquivo gerado, porém não foi possível gerar o XML das seguintes vendas: (${listaVendasSemXML}).<br><br>
+            Total de vendas: ${data.length}.<br>
+            XMLs gerados: ${totalGerado}.<br>
+            Faltando: ${contador}.`,
+          });
+        } else {
+          await Swal.fire({
+            icon: 'success',
+            title: 'Sucesso',
+            text: `Arquivo gerado com sucesso! Total de ${totalGerado} XML's gerados.`,
+          });
+        }
+
+        a.click();
+        URL.revokeObjectURL(url);
       } else {
         await Swal.fire({
-          icon: 'success',
-          title: 'Sucesso',
-          text: `Arquivo gerado com sucesso! Total de ${totalGerado} XML's gerados.`,
+          icon: 'warning',
+          title: 'Nenhum XML encontrado',
+          text: 'Nenhum XML disponível para download.',
         });
       }
-
-      a.click();
-      URL.revokeObjectURL(url);
-    } else {
+    } catch (error) {
+      console.error(error);
       await Swal.fire({
-        icon: 'warning',
-        title: 'Nenhum XML encontrado',
-        text: 'Nenhum XML disponível para download.',
+        icon: 'error',
+        title: 'Erro',
+        text: 'Ocorreu um erro ao gerar o arquivo.',
       });
+    } finally {
+      fecharAnimacaoCarregamento();
     }
-  } catch (error) {
-    console.error(error);
-    await Swal.fire({
-      icon: 'error',
-      title: 'Erro',
-      text: 'Ocorreu um erro ao gerar o arquivo.',
-    });
-  } finally {
-    fecharAnimacaoCarregamento();
-  }
-};
+  };
+
   const handleDownloadXmlEmLote = async () => {
     if (dadosVendasXML?.length) {
       await retornoDownloadXmlEmLote({ data: dadosVendasXML });
@@ -246,8 +258,7 @@ const retornoDownloadXmlEmLote = async (dadosVendas) => {
       });
     }
   };
-  
-  
+
   const handleChangeMarca = (e) => {
     setMarcaSelecionada(e.value)
   }
@@ -256,19 +267,16 @@ const retornoDownloadXmlEmLote = async (dadosVendas) => {
     setEmpresaSelecionada(e.value)
   }
 
-
   const handleClick = () => {
-
     refetchVendasContigencia(marcaSelecionada)
     setTabelaVisivel(true);
-
   };
 
   const optionsStatus = [
-    {value: '', label: 'Todas', color: 'grey'},
-    {value: 'AUTORIZADA', label: 'Autorizadas', color: 'green'},
-    {value: 'CONTIGENCIA', label: 'Em Contigência', color: 'orange'},
-    {value: 'CANCELADA', label: 'Canceladas', color: 'red'},
+    { value: '', label: 'Todas', color: 'grey' },
+    { value: 'AUTORIZADA', label: 'Autorizadas', color: 'green' },
+    { value: 'CONTIGENCIA', label: 'Em Contigência', color: 'orange' },
+    { value: 'CANCELADO', label: 'Canceladas', color: 'red' },
   ]
 
   const customStyles = {
@@ -304,7 +312,7 @@ const retornoDownloadXmlEmLote = async (dadosVendas) => {
 
         InputSelectMarcasComponent={InputSelectAction}
         optionsMarcas={[
-          { value: "", label: "Selecione a Marca" }, 
+          { value: "", label: "Selecione a Marca" },
           ...marcas.map((marca) => ({
             value: marca.IDGRUPOEMPRESARIAL,
             label: marca.DSGRUPOEMPRESARIAL
@@ -316,7 +324,7 @@ const retornoDownloadXmlEmLote = async (dadosVendas) => {
 
         InputSelectEmpresaComponent={InputSelectAction}
         optionsEmpresas={[
-          { value: "", label: "Selecione a Loja" }, 
+          { value: "", label: "Selecione a Loja" },
           ...empresas.map((marca) => ({
             value: marca.IDEMPRESA,
             label: marca.NOFANTASIA
@@ -325,7 +333,7 @@ const retornoDownloadXmlEmLote = async (dadosVendas) => {
         labelSelectEmpresa={"Filial"}
         valueSelectEmpresa={empresaSelecionada}
         onChangeSelectEmpresa={handleChangeEmpresa}
-        
+
         InputSelectSituacaoComponent={InputSelectAction}
         labelSelectSituacao={"Situação"}
         optionsSituacao={optionsStatus}
@@ -345,17 +353,19 @@ const retornoDownloadXmlEmLote = async (dadosVendas) => {
         corCadastro={"success"}
         IconCadastro={AiOutlineDownload}
         onButtonClickCadastro={handleDownloadXmlEmLote}
-       
+
 
       />
 
-      <div id="resultado">
-        {tabelaVisivel &&
+ 
+      {tabelaVisivel &&
+        <ActionListaVendasXML 
+          dadosVendasXML={dadosVendasXML} 
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}
+        />
+      }
 
-          <ActionListaVendasXML dadosVendasXML={dadosVendasXML} />
-        }
-
-      </div>
     </Fragment>
   )
 }

@@ -7,10 +7,10 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
-import { toFloat} from '../../../../utils/toFloat';
 
 export const ActionListaProductoPreco = ({ dadosProdutos }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const onGlobalFilterChange = (e) => {
@@ -124,7 +124,7 @@ export const ActionListaProductoPreco = ({ dadosProdutos }) => {
       <div className="panel">
         <div className="panel-hdr mb-4">
 
-          <h3>Lista de Produtos - Preços</h3>
+          <h2>Lista de Produtos - Preços</h2>
         </div>
         <div style={{ marginBottom: "1rem" }}>
           <HeaderTable
@@ -143,6 +143,8 @@ export const ActionListaProductoPreco = ({ dadosProdutos }) => {
             sortOrder={-1}
             paginator={true}
             rows={10}
+            selectionMode={"single"}
+            selection={rowSelection}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
