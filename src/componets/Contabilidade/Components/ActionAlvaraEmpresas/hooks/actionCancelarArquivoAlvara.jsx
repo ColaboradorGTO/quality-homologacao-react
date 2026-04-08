@@ -1,27 +1,22 @@
 import { useState } from "react"
-import { get, post, put } from "../../../../../api/funcRequest";
+import { post, put } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 import axios from "axios";
-import { removerFormatacaoMoeda } from "../../../../../utils/formatMoeda";
-import { useEffect } from "react";
-import { useQuery } from "react-query";
 
-export const useCancelarArquivoAlvara = ({ handleClose, dadosAlvaraSelecionado, usuarioLogado, optionsModulos, refetchAlvaraEmpresa }) => {
-    const [arquivoAlvara, setArquivoAlvara] = useState([])
-    const [descricaoDetalheAndamento, setDescricaoDetalheAndamento] = useState('')
-    const [dataFimCompetencia, setDataFimCompetencia] = useState('')
-    const [dataIncioCompetencia, setDataIncioCompetencia] = useState('')
-    const [statusAndamento, setStatusAndamento] = useState('')
-    const [statusAlvara, setStatusAlvara] = useState('')
-    const [metragemLoja, setMetragemLoja] = useState('')
+export const useCancelarArquivoAlvara = ({
+    usuarioLogado,
+    optionsModulos,
+    refetchVinculoAlvara
+    
+}) => {
+
     const [ipUsuario, setIpUsuario] = useState('')
-
 
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
         try {
-            const { data: ipWhoisData } = await axios.get("http://ipwho.is/");
+            const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
             usuarioIP = ipWhoisData?.ip;
         } catch (error) {
             console.error("Erro ao buscar IP via ipwho.is:", error);
@@ -38,18 +33,6 @@ export const useCancelarArquivoAlvara = ({ handleClose, dadosAlvaraSelecionado, 
         setIpUsuario(usuarioIP);
         return usuarioIP;
     };
-
-
-    /*     useEffect(() => {
-            setStatusAlvara(dadosAlvaraSelecionado?.[0]?.STATIVO)
-            setDataIncioCompetencia(dadosAlvaraSelecionado?.[0]?.DTINICIOCOMPETENCIAALVARA)
-            setDataFimCompetencia(dadosAlvaraSelecionado?.[0]?.DTFIMCOMPETENCIAALVARA)
-            setStatusAndamento(dadosAlvaraSelecionado?.[0]?.DESCRICAOSTATUS)
-            setMetragemLoja(dadosAlvaraSelecionado?.[0]?.METRAGEMEMPRESA)
-            setDescricaoDetalheAndamento(dadosAlvaraSelecionado?.[0]?.DESCRICAODETALHEANDAMENTO)
-            setArquivoAlvara(dadosAlvaraSelecionado?.[0]?.ARQUIVALVARA)
-        }, [dadosAlvaraSelecionado]) */
-
 
     const onSubmit = async (row) => {
         if (optionsModulos[0]?.ALTERAR !== 'True') {
@@ -74,7 +57,6 @@ export const useCancelarArquivoAlvara = ({ handleClose, dadosAlvaraSelecionado, 
             customClass: {
                 container: 'custom-swal',
             },
-
         });
 
         if (!confirmacao.isConfirmed) return;
@@ -97,10 +79,11 @@ export const useCancelarArquivoAlvara = ({ handleClose, dadosAlvaraSelecionado, 
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || "INDISPONÍVEL"
             }
 
             await post('/log-web', postData)
+
             Swal.fire({
                 title: 'Arquivo cancelado!',
                 icon: 'success',
@@ -111,7 +94,7 @@ export const useCancelarArquivoAlvara = ({ handleClose, dadosAlvaraSelecionado, 
                 }
             });
 
-            refetchAlvaraEmpresa();
+            refetchVinculoAlvara();
             return response.data;
 
         } catch (error) {
@@ -125,7 +108,7 @@ export const useCancelarArquivoAlvara = ({ handleClose, dadosAlvaraSelecionado, 
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || "INDISPONÍVEL"
             }
 
             const responsPost = await post('/log-web', postData)

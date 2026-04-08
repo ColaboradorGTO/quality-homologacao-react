@@ -1,7 +1,6 @@
 import React, { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { formatMoeda } from "../../../../utils/formatMoeda";
 import { useReactToPrint } from "react-to-print";
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
@@ -9,15 +8,25 @@ import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 import { ButtonTable } from "../../../ButtonsTabela/ButtonTable";
 import { FaRegFileAlt } from "react-icons/fa";
-import { ActionAlvaraEmpresaModal } from "./ActionEditarAlvara/actionAlvaraEmpresaModal";
 import Swal from "sweetalert2";
-import { get } from "../../../../api/funcRequest";
+import { mascaraCNPJ } from "../../../../utils/mascaraCNPJ";
+import { ActionAlvaraEmpresaModal } from "./ActionEditarAlvara/actionAlvaraEmpresaModal";
+import { formatarDataParaBR } from "../../../../utils/dataFormatada";
 
-export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, optionsModulos, usuarioLogado, refetchAlvaraEmpresa }) => {
+export const ActionListaAlvaras = ({
+    dadosAlvaraEmpresa,
+    tipoAvaraAplicado,
+    optionsModulos,
+    usuarioLogado,
+    refetchAlvaraEmpresa,
+    refetchAlvaraSelecionado,
+    dadosAlvaraEmpresaSelecionada,
+    setIdEmpresaSelecionada,
+}) => {
+
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [rowSelection, setRowSelection] = useState(null);
     const [modalAlvaraEmpresa, setModalAlvaraEmpresa] = useState(false);
-    const [dadosAlvaraEmpresaSelecionada, setDadosAlvaraEmpresaSelecionada] = useState([])
     const dataTableRef = useRef();
 
     const onGlobalFilterChange = (e) => {
@@ -148,8 +157,6 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
         XLSX.writeFile(workbook, "alvaras_empresas.xlsx");
     };
 
-
-
     const getTextoStatusAlvara = (alvara) => {
         const status = alvara?.DESCRICAOSTATUS;
         return status && String(status).trim().length ? status : "Não Iniciado";
@@ -169,7 +176,17 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
         if (status === "Concluído") return "bg-success";
         return "bg-info";
     };
+    const isStatusNegacao = (status, dtFim) => {
+        const negacao = ["Indeferido", "Cancelado", "Vencido", "Inativo"];
+        const hoje = new Date();
 
+        if (dtFim) {
+            const dataFim = new Date(`${dtFim}T00:00:00`);
+            if (!isNaN(dataFim) && dataFim < hoje) return true;
+        }
+
+        return negacao.includes(status);
+    };
 
     const dados = dadosAlvaraEmpresa?.map((item) => {
         const bombeiro = item?.LISTA_ALVARAS?.find(a => a.IDALVARA === 1);
@@ -211,9 +228,6 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
             ARQUIVOALVARA: prefeitura?.ARQUIVOALVARA,
         };
     });
-
-
-
     const colunasEmpresasAlvaras = [
         {
             field: 'IDEMPRESA',
@@ -230,7 +244,7 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
         {
             field: 'NUCNPJ',
             header: 'cnpj',
-            body: row => <th> {row.NUCNPJ} </th>,
+            body: row => <th> {mascaraCNPJ(row.NUCNPJ)} </th>,
             sortable: true,
         },
         {
@@ -275,7 +289,9 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
             {
                 field: 'DTFIMALVARABOMBEIRO',
                 header: 'Dt.Fim Bombeiro',
-                body: row => <th>{row.DTFIMALVARABOMBEIRO}</th>,
+                body: row => <th className={isStatusNegacao(row.STATIVOBOMBEIRO, row.DTFIMALVARABOMBEIRO) ? "text-danger" : ""}>
+                    {formatarDataParaBR(row.DTFIMALVARABOMBEIRO)}
+                </th>,
                 sortable: true,
             },
         ] : []),
@@ -291,7 +307,8 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
             {
                 field: 'DTFIMALVARAMEIOAMBIENTE',
                 header: 'St.Fim Meio Ambiente',
-                body: row => <th>{row.DTFIMALVARAMEIOAMBIENTE}</th>,
+                body: row => <th className={isStatusNegacao(row.STATIVOMEIOAMBIENTE, row.DTFIMALVARAMEIOAMBIENTE) ? "text-danger" : ""}>
+                    {formatarDataParaBR(row.DTFIMALVARAMEIOAMBIENTE)}</th>,
                 sortable: true,
             },
         ] : []),
@@ -307,7 +324,8 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
             {
                 field: 'DTFIMALVARAVIGILANCIASANITARIA',
                 header: 'Dt.Fim Vigilância Sanitaria',
-                body: row => <th>{row.DTFIMALVARAVIGILANCIASANITARIA}</th>,
+                body: row => <th className={isStatusNegacao(row.STATIVOVIGILANCIASANITARIA, row.DTFIMALVARAVIGILANCIASANITARIA) ? "text-danger" : ""}>
+                    {formatarDataParaBR(row.DTFIMALVARAVIGILANCIASANITARIA)}</th>,
                 sortable: true,
             },
         ] : []),
@@ -323,7 +341,8 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
             {
                 field: 'DTFIMALVARAPREFEITURA',
                 header: 'Dt.Fim Prefeitura',
-                body: row => <th>{row.DTFIMALVARAPREFEITURA}</th>,
+                body: row => <th className={isStatusNegacao(row.STATIVOPREFEITURA, row.DTFIMALVARAPREFEITURA) ? "text-danger" : ""}>
+                    {formatarDataParaBR(row.DTFIMALVARAPREFEITURA)}</th>,
                 sortable: true,
             },
         ] : []),
@@ -348,12 +367,7 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
     ]
 
     const handleClickAjusteAlvara = (row) => {
-        if (optionsModulos[0]?.ALTERAR === 'True') {
-            //console.log(optionsModulos[0]?.ALTERAR,'optionsModulos[0]?.ALTERAR')
-            if (row && row.IDEMPRESA) {
-                handleEditarAlvara(row.IDEMPRESA);
-            }
-        } else {
+        if (optionsModulos[0]?.ALTERAR !== 'True') {
             Swal.fire({
                 icon: 'error',
                 title: 'Atenção!',
@@ -363,20 +377,11 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
                     container: 'custom-swal',
                 },
             });
+            return;
         }
-    };
 
-    const handleEditarAlvara = async (IDEMPRESA) => {
-        try {
-            const response = await get(`/alvaras-empresa-detalhe?idFilial=${IDEMPRESA}`);
-            console.log(response, 'response.data')
-            if (response.data && response.data.length > 0) {
-                setDadosAlvaraEmpresaSelecionada(response.data);
-                setModalAlvaraEmpresa(true);
-            }
-        } catch (error) {
-            console.error('Erro ao buscar dados Alvaras: ', error);
-        }
+        setIdEmpresaSelecionada(row.IDEMPRESA);
+        setModalAlvaraEmpresa(true);
     };
 
     return (
@@ -387,6 +392,7 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
                 <div className="panel-hdr mb-4">
 
                     <h3>Lista de Produtos - Preços</h3>
+
                 </div>
                 <div style={{ marginBottom: "1rem" }}>
                     <HeaderTable
@@ -441,6 +447,7 @@ export const ActionListaAlvaras = ({ dadosAlvaraEmpresa, tipoAvaraAplicado, opti
                 usuarioLogado={usuarioLogado}
                 optionsModulos={optionsModulos}
                 refetchAlvaraEmpresa={refetchAlvaraEmpresa}
+                refetchAlvaraSelecionado={refetchAlvaraSelecionado}
             />
 
         </Fragment>
