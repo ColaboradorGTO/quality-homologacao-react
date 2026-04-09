@@ -7,6 +7,8 @@ import * as XLSX from 'xlsx';
 import { optionsMecanica } from "../../../../../mecanica"
 import { useNavigate } from "react-router-dom"
 import axios from "axios";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
   const [mecanicaSelecionada, setMecanicaSelecionada] = useState(0)
@@ -256,13 +258,99 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
     refetchMarcas()
   }, [marcaSelecionada, refetchEmpresas,refetchEmpresasPromocoes]);
 
-  const downloadPlanilhaModelo = () => {
-    const workbook = XLSX.utils.book_new();
-    const worksheet = XLSX.utils.aoa_to_sheet([['ID']]);
-    
-    worksheet['!cols'] = [{ wpx: 150 }];
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Produtos');
-    XLSX.writeFile(workbook, 'modelo_produtos.xlsx');
+  const downloadPlanilhaModelo = async () => {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Produtos");
+  
+      // 🔴 TÍTULO
+      worksheet.mergeCells("A1:C1");
+  
+      const titulo = worksheet.getCell("A1");
+      titulo.value = "Produtos da Promoção";
+  
+      titulo.font = {
+          bold: true,
+          size: 14,
+          color: { argb: "FFFFFFFF" }
+      };
+  
+      titulo.alignment = {
+          horizontal: "center",
+          vertical: "middle"
+      };
+  
+      titulo.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FFFF0000" } // vermelho
+      };
+  
+      // 📌 HEADER (linha 2)
+      const headers = ["ID"];
+  
+      headers.forEach((text, index) => {
+          const cell = worksheet.getCell(2, index + 1);
+          cell.value = text;
+  
+          cell.font = {
+              bold: true,
+              color: { argb: "FFFFFFFF" }
+          };
+  
+          cell.alignment = {
+              horizontal: "center",
+              vertical: "middle"
+          };
+  
+          cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FF000000" } // preto
+          };
+  
+          cell.border = {
+              top: { style: "thin" },
+              left: { style: "thin" },
+              bottom: { style: "thin" },
+              right: { style: "thin" }
+          };
+      });
+  
+      // 📏 Largura da coluna A
+      worksheet.getColumn(1).width = 30;
+  
+      // 🔒 Validação (máx 30 caracteres)
+      for (let i = 3; i <= 1000; i++) {
+          worksheet.getCell(`A${i}`).dataValidation = {
+              type: "textLength",
+              operator: "lessThanOrEqual",
+              showErrorMessage: true,
+              formulae: [30],
+              error: "Máximo de 30 caracteres permitido."
+          };
+      }
+  
+      // 🎨 (Opcional) aplicar estilo nas células da coluna A
+      for (let i = 3; i <= 20; i++) {
+          const cell = worksheet.getCell(`A${i}`);
+  
+          cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFF2F2F2" } // cinza claro
+          };
+  
+          cell.border = {
+              top: { style: "thin" },
+              left: { style: "thin" },
+              bottom: { style: "thin" },
+              right: { style: "thin" }
+          };
+      }
+  
+      // 💾 Gerar arquivo
+      const buffer = await workbook.xlsx.writeBuffer();
+      saveAs(new Blob([buffer]), "modelo_produtos.xlsx");
   };
 
   const clearFileError = (isOrigem) => {
@@ -283,48 +371,49 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
   };
 
   const handleFileUpload = async (file, isOrigem) => {
-      try {
-          const data = await processFile(file);
+    try {
+        const data = await processFile(file);
 
-          // ✅ VALIDAÇÃO: Limite de produtos
-          if (data.length > 1000) {
+        // ✅ VALIDAÇÃO: Limite de produtos
+        if (data.length > 1000) {
+            // ✅ LIMPA ARQUIVO quando excede limite
+            clearFileError(isOrigem);
+            
+            Swal.fire({
+                icon: 'warning',
+                title: 'Limite Excedido',
+                html: `
+                    Limite máximo permitido: 1.000 produtos por promoção.<br>
+                    Produtos encontrados: ${data.length}<br>
+                    Caso contrário, os produtos não serão inseridos na promoção.
+                `,
+            });
+            return;
+        }
 
-              clearFileError(isOrigem);
+        // ✅ SUCESSO: Mostra quantos IDs foram encontrados
+        await Swal.fire({
+            icon: 'success',
+            title: 'Arquivo Processado!',
+            text: `${data.length} produtos foram encontrados na planilha`,
+            timer: 2000,
+            showConfirmButton: false
+        });
 
-              Swal.fire({
-                  icon: 'warning',
-                  title: 'Limite Excedido',
-                  html: `
-                      Limite máximo permitido: 1.000 produtos por promoção.<br>
-                      Produtos encontrados: ${data.length}<br>
-                      Caso contrário, os produtos não serão inseridos na promoção.
-                  `,
-              });
-              return;
-          }
+        if (isOrigem) {
+            setFileProdutoOrigem(JSON.stringify(data));
+        } else {
+            setFileProdutoDestino(JSON.stringify(data));
+        }
 
-          // ✅ SUCESSO: Mostra quantos IDs foram encontrados
-          await Swal.fire({
-              icon: 'success',
-              title: 'Arquivo Processado!',
-              text: `${data.length} produtos foram encontrados na planilha`,
-              timer: 2000,
-              showConfirmButton: false
-          });
-
-          if (isOrigem) {
-              setFileProdutoOrigem(JSON.stringify(data));
-          } else {
-              setFileProdutoDestino(JSON.stringify(data));
-          }
-
-      } catch (error) {
-          console.error('Erro ao processar arquivo:', error);
-          
-          clearFileError(isOrigem);
-
-          // ✅ ERRO ESPECÍFICO: Mostra a estrutura correta se erro de validação
-          if (error.message.includes('cabeçalho "ID"') || error.message.includes('Nenhum Nº Item')) {
+    } catch (error) {
+        console.error('Erro ao processar arquivo:', error);
+        
+        // ✅ LIMPA ARQUIVO quando há erro de validação
+        clearFileError(isOrigem);
+        
+        // ✅ ERRO ESPECÍFICO: Mostra a estrutura correta se erro de validação
+        if (error.message.includes('cabeçalho "ID"') || error.message.includes('Nenhum ID') || error.message.includes('título "Produtos da Promoção"')) {
             Swal.fire({
                 icon: 'error',
                 title: 'Modelo Incorreto da Planilha!',
@@ -332,9 +421,12 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
                     <div style="text-align: left;">
                         <p><strong>Erro:</strong> ${error.message}</p>
                         <br>
-                        <p><strong>Modelo da planilha:</strong></p>
+                        <p><strong>Modelo correto da planilha:</strong></p>
                         <table border="1" style="width: 100%; margin: 10px 0;">
-                            <tr style="background-color: #f0f0f0;">
+                            <tr style="background-color: #ff0000; color: white;">
+                                <th style="padding: 8px; text-align: center;"><strong>Produtos da Promoção</strong></th>
+                            </tr>
+                            <tr style="background-color: #000000; color: white;">
                                 <th style="padding: 8px; text-align: center;"><strong>ID</strong></th>
                             </tr>
                             <tr>
@@ -350,20 +442,24 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
                                 <td style="padding: 8px; text-align: center;">...</td>
                             </tr>
                         </table>
-                        <p><em>A primeira linha deve conter obrigatoriamente o cabeçalho "ID"</em></p>
+                        <p><em><strong>Linha 1:</strong> Título OBRIGATÓRIO "Produtos da Promoção"</em></p>
+                        <p><em><strong>Linha 2:</strong> Cabeçalho "ID" obrigatório</em></p>
+                        <p><em><strong>Linha 3+:</strong> Dados dos produtos</em></p>
+                        <br>
+                        <p style="color: #ff0000;"><strong>⚠️ IMPORTANTE:</strong> Use a planilha modelo baixada do sistema!</p>
                     </div>
                 `,
                 confirmButtonText: 'Entendi'
             });
-          } else {
-              // ✅ ERRO GENÉRICO
+        } else {
+            // ✅ ERRO GENÉRICO
             Swal.fire({
                 icon: 'error',
                 title: 'Erro',
                 text: 'Falha ao processar o arquivo. Verifique o formato.',
             });
-          }
-      }
+        }
+    }
   };
 
   const processFile = (file) => {
@@ -416,52 +512,60 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
   }
 
   const processXLSX = (xlsxContent) => {
-      const workbook = XLSX.read(xlsxContent, { type: 'array' });
-      const sheetName = workbook.SheetNames[0];
-      const worksheet = workbook.Sheets[sheetName];
+    const workbook = XLSX.read(xlsxContent, { type: 'array' });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
 
-      const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-      // ✅ VALIDAÇÃO: Verifica se tem dados
-      if (!jsonData || jsonData.length === 0) {
-          throw new Error('Planilha vazia ou não foi possível ler o arquivo');
-      }
+    // ✅ VALIDAÇÃO: Verifica se tem dados
+    if (!jsonData || jsonData.length < 2) {
+        throw new Error('Planilha deve ter pelo menos 2 linhas (título e cabeçalho)');
+    }
 
-      // ✅ VALIDAÇÃO: Pega a primeira linha (cabeçalhos)
-      const headers = jsonData[0];
-      
-      // ✅ VALIDAÇÃO: Verifica se existe a coluna "ID"
-      const hasIdColumn = headers.some(header => 
-          header && header.toString().toUpperCase().trim() === 'ID'
-      );
-      
-      if (!hasIdColumn) {
-          throw new Error('A planilha deve ter um cabeçalho "ID" na primeira linha');
-      }
+    // ✅ VALIDAÇÃO: Verifica se o título está correto na primeira linha
+    const primeiraLinha = jsonData[0];
+    const titulo = primeiraLinha && primeiraLinha[0] ? primeiraLinha[0].toString().trim() : '';
+    
+    if (titulo !== 'Produtos da Promoção') {
+        throw new Error('A primeira linha deve conter exatamente o título "Produtos da Promoção"');
+    }
 
-      // ✅ BUSCA: Encontra o índice da coluna "ID"
-      const idColumnIndex = headers.findIndex(header => 
-          header && header.toString().toUpperCase().trim() === 'ID'
-      );
+    // ✅ VALIDAÇÃO: Pega a segunda linha (cabeçalhos) - primeira linha é o título
+    const headers = jsonData[1];
+    
+    // ✅ VALIDAÇÃO: Verifica se existe a coluna "ID"
+    const hasIdColumn = headers && headers.some(header => 
+        header && header.toString().toUpperCase().trim() === 'ID'
+    );
+    
+    if (!hasIdColumn) {
+        throw new Error('A planilha deve ter um cabeçalho "ID" na segunda linha');
+    }
 
-      // ✅ EXTRAÇÃO: Pega apenas os IDs (pula a primeira linha do cabeçalho)
-      const result = [];
-      for (let i = 1; i < jsonData.length; i++) { // Começa em 1 para pular cabeçalho
-          const row = jsonData[i];
-          if (row && row.length > idColumnIndex) {
-              const idValue = row[idColumnIndex]?.toString().trim();
-              if (idValue && idValue !== '') {
-                  result.push(idValue);
-              }
-          }
-      }
+    // ✅ BUSCA: Encontra o índice da coluna "ID"
+    const idColumnIndex = headers.findIndex(header => 
+        header && header.toString().toUpperCase().trim() === 'ID'
+    );
 
-      // ✅ VALIDAÇÃO: Verifica se encontrou IDs
-      if (result.length === 0) {
-          throw new Error('Nenhum ID foi encontrado na coluna ID da planilha');
-      }
+    // ✅ EXTRAÇÃO: Pega apenas os IDs (pula título e cabeçalho - começa da linha 3)
+    const result = [];
+    for (let i = 2; i < jsonData.length; i++) { // Começa em 2 para pular título e cabeçalho
+        const row = jsonData[i];
+        if (row && row.length > idColumnIndex) {
+            const idValue = row[idColumnIndex]?.toString().trim();
+            if (idValue && idValue !== '') {
+                result.push(idValue);
+            }
+        }
+    }
 
-      return result;
+    // ✅ VALIDAÇÃO: Verifica se encontrou IDs
+    if (result.length === 0) {
+        throw new Error('Nenhum ID foi encontrado na coluna ID da planilha');
+    }
+
+    return result;
   };
 
   const mostrarProdutosSelecionados = useCallback((tipo) => {
