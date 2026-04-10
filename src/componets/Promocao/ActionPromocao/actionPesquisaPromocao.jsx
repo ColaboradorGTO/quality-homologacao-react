@@ -355,6 +355,7 @@ export const ActionPesquisaPromocao = ({ }) => {
     setSubGrupoDestino(selectedSubGrupo);
   };
 
+  
   return (
     <Fragment>
       <ActionMainPromocao
