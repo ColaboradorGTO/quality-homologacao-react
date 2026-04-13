@@ -73,10 +73,10 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
     'listaEmpresasIformatica',
     async () => {
       const response = await get(`/listaEmpresasIformatica`);
-      
+
       return response.data;
     },
-    {enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
+    { enabled: true, staleTime: 60 * 60 * 1000, cacheTime: 5 * 60 * 1000 }
   );
 
   const { data: optionsCPF = [], error: errorCPF, isLoading: isLoadingCPF } = useQuery(
@@ -108,18 +108,18 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       setIdPerfil(funcionarioExistente.IDPERFIL);
       if (funcionarioExistente.STCONVENIO == 'True' && funcionarioExistente.STDESCONTOFOLHA == 'True') {
         setIsChecked(true);
-        
+
         setCategoriaContratacao('CLT');
       } else if (funcionarioExistente.STCONVENIO == 'False' && funcionarioExistente.STDESCONTOFOLHA == 'False') {
         setIsChecked(false);
         setCategoriaContratacao('PJ');
       }
-  
+
       setSenha(funcionarioExistente.PWSENHA);
       setCPF(funcionarioExistente.NUCPF);
       setTelefone(funcionarioExistente.TELEFONE);
       setDepartamentoSelecionado({ value: funcionarioExistente.DEPARTAMENTO, label: funcionarioExistente.DEPARTAMENTO });
-    }                            
+    }
 
   }, [optionsCPF]);
 
@@ -164,7 +164,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario
+        IP: ipUsuario || 'INDISPONIVEL'
       }
 
       const responsePost = await post('/log-web', createLog)
@@ -179,7 +179,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
 
   };
 
-  
+
   const onSubmit = async (e) => {
     let maximoDesconto = 0;
     let dataBase = new Date('2024-08-01')
@@ -251,7 +251,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
 
     const isUpdate = optionsCPF.length > 0 && idFuncionario;
 
-    
+
     const postData = {
       IDFUNCIONARIO: usuarioLogado.id,
       IDSUBGRUPOEMPRESARIAL: Number(subGrupoEmpresarialSelecionado),
@@ -303,9 +303,9 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
       let response;
 
       if (isUpdate) {
-        response = await put('/funcionarios-loja/:id', putData);
+        response = await put('/funcionarioLojaRH/:id', putData);
       } else {
-        response = await post('/criar-funcionarios-loja', postData);
+        response = await post('/criarFuncionariosLojaRH', postData);
       }
 
       setEmpresaSelecionada('');
@@ -334,7 +334,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario
+        IP: ipUsuario || 'INDISPONIVEL'
       }
 
       const responsePost = await post('/log-web', createData)
@@ -352,7 +352,7 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario
+        IP: ipUsuario || 'INDISPONIVEL'
       }
 
       const responsePost = await post('/log-web', createData)
