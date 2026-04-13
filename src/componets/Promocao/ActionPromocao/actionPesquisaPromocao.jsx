@@ -369,7 +369,7 @@ export const ActionPesquisaPromocao = ({ }) => {
         labelSelectMecanica={"Mecanica"}
         optionsMecanica={dadosMecanicas.map((item) => ({
           value: item.ID,
-          label: item.DESCRICAO,
+          label: `${item.ID} - ${item.DESCRICAO}`,
           APLICAODESTINO: item.APLICAODESTINO,
           TIPODESCONTO: item.TIPODESCONTO
         }))}
