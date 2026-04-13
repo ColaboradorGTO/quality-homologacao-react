@@ -18,7 +18,8 @@ import { ActionDocumentacaoCriar } from "../ActionPromocoesAtivas/ActionDocument
 import { useState } from "react";
 import { MenuTreeSelect } from "../../Inputs/menuTreeSelect";
 import { InputFieldActionRadio } from "../../Buttons/InputActionRadio";
-import { FaDownload } from "react-icons/fa";
+
+import { FaDownload } from "react-icons/fa6";
 
 
 
@@ -180,6 +181,7 @@ export const ActionPesquisaPromocao = ({ }) => {
       setAplicacaoDestinoSelecionada(selectedOption.APLICACAODESTINO);
       setTipoDescontoSelecionado(selectedOption.TIPODESCONTO);
     }
+    console.log(mecanicaSelecionadaEdicao, 'mecanicaSelecionadaEdicao')
   }, [dadosMecanicas, setMecanicaSelecionada, setAplicacaoDestinoSelecionada, setTipoDescontoSelecionado,]);
 
 
@@ -209,11 +211,12 @@ export const ActionPesquisaPromocao = ({ }) => {
       setValorInicio(0);
     }
 
-    if (mecanicaSelecionada == 1) {
+    if (mecanicaSelecionada == 1 && mecanicaSelecionadaEdicao !== "PROMOÇÃO POR EM UM PRODUTO // VALOR // VALOR FINAL") {
       setQtdInicio(0);
     }
 
-  }, [mecanicaSelecionada, tipoDescontoSelecionado, setPrecoProduto, setVrDesconto, setValorInicio, setPorcentoDesconto]);
+  }, [mecanicaSelecionada, tipoDescontoSelecionado, mecanicaSelecionadaEdicao, setPrecoProduto, setVrDesconto, setValorInicio, setPorcentoDesconto]);
+
 
   const handleCadastrar = () => {
     onSubmit();
@@ -412,7 +415,11 @@ export const ActionPesquisaPromocao = ({ }) => {
           }
           setQtdInicio(valor);
         }}
-        readOnlyQTDInicio={mecanicaSelecionada == 1 ? true : false}
+        readOnlyQTDInicio={
+          mecanicaSelecionada == 1 && mecanicaSelecionadaEdicao !== "PROMOÇÃO POR EM UM PRODUTO // VALOR // VALOR FINAL" 
+            ? true 
+            : false
+        }
         // styleQTDInicio={styleQTDInicio}
 
         InputFieldQTDFimComponent={InputFieldAction}
@@ -738,7 +745,7 @@ export const ActionPesquisaPromocao = ({ }) => {
         ButtonTypeTXT={ButtonType}
         linkTXT={"Documentação"}
         onButtonClickTXT={mostrarDocumentacao}
-        corTXT={"success"}
+        corTXT={"warning"}
         IconTXT={GrFormView}
 
         ButtonTypeRetornar={ButtonType}
