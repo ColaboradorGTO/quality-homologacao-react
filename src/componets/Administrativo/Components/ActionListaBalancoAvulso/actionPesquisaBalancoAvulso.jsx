@@ -24,7 +24,6 @@ export const ActionPesquisaBalancoAvulso = ({usuarioLogado }) => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
- 
   useEffect(() => {
     const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
     if (menuSalvo) {

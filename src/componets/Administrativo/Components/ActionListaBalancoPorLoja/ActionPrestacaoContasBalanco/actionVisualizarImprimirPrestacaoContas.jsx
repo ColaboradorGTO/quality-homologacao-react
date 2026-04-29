@@ -20,10 +20,16 @@ export const ActionVisualizarImprimirPrestacaoContas = ({
   const [visualizarImpressao, setVisualizarImpressao] = useState(false);
   const [tabela, setTabela] = useState(true);
   const dataTableRef = useRef();
-  
+
   const {
     handleSubmit
-  } = useConfirmarPrestacaoContas({ dadosListaContasBalanco, optionsModulos, usuarioLogado, handleClose, handleClickResumoBalanco })
+  } = useConfirmarPrestacaoContas({
+    dadosListaContasBalanco,
+    optionsModulos,
+    usuarioLogado,
+    handleClose,
+    handleClickResumoBalanco
+  })
 
   const handlePrint = useReactToPrint({
     content: () => dataTableRef.current,

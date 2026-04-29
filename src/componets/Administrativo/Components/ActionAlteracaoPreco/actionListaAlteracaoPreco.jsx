@@ -150,8 +150,6 @@ export const ActionListaAlteracaoPreco = ({ dadosAlteracaoPreco }) => {
     return formatarPorcentagem(total);
   }
 
-
-
   const colunasAlteracaoPreco = [
     {
       field: 'DTHORAEXECUTADO',
@@ -253,8 +251,6 @@ export const ActionListaAlteracaoPreco = ({ dadosAlteracaoPreco }) => {
       sortable: true,
     },
   ]
-
-
 
   return (
 
