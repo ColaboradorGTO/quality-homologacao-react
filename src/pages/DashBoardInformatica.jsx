@@ -21,6 +21,7 @@ const ActionPesquisaRelatorioBI = lazy(() => import("../componets/Informatica/Co
 const ActionPesquisaDuplicarPermissao = lazy(() => import("../componets/Informatica/Components/ActionPermissao/actionPesquisaPerfilPermissao").then(module => ({ default: module.ActionPesquisaPerfilPermissao })));
 const ActionPesquisEmpresa = lazy(() => import("../componets/Informatica/Components/ActionPesquisaEmpresas/actionPesquisaEmpresa").then(module => ({ default: module.ActionPesquisEmpresa })));
 const ActionPesquisaNfce = lazy(() => import("../componets/Informatica/Components/ActionValidaVendasContigencia/actionPesquisaNfce").then(module => ({ default: module.ActionPesquisaNfce })));
+const ActionPesquisaCriarMenuFilho = lazy(() => import("../componets/Informatica/Components/ActionCriarMenuFilho/actionPesquisaCriarMenuFIlho").then(module => ({ default: module.ActionPesquisaCriarMenuFilho })));
 
 export const DashBoardInformatica = () => {
   const [actionVisivel, setActionVisivel] = useState(true);
@@ -129,6 +130,9 @@ export const DashBoardInformatica = () => {
       case "/informatica/ActionPesquisaNfce":
         component = <ActionPesquisaNfce usuarioLogado={usuarioLogado} ID={ID} />;
         break;
+            case "/informatica/ActionPesquisaCriarMenuFIlho":
+      component = <ActionPesquisaCriarMenuFilho usuarioLogado={usuarioLogado} ID={ID} />;
+      break;
     default:
       component = null;
       break;
