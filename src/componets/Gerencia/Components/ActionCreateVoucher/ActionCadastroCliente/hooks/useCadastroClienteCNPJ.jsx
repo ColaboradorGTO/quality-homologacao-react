@@ -130,10 +130,10 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
 
         if (!usuarioIP) {
             try {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
             } catch (error) {
-            console.error("Erro ao buscar IP via ipify.org:", error);
+                console.error("Erro ao buscar IP via ipify.org:", error);
             }
         }
         setIpUsuario(usuarioIP);
@@ -587,7 +587,7 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
                 IDFUNCIONARIO: String(usuarioLogado.id),
                 PATHFUNCAO: textoFuncao,
                 DADOS: textDados,
-                IP: ipUsuario
+                IP: ipUsuario || 'INDISPONIVEL'
             }
 
             await post('/log-web', postDataLog)
@@ -683,6 +683,8 @@ export const useCadastrarClienteCNPJ = ({ usuarioLogado, optionsModulos, handleC
         setNuIBGE,
         setCidade,
         setEstado,
+        setIM,
+        setIE,
         setTelefoneComercial,
         optionsIndicacaoIE,
         onSubmit
