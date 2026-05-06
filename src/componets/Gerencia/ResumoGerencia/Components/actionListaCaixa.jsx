@@ -132,7 +132,7 @@ export const ActionListaCaixa = ({ dadosListaCaixa, dadosDespesas, dadosAdiantam
       TOTALVENDIDOCONVENIO: toFloat(item.venda[0]['venda-movimento'].TOTALVENDIDOCONVENIO),
       totalVendido: totalVendido,
       vrDisponivel: vrDisponivel,
-      STFECHADO: item.caixa.STFECHADO === 'FALSE' ? 'ABERTO' : 'FECHADO',
+      STFECHADO: item.caixa.STFECHADO === 'False' ? 'ABERTO' : 'FECHADO',
     };
   });
   const dadoCaixaLista = dadosListaCaixa.map((item, index) => {
@@ -424,8 +424,8 @@ export const ActionListaCaixa = ({ dadosListaCaixa, dadosDespesas, dadosAdiantam
       field: 'STFECHADO',
       header: 'Situação',
       body: row => (
-        <th style={{ color: row.STFECHADO === 'FALSE' ? 'blue' : 'red' }}>
-          {row.STFECHADO === 'FALSE' ? 'ABERTO' : 'FECHADO'}
+        <th style={{ color: row.STFECHADO === 'False' ? 'blue' : 'red' }}>
+          {row.STFECHADO === 'False' ? 'ABERTO' : 'FECHADO'}
         </th>
       ),
       sortable: true,
