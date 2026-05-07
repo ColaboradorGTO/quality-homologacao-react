@@ -120,6 +120,8 @@ export const ActionMain = ({
   valueInputFieldOR,
   valueInputFieldOT,
   valueSelectFilial,
+  valueInputFieldComissao,
+  valueInputFieldObsFornecedor,
 
   valueTextAreaFieldComponent,
 
@@ -157,6 +159,8 @@ export const ActionMain = ({
   onChangeInputFieldSearch,
   onChangeInputFieldOR,
   onChangeInputFieldOT,
+  onChangeInputFieldComissao,
+  onChangeInputFieldObsFornecedor,
 
   onChangeSelectEmpresa,
   onChangeSelectMarcas,
@@ -323,6 +327,20 @@ export const ActionMain = ({
   TextAreaFieldComponent,
 
   onKeyDownInputField,
+  onKeyDownInputFieldCodBarra,
+  onKeyDownInputFieldNumeroNF,
+  onKeyDownInputFieldDescricao,
+  onKeyDownInputFieldComissao,
+  onKeyDownInputFieldObsFornecedor,
+  onKeyDownInputFieldVendedor,
+  onKeyDownInputFieldEmailVendedor,
+  onKeyDownInputFieldDesconto1,
+  onKeyDownInputFieldDesconto2,
+  onKeyDownInputFieldDesconto3,
+  onKeyDownInputFieldLojaOrigem,
+  onKeyDownInputFieldSearch,
+  onKeyDownInputFieldDTInicioA,
+  onKeyDownInputFieldDTFimA,
 
   // Inputs Selects
   InputSelectEmpresaComponent,
@@ -463,7 +481,10 @@ export const ActionMain = ({
   placeHolderInputFieldQuantidade,
   placeHolderInputFieldOR,
   placeHolderInputFieldOT,
-
+  placeHolderInputFieldComissao,
+  placeHolderInputFieldObsFornecedor,
+  placeHolderInputFieldVendedor,
+  
   labelMultSelectGrupo,
   labelMultSelectSubGrupo,
   labelMultSelectMarca,
@@ -526,7 +547,7 @@ export const ActionMain = ({
   linkNomeSaldo,
   linkNomeBalanco,
   linkSalvar,
-  
+
   labelSelectPagamento,
   labelSelectUsoPrinicipal,
   labelSelectFrete,
@@ -621,8 +642,9 @@ export const ActionMain = ({
   nomeChekBox,
   isChekedBox,
   onChangeCheckBox,
-  
+
   keyGrupo
+
 }) => {
   const Options = [
     { value: 0, label: "Todos" },
@@ -640,10 +662,10 @@ export const ActionMain = ({
           nomeLoja={subTitle}
           linkComponentAnterior={linkComponentAnterior}
           linkComponent={linkComponent}
-          buttonHeader={buttonHeader}
-          onClickButtonTypeHeader={onClickButtonTypeHeader}
-          textButtonHeader={textButtonHeader}
-          disabledBTNHeader={disabledBTNHeader}
+          // buttonHeader={buttonHeader}
+          // onClickButtonTypeHeader={onClickButtonTypeHeader}
+          // textButtonHeader={textButtonHeader}
+          // disabledBTNHeader={disabledBTNHeader}
           iconSize={iconSizeHeader}
           Icon={iconHeader}
           cor={corHeader}
@@ -692,6 +714,7 @@ export const ActionMain = ({
                         type="text"
                         value={valueInputFieldSearch}
                         onChange={onChangeInputFieldSearch}
+                        onKeyDown={onKeyDownInputFieldSearch}
                       />
                     )}
 
@@ -703,7 +726,7 @@ export const ActionMain = ({
                         name="dtconsultainicio"
                         value={valueInputFieldDTInicioA}
                         onChange={onChangeInputFieldDTInicioA}
-
+                        onKeyDown={onKeyDownInputFieldDTInicioA}
                       />
                     )}
                     {InputFieldDTFimAComponent && (
@@ -714,6 +737,7 @@ export const ActionMain = ({
                         name="dtconsultafim"
                         value={valueInputFieldDTFimA}
                         onChange={onChangeInputFieldDTFimA}
+                        onKeyDown={onKeyDownInputFieldDTFimA}
                       />
                     )}
 
@@ -817,7 +841,10 @@ export const ActionMain = ({
                         type="text"
                         id={id}
                         name="dtconsultafim"
-                        value=""
+                        value={valueInputFieldComissao}
+                        onChange={onChangeInputFieldComissao}
+                        placeHolder={placeHolderInputFieldComissao}
+                        onKeyDown={onKeyDownInputFieldComissao}
                       />
                     )}
 
@@ -827,7 +854,10 @@ export const ActionMain = ({
                         type="text"
                         id={id}
                         name="dtconsultafim"
-                        value=""
+                        value={valueInputFieldObsFornecedor}
+                        onChange={onChangeInputFieldObsFornecedor}
+                        placeHolder={placeHolderInputFieldObsFornecedor}
+                        onKeyDown={onKeyDownInputFieldObsFornecedor}
                       />
 
                     )}
@@ -850,6 +880,8 @@ export const ActionMain = ({
                         name="dtconsultafim"
                         value={valueInputFieldVendedor}
                         onChange={onChangeInputFieldVendedor}
+                        placeHolder={placeHolderInputFieldVendedor}
+                        onKeyDown={onKeyDownInputFieldVendedor}
                       />
                     )}
 
@@ -860,6 +892,7 @@ export const ActionMain = ({
                         id={id}
                         name="dtconsultafim"
                         value=""
+                        onKeyDown={onKeyDownInputFieldEmailVendedor}
                       />
                     )}
 
@@ -871,6 +904,7 @@ export const ActionMain = ({
                         id={id}
                         name="dtconsultafim"
                         value=""
+                        onKeyDown={onKeyDownInputFieldDesconto1}
                       />
                     )}
                     {InputFieldDescontoComponent2 && (
@@ -880,6 +914,7 @@ export const ActionMain = ({
                         id={id}
                         name="dtconsultafim"
                         value=""
+                        onKeyDown={onKeyDownInputFieldDesconto2}
                       />
                     )}
 
@@ -890,6 +925,7 @@ export const ActionMain = ({
                         id={id}
                         name="dtconsultafim"
                         value=""
+                        onKeyDown={onKeyDownInputFieldDesconto3}
                       />
                     )}
 
@@ -902,6 +938,7 @@ export const ActionMain = ({
                         value={valueInputFieldLojaOrigem}
                         onChange={onChangeInputFieldLojaOrigem}
                         readOnly={true}
+                        onKeyDown={onKeyDownInputFieldLojaOrigem}
                       />
                     )}
 
@@ -1323,6 +1360,7 @@ export const ActionMain = ({
                         value={valueInputFieldCodBarra}
                         onChange={onChangeInputFieldCodBarra}
                         readOnly={isDisabledCodBarra}
+                        onKeyDown={onKeyDownInputFieldCodBarra}
                       />
                     )}
 
@@ -1334,7 +1372,7 @@ export const ActionMain = ({
                         placeHolder={placeHolderInputFieldComponent}
                         value={valueInputField}
                         onChange={onChangeInputField}
-                        onKeyDow={onKeyDownInputField}
+                        onKeyDown={onKeyDownInputField}
                       />
                     )}
 
@@ -1347,6 +1385,7 @@ export const ActionMain = ({
                         value={valueInputFieldNumeroNF}
                         onChange={onChangeInputFieldNumeroNF}
                         placeHolder={placeHolderInputFieldNumeroNF}
+                        onKeyDown={onKeyDownInputFieldNumeroNF}
                       />
                     )}
 
@@ -1360,6 +1399,7 @@ export const ActionMain = ({
                         readOnly={readOnlyDescricao}
                         value={valueInputFieldDescricao}
                         onChange={onChangeInputFieldDescricao}
+                        onKeyDown={onKeyDownInputFieldDescricao}
                       />
                     )}
                     {InputFieldQuantidadeComponent && (
