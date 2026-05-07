@@ -86,12 +86,16 @@ export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, optionsEmpresas 
   );
 
   const handleClick = () => {
-
-    setCurrentPage(prevPage => prevPage + 1);
     refetchCaixaMovimento();
     setTabelaVisivel(true);
-
   }
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   return (
 
@@ -120,11 +124,13 @@ export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, optionsEmpresas 
         valueInputFieldDTInicioA={dataPesquisaInicio}
         labelInputDTInicioA={"Data Início"}
         onChangeInputFieldDTInicioA={(e) => setDataPesquisaInicio(e.target.value)}
+        onKeyDownInputFieldDTInicioA={handleKeyPress}
 
         InputFieldDTFimAComponent={InputField}
         labelInputDTFimA={"Data Fim"}
         valueInputFieldDTFimA={dataPesquisaFim}
         onChangeInputFieldDTFimA={(e) => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFimA={handleKeyPress}
 
         onButtonClickSearch={handleClick}
         ButtonSearchComponent={ButtonType}
@@ -146,5 +152,3 @@ export const ActionPesquisaConferenciaCaixa = ({ usuarioLogado, optionsEmpresas 
     </Fragment >
   )
 }
-
-
