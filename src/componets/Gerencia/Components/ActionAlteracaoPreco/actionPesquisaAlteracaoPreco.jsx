@@ -11,6 +11,7 @@ import { MenuTreeSelect } from "../../../Inputs/menuDropDown";
 import { InputCheckBoxAction } from "../../../Inputs/chekBoxAction";
 import { ActionAlteracaoPreco } from "../../../Actions/ActionAlteracaoPreco";
 
+
 export const ActionPesquisaAlteracaoPreco = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
@@ -70,7 +71,7 @@ export const ActionPesquisaAlteracaoPreco = ({ usuarioLogado }) => {
   const { data: dadosAlteracaoPreco = [], error: errorBalanco, isLoading: isLoadingBalanco, refetch: refetchListaAlteracaoPreco } = useQuery(
     ['alteracaoPreco'],
     () => fetchListaAlteracaoPreco(),
-    { enabled: false, staleTime: 60 * 60 * 1000 }
+    { enabled: false, staleTime: 60 * 60 * 1000, }
   );
 
   const { data: dadosGrupos = [], error: errorGrupo, isLoading: isLoadingGrupo } = useQuery(
@@ -145,14 +146,19 @@ export const ActionPesquisaAlteracaoPreco = ({ usuarioLogado }) => {
     setSubGrupoSelecionado(selectedSubGrupo);
   };
 
-  const handleTabelaVisivel = () => {
+  const handleClick = () => {
     if (usuarioLogado && usuarioLogado.IDEMPRESA) {
-      setCurrentPage(+1);
       refetchListaAlteracaoPreco()
       setTabelaVisivel(true);
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   return (
 
@@ -166,23 +172,27 @@ export const ActionPesquisaAlteracaoPreco = ({ usuarioLogado }) => {
 
         InputFieldNomeProdutoComponent={InputField}
         labelInputNomeProduto={"Nome Produto"}
-        onChangeInputFieldNomeProduto={e => setNomeProduto(e.target.value)}
         valueInputFieldNomeProduto={nomeProduto}
+        onChangeInputFieldNomeProduto={e => setNomeProduto(e.target.value)}
+        onKeyDownInputFieldNomeProduto={handleKeyPress}
 
         InputFieldCodBarrasComponent={InputField}
         labelInputCodBarras={"Cód.Barras"}
-        onChangeInputFieldCodBarras={e => setCodBarra(e.target.value)}
         valueInputFieldCodBarras={codBarra}
+        onChangeInputFieldCodBarras={e => setCodBarra(e.target.value)}
+        onKeyDownInputFieldCodBarras={handleKeyPress}
 
         InputFieldDTInicioComponent={InputField}
-        labelInputFieldDTInicio={"Data Início"}
+        labelInputDTInicio={"Data Início"}
         valueInputFieldDTInicio={dataPesquisaInicio}
         onChangeInputFieldDTInicio={e => setDataPesquisaInicio(e.target.value)}
+        onKeyDownInputFieldDTInicio={handleKeyPress}
 
         InputFieldDTFimComponent={InputField}
-        labelInputFieldDTFim={"Data Fim"}
+        labelInputDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={e => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFim={handleKeyPress}
 
         MenuTreeSelectComponent={MenuTreeSelect}
         valueTreeSelect={selectedNodes}
@@ -197,7 +207,7 @@ export const ActionPesquisaAlteracaoPreco = ({ usuarioLogado }) => {
         onChangeCheckBox={(e) => setEstoque(e.target.checked)}
 
         ButtonSearchComponent={ButtonType}
-        onButtonClickSearch={handleTabelaVisivel}
+        onButtonClickSearch={handleClick}
         linkNomeSearch={"Alteração Preços"}
         IconSearch={AiOutlineSearch}
         corSearch={"primary"}
@@ -205,9 +215,7 @@ export const ActionPesquisaAlteracaoPreco = ({ usuarioLogado }) => {
       />
 
       {tabelaVisivel && (
-        <ActionListaAlteracaoPreco
-          dadosAlteracaoPreco={dadosAlteracaoPreco}
-        />
+        <ActionListaAlteracaoPreco dadosAlteracaoPreco={dadosAlteracaoPreco} />
       )}
 
     </Fragment>

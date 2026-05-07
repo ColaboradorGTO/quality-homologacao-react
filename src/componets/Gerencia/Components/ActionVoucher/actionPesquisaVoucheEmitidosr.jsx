@@ -97,6 +97,13 @@ export const ActionPesquisaVoucherEmitido = ({ usuarioLogado }) => {
     }
   }
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
 
     <Fragment>
@@ -110,6 +117,7 @@ export const ActionPesquisaVoucherEmitido = ({ usuarioLogado }) => {
         labelInputField={"Nº do Voucher"}
         valueInputField={numeroVoucherSelecionado}
         onChangeInputField={(e) => setNumeroVoucherSelecionado(e.target.value)}
+        onKeyDownInputField={handleKeyPress}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
