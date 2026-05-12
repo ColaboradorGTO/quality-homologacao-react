@@ -12,8 +12,9 @@ import { useQuery } from "react-query"
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { MultSelectAction } from "../../../Select/MultSelectAction"
 import { useNavigate } from "react-router-dom"
+import { optionsParcelas } from "../../../../../parceiro.json"
 
-export const ActionPesquisaRecebimentosLoja = () => {
+export const ActionPesquisaRecebimentosLoja = ({ usuarioLogado }) => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
@@ -26,23 +27,6 @@ export const ActionPesquisaRecebimentosLoja = () => {
   const [tabelaRecebimentosOperador, setTabelaRecebimentosOperador] = useState(false)
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(500);
-  const [usuarioLogado, setUsuarioLogado] = useState(null)
-
-  const navigate = useNavigate();
-  useEffect(() => {
-    const usuarioArmazenado = localStorage.getItem('usuario');
-
-    if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);;
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-      navigate('/');
-    }
-  }, [navigate]);
 
   useEffect(() => {
     const dataInicial = getDataAtual()
@@ -209,21 +193,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
     refetchListaRecebimentosOperador()
   }
 
-  const optionsParcelas = [
-    { value: "0", label: "Selecionar Todas" },
-    { value: "1", label: "1" },
-    { value: "2", label: "2" },
-    { value: "3", label: "3" },
-    { value: "4", label: "4" },
-    { value: "5", label: "5" },
-    { value: "6", label: "6" },
-    { value: "7", label: "7" },
-    { value: "8", label: "8" },
-    { value: "9", label: "9" },
-    { value: "10", label: "10" },
-    { value: "11", label: "11" },
-    { value: "12", label: "12" },
-  ]
+ 
   return (
 
     <Fragment>
@@ -238,6 +208,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
         valueInputFieldDTInicio={dataPesquisaInicio}
         labelInputFieldDTInicio={"Data Início"}
         onChangeInputFieldDTInicio={(e) => setDataPesquisaInicio(e.target.value)}
+        
 
         InputFieldDTFimComponent={InputField}
         labelInputFieldDTFim={"Data Fim"}
@@ -270,7 +241,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
 
         MultSelectSubGrupoComponent={MultSelectAction}
         labelMultSelectSubGrupo={"Parcelas"}
-        optionsMultSelectSubGrupo={optionsParcelas.map((subGrupo) => ({
+        optionsMultSelectSubGrupo={optionsParcelas?.map((subGrupo) => ({
           value: subGrupo.value,
           label: subGrupo.label,
         }))}

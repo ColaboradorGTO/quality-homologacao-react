@@ -10,12 +10,12 @@ import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 
+
 export const ActionPesquisaBalancoLoja = ({usuarioLogado, optionsEmpresas}) => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [descricao, setDescricao] = useState('')
-  const [currentPage, setCurrentPage] = useState(1);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('');
   const [empresaUsada, setEmpresaUsada] = useState('');
   const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
@@ -27,7 +27,6 @@ export const ActionPesquisaBalancoLoja = ({usuarioLogado, optionsEmpresas}) => {
     setDataPesquisaFim(dataFinal)
   }, []);
   
-    
   useEffect(() => {
     const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
     if (menuSalvo) {
@@ -45,8 +44,6 @@ export const ActionPesquisaBalancoLoja = ({usuarioLogado, optionsEmpresas}) => {
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
   );
-
- 
 
   const fetchListaBalanco = async () => {
     const idEmpresa = empresaSelecionada == '' ? usuarioLogado?.IDEMPRESA : empresaSelecionada;
@@ -91,10 +88,14 @@ export const ActionPesquisaBalancoLoja = ({usuarioLogado, optionsEmpresas}) => {
   );
  
   const handleClick = () => {
-    if(usuarioLogado && usuarioLogado.IDEMPRESA) {
-      setCurrentPage(+1);
-      refetchListaBalanco();
-      setTabelaVisivel(true);
+    refetchListaBalanco();
+    setTabelaVisivel(true);
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
     }
   };
 
@@ -125,17 +126,20 @@ export const ActionPesquisaBalancoLoja = ({usuarioLogado, optionsEmpresas}) => {
         valueInputFieldDTInicioA={dataPesquisaInicio}
         labelInputDTInicioA={"Data Início"}
         onChangeInputFieldDTInicioA={(e) => setDataPesquisaInicio(e.target.value)}
-        
+        onKeyDownInputFieldDTInicioA={handleKeyPress}
+
         InputFieldDTFimAComponent={InputField}
         labelInputDTFimA={"Data Fim"}
         valueInputFieldDTFimA={dataPesquisaFim}
         onChangeInputFieldDTFimA={(e) => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFimA={handleKeyPress}
 
         InputFieldVendedor={InputField}
         labelInputFieldVendedor={"Descrição"}
-        onChangeInputFieldVendedor={e => setDescricao(e.target.value)} 
         valueInputFieldVendedor={descricao}   
-  
+        onChangeInputFieldVendedor={e => setDescricao(e.target.value)} 
+        onKeyDownInputFieldVendedor={handleKeyPress}
+
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
         onButtonClickSearch={handleClick}

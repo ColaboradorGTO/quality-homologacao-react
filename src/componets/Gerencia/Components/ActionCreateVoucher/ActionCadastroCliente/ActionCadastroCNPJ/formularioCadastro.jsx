@@ -11,7 +11,7 @@ import Select from "react-select"
 
 export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos }) => {
     const { handleSubmit, formState: { errors }, clearErrors, control, setError, setValue } = useForm({
-        mode: "onChange" 
+        mode: "onChange"
     });
     const {
         idCliente,
@@ -59,6 +59,8 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
         setNuIBGE,
         setCidade,
         setEstado,
+        setIM,
+        setIE,
         setTelefoneComercial,
         optionsIndicacaoIE,
         onSubmit
@@ -67,7 +69,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
 
     const handleValidatedSubmit = async () => {
         try {
-          
+
             const dadosParaValidar = {
                 cnpjCliente: cnpj,
                 nomeClienteRazaoCliente: nomeClienteRazao,
@@ -87,15 +89,15 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
 
 
             await schema.validate(dadosParaValidar, { abortEarly: false });
-            
-            
+
+
             onSubmit();
-            
+
         } catch (validationError) {
             console.error('❌ Erro de validação:', validationError);
-            
+
             clearErrors();
-    
+
 
             if (validationError.inner && validationError.inner.length > 0) {
                 validationError.inner.forEach(error => {
@@ -230,7 +232,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         errors={errors}
                                         clearErrors={clearErrors}
                                         value={IE}
-                                        onChange={(e) =>  setIE(e.target.value)}
+                                        onChange={(e) => setIE(e.target.value)}
                                     />
                                 )}
                             />
@@ -362,8 +364,8 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                                         onChange={(e) => setTelefoneComercial(e.target.value)}
                                     />
                                 )}
-                                />
-                                
+                            />
+
                         </div>
 
                         <div className="col-sm-4 col-md-3 col-xl-3">
@@ -385,16 +387,16 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                         </div>
                         <div className="col-sm-5 col-md-3 col-xl-4">
                             <label className="form-label" htmlFor={""}>Tipo Indicação IE</label>
-                             <Select
+                            <Select
                                 label={"Despesa"}
                                 options={optionsIndicacaoIE.map((item) => ({
                                     value: item.value,
                                     label: item.label
                                 }))}
                                 value={optionsIndicacaoIE.find(option => option.value === tipoIndicacaoIE) || null}
-                                onChange={(e) =>  setTipoIndicacaoIE(e?.value || null)}
+                                onChange={(e) => setTipoIndicacaoIE(e?.value || null)}
                             />
-                   
+
                             {errors.tipoIndicacaoIE && (
                                 <AlertError
                                     error={errors.tipoIndicacaoIE}
@@ -557,7 +559,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos 
                     </div>
                 </div>
             </form>
-    
+
             <FooterModal
                 ButtonTypeConfirmar={ButtonTypeModal}
                 textButtonConfirmar={'Cadastrar'}
