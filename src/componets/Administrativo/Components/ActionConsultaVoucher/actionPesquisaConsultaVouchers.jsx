@@ -126,6 +126,12 @@ export const ActionPesquisaConsultaVouchers = ({usuarioLogado}) => {
     refetchDetalheVoucherDados()
   }
 
+    const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   return (
 
@@ -141,11 +147,13 @@ export const ActionPesquisaConsultaVouchers = ({usuarioLogado}) => {
         valueInputFieldDTInicio={dataPesquisaInicio}
         labelInputFieldDTInicio={"Data Início"}
         onChangeInputFieldDTInicio={(e) => setDataPesquisaInicio(e.target.value)}
+        onKeyDownInputFieldDTInicio={handleKeyPress}
 
         InputFieldDTFimComponent={InputField}
         labelInputFieldDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={(e) => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFim={handleKeyPress}
 
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marca"}
@@ -177,6 +185,7 @@ export const ActionPesquisaConsultaVouchers = ({usuarioLogado}) => {
         labelInputFieldNumeroVoucher={"Voucher - Nº Venda ou CPF/CNPJ"}
         onChangeInputFieldNumeroVoucher={(e) => setNumeroVoucher(e.target.value)}
         valueInputFieldNumeroVoucher={numeroVoucher}
+        onKeyDownInputFieldNumeroVoucher={handleKeyPress}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}

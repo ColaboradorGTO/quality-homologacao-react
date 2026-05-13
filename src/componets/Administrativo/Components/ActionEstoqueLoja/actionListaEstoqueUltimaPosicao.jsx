@@ -91,7 +91,7 @@ export const ActionListaEstoqueUltimaPosicao = ({ dadosEstoqueUltima }) => {
       DSPRODUTO: item.DSPRODUTO,
       NUCODBARRAS: item.NUCODBARRAS,
       UND: item.UND,
-      QTDFINAL: parseFloat(item.QTDFINAL),
+      QTDFINAL: item.QTDFINAL,
       PRECOCUSTO: item.PRECOCUSTO,
       PRECOVENDA: item.PRECOVENDA,
       DTMOVIMENTOFORMATADO: item.DTMOVIMENTOFORMATADO,
@@ -99,16 +99,29 @@ export const ActionListaEstoqueUltimaPosicao = ({ dadosEstoqueUltima }) => {
     }
   });
 
-  const calcularTotalPagina = (field) => {
-    return dados.reduce((total, item) => total + parseFloat(item[field]), 0);
-  };
-  const calcularTotal = (field) => {
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    const dataPaginada = dados.slice(firstIndex, lastIndex); 
-    return dataPaginada.reduce((total, item) => total + toFloat(item[field] || 0), 0);
+   const filtrarDados = (dados, filtro) => {
+    if (!filtro) return dados;
+
+    return dados.filter(item => {
+      return Object.values(item).some(value => {
+        if (value === null || value === undefined) return false;
+        return value.toString().toLowerCase().includes(filtro.toLowerCase());
+      });
+    });
   };
 
+  const calcularTotalPagina = (field) => {
+    return dados.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotal = (field) => {
+    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
+    const firstIndex = first;
+    const lastIndex = first + rows;
+    const dataPaginada = dadosFiltrados.slice(firstIndex, lastIndex);
+    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+  
   const  calcularEstoque = () => {
     const totalDinheiro = calcularTotal('QTDFINAL');
     const totalVendas = calcularTotalPagina('QTDFINAL');
@@ -178,7 +191,7 @@ export const ActionListaEstoqueUltimaPosicao = ({ dadosEstoqueUltima }) => {
     {
       field: 'QTDFINAL',
       header: 'Estoque',
-      body: row => <th style={{ color: '#000', fontWeight: 600 }}>{row.QTDFINAL}</th>,
+      body: row => <th style={row.QTDFINAL < 0 ? { color: 'red', fontWeight: 600 } : { color: 'blue', fontWeight: 600 }}>{row.QTDFINAL}</th>,
       footer: calcularEstoque(),
       sortable: true
     },

@@ -89,6 +89,14 @@ export const ActionPesquisaVendasMarca = () => {
     setTabelaVisivel(true)
   }
 
+    const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
+
   return (
 
     <Fragment>
@@ -102,11 +110,13 @@ export const ActionPesquisaVendasMarca = () => {
         labelInputFieldDTInicio={"Data Início"}
         valueInputFieldDTInicio={dataPesquisaInicio}
         onChangeInputFieldDTInicio={e => setDataPesquisaInicio(e.target.value)}
+        onKeyDownInputFieldDTInicio={handleKeyPress}
 
         InputFieldDTFimComponent={InputField}
         labelInputFieldDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={e => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFim={handleKeyPress}
 
         InputSelectMarcasComponent={InputSelectAction}
         optionsMarcas={optionsMarcas.map((empresa) => ({

@@ -14,8 +14,15 @@ export const ActionListaPreviaBalanco = ({ dadosPreviaBalancoModal, optionsModul
     const [globalFilterValue, setGlobalFilterValue] = useState('');
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [first, setFirst] = useState(0);
+    const [rows, setRows] = useState(10);
     const [rowSelection, setRowSelection] = useState(null);
     const dataTableRef = useRef();
+
+    const onPageChange = (event) => {
+        setFirst(event.first);
+        setRows(event.rows);
+    };
 
     const {
         handleConsolidar
@@ -88,16 +95,37 @@ export const ActionListaPreviaBalanco = ({ dadosPreviaBalancoModal, optionsModul
             IDRESUMOBALANCO: item.IDRESUMOBALANCO,
         }
     })
-    const calcularTotal = (field) => {
-        return dados.reduce((total, item) => total + parseFloat(item[field]), 0);
+
+    const filtrarDados = (dados, filtro) => {
+        if (!filtro) return dados;
+
+        return dados.filter(item => {
+            return Object.values(item).some(value => {
+                if (value === null || value === undefined) return false;
+                return value.toString().toLowerCase().includes(filtro.toLowerCase());
+            });
+        });
     };
 
+    const calcularTotal = (field) => {
+        return dados.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+    }
+
+    const calcularTotalPagina = (field) => {
+        const dadosFiltrados = filtrarDados(dados, globalFilterValue);
+        const firstIndex = first;
+        const lastIndex = first + rows;
+        const dataPaginada = dadosFiltrados.slice(firstIndex, lastIndex);
+        return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+    }
+
+ 
     const calcularTotalQtdFinal = () => {
         const totalGeral = dados.reduce((total, item) => total + parseFloat(item.QTDFINAL), 0);
         const firstIndex = page * rowsPerPage;
         const lastIndex = firstIndex + rowsPerPage;
         const dataPaginada = dados.slice(firstIndex, lastIndex)
-        const totalPorPagina = dataPaginada.reduce((total, item) => total + parseFloat(item.QTDFINAL), 0);
+        const totalPorPagina = calcularTotalPagina("QTDFINAL");
         return `${totalPorPagina}  (${totalGeral} Total)`;
     };
 
@@ -107,7 +135,7 @@ export const ActionListaPreviaBalanco = ({ dadosPreviaBalancoModal, optionsModul
         const firstIndex = page * rowsPerPage;
         const lastIndex = firstIndex + rowsPerPage;
         const dataPaginada = dados.slice(firstIndex, lastIndex)
-        const totalPorPagina = dataPaginada.reduce((total, item) => total + parseFloat(item.QTD), 0);
+        const totalPorPagina = calcularTotalPagina("QTD");
         return `${totalPorPagina}  (${totalGeral} Total)`;
     };
     const calcularTotalQtdSobra = () => {
@@ -115,7 +143,7 @@ export const ActionListaPreviaBalanco = ({ dadosPreviaBalancoModal, optionsModul
         const firstIndex = page * rowsPerPage;
         const lastIndex = firstIndex + rowsPerPage;
         const dataPaginada = dados.slice(firstIndex, lastIndex)
-        const totalPorPagina = dataPaginada.reduce((total, item) => total + parseFloat(item.QTDSOBRA), 0);
+        const totalPorPagina = calcularTotalPagina("QTDSOBRA");
         return `${totalPorPagina}  (${totalGeral} Total)`;
     };
     const calcularTotalQtdFalta = () => {
@@ -123,7 +151,7 @@ export const ActionListaPreviaBalanco = ({ dadosPreviaBalancoModal, optionsModul
         const firstIndex = page * rowsPerPage;
         const lastIndex = firstIndex + rowsPerPage;
         const dataPaginada = dados.slice(firstIndex, lastIndex)
-        const totalPorPagina = dataPaginada.reduce((total, item) => total + parseFloat(item.QTDFALTA), 0);
+        const totalPorPagina = calcularTotalPagina("QTDFALTA");
         return `${totalPorPagina}  (${totalGeral} Total)`;
     };
     const calcularTotalPrecoVenda = () => {
@@ -131,7 +159,7 @@ export const ActionListaPreviaBalanco = ({ dadosPreviaBalancoModal, optionsModul
         const firstIndex = page * rowsPerPage;
         const lastIndex = firstIndex + rowsPerPage;
         const dataPaginada = dados.slice(firstIndex, lastIndex)
-        const totalPorPagina = dataPaginada.reduce((total, item) => total + parseFloat(item.PRECOVENDA), 0);
+        const totalPorPagina = calcularTotalPagina("PRECOVENDA");
         return `${formatMoeda(totalPorPagina)}  (${formatMoeda(totalGeral)} Total)`;
     };
     const calcularTotalVenda = () => {
@@ -139,7 +167,7 @@ export const ActionListaPreviaBalanco = ({ dadosPreviaBalancoModal, optionsModul
         const firstIndex = page * rowsPerPage;
         const lastIndex = firstIndex + rowsPerPage;
         const dataPaginada = dados.slice(firstIndex, lastIndex)
-        const totalPorPagina = dataPaginada.reduce((total, item) => total + parseFloat(item.TOTALVENDA), 0);
+        const totalPorPagina = calcularTotalPagina("TOTALVENDA");
         return `${formatMoeda(totalPorPagina)}  (${formatMoeda(totalGeral)} Total)`;
     };
 
@@ -230,11 +258,14 @@ export const ActionListaPreviaBalanco = ({ dadosPreviaBalancoModal, optionsModul
                     size="small"
                     sortOrder={-1}
                     paginator={true}
-                    rows={10}
+                    first={first}
+                    rows={rows}
                     selectionMode="single"
                     selection={rowSelection}
                     onSelectionChange={(e) => setRowSelection(e.value)}
-                    // rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+                    rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
+                    paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+                    currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
                     showGridlines
                     stripedRows
                     emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

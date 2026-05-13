@@ -54,17 +54,17 @@ export const ActionListaVendaOrigem = ({ dadosDetalheVoucher }) => {
         XLSX.writeFile(workbook, 'venda_origem.xlsx');
     };
 
-    const dados = dadosDetalheVoucher.map((item) => {
+ const dados = dadosDetalheVoucher.flatMap((item) =>
+        item.detalhevoucher.map((detalhe) => ({
+            
+            NUCODBARRAS: detalhe.det.NUCODBARRAS,
+            DSPRODUTO: detalhe.det.DSPRODUTO,
+            QTD: detalhe.det.QTD,
+            VRTOTALLIQUIDO: detalhe.det.VRTOTALLIQUIDO,
+            //IDRESUMOVENDAWEB: item.voucher[0].IDRESUMOVENDAWEB
+        }))
+    );
 
-        return {
-
-            NUCODBARRAS: item.detalhevoucher[0]?.det.NUCODBARRAS,
-            DSPRODUTO: item.detalhevoucher[0]?.det.DSPRODUTO,
-            QTD: item.detalhevoucher[0]?.det.QTD,
-            VRTOTALLIQUIDO: item.detalhevoucher[0]?.det.VRTOTALLIQUIDO,
-            // IDRESUMOVENDAWEB: item.voucher[0].IDRESUMOVENDAWEB,
-        }
-    })
 
     const colunasProdutosVendas = [
         {

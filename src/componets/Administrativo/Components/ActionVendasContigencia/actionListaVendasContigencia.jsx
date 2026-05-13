@@ -143,25 +143,34 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
     }
   });
 
+    const filtrarDados = (dados, filtro) => {
+    if (!filtro) return dados;
 
-  const calcularTotalPagina = (field) => {
-    return dados.reduce((total, item) => total + parseFloat(item[field]), 0);
+    return dados.filter(item => {
+      return Object.values(item).some(value => {
+        if (value === null || value === undefined) return false;
+        return value.toString().toLowerCase().includes(filtro.toLowerCase());
+      });
+    });
   };
+
+    const calcularTotalPagina = (field) => {
+    return dados.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
 
   const calcularTotal = (field) => {
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    const dataPaginada = dados.slice(firstIndex, lastIndex); 
-    return dataPaginada.reduce((total, item) => total + toFloat(item[field] || 0), 0);
-  };
+    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
+    const firstIndex = first;
+    const lastIndex = first + rows;
+    const dataPaginada = dadosFiltrados.slice(firstIndex, lastIndex);
+    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
 
   const calcularTotalValor = () => {
     const totalDinheiro = calcularTotal('VRTOTALPAGO');
     const totalVendas = calcularTotalPagina('VRTOTALPAGO' );
     return `${formatMoeda(totalDinheiro)}   (${formatMoeda(totalVendas)} total)`;
   };
-
-  
 
   const colunasVendasAtiva = [
     {

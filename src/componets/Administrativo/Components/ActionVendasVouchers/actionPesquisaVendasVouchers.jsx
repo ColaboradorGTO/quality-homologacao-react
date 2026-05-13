@@ -113,6 +113,13 @@ export const ActionPesquisaVendasVouchers = () => {
     setBtnVisivel(false)
   }
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
 
     <Fragment>
@@ -126,11 +133,13 @@ export const ActionPesquisaVendasVouchers = () => {
         valueInputFieldDTInicio={dataPesquisaInicio}
         labelInputFieldDTInicio={"Data Início"}
         onChangeInputFieldDTInicio={(e) => setDataPesquisaInicio(e.target.value)}
+        onKeyDownInputFieldDTInicio={handleKeyPress}
 
         InputFieldDTFimComponent={InputField}
         labelInputFieldDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={(e) => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFim={handleKeyPress}
 
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Grupos"}
@@ -164,18 +173,21 @@ export const ActionPesquisaVendasVouchers = () => {
         placeHolderInputFieldCodBarra={"Digite o CPF/CNPJ ou Nº Venda"}
         onChangeInputFieldCodBarra={(e) => setCPFNumeroVenda(e.target.value)}
         valueInputFieldCodBarra={cpfNumeroVenda}
+        onKeyDownInputFieldCodBarra={handleKeyPress}
 
         InputFieldComponent={InputField}
         labelInputField={"Série"}
         placeHolderInputFieldComponent={"Digite o número de série do voucher"}
         valueInputField={numeroSerie}
         onChangeInputField={(e) => setNumeroSerie(e.target.value)}
+        onKeyDownInputField={handleKeyPress}
 
         InputFieldNumeroNFComponent={InputField}
         labelInputFieldNumeroNF={"Nº NFCE"}
         placeHolderInputFieldNumeroNF={"Digite o número da NFCE"}
         valueInputFieldNumeroNF={numeroNFCE}
         onChangeInputFieldNumeroNF={(e) => setNumeroNFCE(e.target.value)}
+        onKeyDownInputFieldNumeroNF={handleKeyPress}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}

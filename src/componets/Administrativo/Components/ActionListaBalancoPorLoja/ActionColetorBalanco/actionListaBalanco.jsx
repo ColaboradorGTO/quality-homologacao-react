@@ -18,6 +18,8 @@ import { ActionListaDetalhe } from "./actionListaDetalhe";
 import { AiOutlineArrowLeft } from "react-icons/ai";
 import { useExcluirColetorBalanco } from "./hooks/useExcluirColetorBalanco";
 import { BsTrash3 } from "react-icons/bs";
+import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../../utils/animationCarregamento";
+import Swal from "sweetalert2";
 
 export const ActionListaBalanco = ({
     dadosColetorBalanco,
@@ -33,6 +35,9 @@ export const ActionListaBalanco = ({
     const [modalResumo, setModalResumo] = useState(true)
     const [dadosDetalhesBalanco, setDadosDetalhesBalanco] = useState([])
     const [rowSelection, setRowSelection] = useState(null);
+    const [idResumoSelecionado, setIdResumoSelecionado] = useState(null);
+    const [numeroColetorSelecionado, setNumeroColetorSelecionado] = useState(null);
+    const [paramsResumo, setParamsResumo] = useState(null);
     const dataTableRef = useRef();
     const {
         handleClickExcluir
@@ -102,16 +107,28 @@ export const ActionListaBalanco = ({
         }
     })
 
-    const calcularTotalPagina = (field) => {
-        return dados.reduce((total, item) => total + parseFloat(item[field]), 0);
-    };
+  const filtrarDados = (dados, filtro) => {
+    if (!filtro) return dados;
 
-    const calcularTotal = (field) => {
-        const firstIndex = first * rows;
-        const lastIndex = firstIndex + rows;
-        const dataPaginada = dados.slice(firstIndex, lastIndex);
-        return dataPaginada.reduce((total, item) => total + toFloat(item[field] || 0), 0);
-    };
+    return dados.filter(item => {
+      return Object.values(item).some(value => {
+        if (value === null || value === undefined) return false;
+        return value.toString().toLowerCase().includes(filtro.toLowerCase());
+      });
+    });
+  };
+
+  const calcularTotalPagina = (field) => {
+    return dados.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotal = (field) => {
+    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
+    const firstIndex = first;
+    const lastIndex = first + rows;
+    const dataPaginada = dadosFiltrados.slice(firstIndex, lastIndex);
+    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
 
     const cacularTotalQtdItens = () => {
         const totalDinheiro = calcularTotal('NUMITENS');
@@ -200,27 +217,82 @@ export const ActionListaBalanco = ({
     ]
 
 
-
-    const handleEditResumoBalanco = async (IDRESUMOBALANCO, NUMEROCOLETOR) => {
-
+    const fetchListaResumoBalanco = async (IDRESUMOBALANCO, NUMEROCOLETOR) => {
+        const urlBase = `/detalhe-balanco?idResumo=${IDRESUMOBALANCO}&numeroColetor=${NUMEROCOLETOR}`;
+        let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+        urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
         try {
-            const response = await get(`/detalhe-balanco?idResumo=${IDRESUMOBALANCO}&numeroColetor=${NUMEROCOLETOR}`);
-            if (response && response.data) {
-                setDadosDetalhesBalanco(response.data)
+            animacaoCarregamento('Carregando dados...', true);
+
+            const primeiraPagina = 1;
+            const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+            const page = primeiraResposta.page || primeiraPagina;
+            const pageSize = primeiraResposta.pageSize || 1000;
+            const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+            const totalPages = Math.ceil(totalRows / pageSize);
+
+            let allData = [...(primeiraResposta.data || [])];
+
+            if (totalPages > 1) {
+                for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+                    animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+                    const responsePage = await get(`${urlApi}&page=${currentPage}`);
+                    allData.push(...(responsePage.data || []));
+                }
             }
-            return response.data;
+
+            return allData;
         } catch (error) {
-            console.log(error, "não foi possivel pegar os dados da tabela ")
+            console.error('Erro ao buscar dados da api:', error);
+            throw error;
+        } finally {
+            fecharAnimacaoCarregamento();
         }
-    }
+    };
+
+    const { data: dadosResumoBalanco = [], error: errorBalanco, isLoading: isLoadingBalanco, refetch: refetchListaResumoBalanco } = useQuery(
+        ['detalhe-balanco', paramsResumo?.IDRESUMOBALANCO, paramsResumo?.NUMEROCOLETOR],
+        () => fetchListaResumoBalanco(paramsResumo?.IDRESUMOBALANCO, paramsResumo?.NUMEROCOLETOR),
+        {
+            enabled: false,
+        }
+    );
 
     const handleClickResumoBalanco = async (row) => {
-        if (row.IDRESUMOBALANCO && row.NUMEROCOLETOR) {
-            setTabelaDetalhe(true)
-            setModalResumo(false)
-            handleEditResumoBalanco(row.IDRESUMOBALANCO, row.NUMEROCOLETOR)
+        if (!row.IDRESUMOBALANCO || !row.NUMEROCOLETOR) return;
+
+        try {
+            Swal.fire({
+                title: 'Carregando dados...',
+                html: 'Buscando produtos do balanço',
+                allowOutsideClick: false,
+                customClass: {
+                    container: 'custom-swal'
+                },
+                didOpen: () => Swal.showLoading()
+            });
+
+            const data = await fetchListaResumoBalanco(row.IDRESUMOBALANCO, row.NUMEROCOLETOR);
+
+            if (data?.length) {
+                setDadosDetalhesBalanco(data);
+                setTabelaDetalhe(true);
+                setModalResumo(false);
+            }
+
+        } catch (error) {
+            console.log(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Erro',
+                text: 'Não foi possível carregar os dados',
+                customClass: { container: 'custom-swal' },
+            });
+        } finally {
+            Swal.close();
         }
-    }
+    };
+
 
     const { data: dadosProdutos = [], error: errorProdutos, isLoading: isLoadingProdutos, refetch: refetchProdutos } = useQuery(
         'coletor-balanco',
