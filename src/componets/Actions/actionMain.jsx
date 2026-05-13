@@ -343,6 +343,9 @@ export const ActionMain = ({
   onKeyDownInputFieldDTFimA,
   onKeyDownInputFieldDTInicio,
   onKeyDownInputFieldDTFim,
+  onKeyDownInputFieldDTConsulta,
+  onKeyDownInputFieldQuantidade,
+  onKeyDownInputFieldNumeroVoucher,
 
   // Inputs Selects
   InputSelectEmpresaComponent,
@@ -835,6 +838,7 @@ export const ActionMain = ({
                         name="dtconsultafim"
                         value={valueDTCosulta}
                         onChange={onChangeInputFieldDTConsulta}
+                        onKeyDown={onKeyDownInputFieldDTConsulta}
                       />
                     )}
 
@@ -1415,6 +1419,7 @@ export const ActionMain = ({
                         onChange={onChangeInputQuantidade}
                         placeHolder={placeHolderInputFieldQuantidade}
                         style={styleInputQuantidade}
+                        onKeyDown={onKeyDownInputFieldQuantidade}
                       />
                     )}
                     {InputFieldVendaCPFCNPJComponent && (
@@ -1463,6 +1468,7 @@ export const ActionMain = ({
                         id={id}
                         value={valueInputFieldNumeroVoucher}
                         onChange={onChangeInputFieldNumeroVoucher}
+                        onKeyDown={onKeyDownInputFieldNumeroVoucher}
                       />
                     )}
 
