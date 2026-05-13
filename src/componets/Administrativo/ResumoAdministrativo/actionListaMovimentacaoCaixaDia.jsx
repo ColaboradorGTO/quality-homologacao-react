@@ -170,8 +170,8 @@ export const ActionListaMovimentacaoCaixaDia = ({
     // )
     const vrPCJ18 = toFloat(item.vendapcj?.[0]?.['venda-pcj']?.TOTALPCJ18);
     const vrPCJ78 = toFloat(item.vendapcj?.[0]?.['venda-pcj']?.TOTALPCJ78);
-    const totalPCJ = vrPCJ18 !== 0 ? (vrPCJ78 / vrPCJ18) * 100 : 0;
-    return totalPCJ;
+    const totalPCJ = (vrPCJ78 / vrPCJ18) * 100;
+    return toFloat(totalPCJ);
 
   }
 
@@ -189,6 +189,9 @@ export const ActionListaMovimentacaoCaixaDia = ({
     const vrTotalFatura = calcularValorTotalFatura(item);
     const vrTotalCaixa = calcularTotalCaixa(item);
 
+    const vrPCJ18 = toFloat(item.vendapcj?.[0]?.['venda-pcj']?.TOTALPCJ18);
+    const vrPCJ78 = toFloat(item.vendapcj?.[0]?.['venda-pcj']?.TOTALPCJ78);
+    const totalPCJ = (vrPCJ78 / vrPCJ18) * 100;
 
     return {
       IDCAIXAWEB: item.caixa?.IDCAIXAWEB,
@@ -201,9 +204,9 @@ export const ActionListaMovimentacaoCaixaDia = ({
       VRRECDINHEIRO: item.caixa?.VRRECDINHEIRO,
 
 
-       TOTALRECEBIDOFATURA: item.fatura?.[0]?.['fatura-movimento']?.TOTALRECEBIDOFATURA,
+      TOTALRECEBIDOFATURA: item.fatura?.[0]?.['fatura-movimento']?.TOTALRECEBIDOFATURA,
       TOTALRECEBIDOFATURAPIX: item.faturapix?.[0]?.['fatura-movimento-pix']?.TOTALRECEBIDOFATURAPIX,
-      
+
       TOTALVENDIDODINHEIRO: toFloat(item.venda?.[0]?.['venda-movimento']?.TOTALVENDIDODINHEIRO),
       TOTALVENDIDOCARTAO: toFloat(item.venda?.[0]?.['venda-movimento']?.TOTALVENDIDOCARTAO),
       TOTALVENDIDOPOS: toFloat(item.venda?.[0]?.['venda-movimento']?.TOTALVENDIDOPOS),
@@ -220,6 +223,7 @@ export const ActionListaMovimentacaoCaixaDia = ({
       totalVendido: totalVendido,
       vrDisponivel: vrDisponivel,
       pcjTotal: pcjTotal,
+      totalPCJ: totalPCJ,
       vrTotalFatura: vrTotalFatura,
       vrTotalCaixa: vrTotalCaixa,
     };
@@ -333,8 +337,8 @@ export const ActionListaMovimentacaoCaixaDia = ({
       field: 'STCANCELADO',
       header: 'Situação',
       body: row => (
-        <th style={{ color: row.STCANCELADO === 'FALSE' ? 'blue' : 'red' }}>
-          {row.STCANCELADO === 'FALSE' ? 'ABERTO' : 'FECHADO'}
+        <th style={{ color: row.STCANCELADO == 'FALSE' ? 'blue' : 'red' }}>
+          {row.STCANCELADO == 'FALSE' ? 'ABERTO' : 'FECHADO'}
         </th>
       ),
       sortable: true,
@@ -342,100 +346,79 @@ export const ActionListaMovimentacaoCaixaDia = ({
 
   ]
 
+  const calcularTotal = (field) => {
+    return dadosMovLojaDia.reduce((total, item) => total + toFloat(item[field]), 0);
+  };
+
   const calcularTotalFatura = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.TOTALRECEBIDOFATURA)
-    }
-    return total
+    const total = calcularTotal('TOTALRECEBIDOFATURA');
+    return total;
   }
 
   const calcularFaturaPix = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-
-      total += toFloat(dados.TOTALRECEBIDOFATURAPIX)
-    }
+    const total = calcularTotal('TOTALRECEBIDOFATURAPIX');
     return total
   }
 
   const calcularTotalFaturaTotal = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.vrTotalFatura)
-    }
+    const total = calcularTotal('vrTotalFatura');
     return total
   }
 
   const calcularTotalVendidoDinheiro = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.TOTALVENDIDODINHEIRO)
-    }
+    const total = calcularTotal('TOTALVENDIDODINHEIRO');
     return total
   }
 
   const calcularTotalVendidoCartao = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.TOTALVENDIDOCARTAO)
-    }
+    const total = calcularTotal('TOTALVENDIDOCARTAO');
     return total
+  }
+
+  const calcularTotalvrPCJ18 = () => {
+    const total = calcularTotal('TOTALPCJ18');
+    return total;
+  }
+  const calcularTotalvrPCJ78 = () => {
+    const total = calcularTotal('TOTALPCJ78');
+    return total;
   }
 
   const calcularTotalPCJ = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.pcjTotal)
-    }
-    return total
+    const vrPCJ18 = calcularTotalvrPCJ18('TOTALPCJ18');
+    const vrPCJ78 = calcularTotalvrPCJ78('TOTALPCJ78');
+    const totalPCJPorcentagem = (vrPCJ78 / vrPCJ18) * 100;
+
+    return parseFloat(totalPCJPorcentagem.toFixed(2));
   }
 
   const calcularTotalPOS = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.TOTALVENDIDOPOS)
-    }
+    const total = calcularTotal('TOTALVENDIDOPOS');
     return total
   }
 
   const calcularTotalPIX = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.TOTALVENDIDOPIX)
-    }
+    const total = calcularTotal('TOTALVENDIDOPIX');
     return total
   }
 
   const calcularTotalVendidoVoucher = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.TOTALVENDIDOVOUCHER)
-    }
+    const total = calcularTotal('TOTALVENDIDOVOUCHER');
     return total
   }
 
   const calcularTotalVendidoConvenio = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.TOTALVENDIDOCONVENIO)
-    }
+    const total = calcularTotal('TOTALVENDIDOCONVENIO');
     return total
   }
 
   const calcularTotalCaixaTotal = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.vrTotalCaixa)
-    }
+    const total = calcularTotal('vrTotalCaixa');
     return total
   }
 
   const calcularVRDisponivel = () => {
-    let total = 0
-    for (let dados of dadosMovLojaDia) {
-      total += toFloat(dados.vrDisponivel)
-    }
+    const total = calcularTotal('vrDisponivel');
     return total
   }
 
@@ -480,7 +463,7 @@ export const ActionListaMovimentacaoCaixaDia = ({
         <Column footer={formatMoeda(calcularTotalFaturaTotal())} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
         <Column footer={formatMoeda(calcularTotalVendidoDinheiro())} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
         <Column footer={formatMoeda(calcularTotalVendidoCartao())} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
-        <Column footer={formatMoeda(calcularTotalPCJ())} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
+        <Column footer={calcularTotalPCJ()} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
         <Column footer={formatMoeda(calcularTotalPOS())} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
         <Column footer={formatMoeda(calcularTotalPIX())} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
         <Column footer={formatMoeda(calcularTotalVendidoVoucher())} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
@@ -489,6 +472,7 @@ export const ActionListaMovimentacaoCaixaDia = ({
         <Column footer={formatMoeda(calcularVRDisponivel())} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
         <Column footer={''} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
       </Row>
+
 
       <Row>
         <Column footer="Total Despesas: (-)" colSpan={4} style={{ textAlign: 'center' }} footerStyle={{ textAlign: 'center', color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }} />
@@ -517,7 +501,34 @@ export const ActionListaMovimentacaoCaixaDia = ({
         <Column
           footer={malotes[0]?.statusFormatado}
           colSpan={10}
-          footerStyle={{ textAlign: 'center', color: '#0D6EFD', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem', fontWeight: 'bold' }}
+          footerStyle={
+            malotes[0]?.statusFormatado === 'Pendente de Envio'
+              ? {
+                textAlign: 'center',
+                color: '#239cff',
+                backgroundColor: "#e9e9e9",
+                border: '1px solid #ccc',
+                fontSize: '1rem',
+                fontWeight: 'bold'
+              }
+              : malotes[0]?.statusFormatado === 'Conferido'
+                ? {
+                  textAlign: 'center',
+                  color: '#56ffc1',
+                  backgroundColor: "#e9e9e9",
+                  border: '1px solid #ccc',
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }
+                : {
+                  textAlign: 'center',
+                  color: '#f72cb0',
+                  backgroundColor: "#e9e9e9",
+                  border: '1px solid #ccc',
+                  fontSize: '1rem',
+                  fontWeight: 'bold'
+                }
+          }
         />
         <Column
           footer={
@@ -547,8 +558,8 @@ export const ActionListaMovimentacaoCaixaDia = ({
         />
       </Row>
     </ColumnGroup>
-  )
 
+  )
   return (
     <Fragment>
       <div className="row" >

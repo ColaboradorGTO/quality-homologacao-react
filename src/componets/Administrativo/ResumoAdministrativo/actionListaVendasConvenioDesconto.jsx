@@ -9,6 +9,8 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../Tables/headerTable";
+import { toFloat } from "../../../utils/toFloat";
+
 
 export const ActionListaVendasConvenioDesconto = ({ dadosVendasConvenioDesconto }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -104,30 +106,25 @@ export const ActionListaVendasConvenioDesconto = ({ dadosVendasConvenioDesconto 
       vrTotalFaturaLoja
     };
   });
+  const calcularTotal = (field) => {
+    return dadosConvenioVendasDesconto.reduce((total, item) => total + toFloat(item[field]), 0);
+  };
 
-  const calcularTotalVrBruto = () => {
-    let total = 0;
-    for (let dados of dadosConvenioVendasDesconto) {
-      total += parseFloat(dados.VRBRUTOPAGO);
-    }
+   const calcularTotalVrBruto = () => {
+    const total = calcularTotal('VRBRUTOPAGO');
     return total;
   }
 
   const calcularTotalVrDesconto = () => {
-    let total = 0;
-    for (let dados of dadosConvenioVendasDesconto) {
-      total += parseFloat(dados.VRDESPAGO);
-    }
+    const total = calcularTotal('VRDESPAGO');
     return total;
   }
 
   const calcularTotalVrLiq = () => {
-    let total = 0;
-    for (let dados of dadosConvenioVendasDesconto) {
-      total += parseFloat(dados.VRLIQPAGO);
-    }
+    const total = calcularTotal('VRLIQPAGO');
     return total;
   }
+
 
   const colunaVendasConvenioDesconto = [
     {
@@ -173,17 +170,17 @@ export const ActionListaVendasConvenioDesconto = ({ dadosVendasConvenioDesconto 
     },
     {
       header: 'Valor Bruto',
-      body: row => <th> {formatMoeda(row.VRBRUTOPAGO)}</th>,
+      body: row => <th> {formatMoeda(toFloat(row.VRBRUTOPAGO))}</th>,
       sortable: true,
     },
     {
       header: 'Desconto',
-      body: row => <th> {formatMoeda(row.VRDESPAGO)}</th>,
+      body: row => <th> {formatMoeda(toFloat(row.VRDESPAGO))}</th>,
       sortable: true,
     },
     {
       header: 'Valor Liq',
-      body: row => <th> {formatMoeda(row.VRLIQPAGO)}</th>,
+      body: row => <th> {formatMoeda(toFloat(row.VRLIQPAGO))}</th>,
       sortable: true,
     },
     {
@@ -221,7 +218,7 @@ export const ActionListaVendasConvenioDesconto = ({ dadosVendasConvenioDesconto 
 
         <header className="panel-hdr" >
           <h2>
-            Lista de Vendas Convênio Desconto em Folha
+            Lista de Vendas Convênio <span className="fw-300 fst-italic">Desconto em Folha</span>
           </h2>
         </header>
 
