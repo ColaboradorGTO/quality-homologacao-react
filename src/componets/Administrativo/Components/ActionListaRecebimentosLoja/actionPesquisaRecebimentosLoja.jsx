@@ -194,7 +194,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
         onChangeSelectEmpresa={handleSelectEmpresa}
         valueSelectEmpresa={empresaSelecionada}
         optionsEmpresas={[
-          { value: '0', label: 'Selecionar Empresa' },
+          { value: '0', label: 'Todas' },
           ...optionsEmpresas.map((empresa) => {
             return {
               value: empresa.IDEMPRESA,
@@ -207,7 +207,7 @@ export const ActionPesquisaRecebimentosLoja = () => {
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marca"}
         optionsMarcas={[
-          { value: '0', label: 'Selecionar Marca' },
+          { value: '0', label: 'Todas' },
             ...optionsMarcas.map((marca) => {
             return {
               

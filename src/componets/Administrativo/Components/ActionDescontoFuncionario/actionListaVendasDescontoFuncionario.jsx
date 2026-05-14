@@ -16,6 +16,7 @@ import { ColumnGroup } from "primereact/columngroup";
 import { Row } from "primereact/row";
 import Swal from "sweetalert2";
 
+
 export const ActionListaVendasDescontoFuncionario = ({dadosVendasConvenio, usuarioLogado, optionsModulos}) => {
   const [modalPagamentoVisivel, setModalPagamentoVisivel] = useState(false);
   const [dadosDetalheRecebimentos, setDadosDetalheRecebimentos] = useState([]);
@@ -129,73 +130,73 @@ export const ActionListaVendasDescontoFuncionario = ({dadosVendasConvenio, usuar
     {
       field: 'contador',
       header: 'Nº',
-      body: row => <th>{row.contador}</th>,
+      body: row => <th style={{color: 'blue'}}>{row.contador}</th>,
       sortable: true,
     },
     {
       field: 'IDCAIXAWEB',
       header: 'Caixa',
-      body: row => <p style={{width: '100px', margin: '0px', fontWeight: 600}}>{row.IDCAIXAWEB} - {row.DSCAIXA}</p>,
+      body: row => <p style={{width: '100px', margin: '0px', fontWeight: 600, color: 'blue'}}>{row.IDCAIXAWEB} - {row.DSCAIXA}</p>,
       sortable: true,
     },
     {
       field: 'IDVENDA',
       header: 'Nº Venda',
-      body: row => <th>{row.IDVENDA}</th>,
+      body: row => <th style={{color: 'blue'}}>{row.IDVENDA}</th>,
       sortable: true,
     },
     {
       field: 'NFE_INFNFE_IDE_NNF',
       header: 'NFCe',
-      body: row => <th>{row.NFE_INFNFE_IDE_NNF}</th>,
+      body: row => <th style={{color: 'blue'}}>{row.NFE_INFNFE_IDE_NNF}</th>,
       sortable: true,
     },
     {
       field: 'DTHORAFECHAMENTO',
       header: 'Abertura',
-      body: row => <p style={{width: '120px', margin: '0px', fontWeight: 600}}>{row.DTHORAFECHAMENTO}</p>,
+      body: row => <p style={{width: '120px', margin: '0px', fontWeight: 600, color: 'blue'}}>{row.DTHORAFECHAMENTO}</p>,
       sortable: true,
     },
     {
       field: 'NOFUNCIONARIO',
       header: 'Operador',
-      body: row => <p style={{width: '250px', margin: '0px', fontWeight: 600}}>{row.NOFUNCIONARIO}</p>,
+      body: row => <p style={{width: '250px', margin: '0px', fontWeight: 600, color: 'blue'}}>{row.NOFUNCIONARIO}</p>,
       sortable: true,
     },
     {
       field: 'NOCONVENIADO',
       header: 'Conveniado',
-      body: row => <p style={{width: '250px', margin: '0px', fontWeight: 600}}>{row.NOCONVENIADO}</p>,
+      body: row => <p style={{width: '250px', margin: '0px', fontWeight: 600, color: 'blue'}}>{row.NOCONVENIADO}</p>,
       sortable: true,
     },
     {
       field: 'CPFCONVENIADO',
       header: 'CPF',
-      body: row => <th>{row.CPFCONVENIADO}</th>,
+      body: row => <th style={{color: 'blue'}}>{row.CPFCONVENIADO}</th>,
       sortable: true,
     },
     {
       field: 'VRBRUTOPAGO',
       header: 'Valor Bruto',
-      body: row => <th>{formatMoeda(toFloat(row.VRBRUTOPAGO))}</th>,
+      body: row => <th style={{color: 'blue'}}>{formatMoeda(toFloat(row.VRBRUTOPAGO))}</th>,
       sortable: true,
     },
     {
       field: 'VRDESPAGO',
       header: 'Desconto',
-      body: row => <th>{formatMoeda(toFloat(row.VRDESPAGO))}</th>,
+      body: row => <th style={{color: 'blue'}}>{formatMoeda(toFloat(row.VRDESPAGO))}</th>,
       sortable: true,
     },
     {
       field: 'VRLIQPAGO',
       header: 'Valor Liquido',
-      body: row => <th>{formatMoeda(toFloat(row.VRLIQPAGO))}</th>,
+      body: row => <th style={{color: 'blue'}}>{formatMoeda(toFloat(row.VRLIQPAGO))}</th>,
       sortable: true,
     },
     {
       field: 'TXTMOTIVODESCONTO',
       header: 'Obs',
-      body: row => <p style={{width: '250px', margin: '0px', fontWeight: 600}}>{row.TXTMOTIVODESCONTO}</p>,
+      body: row => <p style={{width: '250px', margin: '0px', fontWeight: 600, color: 'blue'}}>{row.TXTMOTIVODESCONTO}</p>,
       sortable: true,
     },
     {
@@ -278,7 +279,7 @@ export const ActionListaVendasDescontoFuncionario = ({dadosVendasConvenio, usuar
     <Fragment>
       <div className="panel">
         <div className="panel-hdr">
-          <h2>Lista Vendas por Desconto e Período</h2>
+            Lista de Vendas Com Desconto <span className="fw-300">Funcionários e PN</span>
         </div>
         <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
           <HeaderTable

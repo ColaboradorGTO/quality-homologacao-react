@@ -13,10 +13,12 @@ import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import 'jspdf-autotable';
 import Swal from "sweetalert2";
+import { toFloat } from "../../../../utils/toFloat";
+
 
 export const ActionListaAlterarVendaVendedor = ({dadosVendasAtivas, empresaSelecionada, optionsModulos, usuarioLogado }) => {
   const [dadosVendasDetalhada, setDadosVendasDetalhada] = useState([]); 
-  const [modalVisivel,  setModalVisivel] = useState(false);
+  const [modalVisivel, setModalVisivel] = useState(false);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
@@ -100,11 +102,13 @@ export const ActionListaAlterarVendaVendedor = ({dadosVendasAtivas, empresaSelec
     }
   });
 
+   const calcularTotal = (field) => {
+    return dados.reduce((total, item) => total + toFloat(item[field]), 0);
+  };
+
+
   const calcularTotalValorPago = () => {
-    let total = 0;
-    for(let dados of dadosVendasAtivas){
-      total += parseFloat(dados.VRTOTALPAGO);
-    }
+    const total = calcularTotal('VRTOTALPAGO');
     return total;
   }
 
@@ -201,7 +205,7 @@ export const ActionListaAlterarVendaVendedor = ({dadosVendasAtivas, empresaSelec
     }
   };
   const handleClickEdit = async (row) => {
-    if(optionsModulos[0]?.ALTERAR == 'True') {
+    if (optionsModulos[0]?.ALTERAR == 'True') {
       if (row && row.IDVENDA) {
         await handleEdit(empresaSelecionada, row.IDVENDA);
       }

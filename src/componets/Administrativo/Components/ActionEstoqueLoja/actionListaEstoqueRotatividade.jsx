@@ -18,11 +18,11 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
   const [rows, setRows] = useState(10);
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
-    
+
   const onPageChange = (event) => {
     setFirst(event.first);
     setRows(event.rows);
-  }  
+  }
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -36,7 +36,7 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
-      head: [['Produto','Data Movimento', 'QTD início', 'QTD Entrada', 'QTD Entrada Voucher', 'QTD Saída', 'QTD Saída Transf', 'QTD AJuste Balanço', 'QTD Final']],
+      head: [['Produto', 'Data Movimento', 'QTD início', 'QTD Entrada', 'QTD Entrada Voucher', 'QTD Saída', 'QTD Saída Transf', 'QTD AJuste Balanço', 'QTD Final']],
       body: dados.map(item => [
         item.NUCODBARRAS,
         item.DSPRODUTO,
@@ -50,7 +50,7 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
         parseFloat(item.QTDSAIDATRANSFERENCIA),
         parseFloat(item.QTDRETORNOAJUSTEPEDIDO),
         parseFloat(item.QTDAJUSTEBALANCO),
-        parseFloat(item.QTDFINAL),,
+        parseFloat(item.QTDFINAL), 
       ]),
       horizontalPageBreak: true,
       horizontalPageBreakBehaviour: 'immediately'
@@ -72,7 +72,7 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
       { wpx: 100, caption: 'QTD Saída Transf' },
       { wpx: 100, caption: 'QTD AJuste Balanço' },
       { wpx: 100, caption: 'QTD Final' },
-    ]; 
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Rotatividade Estoque');
     XLSX.writeFile(workbook, 'estoque_rotatividade.xlsx');
@@ -80,7 +80,7 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
 
   const dadosExecell = dadosEstoqueRotatividade.map((item, index) => {
     return {
-  
+
       produto: JSON.stringify({
         NUCODBARRAS: item.NUCODBARRAS,
         DSPRODUTO: item.DSPRODUTO,
@@ -99,7 +99,7 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
     }
   })
   const dados = dadosEstoqueRotatividade.map((item, index) => {
- 
+
     return {
       IDPRODUTO: item.IDPRODUTO,
       NUCODBARRAS: item.NUCODBARRAS,
@@ -118,42 +118,57 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
     }
   });
 
-  const calcularTotalPagina = (field) => {
-    return dados.reduce((total, item) => total + parseFloat(item[field]), 0);
-  };
-  const calcularTotal = (field) => {
-    const firstIndex = first * rows;
-    const lastIndex = firstIndex + rows;
-    const dataPaginada = dados.slice(firstIndex, lastIndex); 
-    return dataPaginada.reduce((total, item) => total + toFloat(item[field] || 0), 0);
+
+  const filtrarDados = (dados, filtro) => {
+    if (!filtro) return dados;
+
+    return dados.filter(item => {
+      return Object.values(item).some(value => {
+        if (value === null || value === undefined) return false;
+        return value.toString().toLowerCase().includes(filtro.toLowerCase());
+      });
+    });
   };
 
-  const  calcularQtdEntrada = () => {
+  const calcularTotalGeral = (field) => {
+    return dados.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotal = (field) => {
+    const dadosFiltrados = filtrarDados(dados, globalFilterValue);
+    const firstIndex = first;
+    const lastIndex = first + rows;
+    const dataPaginada = dadosFiltrados.slice(firstIndex, lastIndex);
+    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+
+  const calcularQtdEntrada = () => {
     const totalDinheiro = calcularTotal('QTDENTRADA');
     const totalVendas = calcularTotalPagina('QTDENTRADA');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
-  const  calcularQtdEntradaVoucher = () => {
+  const calcularQtdEntradaVoucher = () => {
     const totalDinheiro = calcularTotal('QTDENTRADAVOUCHER');
     const totalVendas = calcularTotalPagina('QTDENTRADAVOUCHER');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
-  const  calcularQtdSaida = () => {
+  const calcularQtdSaida = () => {
     const totalDinheiro = calcularTotal('QTDSAIDA');
     const totalVendas = calcularTotalPagina('QTDSAIDA');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
-  const  calcularQtdSaidaTransferencia = () => {
+  const calcularQtdSaidaTransferencia = () => {
     const totalDinheiro = calcularTotal('QTDSAIDATRANSFERENCIA');
     const totalVendas = calcularTotalPagina('QTDSAIDATRANSFERENCIA');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
-  const  calcularQtdRetornoAjustePedido = () => {
+  const calcularQtdRetornoAjustePedido = () => {
     const totalDinheiro = calcularTotal('QTDRETORNOAJUSTEPEDIDO');
     const totalVendas = calcularTotalPagina('QTDRETORNOAJUSTEPEDIDO');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
-  const  calcularQtdAjusteBalanco = () => {
+  const calcularQtdAjusteBalanco = () => {
     const totalDinheiro = calcularTotal('QTDAJUSTEBALANCO');
     const totalVendas = calcularTotalPagina('QTDAJUSTEBALANCO');
     return `${totalDinheiro}   (${totalVendas} total)`;
@@ -161,85 +176,85 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
 
   const headerGroup = (
     <ColumnGroup>
-        <Row>
-            <Column header="Product" rowSpan={3} />
-            
-        </Row>
-        <Row>
-            <Column header="Data Movimento" sortable field="DATAMOVIMENTO" />
-            <Column header="QTD Início" sortable field="QTDINICIO" />
-            <Column header="QTD Entrada" sortable field="QTDENTRADA" />
-            <Column header="QTD Entrada Voucer" sortable field="QTDENTRADAVOUCHER" />
-            <Column header="QTD Saída" sortable field="QTDSAIDA" />
-            <Column header="QTD Saída Transferência" sortable field="QTDSAIDATRANSFERENCIA" />
-            <Column header="QTD Ajuste Pedido" sortable field="QTDRETORNOAJUSTEPEDIDO" />
-            <Column header="QTD Ajuste Balanço" sortable field="QTDAJUSTEBALANCO" />
-            <Column header="QTD Final" sortable field="QTDFINAL" />
-        </Row>
+      <Row>
+        <Column header="Product" rowSpan={3} />
+
+      </Row>
+      <Row>
+        <Column header="Data Movimento" sortable field="DATAMOVIMENTO" />
+        <Column header="QTD Início" sortable field="QTDINICIO" />
+        <Column header="QTD Entrada" sortable field="QTDENTRADA" />
+        <Column header="QTD Entrada Voucer" sortable field="QTDENTRADAVOUCHER" />
+        <Column header="QTD Saída" sortable field="QTDSAIDA" />
+        <Column header="QTD Saída Transferência" sortable field="QTDSAIDATRANSFERENCIA" />
+        <Column header="QTD Ajuste Pedido" sortable field="QTDRETORNOAJUSTEPEDIDO" />
+        <Column header="QTD Ajuste Balanço" sortable field="QTDAJUSTEBALANCO" />
+        <Column header="QTD Final" sortable field="QTDFINAL" />
+      </Row>
     </ColumnGroup>
-);
+  );
 
   const colunasEstoqueRotatividade = [
 
     {
       field: 'DATAMOVIMENTO',
       header: 'Data Movimento',
-      body: row => <th style={{  }}>{row.DATAMOVIMENTO}</th>,
+      body: row => <th style={{}}>{row.DATAMOVIMENTO}</th>,
       sortable: true
     },
     {
       field: 'QTDINICIO',
       header: 'QTD Início',
-      body: row => <th style={{  }}>{row.QTDINICIO}</th>,
+      body: row => <th style={{}}>{row.QTDINICIO}</th>,
 
       sortable: true
     },
     {
       field: 'QTDENTRADA',
       header: 'QTD Entrada',
-      body: row => <th style={{  }}>{row.QTDENTRADA}</th>,
+      body: row => <th style={{}}>{row.QTDENTRADA}</th>,
       footer: calcularQtdEntrada(),
       sortable: true
     },
     {
       field: 'QTDENTRADAVOUCHER',
       header: 'QTD Entrada Voucher',
-      body: row => <th style={{  }}>{row.QTDENTRADAVOUCHER}</th>,
+      body: row => <th style={{}}>{row.QTDENTRADAVOUCHER}</th>,
       footer: calcularQtdEntradaVoucher(),
       sortable: true
     },
     {
       field: 'QTDSAIDA',
       header: 'QTD Saída',
-      body: row => <th style={{  }}>{row.QTDSAIDA}</th>,
+      body: row => <th style={{}}>{row.QTDSAIDA}</th>,
       footer: calcularQtdSaida(),
       sortable: true
     },
     {
       field: 'QTDSAIDATRANSFERENCIA',
       header: 'QTD Saída Transferência',
-      body: row => <th style={{  }}>{row.QTDSAIDATRANSFERENCIA}</th>,
+      body: row => <th style={{}}>{row.QTDSAIDATRANSFERENCIA}</th>,
       footer: calcularQtdSaidaTransferencia(),
       sortable: true
     },
     {
       field: 'QTDRETORNOAJUSTEPEDIDO',
       header: 'QTD Ret. Ajuste Pedido',
-      body: row => <th style={{  }}>{row.QTDRETORNOAJUSTEPEDIDO}</th>,
+      body: row => <th style={{}}>{row.QTDRETORNOAJUSTEPEDIDO}</th>,
       footer: calcularQtdRetornoAjustePedido(),
       sortable: true
     },
     {
       field: 'QTDAJUSTEBALANCO',
       header: 'QTD Ajuste Balanço',
-      body: row => <th style={{  }}>{row.QTDAJUSTEBALANCO}</th>,
+      body: row => <th style={{}}>{row.QTDAJUSTEBALANCO}</th>,
       footer: calcularQtdAjusteBalanco(),
       sortable: true
     },
     {
       field: 'QTDFINAL',
       header: 'QTD Final',
-      body: row => <th style={{  }}>{row.QTDFINAL}</th>,
+      body: row => <th style={{}}>{row.QTDFINAL}</th>,
       sortable: true
     },
   ]
@@ -248,14 +263,14 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
   const HeaderTemplate = (rowData) => {
     return (
       <div className="flex align-items-center gap-2" style={{ alignContent: 'center' }}>
-        <span className="font-bold" style={{fontWeight: 600}}>
+        <span className="font-bold" style={{ fontWeight: 600 }}>
           {`${rowData.NUCODBARRAS} - ${rowData.DSPRODUTO} / Custo R$ ${formatMoeda(rowData.PRECOCUSTO)}  - Venda R$ ${formatMoeda(rowData.PRECOVENDA)}`}
         </span>
       </div>
     );
   };
 
-  
+
   return (
 
     <Fragment>
@@ -318,7 +333,7 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
             ))}
 
           </DataTable>
-        
+
         </div>
       </div>
     </Fragment>

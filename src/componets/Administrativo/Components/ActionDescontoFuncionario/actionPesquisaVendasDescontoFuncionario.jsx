@@ -6,7 +6,7 @@ import { get } from "../../../../api/funcRequest";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { ActionListaVendasDescontoFuncionario } from "./actionListaVendasDescontoFuncionario";
 import { AiOutlineSearch } from "react-icons/ai";
-import {InputSelectAction} from "../../../Inputs/InputSelectAction"
+import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { useQuery } from "react-query";
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
 
@@ -17,7 +17,7 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
   const [empresaSelecionadaNome, setEmpresaSelecionadaNome] = useState('')
   const [funcionarioSelecionado, setFuncionarioSelecionado] = useState('')
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
-  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);             
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
   useEffect(() => {
     const dataInicial = getDataAtual()
@@ -33,15 +33,15 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
       setMenuFilhoAtual(menuParsed);
     }
   }, []);
-  
+
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
-      
+
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
@@ -52,12 +52,12 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
     },
     { staleTime: 60 * 60 * 1000, }
   );
-  
+
   const { data: dadosFuncionarios = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
     ['listaFuncionarioVendasDesconto', empresaSelecionada],
     async () => {
       const response = await get(`/funcionarios?idEmpresa=${empresaSelecionada}`);
-      
+
       return response.data;
     },
     { enabled: Boolean(empresaSelecionada), staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000, }
@@ -69,7 +69,7 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
-                                                                
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -95,12 +95,12 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
       fecharAnimacaoCarregamento();
     }
   };
-   
+
   const { data: dadosVendasConvenio = [], error: errorVendasMarca, isLoading: isLoadingVendasMarca, refetch: refetchListaVendasConvenio } = useQuery(
     ['listaVendasMarca',],
     () => fetchListaVendasConvenio(),
     {
-      enabled: false, 
+      enabled: false,
     }
   );
 
@@ -113,10 +113,17 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
   const handleChangeFuncionario = (e) => {
     setFuncionarioSelecionado(e.value);
   }
- 
+
   const handleClick = () => {
     setTabelaVisivel(true);
     refetchListaVendasConvenio()
+  };
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
   };
 
   return (
@@ -128,16 +135,18 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
         linkComponent={["Vendas por Desconto e Período"]}
         title="Vendas por Desconto e Período"
         subTitle={empresaSelecionadaNome}
-        
+
         InputFieldDTInicioComponent={InputField}
         labelInputFieldDTInicio={"Data Início"}
         valueInputFieldDTInicio={dataPesquisaInicio}
         onChangeInputFieldDTInicio={e => setDataPesquisaInicio(e.target.value)}
+        onKeyDownInputFieldDTInicio={handleKeyPress}
 
         InputFieldDTFimComponent={InputField}
         labelInputFieldDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={e => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFim={handleKeyPress}
 
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Empresa"}
@@ -146,8 +155,8 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
           ...optionsEmpresas.map((empresa) => ({
             value: empresa.IDEMPRESA,
             label: empresa.NOFANTASIA,
-        }))]}
-        
+          }))]}
+
         onChangeSelectEmpresa={(e) => handleSelectEmpresa(e)}
         valueSelectEmpresa={empresaSelecionada}
 
@@ -156,10 +165,10 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
         optionsFuncionarios={dadosFuncionarios.map((funcionario) => ({
           value: funcionario.IDFUNCIONARIO,
           label: funcionario.NOFUNCIONARIO,
-        }))}      
+        }))}
         valueSelectFuncionario={funcionarioSelecionado}
         onChangeSelectFuncionario={handleChangeFuncionario}
-  
+
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
         onButtonClickSearch={handleClick}
@@ -169,10 +178,10 @@ export const ActionPesquisaVendasDescontoFuncionario = ({ usuarioLogado }) => {
       />
 
       {tabelaVisivel &&
-        
-        <ActionListaVendasDescontoFuncionario 
-          dadosVendasConvenio={dadosVendasConvenio} 
-          usuarioLogado={usuarioLogado}  
+
+        <ActionListaVendasDescontoFuncionario
+          dadosVendasConvenio={dadosVendasConvenio}
+          usuarioLogado={usuarioLogado}
           optionsModulos={optionsModulos}
         />
       }

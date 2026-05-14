@@ -1,7 +1,7 @@
 import { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { dataFormatada } from "../../../../utils/dataFormatada";
+import { dataFormatada, dataHoraFormatada } from "../../../../utils/dataFormatada";
 import { formatMoeda } from "../../../../utils/formatMoeda";
 import HeaderTable from "../../../Tables/headerTable";
 import { useReactToPrint } from "react-to-print";
@@ -232,13 +232,13 @@ export const ActionListaConvenioDescontoFuncionario = ({ dadosVendasConvenioFunc
     {
       field: 'DTLANCAMENTO',
       header: 'Data',
-      body: row => <th style={{ color: 'blue' }}> {dataFormatada(row.DTLANCAMENTO)}</th>,
+      body: row => <th style={{ color: 'blue' }}> {dataHoraFormatada(row.DTLANCAMENTO)}</th>,
       sortable: true,
     },
     {
       field: 'NUCPF',
       header: 'CPF',
-      body: row => <th style={{ color: 'blue' }}> {toFloat(row.NUCPF)}</th>,
+      body: row => <th style={{ color: 'blue' }}> {row.NUCPF}</th>,
       sortable: true,
     },
     {

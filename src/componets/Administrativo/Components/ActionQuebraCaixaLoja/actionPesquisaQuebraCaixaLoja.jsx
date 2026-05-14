@@ -240,6 +240,12 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
     }
   };
 
+    const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   return (
 
@@ -254,17 +260,20 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
         valueInputFieldDTInicio={dataPesquisaInicio}
         labelInputFieldDTInicio={"Data Início"}
         onChangeInputFieldDTInicio={(e) => setDataPesquisaInicio(e.target.value)}
+        onKeyDownInputFieldDTInicio={handleKeyPress}
 
         InputFieldDTFimComponent={InputField}
         labelInputFieldDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={(e) => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFim={handleKeyPress}
 
         InputFieldComponent={InputField}
         labelInputField={"CPF Operador"}
         placeHolderInputFieldComponent={"CPF Operador"}
         valueInputField={cpfOperadorQuebra}
         onChangeInputField={(e) => setCpfOperadorQuebra(e.target.value)}
+        onKeyDownInputField={handleKeyPress}
 
         InputSelectEmpresaComponent={InputSelectAction}  
         optionsEmpresas={[

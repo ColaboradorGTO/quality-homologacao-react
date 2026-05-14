@@ -228,7 +228,7 @@ export const ActionPesquisaVendasCanceladas = ({usuarioLogado }) => {
   };
    
   const { data: dadosVendasCanceladasEmitidasPDV = [], error: errorVendasCanceladasEmitidasPDV, isLoading: isLoadingVendasCanceladasEmitidasPDV, refetch: refetchVendasCanceladasEmitidasPDV } = useQuery(
-    ['venda-ativa',  ],
+    ['venda-ativa', 'emitida' ],
     () => fetchVendasCanceladasEmitidasPDV(),
     {enabled: false, staleTime: 60 * 60 * 1000 }
   );
@@ -269,7 +269,7 @@ export const ActionPesquisaVendasCanceladas = ({usuarioLogado }) => {
   };
 
   const { data: dadosVendasCanceladasEmTelaPDV = [], error: errorVendasCanceladasEmTelaPDV, isLoading: isLoadingVendasCanceladasEmTelaPDV, refetch: refetchVendasCanceladasEmTelaPDV} = useQuery(
-    ['venda-ativa',  ],
+    ['venda-ativa', 'em-tela' ],
     () => fetchVendasCanceladasEmTelaPDV(),
     {enabled: false, staleTime: 60 * 60 * 1000}
   );

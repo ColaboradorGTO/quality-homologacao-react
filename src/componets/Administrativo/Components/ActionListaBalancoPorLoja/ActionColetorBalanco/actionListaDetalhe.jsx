@@ -11,6 +11,9 @@ import * as XLSX from 'xlsx';
 import 'jspdf-autotable';
 import { useForm } from "react-hook-form";
 import { useUpdateQTDProduto } from "./hooks/useUpdateQtdProduto";
+import { ColumnGroup } from "primereact/columngroup";
+import { toFloat } from "../../../../../utils/toFloat";
+import { Row } from "primereact/row";
 
 export const ActionListaDetalhe = ({
     dadosDetalhesBalanco,
@@ -24,6 +27,8 @@ export const ActionListaDetalhe = ({
     const [globalFilterValueDetalhe, setGlobalFilterValueDetalhe] = useState('');
     const [quantidade, setQuantidade] = useState(0)
     const [rowSelection, setRowSelection] = useState(null);
+    const [first, setFirst] = useState(0);
+    const [rows, setRows] = useState(10);
     const dataTableRef = useRef();
 
     const {
@@ -72,6 +77,41 @@ export const ActionListaDetalhe = ({
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Detalhe Resumo Balanço');
         XLSX.writeFile(workbook, 'detalhe_balanco.xlsx');
     };
+
+  const filtrarDados = (dados, filtro) => {
+    if (!filtro) return dados;
+
+    return dados.filter(item => {
+      return Object.values(item).some(value => {
+        if (value === null || value === undefined) return false;
+        return value.toString().toLowerCase().includes(filtro.toLowerCase());
+      });
+    });
+  };
+
+  const calcularTotalPagina = (field) => {
+    return dadosDetalhe.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+  const calcularTotal = (field) => {
+    const dadosFiltrados = filtrarDados(dadosDetalhe, globalFilterValueDetalhe);
+    const firstIndex = first;
+    const lastIndex = first + rows;
+    const dataPaginada = dadosFiltrados.slice(firstIndex, lastIndex);
+    return dataPaginada.reduce((total, item) => total + parseFloat(item[field] || 0), 0);
+  }
+
+
+    const cacularTotalQtdItens = () => {
+        const totalQtdPagina = calcularTotal('TOTALCONTAGEMGERAL');
+        const total = calcularTotalPagina('TOTALCONTAGEMGERAL');
+        return `${totalQtdPagina}   (${total} Total)`;
+    };
+
+    const onPageChange = (event) => {
+        setFirst(event.first);
+        setRows(event.rows);
+    }
 
     const dadosDetalhe = dadosDetalhesBalanco.map((item) => {
 
@@ -202,6 +242,22 @@ export const ActionListaDetalhe = ({
         },
     ]
 
+        const footerGroup = (
+        <ColumnGroup>
+
+            <Row>
+
+                <Column footer={''} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
+                <Column footer={''} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
+                <Column footer={''} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
+                <Column footer={''} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
+                <Column footer={cacularTotalQtdItens()} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
+                <Column footer={''} footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '1rem' }} />
+
+            </Row>
+        </ColumnGroup>
+    )
+
     return (
         <Fragment>
             <form onSubmit={''}>
@@ -223,9 +279,13 @@ export const ActionListaDetalhe = ({
                             value={dadosDetalhe}
                             globalFilter={globalFilterValueDetalhe}
                             size="small"
-                            // sortOrder={-1}
+                            sortOrder={-1}
                             paginator={true}
-                            rows={10}
+                            onPage={onPageChange}
+                            first={first}
+                            rows={rows}
+                            totalRecords={dadosDetalhe.length}
+                            footerColumnGroup={footerGroup}
                             selectionMode="single"
                             selection={rowSelection}
                             onSelectionChange={(e) => setRowSelection(e.value)}

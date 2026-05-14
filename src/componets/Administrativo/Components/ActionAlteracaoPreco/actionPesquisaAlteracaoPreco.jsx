@@ -36,17 +36,16 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
 
   }, []);
 
+   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
+     'marcasLista',
+     async () => {
+       const response = await get(`/marcasLista`);
+       return response.data;
+     },
+     { enabled: true, staleTime: 60 * 60 * 1000 }
+   );
 
-  const { data: dadosMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
-    'marcasLista',
-    async () => {
-      const response = await get(`/marcasLista`);
-      return response.data;
-    },
-    { staleTime: 60 * 60 * 1000, }
-  );
-
-  const { data: dadosEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
+  const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
     'listaEmpresaComercial',
     async () => {
       const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
@@ -95,8 +94,6 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
     }
   };
 
-
-
   const { data: dadosAlteracaoPreco = [], error: errorVendasMarca, isLoading: isLoadingVendasMarca, refetch: refetchListaPrecoAlteracao } = useQuery(
     ['alteracaoPreco',],
     () => fetchListaAlteracaoPreco(),
@@ -110,14 +107,13 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
   };
 
   const handleChangeEmpresa = (e) => {
-    const empresa = dadosEmpresas.find((item) => item.IDEMPRESA === e.value);
+    const empresa = optionsEmpresas.find((item) => item.IDEMPRESA === e.value);
     setEmpresaSelecionada(e.value);
     setEmpresaSelecionadaNome(empresa.NOFANTASIA);
   }
 
   const [treeData, setTreeData] = useState([]);
   const [selectedNodes, setSelectedNodes] = useState({});
-
 
   const { data: dadosGrupos = [], error: errorGrupo, isLoading: isLoadingGrupo } = useQuery(
     'grupo-produto',
@@ -128,7 +124,6 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
     { staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
 
-
   const { data: dadosSubGrupos = [], error: errorSubGrupo, isLoading: isLoadingSubGrupo } = useQuery(
     'subgrupo-produto',
     async () => {
@@ -137,7 +132,6 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
     },
     { staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000 }
   );
-
 
   useEffect(() => {
     if (dadosSubGrupos.length) {
@@ -194,7 +188,6 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
     setSubGrupoSelecionado(selectedSubGrupo);
   };
 
-
   if (isLoadingGrupo || isLoadingSubGrupo) {
     return <div>Carregando...</div>;
   }
@@ -220,6 +213,12 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
     }
   };
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   return (
 
@@ -236,17 +235,19 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
         labelInputFieldDTInicio={"Data Início"}
         valueInputFieldDTInicio={dataPesquisaInicio}
         onChangeInputFieldDTInicio={e => setDataPesquisaInicio(e.target.value)}
+        onKeyDownInputFieldDTInicio={handleKeyPress}
 
         InputFieldDTFimComponent={InputField}
         labelInputFieldDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={e => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFim={handleKeyPress}
 
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Empresa"}
         optionsEmpresas={[
           { value: '', label: 'Selecionar Empresa' },
-          ...dadosEmpresas.map((item) => {
+          ...optionsEmpresas.map((item) => {
             return {
               value: item.IDEMPRESA,
               label: item.NOFANTASIA
@@ -258,7 +259,7 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
 
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marca"}
-        optionsMarcas={dadosMarcas.map((marca) => ({
+        optionsMarcas={optionsMarcas.map((marca) => ({
           value: marca.IDGRUPOEMPRESARIAL,
           label: marca.DSGRUPOEMPRESARIAL,
 
@@ -282,12 +283,14 @@ export const ActionPesquisaAlteracaoPreco = ({ }) => {
         labelInputFieldCodBarra={"Cód.Barras / Nome Produto"}
         valueInputFieldCodBarra={codBarra}
         onChangeInputFieldCodBarra={e => setCodBarra(e.target.value)}
+        onKeyDownInputFieldCodBarra={handleKeyPress}
 
         InputFieldComponent={InputField}
         labelInputField={"Nome Produto"}
         valueInputField={descricaoProduto}
         onChangeInputField={e => setDescricaoProduto(e.target.value)}
         placeHolderInputFieldComponent={"Nome Produto"}
+        onKeyDownInputField={handleKeyPress}
 
         ButtonSearchComponent={ButtonType}
         onButtonClickSearch={handleClick}
