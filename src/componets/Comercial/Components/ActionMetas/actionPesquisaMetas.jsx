@@ -8,14 +8,19 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { useQuery } from "react-query";
+import { ActionListaMetasVendasResumidas } from "./actionListaMetasVendasResumidas";
 
 
 export const ActionPesquisaMetas = () => {
-  const [tabelaVisivel, setTabelaVisivel] = useState(false);
+  const [tabelaVisivel, setTabelaVisivel] = useState(true);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [marcaSelecionada, setMarcaSelecionada] = useState('');
   const [marcaNome, setMarcaNome] = useState('');
+  const [tabelaVendaResumidaVisivel, setTabelaVendaResumidaVisivel] = useState(false);
+  const [tabelaMetasVendasVisivel, setTabelaMetasVendasVisivel] = useState(false);
+  const [dadosVendasResumida, setDadosVendasResumida] = useState([]);
+  const [dadosMetasVendas, setDadosMetasVendas] = useState([]);
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -90,10 +95,26 @@ export const ActionPesquisaMetas = () => {
         corSearch={"primary"}
         IconSearch={AiOutlineSearch}
       />
+      
 
       {tabelaVisivel && (
-        <ActionListaMetas dadosVendasMarca={dadosVendasMarca} />
+        <ActionListaMetas 
+          dadosVendasMarca={dadosVendasMarca} 
+          setTabelaVisivel={setTabelaVisivel}
+          setTabelaVendaResumidaVisivel={setTabelaVendaResumidaVisivel}
+          setTabelaMetasVendasVisivel={setTabelaMetasVendasVisivel}
+          setDadosVendasResumida={setDadosVendasResumida}
+          setDadosMetasVendas={setDadosMetasVendas}
+        />
       )}
+      {
+        tabelaVendaResumidaVisivel && (
+
+          <ActionListaMetasVendasResumidas 
+            dadosVendasResumida={dadosVendasResumida}
+          /> 
+        )
+      }
     </Fragment>
   )
 }

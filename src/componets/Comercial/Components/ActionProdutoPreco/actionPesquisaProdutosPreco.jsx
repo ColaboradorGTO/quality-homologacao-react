@@ -1,4 +1,4 @@
-import React, { Fragment,  useState } from "react"
+import React, { Fragment, useState } from "react"
 import { ActionListaProductoPreco } from "./actionListaProdutosPreco";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ActionMain } from "../../../Actions/actionMain";
@@ -10,7 +10,6 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import Swal from "sweetalert2";
 
 export const ActionPesquisaProductoPreco = () => {
-  const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [marcaSelecionada, setMarcaSelecionada] = useState('')
 
@@ -76,7 +75,6 @@ export const ActionPesquisaProductoPreco = () => {
     if(empresaSelecionada) {
 
       refetchListaProdutos();
-      setTabelaVisivel(true);
     } else {
       Swal.fire({
         title:'Atenção',
@@ -129,9 +127,9 @@ export const ActionPesquisaProductoPreco = () => {
 
       />
 
-      {tabelaVisivel && (
-        <ActionListaProductoPreco dadosProdutos={dadosProdutos} />
-      )}
+     
+      <ActionListaProductoPreco dadosProdutos={dadosProdutos} />
+      
 
     </Fragment>
   )
