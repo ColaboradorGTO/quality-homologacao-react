@@ -81,6 +81,13 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID }) => {
         refetchLista();
     }
 
+    const handleKeyPress = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleClick();
+        }
+    };
+
     const optionsStatus = [
         { value: '', label: 'Selecione um Status' },
         { value: 'Pendente de Envio', label: 'Pendente de Envio' },
@@ -102,11 +109,13 @@ export const ActionPesquisaRecebimentoMalote = ({ usuarioLogado, ID }) => {
                 labelInputFieldDTInicio={"Data Início"}
                 valueInputFieldDTInicio={dataPesquisaInicio}
                 onChangeInputFieldDTInicio={(e) => setDataPesquisaInicio(e.target.value)}
+                onKeyDownInputFieldDTInicio={handleKeyPress}
 
                 InputFieldDTFimComponent={InputField}
                 labelInputFieldDTFim={"Data Fim"}
                 valueInputFieldDTFim={dataPesquisaFim}
                 onChangeInputFieldDTFim={(e) => setDataPesquisaFim(e.target.value)}
+                onKeyDownInputFieldDTFim={handleKeyPress}
 
                 InputSelectGrupoComponent={InputSelectAction}
                 labelSelectGrupo={"Empresa"}
