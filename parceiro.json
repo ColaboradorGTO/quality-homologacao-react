@@ -303,5 +303,33 @@
     { "value": "Devolvido", "label": "Devolvido"},
     { "value": "Conferido", "label": "Conferido"},
     { "value": "Reenviado", "label": "Reenviado"}
+  ],
+  "optionsFuncoesComercial": [
+    { "value": "GERENTE", "label": "GERENTE" },
+    { "value": "LIDER DE LOJA", "label": "LIDER DE LOJA" },
+    { "value": "LIDER DE CAIXA", "label": "LIDER DE CAIXA" },
+    { "value": "LIDER SUBGERENTE", "label": "LIDER SUBGERENTE" },
+    { "value": "OPERADOR DE CAIXA", "label": "OPERADOR DE CAIXA" },
+    { "value": "ASSISTENTES", "label": "ASSISTENTES" },
+    { "value": "MULTIPLICADOR", "label": "MULTIPLICADOR" },
+    { "value": "PROVADOR", "label": "PROVADOR" },
+    { "value": "FISCAL", "label": "FISCAL" },
+    { "value": "VENDEDOR", "label": "VENDEDOR" }
+  ],
+  "optionsIndicadores": [
+    { "value": "CONFECÇÃO", "label": "CONFECÇÃO" },
+    { "value": "CALÇADOS", "label": "CALÇADOS" },
+    { "value": "TICKET-MÉDIO", "label": "TICKET-MÉDIO" },
+    { "value": "CARTÃO/ATIVAÇÃO", "label": "CARTÃO/ATIVAÇÃO" },
+    { "value": "CARTÃO PCJ 30%", "label": "CARTÃO PCJ 30%" },
+    { "value": "CARTÃO/RECOMPRA", "label": "CARTÃO/RECOMPRA" },
+    { "value": "CARTÃO/SEGURO", "label": "CARTÃO/SEGURO" }
+  ],
+  "optionsApuracao": [
+    { "value": "NENHUMA", "label": "NENHUMA" },
+    { "value": "INDIVIDUAL", "label": "INDIVIDUAL" },
+    { "value": "GERAL DA LOJA", "label": "GERAL DA LOJA" },
+    { "value": "GERAL DA CONFEÇÇÃO", "label": "GERAL DA CONFEÇÇÃO" },
+    { "value": "INDIVIDUAL / GERAL", "label": "INDIVIDUAL / GERAL" }
   ]
 }

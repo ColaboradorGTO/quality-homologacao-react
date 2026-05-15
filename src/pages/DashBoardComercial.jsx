@@ -136,7 +136,7 @@ export const DashBoardComercial = () => {
       component = <ActionPesquisaMetas />
       break;
     case "/comercial/ActionPesquisaPremiacoes":
-      component = <ActionPesquisaPremiacoes />
+      component = <ActionPesquisaPremiacoes usuarioLogado={usuarioLogado} />
       break;
     default:
       component = null;

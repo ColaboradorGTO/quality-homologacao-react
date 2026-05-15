@@ -7,64 +7,112 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { ButtonType } from "../../../Buttons/ButtonType";
 import { get } from "../../../../api/funcRequest";
 import { ActionListaPremiacoes } from "./ActionListaPremiacao";
+import { ActionListaGerente } from "./actionListaGerente";
+import { ActionListaLiderLoja } from "./actionListaLiderLoja";
+import { ActionListaLiderCaixa } from "./actionListaLiderCaixa";
+import { ActionListaOperadorCaixa } from "./actionListaOperadorCaixa";
+import { ActionListaVendedor } from "./actionListaVendedor";
+import { ActionListaAssistentes } from "./actionListaAssistentes";
+import { ActionListaMultiplicador } from "./actionListaMultiplicador";
+import { ActionListaFiscal } from "./actionListaFiscal";
+import { ActionListaProvador } from "./actionListaProvador";
+import { ActionListaSubGerente } from "./actionListaSubGerente";
+import { ActionCadastroModalPremiacao } from "./ActionModalCadastroPremiacao/actionModalCadastro";
+import { useQuery } from "react-query";
+import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
+import Swal from "sweetalert2";
 
-
-export const ActionPesquisaPremiacoes = () => {
+export const ActionPesquisaPremiacoes = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
+  const [tabelasSecundariasVisiveis, setTabelasSecundariasVisiveis] = useState(false);
   const [clickContador, setClickContador] = useState(0);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
   const [marcas, setMarcas] = useState([]);
-  const [marcaSelecionada, setMarcaSelecionada] = useState(null);
-  const [dadosListaPremiacoes, setDadosListaPremiacoes] = useState([]);
+  const [marcaSelecionada, setMarcaSelecionada] = useState('');
+  const [dadosGerente, setDadosGerente] = useState([]);
+  const [dadosSubGerente, setDadosSubGerente] = useState([]);
+  const [dadosLiderLoja, setDadosLiderLoja] = useState([]);
+  const [dadosLiderCaixa, setDadosLiderCaixa] = useState([]);
+  const [dadosVendedor, setDadosVendedor] = useState([]);
+  const [dadosAssistentes, setDadosAssistentes] = useState([]);
+  const [dadosMultiplicador, setDadosMultiplicador] = useState([]);
+  const [dadosFiscal, setDadosFiscal] = useState([]);
+  const [dadosProvador, setDadosProvador] = useState([]);
+  const [dadosLiderSubGerente, setDadosLiderSubGerente] = useState([]);
+  const [dadosOperadorCaixa, setDadosOperadorCaixa] = useState([]);
+  const [modalVisivel, setModalVisivel] = useState(false);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
 
   useEffect(() => {
-    getGrupoEmpresas()
-  }, [])
-
-
-  const getGrupoEmpresas = async () => {
-    try {
-      const response = await get(`/listaGrupoEmpresas`)
-      if (response.data) {
-        setMarcas(response.data)
-      }
-    } catch (error) {
-      console.log(error, "não foi possivel pegar os dados da tabela ")
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
     }
-  }
+  }, []);
 
-  const getListaPremiacoes = async () => {
-    try {
-      const response = await get(`/listaPremiacoes?page=`)
-      if (response.data) {
-        setDadosListaPremiacoes(response.data)
-      }
-      return response.data
-    } catch (error) {
-      console.log(error, "não foi possivel pegar os dados da tabela ")
-    }
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
 
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
+  );
 
-  }
+  const { data: dadosMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
+    ['marcasLista'],
+    async () => {
+      const response = await get(`/marcasLista`);
 
+      return response.data;
+    },
+    { enabled: true, staleTime: 5 * 60 * 1000, }
+  );
 
-  const handleSelectMarca = (e) => {
-    const selectId = e.target.value;
+  const { data: dadosListaPremiacoes = [], error: errorPremiacoes, isLoading: isLoadingPremiacoes, refetch: refetchListaPremiacoes } = useQuery(
+    ['listaPremiacoes'],
+    async () => {
+      const response = await get(`/listaPremiacoes`);
 
-    if (!isNaN(selectId)) {
-      setMarcaSelecionada(selectId)
-    }
-  }
+      return response.data;
+    },
+    { enabled: true, staleTime: 5 * 60 * 1000, }
+  );
+
 
   const handleClick = () => {
-    setClickContador(prevContador => prevContador + 1);
+    refetchListaPremiacoes();
+    setTabelaVisivel(true);
+    setTabelasSecundariasVisiveis(false);
+  }
 
-    if (clickContador % 2 === 0) {
-      setTabelaVisivel(true)
-      getListaPremiacoes(marcaSelecionada)
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
     }
+  };
 
+  const handleCadastrar = () => {
+    if(marcaSelecionada == '') {
+      Swal.fire({
+        title: 'Marca Não Selecionada',
+        html: `Por favor, selecione uma marca para cadastrar a premiação!`,
+        icon: 'warning',
+        confirmButtonText: 'Ok',
+        timer: 6000,
+        customClass: {
+          container: 'custom-swal',
+        }
+      })
+      return;
+    } else {
+
+      setModalVisivel(true);
+    } 
   }
 
   return (
@@ -81,27 +129,29 @@ export const ActionPesquisaPremiacoes = () => {
         labelInputFieldDTInicio={"Data Início"}
         valueInputFieldDTInicio={dataPesquisaInicio}
         onChangeInputFieldDTInicio={e => setDataPesquisaInicio(e.target.value)}
+        onKeyDownInputFieldDTInicio={handleKeyPress}
 
         InputFieldDTFimComponent={InputField}
         labelInputFieldDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={e => setDataPesquisaFim(e.target.value)}
+        onKeyDownInputFieldDTFim={handleKeyPress}
 
 
         InputSelectEmpresaComponent={InputSelectAction}
-        onChangeSelectEmpresa={handleSelectMarca}
-        valueSelectEmpresa={marcaSelecionada}
         optionsEmpresas={[
-
-          { value: '', label: 'Selecione a Marca' },
-          ...marcas.map((empresa) => ({
+          ...dadosMarcas?.map((empresa) => ({
             value: empresa.IDGRUPOEMPRESARIAL,
-            label: empresa.GRUPOEMPRESARIAL,
+            label: empresa.DSGRUPOEMPRESARIAL,
           }))
         ]}
-
         labelSelectEmpresa={"Marca"}
-
+        valueSelectEmpresa={marcaSelecionada} 
+        
+        onChangeSelectEmpresa={(e) => {
+          setMarcaSelecionada(e);
+          setMarcas(e.value)
+        }}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Listar Premiações Cadastradas"}
@@ -111,16 +161,88 @@ export const ActionPesquisaPremiacoes = () => {
 
         ButtonTypeCadastro={ButtonType}
         linkNome={"Criar Premiações"}
-        onButtonClickCadastro
+        onButtonClickCadastro={handleCadastrar}
         corCadastro={"danger"}
         IconCadastro={IoIosAdd}
 
       />
 
       {tabelaVisivel && (
-        <ActionListaPremiacoes dadosListaPremiacoes={dadosListaPremiacoes} />
+        <ActionListaPremiacoes
+          dadosListaPremiacoes={dadosListaPremiacoes}
+          setDadosGerente={setDadosGerente}
+          setDadosLiderLoja={setDadosLiderLoja}
+          setDadosLiderCaixa={setDadosLiderCaixa}
+          setDadosOperadorCaixa={setDadosOperadorCaixa}
+          setDadosVendedor={setDadosVendedor}
+          setDadosAssistentes={setDadosAssistentes}
+          setDadosMultiplicador={setDadosMultiplicador}
+          setDadosProvador={setDadosProvador}
+          setDadosFiscal={setDadosFiscal}
+          setDadosSubGerente={setDadosSubGerente}
+          setTabelaVisivel={setTabelaVisivel}
+          setTabelasSecundariasVisiveis={setTabelasSecundariasVisiveis}
+        />
 
       )}
+
+      {tabelasSecundariasVisiveis && (
+        <div>
+          <div className="row">
+            <div className="col-sm-6 col-md-6 col-lg-6">
+              <ActionListaGerente dadosGerente={dadosGerente} />
+            </div>
+            <div className="col-sm-6 col-md-6 col-lg-6">
+              <ActionListaLiderLoja dadosLiderLoja={dadosLiderLoja} />
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-sm-6 col-md-6 col-lg-6">
+              <ActionListaLiderCaixa dadosLiderCaixa={dadosLiderCaixa} />
+            </div>
+            <div className="col-sm-6 col-md-6 col-lg-6">
+              <ActionListaOperadorCaixa dadosOperadorCaixa={dadosOperadorCaixa} />
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-sm-6 col-md-6 col-lg-6">
+              <ActionListaVendedor dadosVendedor={dadosVendedor} />
+            </div>
+            <div className="col-sm-6 col-md-6 col-lg-6">
+              <ActionListaAssistentes dadosAssistentes={dadosAssistentes} />
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-sm-6 col-md-6 col-lg-6">{console.log(dadosMultiplicador, "dados multiplicador")}
+              <ActionListaMultiplicador dadosMultiplicador={dadosMultiplicador} />
+            </div>
+            <div className="col-sm-6 col-md-6 col-lg-6">
+              <ActionListaFiscal dadosFiscal={dadosFiscal} />
+            </div>
+          </div>
+
+          <div className="row">
+            <div className="col-sm-6 col-md-6 col-lg-6">
+              <ActionListaProvador dadosProvador={dadosProvador} />
+            </div>
+            <div className="col-sm-6 col-md-6 col-lg-6">
+              <ActionListaSubGerente dadosSubGerente={dadosSubGerente} />
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ActionCadastroModalPremiacao
+        show={modalVisivel}
+        handleClose={() => setModalVisivel(false)}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        marcaSelecionada={marcaSelecionada}
+      />
+   
     </Fragment>
   )
 }
