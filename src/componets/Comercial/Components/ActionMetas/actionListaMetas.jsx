@@ -18,7 +18,7 @@ export const ActionListaMetas = ({
   setTabelaVendaResumidaVisivel,
   setTabelaMetasVendasVisivel,
   setDadosVendasResumida,
-  setDadosMetasVendas
+  setDadosMetasDetalhadas
 }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
@@ -207,7 +207,7 @@ export const ActionListaMetas = ({
       const response = await get(`/meta-vendas?idMarca=${IDGRUPOEMPRESA}&dataPesquisaInicio=${DTMETAINICIO}&dataPesquisaFim=${DTMETAFIM}`)
       if (response.data && response.data.length > 0) {
 
-        setDadosMetasVendas(response.data);
+        setDadosMetasDetalhadas(response.data);
         setTabelaMetasVendasVisivel(true);
         setTabelaVisivel(false);
         setTabelaVendaResumidaVisivel(false);
