@@ -1,4 +1,4 @@
-import  { Fragment, useEffect, useState } from "react"
+import { Fragment, useEffect, useState } from "react"
 import Swal from "sweetalert2";
 import { AiOutlineSearch } from "react-icons/ai";
 import { MdAdd } from "react-icons/md";
@@ -60,15 +60,15 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
       setMenuFilhoAtual(menuParsed);
     }
   }, []);
-  
+
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
-      
+
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
 
@@ -166,6 +166,13 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
     refetchListaVouchers()
   }
 
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
+
   const handleClickCadastro = () => {
     if (optionsModulos[0]?.CRIAR == 'True') {
       setActionPrincipal(false);
@@ -217,16 +224,19 @@ export const ActionPesquisaCreateVoucher = ({ usuarioLogado, ID }) => {
           valueInputFieldDTInicioA={dataPesquisaInicio}
           labelInputDTInicioA={"Data Início"}
           onChangeInputFieldDTInicioA={(e) => setDataPesquisaInicio(e.target.value)}
+          onKeyDownInputFieldDTInicioA={handleKeyPress}
 
           InputFieldDTFimAComponent={InputField}
           labelInputDTFimA={"Data Fim"}
           valueInputFieldDTFimA={dataPesquisaFim}
           onChangeInputFieldDTFimA={(e) => setDataPesquisaFim(e.target.value)}
+          onKeyDownInputFieldDTFimA={handleKeyPress}
 
           InputFieldNumeroVoucherComponent={InputField}
           valueInputFieldNumeroVoucher={numeroVoucherSelecionado}
           onChangeInputFieldNumeroVoucher={(e) => setNumeroVoucherSelecionado(e.target.value)}
           labelInputFieldNumeroVoucher={"Nº Voucher / Nº Venda CPF/CNPJ"}
+          onKeyDownInputFieldNumeroVoucher={handleKeyPress}
 
           ButtonSearchComponent={ButtonType}
           linkNomeSearch={"Pesquisar"}
