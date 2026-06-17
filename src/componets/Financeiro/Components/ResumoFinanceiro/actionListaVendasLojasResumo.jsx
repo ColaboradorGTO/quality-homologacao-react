@@ -13,6 +13,7 @@ import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
 import { ActionFechamentoLojaModal } from "../actionFechamentoLojaModal";
 import Swal from "sweetalert2";
+import { dataFormatada } from "../../../../utils/dataFormatada";
 
 
 export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesquisa }) => {
@@ -190,7 +191,7 @@ export const ActionListaVendasLojasResumo = ({ dadosTotalVendasEmpresa, dataPesq
     {
       field: 'dataPesquisa',
       header: 'Data',
-      body: row => <th style={{ color: 'blue', width: 100 }}>{row.dataPesquisa}</th>,
+      body: row => <th style={{ color: 'blue', width: 100 }}>{dataFormatada(row.dataPesquisa)}</th>,
       sortable: true,
     },
     {
