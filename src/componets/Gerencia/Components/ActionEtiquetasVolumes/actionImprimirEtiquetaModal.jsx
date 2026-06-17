@@ -10,7 +10,8 @@ import Swal from "sweetalert2";
 import Modal from 'react-bootstrap/Modal';
 import { HeaderModal } from "../../../Modais/HeaderModal/HeaderModal";
 import { FooterModal } from "../../../Modais/FooterModal/footerModal";
-
+import { AiOutlineCloseCircle } from "react-icons/ai";
+ 
 const chunkArray = (array, size) => {
   const chunks = [];
   for (let i = 0; i < array.length; i += size) {
@@ -26,6 +27,13 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
   const handlePrintZPL = async () => {
     try {
       let etiquetasZPL = '';
+      const zplResetConfiguracao = `
+        ^XA
+        ^MD0
+        ~SD07
+        ^JUS
+        ^XZ
+      `;
 
       for (let itemIndex = 0; itemIndex < dadosAcumuladorEtiquetas.length; itemIndex++) {
         let {
@@ -39,12 +47,13 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
           solicitanteSelecionado,
           quantidade
         } = dadosAcumuladorEtiquetas[itemIndex]
+    
         etiquetasZPL += `
-                ^XA~TA000~JSN^LT0^MNW^MTT^PON^PMN^LH0,0^JMA^PR2,2~SD15^JUS^LRN^CI0^XZ
+             ^XA~TA000~JSN^LT0^MNW^MTT^PON^PMN^LH0,0^JMA^PR2,2~SD15^JUS^LRN^CI0^XZ
                 ^XA
                 ^MMT
                 ^FWR
-                ^PW660
+                ^PW700
                 ^LL980
                 ^LS0
                 ^CI28
@@ -76,11 +85,12 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
                 ^FO40,750^FDQTD: ${itemIndex + 1}/${quantidade}^FS
 
                 ^XZ
-            `;
+        `;
+
       }
 
 
-      await enviarZPLParaImpressora(etiquetasZPL);
+    await enviarZPLParaImpressora(`${etiquetasZPL}\n${zplResetConfiguracao}`);
 
 
     } catch (error) {
@@ -118,29 +128,45 @@ export const ActionImprimirEtiquetaModal = ({ show, handleClose, dadosAcumulador
         className="modal fade"
         role="dialog"
       >
-        <HeaderModal
-          title={"Etiquetas"}
-          subTitle={"Etiquetas"}
-          handleClose={handleClose}
-        />
+ 
         <Modal.Body>
-          <header className="row" style={{ justifyContent: "flex-start", marginLeft: "30px" }}>
+          <header className="row" style={{ justifyContent: "space-between", marginLeft: "30px" }}>
+            <div>
+              <h1 className="title-modal">Etiquetas</h1>
+              
+            </div>
+
             <div className="d-flex gap-2">
-              <ButtonTypeModal
-                textButton={"Imprimir"}
-                onClickButtonType={handlePrintZPL}
-                cor={"info"}
-                Icon={MdOutlineLocalPrintshop}
-                iconSize={20}
-              />
+              <div style={{ paddingBottom: '20px', paddingRight: '10px' }}>
+
+                <ButtonTypeModal
+                  textButton={"Fechar"}
+                  onClickButtonType={handleClose}
+                  cor={"danger"}
+                  Icon={AiOutlineCloseCircle}
+
+                  iconSize={20}
+                />
+              </div>
+              <div >
+
+                <ButtonTypeModal
+                  textButton={"Imprimir"}
+                  onClickButtonType={handlePrintZPL}
+                  cor={"info"}
+                  Icon={MdOutlineLocalPrintshop}
+                  iconSize={20}
+                />
+              </div>
             </div>
           </header>
 
           <div ref={dataTableRef}>
             {etiquetasPorPagina.map((pagina, pageIndex) => (
-              <div key={pageIndex} className="etiqueta-page" style={{ display: 'block', margin: '30px' }}>
+              // <div key={pageIndex} className="etiqueta-page" style={{ display: 'block', margin: '30px' }}>
+              <div key={pageIndex} className="etiqueta-page" style={{ display: 'block', margin: '0px' }}>
                 {pagina.map((etiqueta, etiquetaIndex) => (
-                  <div className="etiqueta-page-remanejamento" style={{ marginBottom: '30px' }} key={etiquetaIndex}>
+                  <div className="etiqueta-page-remanejamento" style={{ marginBottom: '30px', width: '100%' }} key={etiquetaIndex}>
                     <div className="card border-dark w-100 p-0">
                       <div className="text-center pt-1">
                         <h1 className="title-etiqueta d-inline bg-dark text-white pt-2 pl-3 pb-1 pr-3 fw-900">

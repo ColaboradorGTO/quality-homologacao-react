@@ -54,7 +54,7 @@ export const Permissoes = ({}) => {
     const [selectedModule, setSelectedModule] = useState(null)
     const [moduloUsuario, setModuloUsuario] = useState(null);
     const [empresaSelecionada, setEmpresaSelecionada] = useState('');
-    
+    const [optionsModulos, setOptionsModulos] = useState([]);
     const navigate = useNavigate();
     const menuLeft = useRef(null);
 
@@ -74,15 +74,16 @@ export const Permissoes = ({}) => {
       }, [usuarioLogado, navigate]);
          
 
-    const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-        'menus-usuario',
-        async () => {
-            const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}`);
+    // const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    //     'menus-usuario',
+    //     async () => {
+    //         const response = await get(`/m`);
 
-            return response.data;
-        },
-        { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
-    );
+    //         return response.data;
+    //     },
+    //     { enabled: false, staleTime: 60 * 60 * 1000,}
+    // );
+    // console.log(usuarioLogado, 'usuarioLogado?.id')
     
     const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas } = useQuery(
         'empresas',

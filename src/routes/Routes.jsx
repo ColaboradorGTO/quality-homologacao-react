@@ -55,7 +55,7 @@ export const RoutesMain = () => {
   const handleShowComponent = (componentName) => {
     setComponentToShow(componentName);
   };
-
+  console.log(usuarioLogado, 'usuarioLogado?.id')
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
