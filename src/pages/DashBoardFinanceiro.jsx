@@ -4,7 +4,7 @@ import { HeaderMain } from "../componets/Header";
 import { MenuButton } from "../componets/Buttons/menuButton";
 import { FooterMain } from "../componets/Footer";
 import { SidebarProvider } from "../componets/Sidebar/SidebarContext";
-import { MenuSidebarAdmin } from "../componets/Sidebar/sidebar";
+import { MenuSidebarAdmin } from "../componets/Sidebar/sidebar"; 
 import { get } from "../api/funcRequest";
 import { useQuery } from "react-query";
 
