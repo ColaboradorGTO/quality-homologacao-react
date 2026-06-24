@@ -335,13 +335,13 @@ export const ActionPesquisaVendasMarca = () => {
         ButtonTypeCadastro={ButtonType}
         linkNome={"Vendas por Período e Recebimentos"}
         onButtonClickCadastro={handleClick}
-        corCadastro={"success"}
+        corCadastro={"primary"}
         IconCadastro={AiOutlineSearch}
 
         ButtonTypeVendasVendedor={ButtonType}
         linkNomeVendasVendedor={"Vendas por Período e Indicadores"}
         onButtonClickVendasVendedor={handleClickMarckup}
-        corVendasVendedor={"info"}
+        corVendasVendedor={"success"}
         iconVendasVendedor={AiOutlineSearch}
 
         ButtonTypeSaldo={ButtonType}
