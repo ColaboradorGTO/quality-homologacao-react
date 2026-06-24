@@ -10,6 +10,7 @@ import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { useQuery } from 'react-query';
 import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
 import { useEffect } from "react"
+import Swal from "sweetalert2"
 
 
 export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
@@ -137,14 +138,44 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
   }
 
   const handleClick = () => {
+   if(!dataPesquisaInicio &&
 
+    !dataPesquisaFim &&
+    !dataPesquisaInicioB &&
+    !dataPesquisaFimB &&
+    !dataPesquisaInicioC &&
+    !dataPesquisaFimC){
+      Swal.fire({
+        title: 'Atenção!',
+        text: `Informe ao menos uma das Datas para a pesquisa `,
+        icon: 'warning',
+        customClass: {
+          container: 'custom-swal',
+        },
+      })
+      return
+    }
     setTabelaVisivel(true)
     setTabelaVisivelConsolidado(false)
     refetchConciliarBanco()
   }
 
   const handleClickConsolidado = () => {
-
+   if( !dataPesquisaFim &&
+    !dataPesquisaInicioB &&
+    !dataPesquisaFimB &&
+    !dataPesquisaInicioC &&
+    !dataPesquisaFimC){
+      Swal.fire({
+        title: 'Atenção!',
+        text: `Informe ao menos uma das Datas para a pesquisa `,
+        icon: 'warning',
+        customClass: {
+          container: 'custom-swal',
+        },
+      })
+      return
+    }
     setTabelaVisivelConsolidado(true)
     setTabelaVisivel(false)
     refetchBancoConsolidado()

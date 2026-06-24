@@ -12,9 +12,9 @@ import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../ut
 import { IoMdCheckmark } from "react-icons/io"
 import Swal from "sweetalert2"
 import { useIntegrarTodosAdiantamento } from "./hooks/useIntegrarTodosAdiantamento"
-import { optionsUF} from "../../../../../parceiro.json";
+import { optionsUF } from "../../../../../parceiro.json";
 
-export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
+export const ActionPesquisaAdiantamentoSalarioLoja = ({ usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
@@ -49,7 +49,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
-  
+
   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useQuery(
     'marcasLista',
     async () => {
@@ -71,7 +71,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
     },
     { enabled: Boolean(marcaSelecionada), staleTime: 60 * 60 * 1000 }
   );
-  
+
 
   const fetchListaAdiantamento = async () => {
     const urlBase = `/adiantamento-loja?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idMarca=${marcaSelecionada}`;
@@ -79,7 +79,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
-        
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -109,7 +109,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
   const { data: dadosAdiantamentoFuncionarios = [], error: errorAdiantamento, isLoading: isLoadingAdiantamento, refetch } = useQuery(
     ['adiantamento-loja'],
     () => fetchListaAdiantamento(),
-    { enabled: false, staleTime: 60 * 60 * 1000,}
+    { enabled: false, staleTime: 60 * 60 * 1000, }
   )
 
   const handleChangeEmpresa = (e) => {
@@ -119,7 +119,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
   }
 
   const handleSelectMarca = (e) => {
-    setMarcaSelecionada(e.value)  
+    setMarcaSelecionada(e.value)
   }
 
   const handleClick = () => {
@@ -143,7 +143,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
     selectedItems,
   })
   const integrarTodasSelecionadas = () => {
-    
+
     if (selectedItems.length === 0) {
       Swal.fire({
         position: 'center',
@@ -183,13 +183,13 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
         linkComponent={["Adiantamento Salarial"]}
         title="Adiantamento Salarial das Lojas"
         subTitle={empresaSelecionadaNome}
-        
+
         InputFieldDTInicioComponent={InputField}
         valueInputFieldDTInicio={dataPesquisaInicio}
         labelInputFieldDTInicio={"Data Início"}
         onChangeInputFieldDTInicio={(e) => setDataPesquisaInicio(e.target.value)}
         onKeyDownInputFieldDTInicio={handleKeyPress}
-        
+
         InputFieldDTFimComponent={InputField}
         labelInputFieldDTFim={"Data Fim"}
         valueInputFieldDTFim={dataPesquisaFim}
@@ -200,13 +200,14 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
         onChangeSelectEmpresa={handleChangeEmpresa}
         valueSelectEmpresa={empresaSelecionada}
         optionsEmpresas={[
+          { value: '', label: 'Selecione uma empresa' },
           ...optionsEmpresas.map((empresa) => ({
             value: empresa.IDEMPRESA,
             label: empresa.NOFANTASIA,
           }))
         ]}
         labelSelectEmpresa={"Empresa"}
-        
+
 
         InputSelectMarcasComponent={InputSelectAction}
         labelSelectMarcas={"Marca"}
@@ -225,7 +226,7 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
         optionsSelectUF={optionsUF.map((item) => ({
           value: item.value,
           label: item.label,
-        }))}   
+        }))}
         valueSelectUF={ufSelecionado}
         onChangeSelectUF={(e) => setUfSelecionado(e.value)}
 
@@ -244,8 +245,8 @@ export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
       />
 
       {tabelaVisivel && (
-        <ActionListaAdiantamentoSalarioLoja 
-          dadosAdiantamentoFuncionarios={dadosAdiantamentoFuncionarios} 
+        <ActionListaAdiantamentoSalarioLoja
+          dadosAdiantamentoFuncionarios={dadosAdiantamentoFuncionarios}
           optionsModulos={optionsModulos}
           usuarioLogado={usuarioLogado}
           selectedItems={selectedItems}

@@ -18,6 +18,7 @@ import * as XLSX from 'xlsx';
 import { useAtivarCancelar } from "./hooks/useAtivarCancelar";
 import Swal from "sweetalert2";
 import { useConferirQuebra } from "./hooks/useConferirQuebra";
+import { mascaraCPF } from "../../../../utils/formatCPF";
 
 
 export const ActionListaQuebraCaixaLoja = ({ 
@@ -271,7 +272,7 @@ export const ActionListaQuebraCaixaLoja = ({
     {
       field: 'CPFOPERADOR',
       header: 'CPF',
-      body: row => <th style={{ color: 'blue' }}>{row.CPFOPERADOR}</th>,
+      body: row => <th style={{ color: 'blue' }}>{mascaraCPF(row.CPFOPERADOR)}</th>,
       sortable: true,
     },
     {
