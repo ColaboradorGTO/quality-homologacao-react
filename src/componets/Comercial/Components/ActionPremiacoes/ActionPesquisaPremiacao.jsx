@@ -72,14 +72,43 @@ export const ActionPesquisaPremiacoes = ({ usuarioLogado }) => {
     { enabled: true, staleTime: 5 * 60 * 1000, }
   );
 
-  const { data: dadosListaPremiacoes = [], error: errorPremiacoes, isLoading: isLoadingPremiacoes, refetch: refetchListaPremiacoes } = useQuery(
-    ['listaPremiacoes'],
-    async () => {
-      const response = await get(`/listaPremiacoes`);
+  const fetchListaPremiacoes = async () => {
+    const urlBase = `/listaPremiacoes`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    try {
+      animacaoCarregamento('Carregando dados...', true);
 
-      return response.data;
-    },
-    { enabled: true, staleTime: 5 * 60 * 1000, }
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      let allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          allData.push(...(responsePage.data || []));
+        }
+      }
+
+      return allData;
+    } catch (error) {
+      console.error('Erro ao buscar dados da api:', error);
+      throw error;
+    } finally {
+      fecharAnimacaoCarregamento();
+    }
+  };
+
+  const { data: dadosListaPremiacoes = [], error: errorPremiacoes, isLoading: isLoadingPremiacoes, refetch: refetchListaPremiacoes } = useQuery(
+    ['premiacoes-loja',],
+    () => fetchListaPremiacoes(),
+    { enabled: true, staleTime: 60 * 60 * 1000 }
   );
 
 
@@ -136,7 +165,6 @@ export const ActionPesquisaPremiacoes = ({ usuarioLogado }) => {
         valueInputFieldDTFim={dataPesquisaFim}
         onChangeInputFieldDTFim={e => setDataPesquisaFim(e.target.value)}
         onKeyDownInputFieldDTFim={handleKeyPress}
-
 
         InputSelectEmpresaComponent={InputSelectAction}
         optionsEmpresas={[
@@ -216,7 +244,7 @@ export const ActionPesquisaPremiacoes = ({ usuarioLogado }) => {
           </div>
 
           <div className="row">
-            <div className="col-sm-6 col-md-6 col-lg-6">{console.log(dadosMultiplicador, "dados multiplicador")}
+            <div className="col-sm-6 col-md-6 col-lg-6">
               <ActionListaMultiplicador dadosMultiplicador={dadosMultiplicador} />
             </div>
             <div className="col-sm-6 col-md-6 col-lg-6">
