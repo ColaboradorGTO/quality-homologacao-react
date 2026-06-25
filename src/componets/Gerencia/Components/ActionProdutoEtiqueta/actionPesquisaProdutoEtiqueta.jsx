@@ -23,6 +23,7 @@ export const ActionPesquisaProdutoEtiqueta = ({ usuarioLogado }) => {
   const [dadosAcumuladorEtiquetas, setDadosAcumuladorEtiquetas] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
+   
 
   const { data: dadosListaPrecos = [], error: errorListaPrecos, isLoading: isLoadingListaPrecos, refetch } = useQuery(
     'listas-de-precos-sap',
@@ -96,6 +97,13 @@ export const ActionPesquisaProdutoEtiqueta = ({ usuarioLogado }) => {
 
     }
   }
+
+  const handleKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleClick();
+    }
+  };
 
   const handleCancelar = async (isChecked) => {
     const result = await Swal.fire({
@@ -198,6 +206,7 @@ export const ActionPesquisaProdutoEtiqueta = ({ usuarioLogado }) => {
         InputFieldComponent={InputField}
         labelInputField={"Cód.Barras "}
         valueInputField={codBarrasProduto}
+        onKeyDownInputField={handleKeyPress}
         onChangeInputField={(e) => setCodBarrasProduto(e.target.value)}
         placeHolderInputFieldComponent={"Cód.Barras / Nome Produto"}
 
@@ -205,12 +214,14 @@ export const ActionPesquisaProdutoEtiqueta = ({ usuarioLogado }) => {
         labelInputFieldNumeroNF={"Id. Produto"}
         valueInputFieldNumeroNF={idProduto}
         onChangeInputFieldNumeroNF={(e) => setIDProduto(e.target.value)}
+        onKeyDownInputFieldNumeroNF={handleKeyPress}
         placeHolderInputFieldNumeroNF={"Id. Produto"}
 
         InputFieldDescricaoComponent={InputField}
         labelInputFieldDescricao={"Descrição"}
         valueInputFieldDescricao={descricaoProduto}
         onChangeInputFieldDescricao={(e) => setDescricaoProduto(e.target.value)}
+        onKeyDownInputFieldDescricao={handleKeyPress}
         placeHolderInputFieldDescricao={"Descrição do Produto"}
 
         ButtonSearchComponent={ButtonType}

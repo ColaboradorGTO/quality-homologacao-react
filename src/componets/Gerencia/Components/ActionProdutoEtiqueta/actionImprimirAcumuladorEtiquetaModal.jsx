@@ -97,7 +97,7 @@ export const ActionImprimirAcumuladorEtiquetaModal = ({
         <FooterModal
           ButtonTypeCadastrar={ButtonTypeModal}
           textButtonCadastrar={"Imprimir"}
-          onClickButtonCadastrar={handlePrint}
+          onClickButtonCadastrar={handlePrint} 
           corCadastrar={"primary"}
 
           ButtonTypeFechar={ButtonTypeModal}
