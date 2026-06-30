@@ -15,7 +15,6 @@ import { ActionListaConsolidacaoFaturas } from "./actionListaConsolidacaoFaturas
 import { useConsolidarTodasFaturas } from "./hooks/useConsolidarTodasFaturas"
 import { MdOutlineCloudUpload } from "react-icons/md"
 
-
 export const ActionPesquisaFaturasConsolidadas = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [tabelaVisivel2, setTabelaVisivel2] = useState(false);

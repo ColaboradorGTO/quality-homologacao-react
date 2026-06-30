@@ -147,8 +147,6 @@ export const DashBoardCompras = () => {
       component = null;
       break;
   }
-
-
   return (
 
     <Fragment>

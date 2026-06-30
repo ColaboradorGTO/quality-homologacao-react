@@ -449,6 +449,7 @@ export const ActionListaFaturasLoja = ({
           <DataTable
             title="Vendas por Loja"
             value={dados}
+            pageKey="IDDETALHEFATURA"
             globalFilter={globalFilterValue}
             size="small"
             selectionMode="single"
@@ -458,6 +459,7 @@ export const ActionListaFaturasLoja = ({
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
             sortOrder={-1}
+            cellMemo={false}
             paginator={true}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, 200, 300, 500, dados.length]}
