@@ -394,7 +394,7 @@ export const ActionListaQuebraCaixaLojaPositiva = ({
                 titleButton={"Ativar Quebra"}
                 cor={"success"}
                 Icon={FaCheck}
-                onClickButton={() => handleCancelar(row, true)}
+                onClickButton={() => handleCancelar(row.IDQUEBRACAIXA, true)}
                 iconSize={20}
                 width="30px"
                 height="30px"

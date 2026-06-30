@@ -101,6 +101,7 @@ export const ActionListaConsolidacaoFaturas = ({
       ERROR_LOG_SAP: item.ERROR_LOG_SAP,
       STCANCELADO: item.STCANCELADO,
       TXTMOTIVOCANCELAMENTO: item.TXTMOTIVOCANCELAMENTO,
+      
     }
   });
 
@@ -437,6 +438,7 @@ export const ActionListaConsolidacaoFaturas = ({
             filterDisplay="menu"
             sortOrder={-1}
             paginator={true}
+            cellMemo={false}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, 200, 300, 500, dados.length]}
             showGridlines

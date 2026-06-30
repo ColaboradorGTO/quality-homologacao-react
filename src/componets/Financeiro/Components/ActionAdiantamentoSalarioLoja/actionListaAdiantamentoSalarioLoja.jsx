@@ -516,6 +516,7 @@ export const ActionListaAdiantamentoSalarioLoja = ({
             sortOrder={-1}
             paginator={true}
             rows={10}
+            cellMemo={false}
             selectionMode="single"
             selection={rowSelection}
             onSelectionChange={(e) => setRowSelection(e.value)}

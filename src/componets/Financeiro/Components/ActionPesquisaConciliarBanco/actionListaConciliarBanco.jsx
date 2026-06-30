@@ -627,6 +627,7 @@ export const ActionListaConciliarPorBanco = ({
             sortOrder={-1}
             paginator={true}
             rows={rows}
+            cellMemo={false}
             first={first}
             onPage={(e) => {
               setFirst(e.first);

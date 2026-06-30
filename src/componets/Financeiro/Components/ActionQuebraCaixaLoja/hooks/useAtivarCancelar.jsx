@@ -46,7 +46,7 @@ export const useAtivarCancelar = ({ usuarioLogado, optionsModulos, handleClick }
     setIsSubmitting(true);
     const putData = {
       IDQUEBRACAIXA: IDQUEBRACAIXA,
-      STATIVO: status ? 'True' : 'False'
+      STATIVO: status === true ? 'True' : 'False'   
     }
     try {
       const response = await put('/atualizar-status-quebra', putData)

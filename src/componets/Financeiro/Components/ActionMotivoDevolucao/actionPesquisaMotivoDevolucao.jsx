@@ -158,6 +158,7 @@ export const ActionPesquisaMotivoDevolucao = ({ usuarioLogado }) => {
           dadosMotivoDevolucao={dadosMotivoDevolucao}
           optionsModulos={optionsModulos}
           usuarioLogado={usuarioLogado}
+          handleClick={handleClick}
         />
       )}
 

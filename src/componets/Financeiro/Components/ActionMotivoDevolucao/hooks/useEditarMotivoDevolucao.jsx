@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {post, put } from "../../../../../api/funcRequest";
+import { post, put } from "../../../../../api/funcRequest";
 import Swal from "sweetalert2";
 
-export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado}) => {
+export const useEditarMotivoDevolucao = ({ dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado, handleClose, handleClick }) => {
   const [statusSelecionado, setStatusSelecionado] = useState('')
   const [dataCriacao, setDataCriacao] = useState('')
   const [horaAlteracao, setHoraAlteracao] = useState('')
@@ -33,6 +33,11 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
     return usuarioIP;
   };
 
+    const optionsStatus = [
+    { value: 'True', label: 'ATIVO' },
+    { value: 'False', label: 'INATIVO' },
+  ]
+
   useEffect(() => {
     if (dadosDetalheMotivoDevolucao && dadosDetalheMotivoDevolucao.length > 0) {
       setDataCriacao(dadosDetalheMotivoDevolucao[0]?.DTCRIACAO);
@@ -41,7 +46,8 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
       setIdMotivo(dadosDetalheMotivoDevolucao[0]?.IDMOTIVODEVOLUCAO);
       setMotivo(dadosDetalheMotivoDevolucao[0]?.DSMOTIVO);
     }
-  }, []);
+  }, [dadosDetalheMotivoDevolucao]);
+
 
   const onSubmit = async () => {
     if (optionsModulos[0]?.ALTERAR !== 'True') {
@@ -60,7 +66,7 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
 
     const putData = {
       DSMOTIVO: motivo,
-      STATIVO: statusSelecionado?.value,
+      STATIVO: statusSelecionado,
       IDUSUARIO: usuarioLogado.id,
       IDMOTIVODEVOLUCAO: dadosDetalheMotivoDevolucao[0]?.IDMOTIVODEVOLUCAO,
     }
@@ -79,7 +85,7 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
       }
 
       await post('/log-web', postData)
-      
+
       Swal.fire({
         position: 'center',
         icon: 'success',
@@ -90,8 +96,9 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
         showConfirmButton: false,
         timer: 3000
       });
-      handleClose();
 
+      handleClick();
+      handleClose();
 
       return response.data;
     } catch (error) {
@@ -120,14 +127,8 @@ export const useEditarMotivoDevolucao = ({dadosDetalheMotivoDevolucao, optionsMo
       });
 
       return responsePost.data;
-    } 
+    }
   }
-
-
-  const optionsStatus = [
-    { value: 'True', label: 'ATIVO' },
-    { value: 'False', label: 'INATIVO' },
-  ]
 
   return {
     statusSelecionado,

@@ -414,7 +414,7 @@ export const ActionListaQuebraCaixaLoja = ({
                 titleButton={"Ativar Quebra"}
                 cor={"success"}
                 Icon={FaCheck}
-                onClickButton={() => handleCancelar(row, true)}
+                onClickButton={() => handleCancelar(row.IDQUEBRACAIXA, true)}
                 iconSize={20}
                 width="30px"
                 height="30px"
@@ -550,6 +550,7 @@ export const ActionListaQuebraCaixaLoja = ({
             sortOrder={-1}
             paginator={true}
             rows={10}
+            cellMemo={false}
             rowsPerPageOptions={[10, 20, 50, 100, dados.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"

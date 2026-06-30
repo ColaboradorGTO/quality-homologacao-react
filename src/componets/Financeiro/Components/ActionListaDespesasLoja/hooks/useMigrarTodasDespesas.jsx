@@ -3,26 +3,26 @@ import { post, put } from "../../../../../api/funcRequest";
 import axios from 'axios'
 import Swal from "sweetalert2";
 
-export const useMigrarTodasDespesasSAP = ({optionsModulos, usuarioLogado, selectedItems, handleClick}) => {
+export const useMigrarTodasDespesasSAP = ({ optionsModulos, usuarioLogado, selectedItems, handleClick }) => {
     const [ipUsuario, setIpUsuario] = useState('');
 
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
         try {
-        const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
-        usuarioIP = ipWhoisData?.ip;
+            const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+            usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-        console.error("Erro ao buscar IP via ipwho.is:", error);
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
 
         if (!usuarioIP) {
-        try {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
-        } catch (error) {
-            console.error("Erro ao buscar IP via ipify.org:", error);
-        }
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
         }
         setIpUsuario(usuarioIP);
         return usuarioIP;
@@ -32,15 +32,15 @@ export const useMigrarTodasDespesasSAP = ({optionsModulos, usuarioLogado, select
     const handleMigrarDespesa = async (data) => {
         if (optionsModulos[0]?.CRIAR !== 'True') {
             Swal.fire({
-            position: 'center',
-            icon: 'error',
-            title: 'Acesso Negado!',
-            html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para alterar esta despesa.`,
-            showConfirmButton: false,
-            timer: 5000,
-            customClass: {
-                container: 'custom-swal',
-            }
+                position: 'center',
+                icon: 'error',
+                title: 'Acesso Negado!',
+                html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para alterar esta despesa.`,
+                showConfirmButton: false,
+                timer: 5000,
+                customClass: {
+                    container: 'custom-swal',
+                }
             });
             return;
         }
@@ -66,18 +66,24 @@ export const useMigrarTodasDespesasSAP = ({optionsModulos, usuarioLogado, select
         }).then(async (result) => {
 
             if (result.isConfirmed) {
-                
+
                 const idsDespesas = selectedItems.map(item => Number(item.IDDESPESASLOJA));
-                const putData = {
+                 const putData = {
                     IDDESPESASLOJA: idsDespesas,
                     IDFUNCIONARIO: parseInt(usuarioLogado.id),
-                }
-        
-            
+                } 
+
                 try {
-        
-                    const response = await post('/integrar-despesa', putData)
-                
+                    for (const item of selectedItems) {
+
+                        const putData = {
+                            IDDESPESASLOJA: Number(item.IDDESPESASLOJA),
+                            IDFUNCIONARIO: Number(usuarioLogado.id),
+                        };
+
+                        await post('/integrar-despesa', putData);
+                    }
+
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
                     const postData = {
@@ -86,7 +92,7 @@ export const useMigrarTodasDespesasSAP = ({optionsModulos, usuarioLogado, select
                         DADOS: textDados,
                         IP: ipUsuario || 'Indisponível'
                     }
-                    
+
                     await post('/log-web', postData)
                     Swal.fire({
                         position: 'center',
@@ -95,12 +101,12 @@ export const useMigrarTodasDespesasSAP = ({optionsModulos, usuarioLogado, select
                         showConfirmButton: false,
                         timer: 3000,
                         customClass: {
-                            container: 'custom-swal', 
+                            container: 'custom-swal',
                         },
                     })
-        
+
                     handleClick();
-                    return response.data;
+
                 } catch (error) {
                     const textDados = JSON.stringify(putData)
                     const ipUsuario = await getIPUsuario();
@@ -110,10 +116,10 @@ export const useMigrarTodasDespesasSAP = ({optionsModulos, usuarioLogado, select
                         DADOS: textDados,
                         IP: ipUsuario || 'Indisponível'
                     }
-                    
+
                     const responsePost = await post('/log-web', postData)
-        
-        
+
+
                     Swal.fire({
                         position: 'center',
                         icon: 'error',
@@ -121,7 +127,7 @@ export const useMigrarTodasDespesasSAP = ({optionsModulos, usuarioLogado, select
                         showConfirmButton: false,
                         timer: 3000,
                         customClass: {
-                            container: 'custom-swal', 
+                            container: 'custom-swal',
                         },
                     });
                     console.error('Erro Integrar Despesa:', error);
@@ -131,10 +137,10 @@ export const useMigrarTodasDespesasSAP = ({optionsModulos, usuarioLogado, select
                 return;
             }
         });
-        
+
     }
 
-    
+
     return {
         handleMigrarDespesa,
     }

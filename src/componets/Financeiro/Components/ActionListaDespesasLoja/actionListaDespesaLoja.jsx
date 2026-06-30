@@ -30,7 +30,7 @@ export const ActionListaDespesaLoja = ({
   setBtnVisivel
 }) => {
   const { handleAtivar, handleCancelar } = useEditarDespesa(usuarioLogado, optionsModulos, handleClick);
-  const { handleMigrarDespesa } = useMigrarDespesaSAP({optionsModulos, usuarioLogado, selectedItems, handleClick});
+
   const [modalDespesasVisivel, setModalDespesasVisivel] = useState(false);
   const [dadosDespesasLojaDetalhe, setDadosDespesasLojaDetalhe] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -46,6 +46,18 @@ export const ActionListaDespesaLoja = ({
     { color: 'danger', txt: 'Erro ao Tentar Integrar' },
     { color: 'danger', txt: 'Cancelada' }
   ];
+
+
+  const {
+    handleMigrarDespesa
+
+  } = useMigrarDespesaSAP({
+    optionsModulos,
+    usuarioLogado,
+    selectedItems,
+    handleClick
+  });
+
 
   const arrayMsgStatusIntegracao = [
     'Despesa Pronta Para Integrar',
@@ -118,7 +130,6 @@ export const ActionListaDespesaLoja = ({
 
     const msgTitleIntegracao = logErrorIntegracao.length ? 'MOTIVO:' : arraySituacao[indexSituacao].txt;
     const msgTextIntegracao = (logErrorIntegracao || arrayMsgStatusIntegracao[indexSituacao]).replaceAll("'", "");
-
     return {
       contador,
       NOFANTASIA: item.NOFANTASIA,
@@ -572,12 +583,14 @@ export const ActionListaDespesaLoja = ({
               {selectAllChecked ? "Desmarcar Todos" : "Marcar Todos"}
             </span>
           </div>
-      </div>
+        </div>
 
         <div className="card" ref={dataTableRef}>
 
           <DataTable
             title="Vendas por Loja"
+            dataKey="IDDESPESASLOJA"
+            cellMemo={false}
             value={dados}
             globalFilter={globalFilterValue}
             size="small"
