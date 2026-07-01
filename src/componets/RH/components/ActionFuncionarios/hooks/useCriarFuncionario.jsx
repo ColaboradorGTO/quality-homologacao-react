@@ -182,16 +182,16 @@ export const useCriarFuncionario = ({ handleClose, usuarioLogado, optionsModulos
 
   const onSubmit = async (e) => {
     let maximoDesconto = 0;
-    let dataBase = new Date('2024-08-01')
-    let diferencaDias = Math.ceil((dataBase - new Date()) / (1000 * 60 * 60 * 24));
+    // let dataBase = new Date('2024-08-01')
+    // let diferencaDias = Math.ceil((dataBase - new Date()) / (1000 * 60 * 60 * 24));
 
-    if (diferencaDias < 90) {
-      maximoDesconto = 10;
-    } else if (diferencaDias >= 90 && diferencaDias < 365) {
-      maximoDesconto = 15;
-    } else if (diferencaDias >= 365 && diferencaDias < 730) {
-      maximoDesconto = 20;
-    }
+    // if (diferencaDias < 90) {
+    //   maximoDesconto = 10;
+    // } else if (diferencaDias >= 90 && diferencaDias < 365) {
+    //   maximoDesconto = 15;
+    // } else if (diferencaDias >= 365 && diferencaDias < 730) {
+    //   maximoDesconto = 20;
+    // }
 
     const cpfSemMascara = removerMascaraCPF(cpfFuncionario);
 
