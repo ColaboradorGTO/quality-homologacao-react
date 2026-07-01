@@ -15,14 +15,14 @@ import { toFloat } from "../../../../utils/toFloat";
 import { useEditarDeposito } from "./hooks/useEditarDeposito";
 
 
-export const ActionListaCompensacaoBancoDTW = ({ dadosConciliarBanco, contaSelecionada, optionsModulos, usuarioLogado, handleClickCompensacao }) => {
+export const ActionListaCompensacaoBancoDTW = ({ dadosConciliarBanco, contaSelecionada, optionsModulos, usuarioLogado, refetchConciliarBanco, refetchBancoConsolidado }) => {
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
   const {
     handleCancelar
-  } = useEditarDeposito({ optionsModulos, usuarioLogado, handleClickCompensacao })
+  } = useEditarDeposito({ optionsModulos, usuarioLogado, refetchConciliarBanco, refetchBancoConsolidado })
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -294,6 +294,7 @@ export const ActionListaCompensacaoBancoDTW = ({ dadosConciliarBanco, contaSelec
             onSelectionChange={(e) => setRowSelection(e.value)}
             sortOrder={-1}
             paginator={true}
+            cellMemo={false}
             rows={10}
             rowsPerPageOptions={[10, 20, 50, 100, dadosListaConciliarBanco.length]}
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"

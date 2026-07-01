@@ -12,7 +12,7 @@ import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import Swal from "sweetalert2";
 
-export const ActionListaMotivoDevolucao = ({ dadosMotivoDevolucao, optionsModulos, usuarioLogado }) => {
+export const ActionListaMotivoDevolucao = ({ dadosMotivoDevolucao, optionsModulos, usuarioLogado, handleClick }) => {
   const [dadosDetalheMotivoDevolucao, setDadosDetalheMotivoDevolucao] = useState([])
   const [modalVisivel, setModalVisivel] = useState(false)
   const [globalFilterValue, setGlobalFilterValue] = useState('');
@@ -260,6 +260,7 @@ export const ActionListaMotivoDevolucao = ({ dadosMotivoDevolucao, optionsModulo
         dadosDetalheMotivoDevolucao={dadosDetalheMotivoDevolucao}
         optionsModulos={optionsModulos}
         usuarioLogado={usuarioLogado}
+        handleClick={handleClick}
       />
 
     </Fragment>

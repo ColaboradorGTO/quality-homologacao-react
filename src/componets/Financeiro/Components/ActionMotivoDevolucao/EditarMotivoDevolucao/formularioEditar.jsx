@@ -6,7 +6,7 @@ import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { useEditarMotivoDevolucao } from "../hooks/useEditarMotivoDevolucao";
 import { useForm } from "react-hook-form";
 
-export const FomularioEditar = ({dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado, handleClose}) => {
+export const FomularioEditar = ({ dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado, handleClose, handleClick }) => {
     const { register, handleSubmit, formState: { errors } } = useForm();
     const {
         statusSelecionado,
@@ -21,7 +21,7 @@ export const FomularioEditar = ({dadosDetalheMotivoDevolucao, optionsModulos, us
         setMotivo,
         onSubmit,
         optionsStatus
-    } = useEditarMotivoDevolucao({dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado})
+    } = useEditarMotivoDevolucao({ dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado, handleClose, handleClick })
 
     return (
         <Fragment>
@@ -55,11 +55,11 @@ export const FomularioEditar = ({dadosDetalheMotivoDevolucao, optionsModulos, us
 
                             <label> Status Motivo </label>
                             <Select
-                                options={optionsStatus.map((item) => { 
+                                options={optionsStatus.map((item) => {
                                     return {
 
-                                        value: item.value, 
-                                        label: item.label 
+                                        value: item.value,
+                                        label: item.label
                                     }
                                 })}
                                 value={optionsStatus.find(option => option.value === statusSelecionado.value)}
@@ -91,12 +91,12 @@ export const FomularioEditar = ({dadosDetalheMotivoDevolucao, optionsModulos, us
 
                     </div>
                 </div>
-                 <FooterModal
+                <FooterModal
                     ButtonTypeCadastrar={ButtonTypeModal}
                     onClickButtonCadastrar={handleSubmit(onSubmit)}
                     textButtonCadastrar={"Atualizar"}
                     corCadastrar={"success"}
-        
+
                     ButtonTypeFechar={ButtonTypeModal}
                     onClickButtonFechar={handleClose}
                     textButtonFechar={"Cancelar e Fechar"}

@@ -157,16 +157,15 @@ export const ActionListaEmpresas = ({dadosEmpresas, optionsModulos, usuarioLogad
     }
   };
 
-
   const handleClickDetalhar = (row) => {
     if(optionsModulos[0]?.ALTERAR == 'True') {
-
       if (row && row.IDEMPRESA) {
         handleDetalhar(row.IDEMPRESA);
       }
+
     } else {
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'error',
         title: `Você não tem permissão para alterar!`,
         customClass: {
@@ -176,7 +175,7 @@ export const ActionListaEmpresas = ({dadosEmpresas, optionsModulos, usuarioLogad
         timer: 3000,
       });
     }
-
+   
   };
 
 
@@ -214,6 +213,7 @@ export const ActionListaEmpresas = ({dadosEmpresas, optionsModulos, usuarioLogad
           currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
           filterDisplay="menu"
           showGridlines
+          cellMemo={false}
           stripedRows
           emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
         >

@@ -7,7 +7,7 @@ import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal";
 import { FooterModal } from "../../../../Modais/FooterModal/footerModal";
 import { FomularioEditar,  } from "./formularioEditar";
 
-export const ActionEditarMotivoDevolucaoModal = ({ show, handleClose, dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado }) => {
+export const ActionEditarMotivoDevolucaoModal = ({ show, handleClose, dadosDetalheMotivoDevolucao, optionsModulos, usuarioLogado, handleClick }) => {
 
   return (
     <Fragment>
@@ -33,6 +33,7 @@ export const ActionEditarMotivoDevolucaoModal = ({ show, handleClose, dadosDetal
             optionsModulos={optionsModulos}
             usuarioLogado={usuarioLogado}
             handleClose={handleClose} 
+            handleClick={handleClick}
             
           />
         </Modal.Body>

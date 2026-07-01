@@ -28,7 +28,6 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
         return usuarioIP;
     };
 
-
     const conferir = async (data) => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
             Swal.fire({
@@ -67,7 +66,7 @@ export const useConferirQuebra = ({optionsModulos, usuarioLogado, selectedItems,
             if (result.isConfirmed) {
             
                 const putData = {
-                    IDQUEBRACAIXA: parseInt(selectedItems[0]?.IDQUEBRACAIXA),
+                    IDQUEBRACAIXA: selectedItems[0]?.IDQUEBRACAIXA,
                     STCONFERIDO: 'True',
                     IDFUNCIONARIO: parseInt(usuarioLogado.id),
                 }

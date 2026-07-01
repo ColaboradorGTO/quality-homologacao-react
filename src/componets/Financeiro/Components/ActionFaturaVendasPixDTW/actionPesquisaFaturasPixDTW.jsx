@@ -234,7 +234,7 @@ export const ActionPesquisaFaturasVendasPixDTW = ({ usuarioLogado }) => {
         onChangeSelectEmpresa={(e) => setMarcaSelecionada(e.value)}
         
         ButtonSearchComponent={ButtonType}
-        linkNomeSearch={"Faturas PIX "}
+        linkNomeSearch={"Faturas PIX"}
         onButtonClickSearch={handleClickVendasPix}
         IconSearch={AiOutlineSearch}
         corSearch={"info"}
