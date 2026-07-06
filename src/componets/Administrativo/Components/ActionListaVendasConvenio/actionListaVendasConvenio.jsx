@@ -193,7 +193,7 @@ export const ActionListaVendasConvenio = ({ dadosVendasConvenio }) => {
     {
       field: 'NUCPF',
       header: 'CPF',
-      body: row => <th style={{}}> {parseFloat(row.NUCPF)}</th>,
+      body: row => <th style={{}}> {row.NUCPF}</th>,
       sortable: true,
     },
     {

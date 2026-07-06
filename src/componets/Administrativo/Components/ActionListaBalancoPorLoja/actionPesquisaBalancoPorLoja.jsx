@@ -123,7 +123,7 @@ export const ActionPesquisaBalancoPorLoja = ({usuarioLogado }) => {
       <ActionMain
         linkComponentAnterior={["Home"]}
         linkComponent={["Balanço por Loja"]}
-        title="Lista de Balanços por Loja "
+        title="Lista de Balanços por Loja"
         subTitle={empresaSelecionadaNome}
 
         InputFieldDTInicioComponent={InputField}
