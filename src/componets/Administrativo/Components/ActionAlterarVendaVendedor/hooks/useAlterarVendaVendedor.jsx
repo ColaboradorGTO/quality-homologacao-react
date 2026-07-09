@@ -31,6 +31,8 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
         setIpUsuario(usuarioIP);
         return usuarioIP;
     };
+    console.log(selectedIds, 'selectedIds')
+    //console.log(vendedorSelecionado, 'vendedorSelecionado')
 
     const alterarVendaVendedor = async () => {
         if(optionsModulos[0]?.ALTERAR == 'False') {
@@ -73,8 +75,8 @@ export const useAlterarVendaVendedor = ({ optionsModulos, usuarioLogado, handleC
         }
 
         const putData = {
-            IDVENDADETALHE: String(selectedIds),
-            IDVENDEDOR: vendedorSelecionado,
+            IDVENDADETALHE: selectedIds,
+            IDVENDEDOR: Number(vendedorSelecionado),
         }
 
         try {

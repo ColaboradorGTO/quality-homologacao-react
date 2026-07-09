@@ -22,7 +22,6 @@ export const FormularioCancelarVenda = ({
     dadosMotivoDevolucao,
     onSubmit
   } = useCancelarVenda({ optionsModulos, usuarioLogado, handleClose, dadosCancelarVenda })
-  console.log('dadosCancelarVenda no formulario:', dadosCancelarVenda);
   const handleValidatedSubmit = async () => {
     try {
       const dadosParaValidar = {
@@ -69,7 +68,7 @@ export const FormularioCancelarVenda = ({
                 })) || []
               }
               value={motivo}
-              onChange={(e) => setMotivo(e.value)}
+              onChange={(selectedOption) => { setMotivo(selectedOption) }}
             />
           </div>
         </div>

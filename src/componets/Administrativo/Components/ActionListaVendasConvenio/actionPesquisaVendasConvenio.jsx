@@ -15,8 +15,8 @@ import { useFetchData, useFetchEmpresas } from "../../../../hooks/useFetchData";
 export const ActionPesquisaVendasConvenio = () => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
   const [dataPesquisaFim, setDataPesquisaFim] = useState('');
-  const [marcaSelecionada, setMarcaSelecionada] = useState('')
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
+  const [marcaSelecionada, setMarcaSelecionada] = useState('')
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [tabelaVisivelDescontoFuncionario, setTabelaVisivelDescontoFuncionario] = useState(false);
 
@@ -29,15 +29,15 @@ export const ActionPesquisaVendasConvenio = () => {
 
   }, []);
   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas } = useFetchData('marcasLista', '/marcasLista');
-  const { data: optionsEmpresas = [],} = useFetchEmpresas(marcaSelecionada);
-  
+  const { data: optionsEmpresas = [], } = useFetchEmpresas(marcaSelecionada);
+
   const fetchListaVendasConvenioDescontoFuncionario = async () => {
-    const urlBase = `/desconto-motivo-vendas-adm?idEmpresa=${empresaSelecionada}&idGrupo=${marcaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&dsMotivoDesc=Desconto Funcionario`;
+    const urlBase = `/vendaConvenio?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&dsmotdesc=Desconto Funcionario`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
-                                              
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -57,7 +57,7 @@ export const ActionPesquisaVendasConvenio = () => {
 
       return allData;
     } catch (error) {
-      console.error('Erro ao buscar dados da api:', error);  
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -67,16 +67,16 @@ export const ActionPesquisaVendasConvenio = () => {
   const { data: dadosVendasConvenioFuncionario = [], error: errorVendasConvenioFuncionario, isLoading: isLoadingVendasConvenioFuncionario, refetch: refetchListaVendasConvenioDescontoFuncionario } = useQuery(
     ['desconto-motivo-vendas-adm',],
     () => fetchListaVendasConvenioDescontoFuncionario(),
-    { enabled: false, staleTime: 60 * 60 * 1000,}
+    { enabled: false, staleTime: 60 * 60 * 1000, }
   );
 
   const fetchListaVendasConvenio = async () => {
-    const urlBase = `/desconto-motivo-vendas-adm?idEmpresa=${empresaSelecionada}&idGrupo=${marcaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&dsMotivoDesc=Convenio`;
+    const urlBase = `/vendaConvenio?idEmpresa=${empresaSelecionada}&idMarca=${marcaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&dsmotdesc=Convenio`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
     try {
       animacaoCarregamento('Carregando dados...', true);
-                                              
+
       const primeiraPagina = 1;
       const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
       const page = primeiraResposta.page || primeiraPagina;
@@ -96,7 +96,7 @@ export const ActionPesquisaVendasConvenio = () => {
 
       return allData;
     } catch (error) {
-      console.error('Erro ao buscar dados da api:', error);  
+      console.error('Erro ao buscar dados da api:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -104,11 +104,11 @@ export const ActionPesquisaVendasConvenio = () => {
   };
 
   const { data: dadosVendasConvenio = [], error: errorVendasConvenio, isLoading: isLoadingVendasConvenio, refetch: refetchListaVendasConvenio } = useQuery(
-    ['desconto-motivo-vendas-adm',],
+    ['vendaConvenio',],
     () => fetchListaVendasConvenio(),
-    { enabled: false, staleTime: 60 * 60 * 1000,}
+    { enabled: false, staleTime: 60 * 60 * 1000, }
   );
-  
+
   const handleSelectEmpresa = (e) => {
     setEmpresaSelecionada(e.value);
   };
@@ -138,7 +138,7 @@ export const ActionPesquisaVendasConvenio = () => {
         linkComponent={["Vendas Convênio por Loja e Período"]}
         title="Vendas Convênio e Desconto Funcionário por Loja e Período"
         // subTitle="Nome da Loja"
-        
+
         InputFieldDTInicioComponent={InputField}
         labelInputFieldDTInicio={"Data Início"}
         valueInputFieldDTInicio={dataPesquisaInicio}
@@ -151,9 +151,9 @@ export const ActionPesquisaVendasConvenio = () => {
 
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Empresa"}
-        
+
         optionsEmpresas={[
-          {value: '', label: 'Todas'},
+          { value: '', label: 'Todas' },
           ...optionsEmpresas.map((item) => {
             return {
               value: item.IDEMPRESA,
@@ -188,11 +188,11 @@ export const ActionPesquisaVendasConvenio = () => {
       />
 
       {tabelaVisivel &&
-        <ActionListaVendasConvenio dadosVendasConvenio={dadosVendasConvenio} /> 
+        <ActionListaVendasConvenio dadosVendasConvenio={dadosVendasConvenio} />
       }
 
-      {tabelaVisivelDescontoFuncionario && 
-         <ActionListaConvenioDescontoFuncionario dadosVendasConvenioFuncionario={dadosVendasConvenioFuncionario} />
+      {tabelaVisivelDescontoFuncionario &&
+        <ActionListaConvenioDescontoFuncionario dadosVendasConvenioFuncionario={dadosVendasConvenioFuncionario} />
       }
     </Fragment>
   )

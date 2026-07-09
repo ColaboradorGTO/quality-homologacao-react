@@ -276,6 +276,7 @@ export const ActionDetalheAlterarVendaModal = ({ show, handleClose, dadosVendasD
                 sortOrder={-1}
                 paginator={true}
                 rows={10}
+                cellMemo={false}
                 rowsPerPageOptions={[10, 20, 50, 100, dadosDetalhadosModal.length]}
                 showGridlines
                 stripedRows
