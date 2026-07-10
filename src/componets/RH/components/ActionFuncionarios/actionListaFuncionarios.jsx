@@ -472,7 +472,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         handleClick={handleClick}
         refetch={refetch}
       />
-
+ 
       <ActionEditarDescontoFuncionarioModal
         show={modalDescontoVisivel}
         handleClose={() => setModalDescontoVisivel(false)}
