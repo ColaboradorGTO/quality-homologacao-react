@@ -107,11 +107,11 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       NOFUNCIONARIO: item.NOFUNCIONARIO,
       NOLOGIN: item.NOLOGIN,
       DSFUNCAO: item.DSFUNCAO,
-      STLOJA: item.STLOJA,
-      STCONVENIO: item.STCONVENIO,
-      DSTIPO: item.DSTIPO,
+      STLOJA: item.STLOJA == 'True' ? 'Loja' : 'Escritório',
+      STCONVENIO: item.STCONVENIO == 'True' ? 'CLT' : 'PJ',
+      DSTIPO: item.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO',
       PERC: toFloat(item.PERC),
-      STATIVO: item.STATIVO,
+      STATIVO: item.STATIVO == 'True' ? 'Ativo' : 'Inativo',
       DATA_DEMISSAO: item.DATA_DEMISSAO,
       ID: item.ID,
       IDFUNCIONARIO: item.IDFUNCIONARIO,
@@ -166,7 +166,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       header: 'Localização',
       body: (row) => (
         <th>
-          {row.STLOJA == 'True' ? 'Loja' : 'Escritório'}
+          {row.STLOJA }
         </th>
       ),
       sortable: true,
@@ -178,7 +178,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       body: (
         (row) => (
           <th>
-            {row.STCONVENIO == 'True' ? 'CLT' : 'PJ'}
+            {row.STCONVENIO}
 
           </th>
         )
@@ -191,7 +191,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       body: (row) => (
         <div style={{ width: '150px' }}>
           <th>
-            {row.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO'}
+            {row.DSTIPO }
           </th>
         </div>
       ),
@@ -239,8 +239,8 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       header: 'Situação',
       body: (
         (row) => (
-          <th style={{ color: row.STATIVO == 'True' ? 'blue' : 'red' }}>
-            {row.STATIVO == 'True' ? 'Ativo' : 'Inativo'}
+          <th style={{ color: row.STATIVO == 'Ativo' ? 'blue' : 'red' }}>
+            {row.STATIVO}
 
           </th>
         )
@@ -253,7 +253,6 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       body: row => <th>{formatarDataBR(row.DATA_DEMISSAO)}</th>,
       sortable: true,
     },
-
     {
       field: 'ID',
       header: 'Opções',
