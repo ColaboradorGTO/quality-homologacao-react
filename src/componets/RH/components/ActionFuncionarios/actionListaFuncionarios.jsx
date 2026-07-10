@@ -85,13 +85,15 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       'Localização': item.STLOJA == 'True' ? 'Loja' : 'Escritório',
       'TP. Contratação': item.STCONVENIO == 'True' ? 'CLT' : 'PJ',
       'Tipo': item.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO',
+      'Telefone': item.TELEFONE,
+      'Departamento': item.DEPARTAMENTO,
       'Desconto %': item.PERC,
       'Situação': item.STATIVO == 'True' ? 'Ativo' : 'Inativo',
       'DT Desl.': dataFormatada(item.DTDEMISSAO)
     })));
     
     const workbook = XLSX.utils.book_new();
-    const header = ['Nº', 'CPF', 'Funcionário', 'Login', 'Função', 'Localização', 'TP. Contratação', 'Tipo', 'Desconto %', 'Situação', 'DT Desl.'];
+    const header = ['Nº', 'CPF', 'Funcionário', 'Login', 'Função', 'Localização', 'TP. Contratação', 'Tipo', 'Telefone', 'Departamento', 'Desconto %', 'Situação', 'DT Desl.'];
     worksheet['!cols'] = [
       { wpx: 70, caption: 'Nº' },
       { wpx: 100, caption: 'CPF' },
@@ -101,6 +103,8 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
       { wpx: 100, caption: 'Localização' },
       { wpx: 100, caption: 'TP. Contratação' },
       { wpx: 100, caption: 'Tipo' },
+      { wpx: 100, caption: 'Telefone' },
+      { wpx: 100, caption: 'Departamento' },
       { wpx: 100, caption: 'Desconto %' },
       { wpx: 100, caption: 'Situação' },
       { wpx: 100, caption: 'DT Desl.' },
