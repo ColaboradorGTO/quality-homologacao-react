@@ -75,8 +75,21 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
     doc.save('lista_funcionarios.pdf');
   };
 
-  const exportToExcel = () => {
-    const worksheet = XLSX.utils.json_to_sheet(dados);
+ const exportToExcel = () => {
+    const worksheet = XLSX.utils.json_to_sheet(dados.map(item => ({
+      'Nº': item.contador,
+      'CPF': item.NUCPF,
+      'Funcionário': item.NOFUNCIONARIO,
+      'Login': item.NOLOGIN,
+      'Função': item.DSFUNCAO,
+      'Localização': item.STLOJA == 'True' ? 'Loja' : 'Escritório',
+      'TP. Contratação': item.STCONVENIO == 'True' ? 'CLT' : 'PJ',
+      'Tipo': item.DSTIPO == 'PN' ? 'PARCEIRO DE NEGÓCIOS' : 'FUNCIÓNARIO',
+      'Desconto %': item.PERC,
+      'Situação': item.STATIVO == 'True' ? 'Ativo' : 'Inativo',
+      'DT Desl.': dataFormatada(item.DTDEMISSAO)
+    })));
+    
     const workbook = XLSX.utils.book_new();
     const header = ['Nº', 'CPF', 'Funcionário', 'Login', 'Função', 'Localização', 'TP. Contratação', 'Tipo', 'Desconto %', 'Situação', 'DT Desl.'];
     worksheet['!cols'] = [
