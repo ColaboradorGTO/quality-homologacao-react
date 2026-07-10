@@ -75,7 +75,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
     doc.save('lista_funcionarios.pdf');
   };
 
- const exportToExcel = () => {
+  const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(dados.map(item => ({
       'Nº': item.contador,
       'CPF': item.NUCPF,
@@ -489,7 +489,7 @@ export const ActionListaFuncionarios = ({ dadosFuncionarios, optionsModulos, usu
         handleClick={handleClick}
         refetch={refetch}
       />
- 
+
       <ActionEditarDescontoFuncionarioModal
         show={modalDescontoVisivel}
         handleClose={() => setModalDescontoVisivel(false)}
