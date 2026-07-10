@@ -145,32 +145,32 @@ export const ActionListaEstoqueRotatividade = ({ dadosEstoqueRotatividade }) => 
 
   const calcularQtdEntrada = () => {
     const totalDinheiro = calcularTotal('QTDENTRADA');
-    const totalVendas = calcularTotalPagina('QTDENTRADA');
+    const totalVendas = calcularTotalGeral('QTDENTRADA');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
   const calcularQtdEntradaVoucher = () => {
     const totalDinheiro = calcularTotal('QTDENTRADAVOUCHER');
-    const totalVendas = calcularTotalPagina('QTDENTRADAVOUCHER');
+    const totalVendas = calcularTotalGeral('QTDENTRADAVOUCHER');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
   const calcularQtdSaida = () => {
     const totalDinheiro = calcularTotal('QTDSAIDA');
-    const totalVendas = calcularTotalPagina('QTDSAIDA');
+    const totalVendas = calcularTotalGeral('QTDSAIDA');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
   const calcularQtdSaidaTransferencia = () => {
     const totalDinheiro = calcularTotal('QTDSAIDATRANSFERENCIA');
-    const totalVendas = calcularTotalPagina('QTDSAIDATRANSFERENCIA');
+    const totalVendas = calcularTotalGeral('QTDSAIDATRANSFERENCIA');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
   const calcularQtdRetornoAjustePedido = () => {
     const totalDinheiro = calcularTotal('QTDRETORNOAJUSTEPEDIDO');
-    const totalVendas = calcularTotalPagina('QTDRETORNOAJUSTEPEDIDO');
+    const totalVendas = calcularTotalGeral('QTDRETORNOAJUSTEPEDIDO');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
   const calcularQtdAjusteBalanco = () => {
     const totalDinheiro = calcularTotal('QTDAJUSTEBALANCO');
-    const totalVendas = calcularTotalPagina('QTDAJUSTEBALANCO');
+    const totalVendas = calcularTotalGeral('QTDAJUSTEBALANCO');
     return `${totalDinheiro}   (${totalVendas} total)`;
   };
 
