@@ -12,7 +12,7 @@ const ResumoDashBoardFinaneiro = lazy(() => import('../componets/Financeiro/Comp
 const ActionPesquisaVendasLoja = lazy(() => import('../componets/Financeiro/Components/ActionVendasLoja/actionPesquisaVendasLoja').then(module => ({ default: module.ActionPesquisaVendasLoja })));
 const ActionPesquisaVendasMarca = lazy(() => import('../componets/Financeiro/Components/ActionListaVendasMarca/actionPesquisaVendasMarca').then(module => ({ default: module.ActionPesquisaVendasMarca })));
 const ActionPesquisaVendasDigital = lazy(() => import('../componets/Financeiro/Components/ActionVendasDigital/actionPesquisaVendasDigital').then(module => ({ default: module.ActionPesquisaVendasDigital })));
-const ActionPesquisaVendasPix = lazy(() => import('../componets/Financeiro/Componensts/ActionListaVendasPix/actionPesquisaVendasPix').then(module => ({ default: module.ActionPesquisaVendasPix })));
+const ActionPesquisaVendasPix = lazy(() => import('../componets/Financeiro/Components/ActionListaVendasPix/actionPesquisaVendasPix').then(module => ({ default: module.ActionPesquisaVendasPix })));
 const ActionPesquisaVendasConciliacao = lazy(() => import('../componets/Financeiro/Components/ActionVendasConciliacao/actionPesquisaVendasConciliacao').then(module => ({ default: module.ActionPesquisaVendasConciliacao })));
 const ActionPesquisaDepositosLoja = lazy(() => import('../componets/Financeiro/Components/ActionDepositoLoja/actionPesquisaDepositosLoja').then(module => ({ default: module.ActionPesquisaDepositosLoja })));
 const ActionPesquisaDespesaLoja = lazy(() => import('../componets/Financeiro/Components/ActionListaDespesasLoja/actionPesquisaDespesaLoja').then(module => ({ default: module.ActionPesquisaDespesaLoja })));
