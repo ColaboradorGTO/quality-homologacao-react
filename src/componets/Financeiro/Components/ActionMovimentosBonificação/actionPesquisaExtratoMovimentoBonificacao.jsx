@@ -29,7 +29,7 @@ export const ActionPesquisaExtratoMovimentoBonificacao = ({ usuarioLogado }) => 
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.idFuncionario}&idMenuFilho=${menuFilhoAtual?.ID}`);
 
       return response.data;
     },

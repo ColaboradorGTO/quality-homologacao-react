@@ -25,7 +25,7 @@ export const ActionPesquisaRemessaVenda = ({ usuarioLogado, ID }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(500);
   const [arquivoGerado, setArquivoGerado] = useState(false); 
-
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
   
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -33,6 +33,15 @@ export const ActionPesquisaRemessaVenda = ({ usuarioLogado, ID }) => {
     setDataPesquisaInicio(dataInicial);
     setDataPesquisaFim(dataFinal);
   }, []);
+
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+
 
   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
     'marcasLista',
@@ -55,12 +64,13 @@ export const ActionPesquisaRemessaVenda = ({ usuarioLogado, ID }) => {
   );
   
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario-excecao',
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.idFuncionario}&idMenuFilho=${menuFilhoAtual?.ID}`);
+
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const fetchListaEstabelecimentos = async () => {
