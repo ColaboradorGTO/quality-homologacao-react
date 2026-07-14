@@ -3,17 +3,17 @@ import { ActionMain } from "../../../Actions/actionMain"
 import { InputField } from "../../../Buttons/Input"
 import { ButtonType } from "../../../Buttons/ButtonType"
 import { get } from "../../../../api/funcRequest"
-import {  AiOutlineSearch } from "react-icons/ai"
+import { AiOutlineSearch } from "react-icons/ai"
 import { ActionListaConsolidadoBanco } from "./actionListaConsolidadoBanco"
 import { ActionListaConciliarPorBanco } from "./actionListaConciliarBanco"
 import { InputSelectAction } from "../../../Inputs/InputSelectAction"
 import { useQuery } from 'react-query';
-import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
+import { animacaoCarregamento, fecharAnimacaoCarregamento, foiCancelado } from "../../../../utils/animationCarregamento"
 import { useEffect } from "react"
 import Swal from "sweetalert2"
 
 
-export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
+export const ActionPesquisaConciliarBanco = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [tabelaVisivelConsolidado, setTabelaVisivelConsolidado] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
@@ -57,29 +57,36 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
 
+    const controller = new AbortController();
+    let allData = [];
+
     try {
-      animacaoCarregamento('Carregando dados...', true);
-        
+      animacaoCarregamento('Carregando dados...', true, true, () => controller.abort());
+
       const primeiraPagina = 1;
-      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`, { signal: controller.signal });
       const page = primeiraResposta.page || primeiraPagina;
       const pageSize = primeiraResposta.pageSize || 1000;
       const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
       const totalPages = Math.ceil(totalRows / pageSize);
 
-      let allData = [...(primeiraResposta.data || [])];
+      allData = [...(primeiraResposta.data || [])];
 
       if (totalPages > 1) {
         for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          if (foiCancelado()) break;
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`, { signal: controller.signal });
           allData.push(...(responsePage.data || []));
         }
       }
 
       return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      if (error.code === 'ERR_CANCELED') {
+        return allData;
+      }
+      console.error('Erro ao buscar dados:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -96,55 +103,61 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
     const urlBase = `/deposito-loja-consolidado?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&dataCompInicio=${dataPesquisaInicioB}&dataCompFim=${dataPesquisaFimB}&dataMovInicio=${dataPesquisaInicioC}&dataMovFim=${dataPesquisaFimC}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    const controller = new AbortController();
+    let allData = [];
+
     try {
-        
+      animacaoCarregamento('Carregando dados...', true, true, () => controller.abort());
+
       const primeiraPagina = 1;
-      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`, { signal: controller.signal });
       const page = primeiraResposta.page || primeiraPagina;
       const pageSize = primeiraResposta.pageSize || 1000;
       const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
       const totalPages = Math.ceil(totalRows / pageSize);
 
-      let allData = [...(primeiraResposta.data || [])];
+      allData = [...(primeiraResposta.data || [])];
 
       if (totalPages > 1) {
         for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          if (foiCancelado()) break;
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`, { signal: controller.signal });
           allData.push(...(responsePage.data || []));
         }
       }
 
       return allData;
-  
     } catch (error) {
-      console.error('Error fetching data:', error);
+      if (error.code === 'ERR_CANCELED') {
+        return allData;
+      }
+      console.error('Erro ao buscar dados:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
-    
+
   };
 
   const { data: dadosConciliarBancoConsolidado = [], error: errorBancoConsolidado, isLoading: isLoadingBancoConsolidado, refetch: refetchBancoConsolidado } = useQuery(
-    ['deposito-loja-consolidado', ],
+    ['deposito-loja-consolidado',],
     () => fetchConciliarBancoConsolidado(),
     { enabled: false, staleTime: 60 * 60 * 1000 }
   )
 
-  
+
   const onChangeSelectConta = (e) => {
     setContaSelecionada(e.value)
   }
 
   const handleClick = () => {
-   if(!dataPesquisaInicio &&
-
-    !dataPesquisaFim &&
-    !dataPesquisaInicioB &&
-    !dataPesquisaFimB &&
-    !dataPesquisaInicioC &&
-    !dataPesquisaFimC){
+    if (!dataPesquisaInicio &&
+      !dataPesquisaFim &&
+      !dataPesquisaInicioB &&
+      !dataPesquisaFimB &&
+      !dataPesquisaInicioC &&
+      !dataPesquisaFimC) {
       Swal.fire({
         title: 'Atenção!',
         text: `Informe ao menos uma das Datas para a pesquisa `,
@@ -161,11 +174,11 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
   }
 
   const handleClickConsolidado = () => {
-   if( !dataPesquisaFim &&
-    !dataPesquisaInicioB &&
-    !dataPesquisaFimB &&
-    !dataPesquisaInicioC &&
-    !dataPesquisaFimC){
+    if (!dataPesquisaFim &&
+      !dataPesquisaInicioB &&
+      !dataPesquisaFimB &&
+      !dataPesquisaInicioC &&
+      !dataPesquisaFimC) {
       Swal.fire({
         title: 'Atenção!',
         text: `Informe ao menos uma das Datas para a pesquisa `,
@@ -189,7 +202,7 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
         linkComponentAnterior={["Home"]}
         linkComponent={["Conciliação por Bancos"]}
         title="Conciliação por Bancos"
-  
+
         InputFieldDTInicioAComponent={InputField}
         labelInputDTInicioA={"Data Depósito Início"}
         onChangeInputFieldDTInicioA={(e) => setDataPesquisaInicio(e.target.value)}
@@ -219,7 +232,7 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
         labelInputDTFimC={"Data Movimento Fim"}
         onChangeInputFieldDTFimC={(e) => setDataPesquisaFimC(e.target.value)}
         valueInputFieldDTFimC={dataPesquisaFimC}
-        
+
 
         InputSelectEmpresaComponent={InputSelectAction}
         labelSelectEmpresa={"Conta Banco"}
@@ -227,9 +240,9 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
           { value: '', label: 'Selecione uma conta' },
           ...(Array.isArray(dadosContaBanco)
             ? dadosContaBanco.map((item) => ({
-                value: item.IDCONTABANCO,
-                label: `${item.IDCONTABANCO} - ${item.DSCONTABANCO}`
-              }))
+              value: item.IDCONTABANCO,
+              label: `${item.IDCONTABANCO} - ${item.DSCONTABANCO}`
+            }))
             : [])
         ]}
         valueSelectEmpresa={contaSelecionada}
@@ -251,16 +264,16 @@ export const ActionPesquisaConciliarBanco = ({usuarioLogado }) => {
       />
 
       {tabelaVisivel && (
-        <ActionListaConciliarPorBanco 
-          dadosConciliarBanco={dadosConciliarBanco} 
+        <ActionListaConciliarPorBanco
+          dadosConciliarBanco={dadosConciliarBanco}
           usuarioLogado={usuarioLogado}
-          optionsModulos={optionsModulos}  
+          optionsModulos={optionsModulos}
           handleClick={handleClick}
         />
 
       )}
       {tabelaVisivelConsolidado && (
-        <ActionListaConsolidadoBanco  
+        <ActionListaConsolidadoBanco
           dadosConciliarBancoConsolidado={dadosConciliarBancoConsolidado}
         />
 

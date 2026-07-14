@@ -13,7 +13,7 @@ import { IoMdCheckmark } from "react-icons/io"
 import Swal from "sweetalert2"
 import { useIntegrarTodosAdiantamento } from "./hooks/useIntegrarTodosAdiantamento"
 import { optionsUF} from "../../../../../parceiro.json";
-
+ 
 export const ActionPesquisaAdiantamentoSalarioLoja = ({usuarioLogado, ID }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('');
