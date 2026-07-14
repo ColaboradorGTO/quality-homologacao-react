@@ -307,6 +307,7 @@ export const ActionListaVendasAtiva = ({ dadosVendasAtivas, empresa }) => {
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
             showGridlines
+            cellMemo={false}
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
           >

@@ -22,7 +22,6 @@ import { Row } from "primereact/row";
 import Swal from "sweetalert2";
 import { ActionImprimirRecibos } from "./actionImprimirRecebibo";
 
-
 export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogado, optionsModulos, refetchCaixaMovimento }) => {
   const [dadosDetalheFechamento, setDadosDetalheFechamento] = useState([]);
   const [dadosDetelheCaixa, setDadosDetelheCaixa] = useState([]);
@@ -142,13 +141,13 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
     {
       field: 'ID',
       header: 'Nº Movimento',
-      body: row => <p style={{ width: '200px', margin: '0px', fontWeight: 600 }}>{row.ID}</p>,
+      body: row => <p style={{ width: '200px', margin: '0px', fontWeight: 600, color: 'blue' }}>{row.ID}</p>,
       sortable: true,
     },
     {
       field: 'IDCAIXAFECHAMENTO',
       header: 'Caixa',
-      body: row => <p style={{ width: '100px', margin: '0px', fontWeight: 600 }}>
+      body: row => <p style={{ width: '100px', margin: '0px', fontWeight: 600, color: 'blue' }}>
         {`${row.IDCAIXAFECHAMENTO} - ${row.DSCAIXAFECHAMENTO}`}
       </p>,
       sortable: true,
@@ -156,7 +155,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
     {
       field: 'DTABERTURA',
       header: 'Fechamento',
-      body: row => <p style={{ width: '200px', margin: '0px', fontWeight: 600 }}>
+      body: row => <p style={{ width: '200px', margin: '0px', fontWeight: 600, color: 'blue' }}>
         {row.STFECHADOMOVIMENTO === "True"
           ? row.DTHORAFECHAMENTOCAIXA
           : row.DTABERTURA}</p>,
@@ -166,7 +165,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
       field: 'OPERADORFECHAMENTO',
       header: 'Operador',
       body: row => (
-        <p style={{ width: '350px', margin: '0px', fontWeight: 600 }}>
+        <p style={{ width: '350px', margin: '0px', fontWeight: 600, color: 'blue' }}>
           {row.OPERADORFECHAMENTO}
         </p>
       ),
@@ -573,6 +572,7 @@ export const ActionListaConferenciaCaixa = ({ dadosMovimentosCaixa, usuarioLogad
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
             showGridlines
+            cellMemo={false}
             stripedRows
             response
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

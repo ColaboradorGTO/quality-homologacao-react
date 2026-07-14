@@ -103,7 +103,8 @@ export const ActionListaVendasVendedor = ({ dadosVendasVendedor }) => {
     {
       field: 'VENDEDOR_MATRICULA',
       header: 'Matrícula',
-      body: row => <th>{row.VENDEDOR_MATRICULA}</th>,
+      body: row => <th>
+        {row.VENDEDOR_MATRICULA}</th>,
       sortable: true,
       width: "7%"
     },

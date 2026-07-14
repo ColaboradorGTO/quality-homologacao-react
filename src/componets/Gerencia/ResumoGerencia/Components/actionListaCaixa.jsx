@@ -290,26 +290,27 @@ export const ActionListaCaixa = ({ dadosListaCaixa, dadosDespesas, dadosAdiantam
     {
       field: 'ID',
       header: 'Nº Movimento',
-      body: row => <th>{row.ID}</th>,
+      body: row => <th style={{ color: 'blue' }}>
+        {row.ID}</th>,
       sortable: true,
 
     },
     {
       field: 'IDCAIXAWEB',
       header: 'Caixa',
-      body: row => <th>{row.IDCAIXAWEB + row.DSCAIXA}</th>,
+      body: row => <th style={{ color: 'blue' }} >{row.IDCAIXAWEB + row.DSCAIXA}</th>,
       sortable: true,
     },
     {
       field: 'DTABERTURA',
       header: 'Abertura',
-      body: row => <th>{row.DTABERTURA}</th>,
+      body: row => <th style={{ color: 'blue' }} >{row.DTABERTURA}</th>,
       sortable: true,
     },
     {
       field: 'NOFUNCIONARIO',
       header: 'Operador',
-      body: row => <th>{row.NOFUNCIONARIO}</th>,
+      body: row => <th style={{ color: 'blue' }} >{row.NOFUNCIONARIO}</th>,
       footer: <th>{'Total dos Caixas'}</th>,
       sortable: true,
     },
@@ -558,6 +559,7 @@ export const ActionListaCaixa = ({ dadosListaCaixa, dadosDespesas, dadosAdiantam
             globalFilter={globalFilterValue}
             sortOrder={-1}
             rows={true}
+            cellMemo={false}
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}

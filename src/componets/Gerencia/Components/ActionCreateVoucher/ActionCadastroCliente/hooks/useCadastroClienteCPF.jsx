@@ -208,7 +208,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
             setCep(cliente?.NUCEP || "");
             setEndereco(cliente?.EENDERECO || "");
             setNumero(cliente?.NUENDERECO || "");
-            setComplemento(cliente?.ECOMPLEMENTO);
+            setComplemento(cliente?.ECOMPLEMENTO || "");
             setBairro(cliente?.EBAIRRO || "");
             setNuIBGE(cliente?.NUIBGE || "");
             setCidade(cliente?.ECIDADE || "");
@@ -269,7 +269,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
                 NUIBGE: parseInt(nuIBGE),
                 EENDERECO: endereco,
                 NUENDERECO: numero,
-                ECOMPLEMENTO: complemento,
+                ECOMPLEMENTO: String(complemento),
                 EBAIRRO: bairro,
                 ECIDADE: cidade,
                 SGUF: estado,
