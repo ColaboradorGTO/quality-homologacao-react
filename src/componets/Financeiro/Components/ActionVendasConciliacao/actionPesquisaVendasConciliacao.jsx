@@ -114,45 +114,7 @@ export const ActionPesquisaVendasConciliacao = () => {
     setTabelaVisivel(true)
     refetch();
   }
-
-  const handleClickTXT = () => {
-    
-  }
-
-   const exportToTXT = () => {
-  const linhas = dadosVendasConciliacao.map(item => [
-    item.contador,
-    item.IDEMPRESA,
-    item.NOFANTASIA,
-    item.IDVENDA,
-    item.DATA,
-    formatMoeda(item.VRTOTALPAGO),
-    formatMoeda(item.VRTOTALDESCONTO),
-    formatMoeda(item.VRPAGO),
-    item.DSTIPOPAGAMENTO,
-    item.NSU,
-    item.NUAUTORIZACAO,
-    item.DSADQUIRENTE
-  ].join(';'));
-
-  const conteudo = linhas.join('\n');
-
-  const blob = new Blob([conteudo], {
-    type: 'text/plain;charset=utf-8'
-  });
-
-  const url = window.URL.createObjectURL(blob);
-
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'vendas_conciliacao.txt';
-
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-
-  window.URL.revokeObjectURL(url);
-};
+ 
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
@@ -214,11 +176,6 @@ export const ActionPesquisaVendasConciliacao = () => {
         IconSearch={AiOutlineSearch}
         corSearch={"primary"}
 
-        ButtonTypeCadastro={ButtonType}
-        linkNome={"Baixar TXT"}
-        onButtonClickCadastro={exportToTXT}
-        corCadastro={"info"}
-        IconCadastro={BiSolidFileTxt}
       />  
 
       {tabelaVisivel && (
