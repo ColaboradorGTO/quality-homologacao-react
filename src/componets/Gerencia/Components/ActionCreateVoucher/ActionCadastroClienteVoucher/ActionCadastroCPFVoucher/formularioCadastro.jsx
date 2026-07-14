@@ -106,7 +106,7 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
 
       if (validationError.inner && validationError.inner.length > 0) {
         validationError.inner.forEach(error => {
-          if (error.path) {S
+          if (error.path) {
             setError(error.path, {
               type: 'manual',
               message: error.message
@@ -276,15 +276,15 @@ export const FormularioCadastro = ({ handleClose, usuarioLogado, optionsModulos,
             <div className="col-sm-4 col-md-3 col-xl-3">
 
               <Controller
-                name="TelefoneCliente"
+                name="telefoneDoCliente"
                 control={control}
                 render={({ field }) => (
                   <FormField
-                    name="TelefoneDoCliente"
+                    name="telefoneDoCliente"
                     label={"Telefone"}
                     placeholder={"DIGITE O TELEFONE"}
                     type="text"
-                    id={"TelefoneDoCliente"}
+                    id={"telefoneDoCliente"}
                     value={mascaraTelefone(telefoneCliente)}
                     onChange={(e) => setTelefoneCliente(e.target.value)}
                     errors={errors}
