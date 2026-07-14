@@ -22,6 +22,7 @@ export const ActionListaVendasConciliacao = ({ dadosVendasConciliacao }) => {
     documentTitle: 'Lista de Vendas Conciliação',
   });
 
+
   const exportToPDF = () => {
     const doc = new jsPDF();
     doc.autoTable({
