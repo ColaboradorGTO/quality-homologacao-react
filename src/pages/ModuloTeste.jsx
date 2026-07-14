@@ -48,7 +48,7 @@ export const ModuloTeste = () => {
   const { data: optionsModulosPage = [], error: errorFuncionarios, isLoading: isLoadingFuncionarios, refetch: refetchFuncionarios } = useQuery(
     'menus-usuario',
     async () => {
-      const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.idFuncionario}`);
+      const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}`);
       
       return response.data;
     },
