@@ -56,7 +56,7 @@ export const ActionPesquisaFaturasLoja = ({ usuarioLogado, ID }) => {
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
-      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.idFuncionario}&idMenuFilho=${menuFilhoAtual?.ID}`);
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
 
       return response.data;
     },
