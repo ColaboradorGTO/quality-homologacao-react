@@ -197,6 +197,7 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, handleClick, qu
                   width="35px"
                   height="35px"
                   onClickButton={() => handleClickCancelar(row.IDQUEBRACAIXA, false)}
+                  disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
                 />
 
               </div>
@@ -225,6 +226,7 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, handleClick, qu
                 width="35px"
                 height="35px"
                 onClickButton={() => handleClickCancelar(row.IDQUEBRACAIXA, true)}
+                disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
               />
             </div>
           )
@@ -315,6 +317,7 @@ export const ActionListaQuebraCaixaLoja = ({ dadosQuebraDeCaixa, handleClick, qu
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
             showGridlines
+            cellMemo={false}
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado negativa</div>}
           >

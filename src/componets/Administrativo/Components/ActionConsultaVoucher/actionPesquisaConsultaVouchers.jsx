@@ -8,7 +8,7 @@ import { ActionListaConsultaVouchers } from "./actionListaConsultaVouchers";
 import { getDataAtual } from "../../../../utils/dataAtual";
 import { InputSelectAction } from "../../../Inputs/InputSelectAction";
 import { useQuery } from "react-query";
-import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
+import { animacaoCarregamento, fecharAnimacaoCarregamento, foiCancelado } from "../../../../utils/animationCarregamento";
 
 export const ActionPesquisaConsultaVouchers = ({usuarioLogado}) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);

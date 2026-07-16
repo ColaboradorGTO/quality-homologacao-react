@@ -183,7 +183,10 @@ export const ActionListaQuebraCaixaLojaNegativa = ({ dadosQuebraDeCaixaNegativa,
                   cor={"danger"}
                   Icon={FaRegTrashAlt}
                   iconSize={18}
+                  width="30px"
+                  height="30px"
                   onClickButton={() => handleClickCancelar(row.IDQUEBRACAIXA, false)}
+                  disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
                 />
 
               </div>
@@ -193,6 +196,8 @@ export const ActionListaQuebraCaixaLojaNegativa = ({ dadosQuebraDeCaixaNegativa,
                   cor={"primary"}
                   Icon={MdOutlineLocalPrintshop}
                   iconSize={18}
+                  width="30px"
+                  height="30px"
                   onClickButton={() => handleClickImprimir(row)}
                 />
 
@@ -207,7 +212,10 @@ export const ActionListaQuebraCaixaLojaNegativa = ({ dadosQuebraDeCaixaNegativa,
                 cor={"success"}
                 Icon={FaCheck}
                 iconSize={18}
+                width="30px"
+                height="30px"
                 onClickButton={() => handleClickCancelar(row.IDQUEBRACAIXA, true)}
+                disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
               />
 
             </div>
@@ -285,6 +293,7 @@ export const ActionListaQuebraCaixaLojaNegativa = ({ dadosQuebraDeCaixaNegativa,
             filterDisplay="menu"
             showGridlines
             stripedRows
+            cellMemo={false}
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado negativa</div>}
           >
             {colunasQuebraDeCaixaNegativa.map(coluna => (

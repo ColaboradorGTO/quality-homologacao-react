@@ -160,8 +160,7 @@ export const ActionPesquisaAutorizaTroca = ({ usuarioLogado }) => {
         linkComponentAnterior={["Home"]}
         linkComponent={["Vendas"]}
         title="Vendas Vouchers"
-
-
+        
         InputFieldDTInicioComponent={InputField}
         valueInputFieldDTInicio={dataPesquisaInicio}
         labelInputFieldDTInicio={"Data Início"}

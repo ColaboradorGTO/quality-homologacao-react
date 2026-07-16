@@ -8,7 +8,6 @@ import { SidebarProvider } from "../componets/Sidebar/SidebarContext";
 import { get } from "../api/funcRequest";
 import { useQuery } from "react-query";
 
-
 const ResumoDashBoardAdministrativo = lazy(() => import('../componets/Administrativo/ResumoAdministrativo/ResumoDashBoardAdministrativo').then(module => ({ default: module.ResumoDashBoardAdministrativo })));
 const ActionPesquisaExtratoContaCorenteLoja = lazy(() => import("../componets/Administrativo/Components/ActionExtratoDeContaCorrente/actionPesquisaExtratoContaCorrenteLoja").then(module => ({ default: module.ActionPesquisaExtratoContaCorenteLoja })));
 const ActionPesquisaRecebimentosLoja = lazy(() => import("../componets/Administrativo/Components/ActionListaRecebimentosLoja/actionPesquisaRecebimentosLoja").then(module => ({ default: module.ActionPesquisaRecebimentosLoja })));
