@@ -17,6 +17,7 @@ export const ActionListaPerfilPermissao = ({
   selectedItems,
   setSelectedItems
 }) => {
+  
   const [globalFilterValue, setGlobalFilterValue] = useState('');
   const [first, setFirst] = useState(0)
   const [rowState, setRowState] = useState(10)
@@ -416,6 +417,7 @@ export const ActionListaPerfilPermissao = ({
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
+            cellMemo={false}
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
           >

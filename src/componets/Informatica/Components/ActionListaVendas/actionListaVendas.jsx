@@ -83,7 +83,7 @@ export const ActionListaVendas = ({ dadosVendasLoja }) => {
 
   const dados = dadosVendasLoja.map((item, index) => {
     let contador = index + 1;
-    
+
     return {
       contador,
       IDCAIXAWEB: `${item.IDCAIXAWEB} - ${item.DSCAIXA}`,
@@ -210,7 +210,7 @@ export const ActionListaVendas = ({ dadosVendasLoja }) => {
       sortable: true,
     },
     {
-      
+
       field: 'IDVENDA',
       header: 'Opções',
       body: (
@@ -357,6 +357,7 @@ export const ActionListaVendas = ({ dadosVendasLoja }) => {
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
+            cellMemo={false}
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
