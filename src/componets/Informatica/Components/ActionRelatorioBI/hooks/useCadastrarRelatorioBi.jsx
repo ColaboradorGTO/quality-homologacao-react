@@ -63,7 +63,7 @@ export const useCadastrarRelatorioBi = ({ handleClose, refetch, optionsModulos, 
       const response = await post('/createRelatorioInformaticaBI', postData)
 
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'success',
         title: 'Relatório cadastrado com sucesso!',
         customClass: {
@@ -80,7 +80,7 @@ export const useCadastrarRelatorioBi = ({ handleClose, refetch, optionsModulos, 
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario || 'IP não disponível',
+        IP: ipUsuario || 'INDISPONIVEL',
       };
 
       await post('/log-web', createData);
@@ -98,13 +98,13 @@ export const useCadastrarRelatorioBi = ({ handleClose, refetch, optionsModulos, 
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario || 'IP não disponível',
+        IP: ipUsuario || 'INDISPONIVEL',
       };
 
       const responsePost = await post('/log-web', createData);
 
       Swal.fire({
-        position: 'top-end',
+        position: 'center',
         icon: 'error',
         title: 'Erro ao cadastrar Relatório!',
         customClass: {

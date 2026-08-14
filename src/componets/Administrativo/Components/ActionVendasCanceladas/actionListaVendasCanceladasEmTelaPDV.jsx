@@ -339,6 +339,7 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({
               cor={"success"}
               width="30px"
               height="30px"
+              disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
             />
           </div>
 
@@ -523,6 +524,7 @@ export const ActionListaVendasCanceladasEmTelaPDV = ({
             sortField="VRTOTALPAGO"
             sortOrder={-1}
             paginator={true}
+            cellMemo={false}
             rows={10}
             showGridlines
             stripedRows

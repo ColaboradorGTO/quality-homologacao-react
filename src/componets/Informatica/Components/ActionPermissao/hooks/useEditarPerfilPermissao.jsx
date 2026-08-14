@@ -102,7 +102,7 @@ export const useEditarPerfilPermissaoUsuario = ({dadosEditarPermissao, handleClo
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario,
+        IP: ipUsuario || 'INDISPONIVEL',
       };
 
       await post('/log-web', createData);

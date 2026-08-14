@@ -289,6 +289,7 @@ export const ActionListaFechamentoDosCaixas = ({
                 iconSize={25}
                 width="40px"
                 height="40px"
+                disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
               />
 
             </div>
@@ -307,6 +308,7 @@ export const ActionListaFechamentoDosCaixas = ({
                 iconSize={25}
                 width="40px"
                 height="40px"
+                disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
               />
 
             </div>
@@ -430,6 +432,7 @@ export const ActionListaFechamentoDosCaixas = ({
                 currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
                 filterDisplay="menu"
                 showGridlines
+                cellMemo={false}
                 stripedRows
                 emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
               >

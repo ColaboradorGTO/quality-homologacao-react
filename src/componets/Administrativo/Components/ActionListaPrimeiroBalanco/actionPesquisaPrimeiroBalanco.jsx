@@ -140,8 +140,6 @@ export const ActionPesquisaPrimeiroBalanco = ({usuarioLogado }) => {
     } 
   }
 
-
-
   return (
 
     <Fragment>

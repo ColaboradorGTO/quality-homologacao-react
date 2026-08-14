@@ -349,6 +349,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
               cor={"success"}
               width="30px"
               height="30px"
+              disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
             />
           </div>
 
@@ -552,6 +553,7 @@ export const ActionListaVendasCanceladas = ({ dadosVendasCanceladas, optionsModu
             sortOrder={-1}
             paginator={true}
             rows={10}
+            cellMemo={false}
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

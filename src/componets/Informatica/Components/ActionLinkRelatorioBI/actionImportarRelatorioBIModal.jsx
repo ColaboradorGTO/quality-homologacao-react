@@ -22,8 +22,15 @@ export const ActionImportarRelatorioBIModal = ({
     file,
     setFile,
     onSubmitArquivo
-  } = useImportarCSVBI({ optionsModulos, handleClose, usuarioLogado })
 
+  } = useImportarCSVBI({
+    optionsModulos,
+    handleClose,
+    usuarioLogado
+  })
+
+
+ // console.log(file, 'file');
 
   return (
     <Fragment>
@@ -35,7 +42,6 @@ export const ActionImportarRelatorioBIModal = ({
         tabIndex={-1}
         role="dialog"
         aria-hidden="true"
-
       >
 
         <HeaderModal

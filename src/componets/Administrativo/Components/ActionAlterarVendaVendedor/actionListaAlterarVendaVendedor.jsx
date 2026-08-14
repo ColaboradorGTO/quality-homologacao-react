@@ -175,6 +175,7 @@ export const ActionListaAlterarVendaVendedor = ({dadosVendasAtivas, empresaSelec
               iconSize={25}
               width="35px"
               height="35px"
+              disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
             />
           </div>
         </div>
@@ -254,6 +255,7 @@ export const ActionListaAlterarVendaVendedor = ({dadosVendasAtivas, empresaSelec
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
+            cellMemo={false}
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

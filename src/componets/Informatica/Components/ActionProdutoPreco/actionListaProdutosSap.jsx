@@ -46,7 +46,7 @@ export const ActionListaProdutosSap = ({ dadosProdutosSap }) => {
     const workbook = XLSX.utils.book_new();
     const header = ['Nº', 'CODIGO_ITEM', 'CODIGO_BARRAS', 'DESCRICAO_ITEM', 'PRECO_CUSTO', 'PRECO_VENDA_SAP', 'PRECO_VENDA_PDV', 'DATA_ULTIMA_ALTERACAO_PDV'];
     worksheet['!cols'] = [
-      { wpx: 50, caption: 'Nº' }, 
+      { wpx: 50, caption: 'Nº' },
       { wpx: 100, caption: 'CODIGO_ITEM' },
       { wpx: 100, caption: 'CODIGO_BARRAS' },
       { wpx: 300, caption: 'DESCRICAO_ITEM' },
@@ -54,7 +54,7 @@ export const ActionListaProdutosSap = ({ dadosProdutosSap }) => {
       { wpx: 100, caption: 'PRECO_VENDA_SAP' },
       { wpx: 100, caption: 'PRECO_VENDA_PDV' },
       { wpx: 100, caption: 'DATA_ULTIMA_ALTERACAO_PDV' },
-    ]; 
+    ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
     XLSX.utils.book_append_sheet(workbook, worksheet, 'Produtos Preços');
     XLSX.writeFile(workbook, 'produtos_precos.xlsx');
@@ -72,20 +72,20 @@ export const ActionListaProdutosSap = ({ dadosProdutosSap }) => {
       PRECO_VENDA_SAP: item.PRECO_VENDA_SAP,
       PRECO_VENDA_PDV: item.PRECO_VENDA_PDV,
       DATA_ULTIMA_ALTERACAO_PDV: item.DATA_ULTIMA_ALTERACAO_PDV,
-      
+
     }
   });
 
   const colunasSap = [
     {
       field: 'contador',
-      header: '#',	
+      header: '#',
       body: row => <th>{row.contador}</th>,
       sortable: true,
     },
     {
       field: 'CODIGO_ITEM',
-      header: 'Código',	
+      header: 'Código',
       body: row => <th>{row.CODIGO_ITEM}</th>,
       sortable: true,
     },
@@ -161,6 +161,7 @@ export const ActionListaProdutosSap = ({ dadosProdutosSap }) => {
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
+            cellMemo={false}
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -176,11 +177,11 @@ export const ActionListaProdutosSap = ({ dadosProdutosSap }) => {
                 sortable={coluna.sortable}
                 headerStyle={{ color: 'white', backgroundColor: "#7a59ad", border: '1px solid #e9e9e9', fontSize: '0.8rem' }}
                 footerStyle={{ color: '#212529', backgroundColor: "#e9e9e9", border: '1px solid #ccc', fontSize: '0.8rem' }}
-                bodyStyle={{ fontSize: '0.8rem', border: '1px solid #e9e9e9'}}
+                bodyStyle={{ fontSize: '0.8rem', border: '1px solid #e9e9e9' }}
 
               />
             ))}
-    
+
           </DataTable>
         </div>
       </div>

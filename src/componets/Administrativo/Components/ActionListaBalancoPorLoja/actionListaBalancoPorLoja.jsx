@@ -233,6 +233,7 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
               width="32px"
               height="32px"
               onClickButton={() => handleClickContaBalanco(row)}
+              disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
             />
           </div>
         </div>
@@ -323,32 +324,6 @@ export const ActionListaBalancoPorLoja = ({ dadosBalanco, optionsModulos, usuari
     }
   );
 
-/*   const handleEditPreviaBalanco = async (IDRESUMOBALANCO, IDEMPRESA) => {
-    try {
-      const response = await get(`/novo-previa-balanco?idResumo=${IDRESUMOBALANCO}&idEmpresa=${IDEMPRESA}&diferenca=1&processa=1`)
-      if (response.data && response.data.length > 0) {
-        setDadosPreviaBalancoModal(response.data)
-        setModalPreviaBalanco(true)
-        return response.data;
-      } else {
-
-        Swal.fire({
-          icon: 'warning',
-          title: 'Atenção',
-          text: 'Nenhum dado encontrado para o balanço selecionado.',
-          customClass: {
-            container: 'custom-swal',
-          },
-          timer: 3000
-        })
-        return;
-      }
-    } catch (error) {
-      console.log(error, "não foi possivel pegar os dados da tabela ")
-    }
-  }
- */
-
 const handleClickPrevialanco = async (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
       if (!row.IDRESUMOBALANCO || !row.IDEMPRESA) return;
@@ -387,64 +362,6 @@ const handleClickPrevialanco = async (row) => {
       }
     }
   };
-/*   const handleClickPrevialanco = async (row) => {
-    if (optionsModulos[0]?.ALTERAR == 'True') {
-
-      if (row.IDRESUMOBALANCO && row.IDEMPRESA) {
-        handleEditPreviaBalanco(row.IDRESUMOBALANCO, row.IDEMPRESA)
-      }
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Acesso Negado',
-        text: 'Você não tem permissão para acessar essa funcionalidade.',
-        customClass: {
-          container: 'custom-swal',
-        },
-        timer: 3000
-      });
-      return;
-    }
-  } */
-
-/*   const handleEditPreviaGeral = async (IDRESUMOBALANCO, IDEMPRESA) => {
-    try {
-      const response = await get(`/novo-previa-balanco?idResumo=${IDRESUMOBALANCO}&idEmpresa=${IDEMPRESA}&diferenca=0&processa=0`)
-      if (response.data && response.data.length > 0) {
-        setDadosPreviaBalancoModal(response.data)
-        return response.data;
-      } else {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Atenção',
-          text: 'Nenhum dado encontrado para o balanço selecionado.',
-          timer: 3000
-        })
-        return;
-      }
-    } catch (error) {
-      console.log(error, "não foi possivel pegar os dados da tabela ")
-    }
-  } */
-
- /*  const handleClickPreviaGeral = async (row) => {
-    if (optionsModulos[0]?.ALTERAR == 'True') {
-
-      if (row.IDRESUMOBALANCO && row.IDEMPRESA) {
-        handleEditPreviaBalanco(row.IDRESUMOBALANCO, row.IDEMPRESA)
-      }
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Acesso Negado',
-        text: 'Você não tem permissão para acessar essa funcionalidade.',
-        customClass: {
-          container: 'custom-swal',
-        },
-        timer: 3000
-      });
-    }
-  } */
 
  const handleClickPreviaGeral = async (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
@@ -483,48 +400,6 @@ const handleClickPrevialanco = async (row) => {
       }
     }
   };
-
-/*   const handleEditResumoBalanco = async (IDRESUMOBALANCO, IDEMPRESA) => {
-    try {
-      const response = await get(`/coletor-balanco?idEmpresa=${IDEMPRESA}&idResumo=${IDRESUMOBALANCO}&diferenca=1&processa=0`)
-      if (response.data && response.data.length > 0) {
-        setDadosColetorBalanco(response.data)
-        setModalResumoBalanco(true)
-        return response.data;
-      } else {
-        Swal.fire({
-          icon: 'warning',
-          title: 'Atenção',
-          text: 'Nenhum dado encontrado para o balanço selecionado.',
-          customClass: {
-            container: 'custom-swal',
-          },
-          timer: 3000
-        })
-        return;
-      }
-    } catch (error) {
-      console.log(error, "não foi possivel pegar os dados da tabela ")
-    }
-
-
-  }
- */
-/*   const handleClickResumoBalanco = async (row) => {
-    if (optionsModulos[0]?.ALTERAR == 'True') {
-      if (row.IDRESUMOBALANCO && row.IDEMPRESA) {
-        handleEditResumoBalanco(row.IDRESUMOBALANCO, row.IDEMPRESA)
-      }
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Acesso Negado',
-        html: `${usuarioLogado?.NOFUNCIONARIO}<br/>  Você não tem permissão para acessar essa funcionalidade.`,
-        timer: 5000
-      });
-      return;
-    }
-  } */
 
  const handleClickResumoBalanco = async (row) => {
     if (optionsModulos[0]?.ALTERAR == 'True') {
@@ -652,6 +527,7 @@ const handleClickPrevialanco = async (row) => {
             paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
+            cellMemo={false}
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

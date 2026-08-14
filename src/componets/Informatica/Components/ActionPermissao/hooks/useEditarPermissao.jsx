@@ -231,7 +231,7 @@ export const useCopiarPermissaoUsuario = ({
           IDFUNCIONARIO: String(usuarioLogado?.id ?? ''),
           PATHFUNCAO: `PERMISSÕES USUARIO / ALTERAÇÃO DE PERMISSÕES Item ${i + 1}/${menuFilhosNovos.length}`,
           DADOS: JSON.stringify(payload),
-          IP: ipUsuario
+          IP: ipUsuario || 'INDISPONIVEL',
         };
 
         await post('/log-web', logData);
@@ -262,7 +262,6 @@ export const useCopiarPermissaoUsuario = ({
       });
     }
   };
-
 
   return {
     moduloSelecionado,

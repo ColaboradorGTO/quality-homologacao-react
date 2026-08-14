@@ -246,6 +246,8 @@ export const ActionListaVendasAtivas = ({
                   iconSize={20}
                   width="30px"
                   height="30px"
+                  disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
+
                 />
               </div>
               <div className="p-1">
@@ -461,6 +463,7 @@ export const ActionListaVendasAtivas = ({
             sortOrder={-1}
             paginator={true}
             rows={10}
+            cellMemo={false}
             rowsPerPageOptions={[5, 10, 20, 50, 100, dadosAtivasVendas.length]}
             showGridlines
             stripedRows

@@ -206,6 +206,7 @@ export const InformaticaActionUpdateEmpresaModal = ({ show, handleClose, dadosLi
                 paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                 currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
                 filterDisplay="menu"
+                cellMemo={false}
                 showGridlines
                 stripedRows
               >
