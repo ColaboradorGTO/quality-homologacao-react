@@ -567,6 +567,7 @@ export const ActionListaVendasAutorizarTroca = ({
                 filterDisplay="menu"
                 showGridlines
                 stripedRows
+                cellMemo={false}
                 rowClassName={(row) => row.isDisabled ? 'row-disabled' : ''}
                 emptyMessage={<div className="dataTables_empty">Dados não encontrados, verifique os dados inseridos na pesquisa e tente novamente!</div>}
               >

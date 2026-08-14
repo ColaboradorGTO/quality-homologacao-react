@@ -380,6 +380,7 @@ export const ActionListaConferenciaMalotes = ({ dadosMalotes, handleClick, usuar
             showGridlines
             stripedRows
             response
+            cellMemo={false}
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
           >
             {colunasMovimentoCixa.map(coluna => (
