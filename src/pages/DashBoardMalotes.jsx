@@ -10,7 +10,6 @@ import { useQuery } from "react-query";
 
 const ActionPesquisaRecebimentoMalote = lazy(() => import("../componets/Malotes/ActionConferenciaMalote/actionPesquisaRecebimentoMalote").then(module => ({ default: module.ActionPesquisaRecebimentoMalote })));
 
-
 export const DashBoardMalotes = () => {
   const [resumoVisivel, setResumoVisivel] = useState(true);
   const [usuarioLogado, setUsuarioLogado] = useState(null);

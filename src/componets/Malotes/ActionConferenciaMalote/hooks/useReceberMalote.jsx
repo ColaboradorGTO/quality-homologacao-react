@@ -53,11 +53,11 @@ export const useReceberMalote = ({ usuarioLogado, optionsModulos, refetchLista }
              return;
          } 
      */
-    const putData = [{
+    const putData = {
       IDMALOTE: row?.IDMALOTE,
       STATUS: 'Recepcionado',
       IDUSERULTIMAALTERACAO: usuarioLogado?.id
-    }];
+    };
 
     Swal.fire({
       icon: 'question',
