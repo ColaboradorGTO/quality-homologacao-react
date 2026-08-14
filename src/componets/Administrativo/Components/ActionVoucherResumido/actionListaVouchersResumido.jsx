@@ -102,8 +102,7 @@ export const ActionListaVouchersResumido = ({dadosVoucher}) => {
       STCANCELADO: item.voucher.STCANCELADO,
       EMPORIGEM: item.voucher.EMPORIGEM,
       EMPDESTINO: item.voucher.EMPDESTINO,
-      
-
+    
     }
   });
 

@@ -319,6 +319,7 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
               iconSize={20}
               width="30px"
               height="30px"
+              disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
             />
           </div>
           <div className="p-1">
@@ -496,6 +497,7 @@ export const ActionListaVendasContigencia = ({ dadosVendasAtivasContigencia, usu
                 paginator={true}
                 first={first}
                 rows={rows}
+                cellMemo={false}
                 onPage={onPageChange}
                 showGridlines
                 stripedRows

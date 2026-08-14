@@ -20,7 +20,6 @@ import 'jspdf-autotable';
 import { useAuthFuncionarioUpdate } from "./hooks/useAuthFuncionarioUpdate";
 import { useAuthFuncionarioPrint } from "./hooks/useAuthFuncionarioPrint";
 
-
 export const ActionListaConsultaVouchers = ({dadosVoucher, usuarioLogado, optionsModulos, handleClick}) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [dadosEditarVoucher, setDadosEditarVoucher] = useState([])
@@ -497,6 +496,7 @@ export const ActionListaConsultaVouchers = ({dadosVoucher, usuarioLogado, option
           iconSize={20}
           width="32px"
           height="32px"
+          disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
         />
         <ButtonTable
           titleButton={"Imprimir"}
@@ -677,6 +677,7 @@ export const ActionListaConsultaVouchers = ({dadosVoucher, usuarioLogado, option
             currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
             filterDisplay="menu"
             showGridlines
+            cellMemo={false}
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
           >

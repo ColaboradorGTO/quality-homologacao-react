@@ -10,10 +10,10 @@ import { ActionListaQuebraCaixaLoja } from "./actionListaQuebraCaixaLoja";
 import { ActionListaQuebraCaixaLojaNegativa } from "./actionListaQuebraCaixaLojaNegativa";
 import { ActionListaQuebraCaixaLojaPositiva } from "./actionListaQuebraCaixaLojaPositiva";
 import { useQuery } from 'react-query';
-import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento";
-import {optionsUF, optionsQuebraDeCaixa } from "../../../../../parceiro.json"
+import { animacaoCarregamento, fecharAnimacaoCarregamento, foiCancelado } from "../../../../utils/animationCarregamento";
+import { optionsUF, optionsQuebraDeCaixa } from "../../../../../parceiro.json"
 
-export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
+export const ActionPesquisaQuebraCaixaLoja = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [tabelaVisivelPositiva, setTabelaVisivelPositiva] = useState(false);
   const [tabelaVisivelNegativa, setTabelaVisivelNegativa] = useState(false);
@@ -28,7 +28,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
   const [ufSelecionado, setUfSelecionado] = useState('');
   const [currentPage, setCurrentPage] = useState(1)
   const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
- 
+
 
   useEffect(() => {
     const dataInicial = getDataAtual();
@@ -45,15 +45,15 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
       setMenuFilhoAtual(menuParsed);
     }
   }, []);
-  
+
   const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
     ['menus-usuario-excecao', menuFilhoAtual?.ID],
     async () => {
       const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
-      
+
       return response.data;
     },
-    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000,}
+    { enabled: Boolean(usuarioLogado?.id), staleTime: 60 * 60 * 1000, }
   );
 
   const { data: optionsMarcas = [], error: errorMarcas, isLoading: isLoadingMarcas, refetch: refetchMarcas } = useQuery(
@@ -64,44 +64,52 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
     },
     { staleTime: 60 * 60 * 1000, }
   );
-  
+
   const { data: optionsEmpresas = [], error: errorEmpresas, isLoading: isLoadingEmpresas, refetch: refetchEmpresas } = useQuery(
     'listaEmpresaComercial',
     async () => {
       const response = await get(`/listaEmpresaComercial?idMarca=${marcaSelecionada}`);
-      
+
       return response.data;
     },
-    {enabled: Boolean(marcaSelecionada), staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000,}
+    { enabled: Boolean(marcaSelecionada), staleTime: 60 * 60 * 1000, cacheTime: 60 * 60 * 1000, }
   );
-  
+
   const fetchQuebra = async () => {
     const urlBase = `quebra-caixa-loja?idMarca=${marcaSelecionada}&idEmpresa=${empresaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}&stQuebraPositivaNegativa=${quebraSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+
+    const controller = new AbortController();
+    let allData = [];
+
     try {
-      animacaoCarregamento('Carregando dados...', true);
-                                                                      
+      animacaoCarregamento('Carregando dados...', true, true, () => controller.abort());
+
       const primeiraPagina = 1;
-      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`, { signal: controller.signal });
       const page = primeiraResposta.page || primeiraPagina;
       const pageSize = primeiraResposta.pageSize || 1000;
       const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
       const totalPages = Math.ceil(totalRows / pageSize);
 
-      let allData = [...(primeiraResposta.data || [])];
+      allData = [...(primeiraResposta.data || [])];
 
       if (totalPages > 1) {
         for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          if (foiCancelado()) break;
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`, { signal: controller.signal });
           allData.push(...(responsePage.data || []));
         }
       }
 
       return allData;
     } catch (error) {
-      console.error('Erro ao buscar dados da api:', error);
+      if (error.code === 'ERR_CANCELED') {
+        return allData;
+      }
+      console.error('Erro ao buscar dados:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -113,73 +121,90 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
     () => fetchQuebra(),
     { enabled: false, staleTime: 60 * 60 * 1000 }
   );
-   
+
   const fetchQuebraPositiva = async () => {
     const urlBase = `/quebra-caixa-loja?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&quebra=Positiva&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+
+    const controller = new AbortController();
+    let allData = [];
+
     try {
-      animacaoCarregamento('Carregando dados...', true);
-                                                                      
+      animacaoCarregamento('Carregando dados...', true, true, () => controller.abort());
+
       const primeiraPagina = 1;
-      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`, { signal: controller.signal });
       const page = primeiraResposta.page || primeiraPagina;
       const pageSize = primeiraResposta.pageSize || 1000;
       const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
       const totalPages = Math.ceil(totalRows / pageSize);
 
-      let allData = [...(primeiraResposta.data || [])];
+      allData = [...(primeiraResposta.data || [])];
 
       if (totalPages > 1) {
         for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          if (foiCancelado()) break;
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`, { signal: controller.signal });
           allData.push(...(responsePage.data || []));
         }
       }
 
       return allData;
     } catch (error) {
-      console.error('Erro ao buscar dados da api:', error);
+      if (error.code === 'ERR_CANCELED') {
+        return allData;
+      }
+      console.error('Erro ao buscar dados:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
-      
   };
+
 
   const fetchQuebraNegativa = async () => {
     const urlBase = `/quebra-caixa-loja?idEmpresa=${empresaSelecionada}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&quebra=Negativa&idMarca=${marcaSelecionada}&cpfOperadorQuebra=${cpfOperadorQuebra}`;
     let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
     urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+
+    const controller = new AbortController();
+    let allData = [];
+
     try {
-      animacaoCarregamento('Carregando dados...', true);
-                                                                      
+      animacaoCarregamento('Carregando dados...', true, true, () => controller.abort());
+
       const primeiraPagina = 1;
-      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`);
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`, { signal: controller.signal });
       const page = primeiraResposta.page || primeiraPagina;
       const pageSize = primeiraResposta.pageSize || 1000;
       const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
       const totalPages = Math.ceil(totalRows / pageSize);
 
-      let allData = [...(primeiraResposta.data || [])];
+      allData = [...(primeiraResposta.data || [])];
 
       if (totalPages > 1) {
         for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
-          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true);
-          const responsePage = await get(`${urlApi}&page=${currentPage}`);
+          if (foiCancelado()) break;
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`, { signal: controller.signal });
           allData.push(...(responsePage.data || []));
         }
       }
 
       return allData;
     } catch (error) {
-      console.error('Erro ao buscar dados da api:', error);
+      if (error.code === 'ERR_CANCELED') {
+        return allData;
+      }
+      console.error('Erro ao buscar dados:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
+
 
   const { data: dadosQuebraDeCaixaPositiva = [], error: erroQuebraPositiva, isLoading: isLoadingQuebraPositiva, refetch: refetchQuebraPositiva } = useQuery(
     'lista-Quebra-Caixa-Positiva',
@@ -199,7 +224,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
   }
 
   const handleChangeEmpresa = (e) => {
-    if( e.value === '0') {
+    if (e.value === '0') {
       setEmpresaSelecionada('');
     } else {
       const empresa = optionsEmpresas.find((item) => item.IDEMPRESA === e.value);
@@ -221,15 +246,15 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
       setTabelaVisivel(false)
       setCurrentPage(prevPage => prevPage + 1)
       await refetchQuebraPositiva(quebraSelecionada);
-      
+
     } else if (quebraSelecionada === "Negativa") {
       setTabelaVisivelNegativa(true)
       setTabelaVisivelPositiva(false)
       setTabelaVisivel(false)
-      
+
       setCurrentPage(prevPage => prevPage + 1)
       await refetchQuebraNegativa(quebraSelecionada);
-      
+
     } else if (quebraSelecionada === "") {
       setTabelaVisivel(true)
       setTabelaVisivelNegativa(false)
@@ -240,7 +265,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
     }
   };
 
-    const handleKeyPress = (e) => {
+  const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleClick();
@@ -275,7 +300,7 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
         onChangeInputField={(e) => setCpfOperadorQuebra(e.target.value)}
         onKeyDownInputField={handleKeyPress}
 
-        InputSelectEmpresaComponent={InputSelectAction}  
+        InputSelectEmpresaComponent={InputSelectAction}
         optionsEmpresas={[
           { value: '0', label: 'Todas' },
           ...optionsEmpresas.map((empresa) => ({
@@ -329,19 +354,19 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
       />
 
       {tabelaVisivel && (
-        <ActionListaQuebraCaixaLoja 
-          dadosQuebraDeCaixa={dadosQuebraDeCaixa} 
-          handleClick={handleClick} 
-          quebraSelecionada={quebraSelecionada} 
+        <ActionListaQuebraCaixaLoja
+          dadosQuebraDeCaixa={dadosQuebraDeCaixa}
+          handleClick={handleClick}
+          quebraSelecionada={quebraSelecionada}
           optionsModulos={optionsModulos}
-          usuarioLogado={usuarioLogado}  
+          usuarioLogado={usuarioLogado}
         />
       )}
 
       <div>
         {tabelaVisivelNegativa && (
-          <ActionListaQuebraCaixaLojaNegativa 
-            dadosQuebraDeCaixaNegativa={dadosQuebraDeCaixaNegativa} 
+          <ActionListaQuebraCaixaLojaNegativa
+            dadosQuebraDeCaixaNegativa={dadosQuebraDeCaixaNegativa}
             optionsModulos={optionsModulos}
             usuarioLogado={usuarioLogado}
           />
@@ -350,10 +375,10 @@ export const ActionPesquisaQuebraCaixaLoja = ({usuarioLogado }) => {
       <div>
         {tabelaVisivelPositiva && (
 
-          <ActionListaQuebraCaixaLojaPositiva 
-            dadosQuebraDeCaixaPositiva={dadosQuebraDeCaixaPositiva} 
+          <ActionListaQuebraCaixaLojaPositiva
+            dadosQuebraDeCaixaPositiva={dadosQuebraDeCaixaPositiva}
             optionsModulos={optionsModulos}
-            usuarioLogado={usuarioLogado}  
+            usuarioLogado={usuarioLogado}
           />
         )}
       </div>
