@@ -105,8 +105,8 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
             header: "Opções",
             body: row => {
                 return (
-                    <div style={{ display: "flex", justifyContent: "space-between" }}>
-                        <ButtonTable
+                    <div style={{ display: "flex", justifyContent: "start" , gap: "10px"}}>
+                       <ButtonTable
                             titleButton={"Editar"}
                             onClickButton={() => handleClickEditar(row)}
                             Icon={CiEdit}
@@ -117,7 +117,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
                             cor={"info"}
                         />
 
-                        <ButtonTable
+                       <ButtonTable
                             titleButton={"Detalhar"}
                             onClickButton={() => handleClickDetalhar(row)}
                             Icon={GrView}
@@ -252,7 +252,9 @@ export const ActionListaEmpresas = ({ dadosEmpresas, optionsModulos, usuarioLoga
                         paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
                         currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
                         filterDisplay="menu"
+                        cellMemo={false}
                         showGridlines
+                        cellMemo={false}
                         stripedRows
                         emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}
                     >

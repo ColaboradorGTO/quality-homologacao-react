@@ -128,7 +128,7 @@ const Formulario = ({
                             <Select
                                 className="basic-single"
                                 classNamePrefix={"select"}
-                                option={atualizacaoDiario.map((item) => ({
+                                options={atualizacaoDiario.map((item) => ({
                                     value: item.value,
                                     label: item.label
                                 }))}

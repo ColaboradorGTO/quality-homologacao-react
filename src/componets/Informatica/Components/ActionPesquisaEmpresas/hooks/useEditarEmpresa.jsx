@@ -17,24 +17,24 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa, handleClose, refetch, usu
     const [email, setEmail] = useState('');
     const [telefone, setTelefone] = useState('')
     const [ipUsuario, setIpUsuario] = useState('');
- 
+
     const getIPUsuario = async () => {
         let usuarioIP = null;
 
         try {
-        const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
-        usuarioIP = ipWhoisData?.ip;
+            const { data: ipWhoisData } = await axios.get("https://ifconfig.me/ip");
+            usuarioIP = ipWhoisData?.ip;
         } catch (error) {
-        console.error("Erro ao buscar IP via ipwho.is:", error);
+            console.error("Erro ao buscar IP via ipwho.is:", error);
         }
 
         if (!usuarioIP) {
-        try {
-            const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
-            usuarioIP = ipifyData?.ip;
-        } catch (error) {
-            console.error("Erro ao buscar IP via ipify.org:", error);
-        }
+            try {
+                const { data: ipifyData } = await axios.get("https://api.ipify.org?format=json");
+                usuarioIP = ipifyData?.ip;
+            } catch (error) {
+                console.error("Erro ao buscar IP via ipify.org:", error);
+            }
         }
         setIpUsuario(usuarioIP);
         return usuarioIP;
@@ -43,7 +43,7 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa, handleClose, refetch, usu
     useEffect(() => {
         if (dadosEditarEmpresa) {
             setGrupoEmpresa(dadosEditarEmpresa[0]?.IDGRUPOEMPRESARIAL == 1 ? "TO - TESOURA DE OURO" : dadosEditarEmpresa[0]?.IDGRUPOEMPRESARIAL == 2 ? "MG - MAGAZINE" : dadosEditarEmpresa[0]?.IDGRUPOEMPRESARIAL == 3 ? "YO - YORUS" : dadosEditarEmpresa[0]?.IDGRUPOEMPRESARIAL == 4 ? "FC - FREE CENTER" : "");
-            setSituacao({value: dadosEditarEmpresa[0]?.STATIVO == "True" ? "ATIVO" : "INATIVO", label: dadosEditarEmpresa[0]?.STATIVO == "True" ? "ATIVO" : "INATIVO"});
+            setSituacao({ value: dadosEditarEmpresa[0]?.STATIVO == "True" ? "True" : "False", label: dadosEditarEmpresa[0]?.STATIVO == "True" ? "ATIVO" : "INATIVO" });
             setDataCriacao(dadosEditarEmpresa[0]?.DTULTATUALIZACAO);
             setNomeFantasia(dadosEditarEmpresa[0]?.NOFANTASIA);
             setCep(dadosEditarEmpresa[0]?.NUCEP)
@@ -53,7 +53,7 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa, handleClose, refetch, usu
             setCidade(dadosEditarEmpresa[0]?.ECIDADE)
             setUF(dadosEditarEmpresa[0]?.SGUF)
             setEmail(dadosEditarEmpresa[0]?.EEMAILPRINCIPAL)
-            setTelefone(dadosEditarEmpresa[0]?.NUTELCOMERCIAL)
+            setTelefone(dadosEditarEmpresa[0]?.NUTELGERENCIA)
         }
     }, [])
 
@@ -83,9 +83,9 @@ export const useEditarEmpresa = ({ dadosEditarEmpresa, handleClose, refetch, usu
             EEMAILFINANCEIRO: String(dadosEditarEmpresa[0]?.EEMAILFINANCEIRO),
             EEMAILCONTABILIDADE: String(dadosEditarEmpresa[0]?.EEMAILCONTABILIDADE),
             NUTELPUBLICO: String(dadosEditarEmpresa[0]?.NUTELPUBLICO),
-            NUTELCOMERCIAL: String(telefone),
+            NUTELCOMERCIAL: String(dadosEditarEmpresa[0]?.NUTELCOMERCIAL),
             NUTELFINANCEIRO: String(dadosEditarEmpresa[0]?.NUTELFINANCEIRO),
-            NUTELGERENCIA: String(dadosEditarEmpresa[0]?.NUTELGERENCIA),
+            NUTELGERENCIA: String(telefone),
             EURL: String(dadosEditarEmpresa[0]?.EURL),
             PATHIMG: String(dadosEditarEmpresa[0]?.PATHIMG),
             NUCNAE: String(dadosEditarEmpresa[0]?.NUCNAE),

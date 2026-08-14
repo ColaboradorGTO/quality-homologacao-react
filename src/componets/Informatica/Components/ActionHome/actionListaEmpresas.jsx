@@ -88,6 +88,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
       IDEMPRESA: item.IDEMPRESA,
       IDCONFIGURACAO: item.IDCONFIGURACAO,
       DTVALIDADECERTIFICADOFORMATADA: item.DTVALIDADECERTIFICADOFORMATADA,
+      STLOJAABERTA: item.STLOJAABERTA
 
     };
   });
@@ -167,6 +168,8 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
                   height="35px"
                   iconColor={"#fff"}
                   cor={"primary"}
+                  disabledBTN={optionsModulos[0]?.ALTERAR == 'False' ? true : false}
+
                 />
 
               </div>
@@ -255,7 +258,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
       return;
     }
   }
-  
+
   const handleAtualizarEmpresa = async (IDEMPRESA) => {
     try {
       const response = await get(`/lista-caixas?idEmpresa=${IDEMPRESA}`);
@@ -351,7 +354,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
           <div className="panel-hdr">
             <h2>Lista de Empresas</h2>
           </div>
-  
+
           <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
             <HeaderTable
               globalFilterValue={globalFilterValue}
@@ -377,6 +380,7 @@ export const ActionListaEmpresas = ({ dadosEmpresas, setActionVisivel, optionsMo
               paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
               currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
               filterDisplay="menu"
+              cellMemo={false}
               showGridlines
               stripedRows
               emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado</div>}

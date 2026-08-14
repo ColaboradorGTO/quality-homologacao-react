@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
-import { put } from "../../../../../api/funcRequest";
+import { post, put } from "../../../../../api/funcRequest";
 
 
 export const useEditarRelatorioBi = ({ handleClose, refetch, dadosRelatorios, optionsModulos, usuarioLogado }) => {
@@ -84,7 +84,7 @@ export const useEditarRelatorioBi = ({ handleClose, refetch, dadosRelatorios, op
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario || 'IP não disponível',
+        IP: ipUsuario || 'INDISPONIVEL',
       };
 
       await post('/log-web', createData);
@@ -99,8 +99,10 @@ export const useEditarRelatorioBi = ({ handleClose, refetch, dadosRelatorios, op
         showConfirmButton: false,
         timer: 5000,
       })
+
       refetch()
       handleClose()
+
       return response.data;
     } catch (error) {
       const textDados = JSON.stringify(postData);
@@ -111,7 +113,7 @@ export const useEditarRelatorioBi = ({ handleClose, refetch, dadosRelatorios, op
         IDFUNCIONARIO: String(usuarioLogado.id),
         PATHFUNCAO: textoFuncao,
         DADOS: textDados,
-        IP: ipUsuario || 'IP não disponível',
+        IP: ipUsuario || 'INDISPONIVEL',
       };
 
       await post('/log-web', createData);
