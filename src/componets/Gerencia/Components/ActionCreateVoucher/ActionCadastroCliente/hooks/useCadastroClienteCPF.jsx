@@ -130,7 +130,7 @@ export const useCadastrarClienteCPF = ({ usuarioLogado, optionsModulos, handleCl
     );
 
     useEffect(() => {
-        if (cep.length >= 7 && cepDigitado && optionsCPF.length >= 0) {
+        if (cep.length >= 8 && cepDigitado && optionsCPF.length >= 0) {
             getCEP();
         }
     }, [cep, cepDigitado, optionsCPF]);
