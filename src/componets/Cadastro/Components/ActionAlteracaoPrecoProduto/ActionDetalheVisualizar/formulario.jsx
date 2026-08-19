@@ -1,0 +1,257 @@
+import { ButtonTypeModal } from "../../../../Buttons/ButtonTypeModal"
+import { FooterModal } from "../../../../Modais/FooterModal/footerModal"
+import { useForm, Controller } from "react-hook-form";
+import Select from 'react-select';
+import FormField from "../../../../Formularios/FormField";
+import { AlertError } from "../../../../Inputs/alertError";
+import { useEditarAlteracaoPreco } from "../hooks/useEditarAlteracaoPreco";
+import { schema } from "./Schema/useEditarSchema";
+import { MdEdit } from "react-icons/md";
+
+export const Formulario = ({
+    handleClose,
+    dadosVisualizarDetalhe,
+    optionsModulos,
+    usuarioLogado
+}) => {
+    const { register, handleSubmit, formState: { errors }, clearErrors, setError, control } = useForm({
+        mode: "onChange"
+    });
+    const {
+        statusSelecionado,
+        setStatusSelecionado,
+        stAlteracaoImediato,
+        setStAlteracaoImediato,
+        authEdit,
+        dataCriacao,
+        setDataCriacao,
+        dataAlteracao,
+        setDataAlteracao,
+        qtdProdutos,
+        setQtdProdutos,
+        funcionario,
+        setFuncionario,
+        disabled,
+        setDisabled,
+        optionsAlteracaoPreco,
+        onSubmit
+    } = useEditarAlteracaoPreco({
+        handleClose,
+        dadosVisualizarDetalhe,
+        optionsModulos,
+        usuarioLogado
+    })
+
+    const handleValidatedSubmit = async () => {
+        try {
+            const dadosValidar = {
+                statusSelecionado: statusSelecionado?.value || '',
+            }    
+            await schema.validate(dadosValidar, { abortEarly: false });
+
+            await onSubmit()
+        } catch(validationError) {
+            clearErrors();
+
+            if (validationError.inner && validationError.inner.length > 0) {
+                validationError.inner.forEach(error => {
+                    if (error.path) {
+                        setError(error.path, {
+                            type: 'manual',
+                            message: error.message
+                        });
+                    }
+                });
+            }
+
+            const errorMessages = validationError.errors || [validationError.message];
+            console.log(`Erro de validação:\n${errorMessages.join('\n')}`);
+        }
+    }
+
+    return (
+        <form action="" onSubmit={handleSubmit(handleValidatedSubmit)}>
+            <div className="form-group">
+                <div className="row">
+                    <div className="col-sm-3 col-xl-3">
+                        <Controller
+                            name="dtCreateListaPreco"
+                            control={control}
+                            render={({ field }) => (
+                                <FormField
+                                    label={"Data Criação *"}
+                                    name="dtCreateListaPreco"
+                                    type="datetime"
+                                    value={dataCriacao}
+                                    onChange={(e) => setDataCriacao(e.target.value)}
+                                    errors={errors}
+                                    clearErrors={clearErrors}
+                                    readOnly={true}
+                                />
+
+                            )}
+                        />
+                    </div>
+                    <div className="col-sm-3 col-xl-3">
+                        <Controller
+                            name="dtAlterListaPreco"
+                            control={control}
+                            render={({ field }) => (
+                                <FormField
+                                    label={"Data Alteração *"}
+                                    name="dtAlterListaPreco"
+                                    type="datetime-local"
+                                    value={dataAlteracao}
+                                    onChange={(e) => setDataAlteracao(e.target.value)}
+                                    errors={errors}
+                                    clearErrors={clearErrors}
+                                />
+
+                            )}
+                        />
+                    </div>
+
+                    <div className="col-sm-3 col-xl-3">
+
+                        <label htmlFor="">Status Alteração *</label>
+                        <Select
+                            className="basic-single"
+                            classNamePrefix="select"
+                            name="statusAlteracao"
+                            value={statusSelecionado}
+                            options={optionsAlteracaoPreco}
+                            onChange={(selectedOption) => { 
+                                setStatusSelecionado(selectedOption)
+                                clearErrors("statusAlteracao");
+                            }}
+                            isDisabled={disabled} 
+                        />
+                        {errors.statusAlteracao && (
+                            <AlertError
+                                error={errors.statusAlteracao}
+                                onClose={clearErrors}
+                                fieldName="statusAlteracao"
+                            />
+                        )}
+                    </div>
+                    <div className="col-sm-3 col-xl-2">
+                        <Controller
+                            name="idListaPreco"
+                            control={control}
+                            render={({ field }) => (
+                                <FormField
+                                    label={"Alteração *"}
+                                    name="idListaPreco"
+                                    type="text"
+                                    value={dadosVisualizarDetalhe[0]?.alteracaoPreco.IDRESUMOALTERACAOPRECOPRODUTO}
+                                    onChange
+                                    errors={errors}
+                                    clearErrors={clearErrors}
+                                    readOnly={true}
+                                />
+
+                            )}
+                        />
+                    </div>
+                </div>
+
+
+                <div className="row mt-4">
+                    <div className="col-sm-2 col-xl-3">
+                        <Controller
+                            name="idListaPreco"
+                            control={control}
+                            render={({ field }) => (
+                                <FormField
+                                    label={"Lista Alvo de Alteração *"}
+                                    name="nomeListaPreco"
+                                    type="text"
+                                    value={dadosVisualizarDetalhe[0]?.alteracaoPreco.NOMELISTA || dadosVisualizarDetalhe[0]?.alteracaoPreco.NOEMPRESA}
+                                    onChange
+                                    errors={errors}
+                                    clearErrors={clearErrors}
+                                    readOnly={true}
+                                />
+
+                            )}
+                        />
+                    </div>
+
+                    <div className="col-sm-3 col-xl-2">
+                        <Controller
+                            name="qtdListaPreco"
+                            control={control}
+                            render={({ field }) => (
+                                <FormField
+                                    label={"Qtd. Produtos *"}
+                                    name="qtdListaPreco"
+                                    type="text"
+                                    value={qtdProdutos}
+                                    onChange={(e) => setQtdProdutos(e.target.value)}
+                                    errors={errors}
+                                    clearErrors={clearErrors}
+                                    readOnly={true}
+                                    style={{textAlign: 'center'}}
+                                />
+
+                            )}
+                        />
+                    </div>
+                    <div className="col-sm-6 col-xl-6">
+                        <Controller
+                            name="responsavelListaPreco"
+                            control={control}
+                            render={({ field }) => (
+                                <FormField
+                                    label={"Responsável *"}
+                                    name="responsavelListaPreco"
+                                    type="text"
+                                    value={funcionario}
+                                    onChange={(e) => setFuncionario(e.target.value)}
+                                    errors={errors}
+                                    clearErrors={clearErrors}
+                                    readOnly={true}
+                                />
+                            )}
+                        />
+                    </div>
+
+                </div>
+                <div className="row mt-4">
+
+                    <div className="col-sm-6 col-xl-3">
+                        <ButtonTypeModal
+                            cor={"warning"}
+                            textButton={"Alterar Selecionados"}
+                            Icon={MdEdit}
+                        />
+                    </div>
+                    <div className="col-sm-6 col-xl-3">
+                        <ButtonTypeModal
+                            cor={"info"}
+                            textButton={"Inserir Alteração"}
+                            Icon={MdEdit}
+                        />
+                    </div>
+                </div>
+
+            </div>
+
+
+            <FooterModal
+                ButtonTypeFechar={ButtonTypeModal}
+                onClickButtonFechar={handleClose}
+                textButtonFechar={"Fechar"}
+                corFechar={"secondary"}
+
+                ButtonTypeCadastrar={ButtonTypeModal}
+                onClickButtonCadastrar={handleSubmit(handleValidatedSubmit)}
+                textButtonCadastrar={"Salvar"}
+                corCadastrar={"success"}
+                loadingTextCadastrar={"Cadastrando..."}
+                autoLoadingCadastrar={true}
+            />
+
+        </form>
+    )
+}

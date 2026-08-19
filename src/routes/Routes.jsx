@@ -5,24 +5,27 @@ import { Home } from "../pages/Home";
 
 // 🚀 Lazy Loading - só carrega quando o usuário acessa
 const DashBoardAdministrativo = lazy(() => import("../pages/DashBoardAdministrativo").then(module => ({ default: module.DashBoardAdministrativo })));
-const DashBoardCadastro = lazy(() => import("../pages/DashBoardCadastro").then(module => ({ default: module.DashBoardCadastro })));
-const DashBoardComercial = lazy(() => import("../pages/DashBoardComercial").then(module => ({ default: module.DashBoardComercial })));
-const DashBoardCompras = lazy(() => import("../pages/DashBoardCompras").then(module => ({ default: module.DashBoardCompras })));
-const DashBoardConferenciaCega = lazy(() => import("../pages/DashBoardConferenciaCega").then(module => ({ default: module.DashBoardConferenciaCega })));
-const DashBoardContabilidade = lazy(() => import("../pages/DashBoardContabilidade").then(module => ({ default: module.DashBoardContabilidade })));
-const DashBoardExpedicao = lazy(() => import("../pages/DashBoardExpedicao").then(module => ({ default: module.DashBoardExpedicao })));
 const DashBoardFinanceiro = lazy(() => import("../pages/DashBoardFinanceiro").then(module => ({ default: module.DashBoardFinanceiro })));
-const DashBoardGerencia = lazy(() => import("../pages/DashBoardGerencia").then(module => ({ default: module.DashBoardGerencia })));
-const DashBoardInformatica = lazy(() => import("../pages/DashBoardInformatica").then(module => ({ default: module.DashBoardInformatica })));
-const DashBoardMarketing = lazy(() => import("../pages/DashBoardMarketing").then(module => ({ default: module.DashBoardMarketing })));
-const DashBoardComprasDM = lazy(() => import("../pages/DashBoardComprasDm").then(module => ({ default: module.DashBoardComprasDM })));
-const DashBoardEtiquetagem = lazy(() => import("../pages/DashBoardEtiquetagem").then(module => ({ default: module.DashBoardEtiquetagem })));
-const DashBoardMalotes = lazy(() => import("../pages/DashBoardMalotes").then(module => ({ default: module.DashBoardMalotes })));
 const DashBoardVoucher = lazy(() => import("../pages/DashBoardVoucher").then(module => ({ default: module.DashBoardVoucher })));
-const DashBoardPromocao = lazy(() => import("../pages/DashBoardPromocao").then(module => ({ default: module.DashBoardPromocao })));
-const Permissoes = lazy(() => import("../pages/Permissoes").then(module => ({ default: module.Permissoes })));
-const ModuloTeste = lazy(() => import("../pages/ModuloTeste").then(module => ({ default: module.ModuloTeste })));
+const DashBoardMalotes = lazy(() => import("../pages/DashBoardMalotes").then(module => ({ default: module.DashBoardMalotes })));
 const DashBoardRecursosHumanos = lazy(() => import("../pages/DashBoardRecursosHumanos").then(module => ({ default: module.DashBoardRecursosHumanos })));
+const DashBoardPromocao = lazy(() => import("../pages/DashBoardPromocao").then(module => ({ default: module.DashBoardPromocao })));
+const DashBoardComercial = lazy(() => import("../pages/DashBoardComercial").then(module => ({ default: module.DashBoardComercial })));
+const DashBoardInformatica = lazy(() => import("../pages/DashBoardInformatica").then(module => ({ default: module.DashBoardInformatica })));
+const ModuloTeste = lazy(() => import("../pages/ModuloTeste").then(module => ({ default: module.ModuloTeste })));
+const Permissoes = lazy(() => import("../pages/Permissoes").then(module => ({ default: module.Permissoes })));
+const DashBoardContabilidade = lazy(() => import("../pages/DashBoardContabilidade").then(module => ({ default: module.DashBoardContabilidade })));
+const DashBoardMarketing = lazy(() => import("../pages/DashBoardMarketing").then(module => ({ default: module.DashBoardMarketing })));
+const DashBoardGerencia = lazy(() => import("../pages/DashBoardGerencia").then(module => ({ default: module.DashBoardGerencia })));
+const DashBoardEtiquetagem = lazy(() => import("../pages/DashBoardEtiquetagem").then(module => ({ default: module.DashBoardEtiquetagem })));
+const DashBoardConferenciaCega = lazy(() => import("../pages/DashBoardConferenciaCega").then(module => ({ default: module.DashBoardConferenciaCega })));
+
+
+const DashBoardCompras = lazy(() => import("../pages/DashBoardCompras").then(module => ({ default: module.DashBoardCompras })));
+const DashBoardCadastro = lazy(() => import("../pages/DashBoardCadastro").then(module => ({ default: module.DashBoardCadastro })));
+const DashBoardComprasDM = lazy(() => import("../pages/DashBoardComprasDm").then(module => ({ default: module.DashBoardComprasDM })));
+const DashBoardExpedicao = lazy(() => import("../pages/DashBoardExpedicao").then(module => ({ default: module.DashBoardExpedicao })));
+
 const DashBoardMenus = lazy(() => import("../pages/DashBoardMenus").then(module => ({ default: module.DashBoardMenus })));
 
 // Componente de Loading
@@ -55,7 +58,7 @@ export const RoutesMain = () => {
   const handleShowComponent = (componentName) => {
     setComponentToShow(componentName);
   };
-  console.log(usuarioLogado, 'usuarioLogado?.id')
+
   return (
     <Suspense fallback={<PageLoader />}>
       <Routes>
@@ -74,12 +77,12 @@ export const RoutesMain = () => {
         <Route path="/DashBoardVouchers" element={<DashBoardVoucher componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
         <Route path="/DashBoardMenus" element={<DashBoardMenus componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
         <Route path="/DashBoardCompras" element={<DashBoardCompras componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
+        <Route path="/DashBoardComprasAdm" element={<DashBoardComprasDM componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
         <Route path="/DashBoardExpedicao" element={usuarioLogado ? <DashBoardExpedicao componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
         <Route path="/DashBoardConferenciaCega" element={usuarioLogado ? <DashBoardConferenciaCega componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/>} />
-        <Route path="/DashBoardCadastro" element={usuarioLogado ? <DashBoardCadastro componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/>} />
-        <Route path="/DashBoardComprasAdm" element={usuarioLogado ? <DashBoardComprasDM componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
+        <Route path="/DashBoardCadastro" element={<DashBoardCadastro componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
         <Route path="/DashBoardComercial" element={<DashBoardComercial componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
-        <Route path="/DashBoardEtiquetagem" element={usuarioLogado ? <DashBoardEtiquetagem componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> : <Navigate to="/"/> } />
+        <Route path="/DashBoardEtiquetagem" element={<DashBoardEtiquetagem componentToShow={componentToShow} handleShowComponent={handleShowComponent}  /> } />
       </Routes>
     </Suspense>
   );

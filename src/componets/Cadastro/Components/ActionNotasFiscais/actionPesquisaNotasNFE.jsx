@@ -7,24 +7,29 @@ import { AiOutlineSearch } from "react-icons/ai"
 import { MdAdd } from "react-icons/md"
 import { getDataAtual } from "../../../../utils/dataAtual"
 import { useQuery } from "react-query"
-import { useFetchData } from "../../../../hooks/useFetchData"
 import { ActionListaNotasNFE } from "./actionListaNotasNFE"
-import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
+import { animacaoCarregamento, fecharAnimacaoCarregamento, foiCancelado } from "../../../../utils/animationCarregamento"
 import { get } from "../../../../api/funcRequest"
+import { ActionCadastrarNFE } from "./ActionCadastrarNFE/actionCadastrarNFE"
 
 
-export const ActionPesquisaNFE = () => {
+
+export const ActionPesquisaNFE = ({ usuarioLogado }) => {
   const [tabelaVisivel, setTabelaVisivel] = useState(false);
   const [clickContador, setClickContador] = useState(0);
-  const [modalVisivel, setModalVisivel] = useState(false);
   const [actionVisivel, setActionVisivel] = useState(false);
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState("")
   const [dataPesquisaFim, setDataPesquisaFim] = useState("")
   const [fornecedorSelecionado, setFornecedorSelecionado] = useState("")
   const [numSerie, setNumSerie] = useState("")
+  const [numNFE, setNumNFE] = useState("")
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(1000);
-
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
+  const [modalVisivel, setModalVisivel] = useState(false);
+  const [dadosListaPedidosSemVinculoNFE, setDadosListaPedidosSemVinculoNFE] = useState([])
+  const [tabelaPedido, setTabelaPedido] = useState(false)
+  const [selectedIds, setSelectedIds] = useState([]);
 
   useEffect(() => {
     const dataAtual = getDataAtual()
@@ -32,41 +37,71 @@ export const ActionPesquisaNFE = () => {
     setDataPesquisaFim(dataAtual)
   }, [])
 
-  const { data: dadosFornecedores = [] } = useFetchData('fornecedores', '/fornecedores');
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id) }
+  );
+
+
+
+  const { data: dadosFornecedores = [], error: errorFornecedor, isLoading: isLoadingFornecedo } = useQuery(
+    'fornecedores',
+    async () => {
+      const response = await get(`/fornecedores`);
+
+      return response.data;
+    },
+    { enabled: true, cacheTime: 60 * 60 * 1000, }
+  );
+
   const fetchListaNFE = async () => {
+    const urlBase = `/nota-fiscal-entrada?idFornecedor=${fornecedorSelecionado}&numSerie=${numSerie}&numNFE=${numNFE}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    
+    const controller = new AbortController();
+    let allData = [];
+
     try {
-      const urlApi = `/nfPedido?idFornecedor=${fornecedorSelecionado}&numSerie=${numSerie}&dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      animacaoCarregamento('Carregando dados...', true, true, () => controller.abort());
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`, { signal: controller.signal });
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          if (foiCancelado()) break;
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`, { signal: controller.signal });
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-       
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      if (error.code === 'ERR_CANCELED') {
+        return allData;
+      }
+      console.error('Erro ao buscar dados:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
@@ -74,27 +109,19 @@ export const ActionPesquisaNFE = () => {
   };
    
   const { data: dadosNFE = [], error: errorEstilos, isLoading: isLoadingEstilos, refetch: refetchListaNFE } = useQuery(
-    ['nfPedido',  fornecedorSelecionado, numSerie,  currentPage, pageSize],
-    () => fetchListaNFE(fornecedorSelecionado, numSerie, currentPage, pageSize),
-    {
-      enabled: Boolean(dataPesquisaFim && dataPesquisaInicio)
-    }
+    ['cadastro-nfpedido',],
+    () => fetchListaNFE(),
+    { enabled: false }
   );
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaNFE();
     setTabelaVisivel(true)
-    
-
   }
+
   const handleClickAction = () => {
     setClickContador(prevContador => prevContador + 1);
-
-
     setActionVisivel(true)
-
-
   }
 
   return (
@@ -125,9 +152,18 @@ export const ActionPesquisaNFE = () => {
             value: fornecedor.IDFORNECEDOR,
             label: `${fornecedor.NOFANTASIA} - ${fornecedor.NUCNPJ} - ${fornecedor.NORAZAOSOCIAL}`,
           }))]}
+        valueSelectFornecedor={fornecedorSelecionado}
+        onChangeSelectFornecedor={(e) => setFornecedorSelecionado(e.value)}
 
-        InputFieldSerieComponent={InputField}
-        labelInputFieldSerie={"Nº Série"}
+        InputFieldCodBarraComponent={InputField}
+        labelInputFieldCodBarra={"Nº Série"}
+        valueInputFieldCodBarra={numSerie}
+        onChangeInputFieldCodBarra={(e) => setNumSerie(e.target.value)}
+
+        InputFieldComponent={InputField}
+        labelInputField={"Nº NFE"}
+        valueInputField={numNFE}
+        onChangeInputField={(e) => setNumNFE(e.target.value)}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
@@ -136,7 +172,7 @@ export const ActionPesquisaNFE = () => {
         IconSearch={AiOutlineSearch}
 
         ButtonTypeCadastro={ButtonType}
-        onButtonClickModal={handleClickAction}
+        onButtonClickCadastro={() => setModalVisivel(true)}
         linkNome={"Cadastrar NFE"}
         corCadastro={"success"}
         IconCadastro={MdAdd}
@@ -144,8 +180,23 @@ export const ActionPesquisaNFE = () => {
       />
 
       {tabelaVisivel &&
-        <ActionListaNotasNFE dadosNFE={dadosNFE} />
+        <ActionListaNotasNFE 
+          dadosNFE={dadosNFE} 
+          usuarioLogado={usuarioLogado}
+          optionsModulos={optionsModulos}
+          handleClick={handleClick}
+        />
       }
+
+
+
+      <ActionCadastrarNFE 
+        show={modalVisivel}
+        handleClose={() => setModalVisivel(false)}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        handleClick={handleClick}
+      />
     </Fragment>
   )
 }

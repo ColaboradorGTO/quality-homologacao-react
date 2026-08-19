@@ -347,7 +347,12 @@ export const ActionMain = ({
   onKeyDownInputFieldDTFimC,
   onKeyDownInputFieldDTInicio,
   onKeyDownInputFieldDTFim,
+  onKeyDownSelectEmpresa,
   onKeyDownInputFieldDTConsulta,
+  onKeyDownSelectMarcas,
+  onKeyDownEmpresa,
+  onKeyDownSelectUF,
+  onKeyDownSelectComissoes,
   onKeyDownInputFieldQuantidade,
   onKeyDownInputFieldNumeroVoucher,
   onKeyDownInputFieldVendaCPFCNPJ,
@@ -598,7 +603,7 @@ export const ActionMain = ({
   stylesGrupo,
   styleProdutoVendido,
   styleVendedor,
-  styleImportar,
+  styleVendasResumida,
   // Funções
 
   onButtonClickSearch,
@@ -640,7 +645,6 @@ export const ActionMain = ({
   corVendasVendedor,
   corTypeSaldo,
   corProdutoVendido,
-  corImportar,
 
   MenuTreeSelectComponent,
   valueTreeSelect,
@@ -1034,6 +1038,7 @@ export const ActionMain = ({
                         defaultValue={[defaultValueSelectMarca]}
                         isDisabled={isDisabledMarca}
                         type="select"
+                        onKeyDown={onKeyDownSelectMarcas}
                       />
                     )}
 
@@ -1047,6 +1052,7 @@ export const ActionMain = ({
                         defaultValue={[defaultValueSelectEmpresa]}
                         onChange={onChangeSelectEmpresa}
                         filtroOptions={optionsEmpresas}
+                        onKeyDown={onKeyDownSelectEmpresa}
                       // isVisible={styleEmpresa}
 
                       />
@@ -1098,6 +1104,7 @@ export const ActionMain = ({
                         options={optionsSelectUF}
                         value={valueSelectUF}
                         onChange={onChangeSelectUF}
+                        onKeyDown={onKeyDownSelectUF}
                       />
                     )}
                     {InputSelectComissoesComponent && (
@@ -1108,6 +1115,7 @@ export const ActionMain = ({
                         options={optionsComissoes}
                         value={valueSelectComissoes}
                         onChange={onChangeSelectComissoes}
+                        onKeyDown={onKeyDownSelectComissoes}
                       />
                     )}
                     {InputSelectQuebraComponent && (
@@ -1313,6 +1321,7 @@ export const ActionMain = ({
                         defaultValue={[valueMultSelectEmpresa]}
                         onChange={onChangeMultSelectEmpresa}
                         animatedComponents={animatedComponentsEmpresa}
+                        onKeyDown={onKeyDownEmpresa}
                       />
 
                     )}
@@ -1957,6 +1966,7 @@ export const ActionMain = ({
                         Icon={iconVendasResumida}
                         iconColor="#fff"
                         iconSize={16}
+                        style={styleVendasResumida}
                       />
                     )}
 
@@ -2059,12 +2069,11 @@ export const ActionMain = ({
                         // nome="Vendas por Produto"
                         textButton={linkImportar}
                         onClickButtonType={onButtonClickImportar}
-                        cor= { corImportar || '"success"'}
+                        cor="success"
                         tipo="button"
                         Icon={GoUpload}
                         iconColor="#fff"
                         iconSize={16}
-                        style={styleImportar}
                       />
                     )}
 

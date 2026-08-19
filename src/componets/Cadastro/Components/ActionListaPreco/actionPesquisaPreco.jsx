@@ -8,89 +8,102 @@ import { ButtonType } from "../../../Buttons/ButtonType"
 import { getDataAtual } from "../../../../utils/dataAtual"
 import { ActionListaPrecos } from "./actionListaPrecos"
 import { useQuery } from "react-query"
-import { animacaoCarregamento, fecharAnimacaoCarregamento } from "../../../../utils/animationCarregamento"
+import { animacaoCarregamento, fecharAnimacaoCarregamento, foiCancelado } from "../../../../utils/animationCarregamento"
 import { useFetchData } from "../../../../hooks/useFetchData"
+import { MdAdd } from "react-icons/md"
+import { ActionCriarListasPrecosModal } from "./ActionCriarListaPreco/actionCriarListasPrecosModal"
 
 
-export const ActionPesquisaPreco = () => {
+export const ActionPesquisaPreco = ({ usuarioLogado }) => {
   const [dataPesquisaInicio, setDataPesquisaInicio] = useState('')
   const [dataPesquisaFim, setDataPesquisaFim] = useState('')
   const [tabelaVisivel, setTabelaVisivel] = useState(true);
   const [empresaSelecionada, setEmpresaSelecionada] = useState('')
   const [numeroPedido, setNumeroPedido] = useState('')
   const [nomeLista, setNomeLista] = useState('')
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize, setPageSize] = useState(1000);
+  const [menuFilhoAtual, setMenuFilhoAtual] = useState(null);
+  const [modalVisivel, setModalVisivel] = useState(false);
 
   useEffect(() => {
     const dataPesquisaInicio = getDataAtual();
     const dataPesquisaFim = getDataAtual()
     setDataPesquisaInicio(dataPesquisaInicio)
     setDataPesquisaFim(dataPesquisaFim)
- 
   }, [])
+
+  useEffect(() => {
+    const menuSalvo = localStorage.getItem('menuFilhoSelecionado');
+    if (menuSalvo) {
+      const menuParsed = JSON.parse(menuSalvo);
+      setMenuFilhoAtual(menuParsed);
+    }
+  }, []);
+
+  const { data: optionsModulos = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
+    ['menus-usuario-excecao', menuFilhoAtual?.ID],
+    async () => {
+      const response = await get(`/menus-usuario-excecao?idUsuario=${usuarioLogado?.id}&idMenuFilho=${menuFilhoAtual?.ID}`);
+
+      return response.data;
+    },
+    { enabled: Boolean(usuarioLogado?.id) }
+  );
 
   const { data: dadosEmpresas = [] } = useFetchData('empresas', '/empresas');
 
+ 
   const fetchListaPreco = async () => {
+    const urlBase = `/lista-de-preco?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idLoja=${empresaSelecionada}&idLista=${numeroPedido}&nomeLista=${nomeLista}`;
+    let urlApi = urlBase.includes('?') ? urlBase : urlBase + '?';
+    urlApi = urlApi.replace('&page=1', '').replace('page=1', '');
+    
+    const controller = new AbortController();
+    let allData = [];
+    
     try {
-      const urlApi = `/lista-de-preco?dataPesquisaInicio=${dataPesquisaInicio}&dataPesquisaFim=${dataPesquisaFim}&idLoja=${empresaSelecionada}&idLista=${numeroPedido}&nomeLista=${nomeLista}`;
-      const response = await get(urlApi);
-      
-      if (response.data.length && response.data.length === pageSize) {
-        let allData = [...response.data];
-        animacaoCarregamento(`Carregando... Página ${currentPage} de ${response.data.length}`, true);
-  
-        async function fetchNextPage(currentPage) {
-          try {
-            currentPage++;
-            const responseNextPage = await get(`${urlApi}&page=${currentPage}`);
-            if (responseNextPage.length) {
-              allData.push(...responseNextPage.data);
-              return fetchNextPage(currentPage);
-            } else {
-              return allData;
-            }
-          } catch (error) {
-            console.error('Erro ao buscar próxima página:', error);
-            throw error;
-          }
+      animacaoCarregamento('Carregando dados...', true, true, () => controller.abort());
+
+      const primeiraPagina = 1;
+      const primeiraResposta = await get(`${urlApi}&page=${primeiraPagina}`, { signal: controller.signal });
+      const page = primeiraResposta.page || primeiraPagina;
+      const pageSize = primeiraResposta.pageSize || 1000;
+      const totalRows = primeiraResposta.rows || primeiraResposta.data?.length || 0;
+      const totalPages = Math.ceil(totalRows / pageSize);
+
+      allData = [...(primeiraResposta.data || [])];
+
+      if (totalPages > 1) {
+        for (let currentPage = 2; currentPage <= totalPages; currentPage++) {
+          if (foiCancelado()) break;
+          animacaoCarregamento(`Página ${currentPage} de ${totalPages}`, true, true);
+          const responsePage = await get(`${urlApi}&page=${currentPage}`, { signal: controller.signal });
+          allData.push(...(responsePage.data || []));
         }
-  
-        await fetchNextPage(currentPage);
-        return allData;
-      } else {
-       
-        return response.data;
       }
-  
+
+      return allData;
     } catch (error) {
-      console.error('Error fetching data:', error);
+      if (error.code === 'ERR_CANCELED') {
+        return allData;
+      }
+      console.error('Erro ao buscar dados:', error);
       throw error;
     } finally {
       fecharAnimacaoCarregamento();
     }
   };
-   
-  const { data: dadosListaPedidos = [], error: errorEstilos, isLoading: isLoadingEstilos, refetch: refetchListaPreco } = useQuery(
-    ['listaPreco', dataPesquisaInicio, dataPesquisaFim, empresaSelecionada, numeroPedido, nomeLista, currentPage, pageSize],
-    () => fetchListaPreco( currentPage, pageSize),
-    {
-      enabled: Boolean(dataPesquisaFim && dataPesquisaInicio)
-    }
-  );
 
-
-  const handleChangeMarca = (e) => {
-    setEmpresaSelecionada(e.value);
-  }
+  const { data: dadosListaPreco = [], error: errorEstilos, isLoading: isLoadingEstilos, refetch: refetchListaPreco } = useQuery(
+    ['listaPreco',],
+    () => fetchListaPreco(),
+    { enabled: false }
+  )
 
   const handleClick = () => {
-    setCurrentPage(prevPage => prevPage + 1);
     refetchListaPreco();
+    refetchModulos()
     setTabelaVisivel(true)
   }
-
 
   return (
 
@@ -133,17 +146,37 @@ export const ActionPesquisaPreco = () => {
             label: marca.NOFANTASIA,
           }))]}
         valueSelectEmpresa={empresaSelecionada}
-        onChangeSelectEmpresa={handleChangeMarca}
+        onChangeSelectEmpresa={(e) => setEmpresaSelecionada(e.value)}
 
         ButtonSearchComponent={ButtonType}
         linkNomeSearch={"Pesquisar"}
         onButtonClickSearch={handleClick}
         IconSearch={AiOutlineSearch}
         corSearch={"primary"}
+
+        ButtonTypeCadastro={ButtonType}
+        linkNome={"Criar Lista"}
+        onButtonClickCadastro={() => setModalVisivel(true)}
+        IconCadastro={MdAdd}
+        corCadastro={"success"}
       />
 
-      <ActionListaPrecos dadosListaPedidos={dadosListaPedidos} />
+      <ActionListaPrecos
+        dadosListaPreco={dadosListaPreco}
+        usuarioLogado={usuarioLogado}
+        optionsModulos={optionsModulos}
+        refetchListaPreco={refetchListaPreco}
+      />
 
+      <ActionCriarListasPrecosModal
+        show={modalVisivel}
+        handleClose={() => setModalVisivel(false)}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
+        dadosListaPreco={dadosListaPreco}
+        refetchListaPreco={refetchListaPreco}
+      />
+      
     </Fragment>
   )
 }

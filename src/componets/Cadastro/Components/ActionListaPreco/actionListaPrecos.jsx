@@ -12,12 +12,19 @@ import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 import HeaderTable from "../../../Tables/headerTable";
+import Swal from "sweetalert2";
 
-export const ActionListaPrecos = ({dadosListaPedidos}) => {
+export const ActionListaPrecos = ({
+  dadosListaPreco,
+  usuarioLogado,
+  optionsModulos,
+  refetchListaPreco
+}) => {
   const [modalVisualizar, setModalVisualizar] = useState(false);
   const [modalEditar, setModalEditar] = useState(false);
   const [dadosListaLoja, setDadosListaLoja] = useState([]);
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowSelection, setRowSelection] = useState(null);
   const dataTableRef = useRef();
 
 
@@ -68,9 +75,10 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
     XLSX.writeFile(workbook, 'lista_preco.xlsx');
   };
 
-  const dados = dadosListaPedidos.map((item, index) => {
-    let contador = index + 1;
   
+  const dados = dadosListaPreco?.map((item, index) => {
+    let contador = index + 1;
+
     return {
       contador,
       IDRESUMOLISTAPRECO: item.listaPreco?.IDRESUMOLISTAPRECO,
@@ -78,7 +86,7 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
       detalheLista: item.detalheLista.length,
       DATACRIACAO: item.listaPreco?.DATACRIACAO,
       DATAALTERACAO: item.listaPreco?.DATAALTERACAO,
-      STATIVO: item.listaPreco?.STATIVO,
+      STATIVO: item.listaPreco?.STATIVO == 'True' ? 'ATIVA' : 'INATIVA',
     }
   })
 
@@ -102,7 +110,6 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
         return (
           <th>{row.NOMELISTA}</th>
         )
-        
       },
       sortable: true,
     },
@@ -129,7 +136,7 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
       header: 'Situação',
       body: row => {
         return (
-          <th style={{color: row.STATIVO == 'True' ? 'blue' : 'red'}} >{row.STATIVO == 'True' ? 'ATIVA' : 'INATIVA'}</th>
+          <th style={{color: row.STATIVO == 'ATIVA' ? 'blue' : 'red'}} >{row.STATIVO}</th>
         )
       },
       sortable: true,
@@ -147,9 +154,10 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
                 onClickButton={() => clickVisualizar(row)}
                 cor={"success"}
                 Icon={GrView}
-                iconSize={22}
+                iconSize={20}
                 iconColor={"#fff"}
-
+                width="30px"
+                height="30px"
               />
             </div>
             <div>
@@ -158,9 +166,10 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
                 onClickButton={() => clickEditar(row)}
                 cor={"primary"}
                 Icon={CiEdit}
-                iconSize={22}
+                iconSize={20}
                 iconColor={"#fff"}
-
+                width="30px"
+                height="30px"
               />
             </div>
 
@@ -180,9 +189,16 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
   const handleVisualizar = async (IDRESUMOLISTAPRECO) => {
     try {
       const response = await get(`/lista-de-preco?idLista=${IDRESUMOLISTAPRECO}`);
-      if(response && response.data) {
+      if(response.data && response.data.length > 0) {
         setDadosListaLoja(response.data);
         setModalVisualizar(true)
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Nenhuma loja encontrada para esta lista de preço.',
+          text: 'Esta lista de preço não está associada a nenhuma loja.',
+        })
+        return;
       }
     } catch (error) {
       console.error(error);
@@ -196,11 +212,26 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
   };
 
   const handleEditar = async (IDRESUMOLISTAPRECO) => {
+    if(optionsModulos[0]?.ALTERAR !== 'True') {
+      Swal.fire({
+        icon: 'error',
+        title: 'Acesso Negado',
+        html: `${usuarioLogado?.NOFUNCIONARIO} <br/> Você não tem permissão para editar esta lista de preço.`,
+      });
+      return;
+    }
     try {
       const response = await get(`/lista-de-preco?idLista=${IDRESUMOLISTAPRECO}`);
-      if(response && response.data) {
+      if(response.data && response.data.length > 0) {
         setDadosListaLoja(response.data);
         setModalEditar(true)
+      } else {
+        Swal.fire({
+          icon: 'info',
+          title: 'Nenhuma loja encontrada para esta lista de preço.',
+          text: 'Esta lista de preço não está associada a nenhuma loja.',
+        })
+        return;
       }
     } catch (error) {
       console.error(error);
@@ -211,7 +242,7 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
     <Fragment>
       <div className="panel">
         <div className="panel-hdr">
-          <h2>Lista de Notas Fiscais</h2>
+          <h2>Lista de Preços</h2>
         </div>
         <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
           <HeaderTable
@@ -223,17 +254,23 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
           />
 
         </div>
-          <div className="card mb-4" ref={dataTableRef}>
+          <div className="card" ref={dataTableRef}>
         
           <DataTable
-            title="Vendas por Loja"
+            title="Lista de Preços"
             value={dados}
-            // header={header}
+            globalFilter={globalFilterValue}
             size="small"
             sortOrder={-1}
             paginator={true}
             rows={10}
-            rowsPerPageOptions={[5, 10, 20, 50, 100]}
+            selectionMode="single"
+            selection={rowSelection}
+            onSelectionChange={(e) => setRowSelection(e.value)}
+            rowsPerPageOptions={[10, 20, 50, 100, dados?.length]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}
@@ -256,6 +293,7 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
           </DataTable>
         </div>
       </div>
+      
       <ActionListaLojaModal
         show={modalVisualizar}
         handleClose={() => setModalVisualizar(false)}
@@ -266,6 +304,9 @@ export const ActionListaPrecos = ({dadosListaPedidos}) => {
         show={modalEditar}
         handleClose={() => setModalEditar(false)}
         dadosListaLoja={dadosListaLoja}
+        optionsModulos={optionsModulos}
+        usuarioLogado={usuarioLogado}
+        refetchListaPreco={refetchListaPreco}
       />
     </Fragment>
   )

@@ -1,21 +1,28 @@
 import { Fragment, useRef, useState } from "react"
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { useEditarListaPrecos } from "../../../hooks/useEditarListaPrecos";
+import { useEditarListaPrecos } from "../hooks/useEditarListaPrecos";
 import HeaderTable from "../../../../Tables/headerTable";
+import { useReactToPrint } from "react-to-print";
+import { jsPDF } from 'jspdf';
+import 'jspdf-autotable';
+import * as XLSX from 'xlsx';
 
 
-export const ActionEditarListasPrecos = ({ show, handleClose, dadosListaLoja }) => {
+export const ActionEditarListasPrecos = ({ dadosListaLoja, optionsModulos, usuarioLogado }) => {
   const {
     dadosEmpresas,
-    rowClick,
-    setRowClick,
     empresaSelecionada,
     setEmpresaSelecionada,
-  } = useEditarListaPrecos()
+    selectedIds,
+    setSelectedIds,
+    selectAllChecked,
+    setSelectAllChecked,
+  } = useEditarListaPrecos({optionsModulos, usuarioLogado, dadosListaLoja});
+  
   const [globalFilterValue, setGlobalFilterValue] = useState('');
+  const [rowClick, setRowClick] = useState(false);
   const dataTableRef = useRef();
-
 
   const onGlobalFilterChange = (e) => {
     setGlobalFilterValue(e.target.value);
@@ -23,7 +30,7 @@ export const ActionEditarListasPrecos = ({ show, handleClose, dadosListaLoja }) 
 
   const handlePrint = useReactToPrint({
     content: () => dataTableRef.current,
-    documentTitle: 'Lista de Preço',
+    documentTitle: 'Lista de Lojas',
   });
 
   const exportToPDF = () => {
@@ -42,7 +49,7 @@ export const ActionEditarListasPrecos = ({ show, handleClose, dadosListaLoja }) 
       horizontalPageBreak: true,
       horizontalPageBreakBehaviour: 'immediately'
     });
-    doc.save('lista_preco.pdf');
+    doc.save('lista_lojas.pdf');
   };
 
   const exportToExcel = () => {
@@ -57,21 +64,34 @@ export const ActionEditarListasPrecos = ({ show, handleClose, dadosListaLoja }) 
   
     ];
     XLSX.utils.sheet_add_aoa(worksheet, [header], { origin: 'A1' });
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Preço');
-    XLSX.writeFile(workbook, 'lista_preco.xlsx');
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Lista de Lojas');
+    XLSX.writeFile(workbook, 'lista_lojas.xlsx');
   };
 
   const dados = dadosEmpresas.map((item, index) => {
     let contador = index + 1;
-    return {
 
+    return {
       IDEMPRESA: item.IDEMPRESA,
       NOFANTASIA: item.NOFANTASIA,
       STATIVO: item.STATIVO,
+      IDGRUPOEMPRESARIAL: item.IDGRUPOEMPRESARIAL,
       contador
-
     }
   })
+
+  const onSelectAllChange = (isChecked) => {
+    setSelectAllChecked(isChecked);
+    if (isChecked) {
+      const allIds = dados.map(item => item.IDEMPRESA);
+      setSelectedIds(allIds);
+      setEmpresaSelecionada([...dados]);
+    } else {
+      setSelectedIds([]);
+      setEmpresaSelecionada([]);
+    }
+  };
+ 
 
   const colunasEmpresas = [
     {
@@ -93,7 +113,6 @@ export const ActionEditarListasPrecos = ({ show, handleClose, dadosListaLoja }) 
         return (
           <th>{row.NOFANTASIA}</th>
         )
-
       },
       sortable: true,
     },
@@ -108,13 +127,41 @@ export const ActionEditarListasPrecos = ({ show, handleClose, dadosListaLoja }) 
       sortable: true,
     },
     {
-      header: 'Selecione',
-      selectionMode: 'multiple',
-      selection: empresaSelecionada,
+       header: (
+        <div>
+          <label>{selectAllChecked ? 'Desmarcar Todos' : 'Marcar Todos'}</label>
+          <input
+            type="checkbox"
+            checked={selectAllChecked}
+            onChange={(e) => onSelectAllChange(e.target.checked)}
+          />
+        </div>
+      ),
+      body: (rowData) => {
+        return (
+          <div>
+            <input
+              type="checkbox"
+              checked={selectedIds.includes(rowData.IDEMPRESA)}
+              onChange={(e) => {
+                const isChecked = e.target.checked
+                const updatedSelectedIds = e.target.checked
+                  ? [...selectedIds, rowData.IDEMPRESA]
+                  : selectedIds.filter(id => id !== rowData.IDEMPRESA);
+                setSelectedIds(updatedSelectedIds);
+                // setQtdProduto(rowData.IDEMPRESA, isChecked)
+                // setSelectAll(updatedSelectedIds.length === dados.length);
+                setEmpresaSelecionada(isChecked ? [...empresaSelecionada, rowData] : empresaSelecionada.filter(item => item.IDEMPRESA !== rowData.IDEMPRESA));
+
+              }}
+              disabled={rowData.stDisabled === 'disabled'}
+            />
+          </div>
+        );
+      },
       width: '10px',
       sortable: true,
     },
-
   ]
 
   return (
@@ -122,7 +169,9 @@ export const ActionEditarListasPrecos = ({ show, handleClose, dadosListaLoja }) 
     <Fragment>
 
       <div className="panel">
-
+        <div className="panel-hdr">
+          <h2>Lista de Lojas</h2>
+        </div>
         <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
           <HeaderTable
             globalFilterValue={globalFilterValue}
@@ -133,20 +182,26 @@ export const ActionEditarListasPrecos = ({ show, handleClose, dadosListaLoja }) 
           />
 
         </div>
-        <div className="card mb-4" ref={dataTableRef}>
+        <div className="card " ref={dataTableRef}>
 
           <DataTable
-            title="Vendas por Loja"
+            scrollable 
+            scrollHeight="400px"
+            title="Lista de Lojas"
             value={dados}
             size="small"
+            dataKey="IDEMPRESA"
             globalFilter={globalFilterValue}
             selectionMode={rowClick ? null : 'checkbox'}
             selection={empresaSelecionada}
             onSelectionChange={e => setEmpresaSelecionada(e.value)}
             sortOrder={-1}
             paginator={true}
-            rows={10}
+            rows={dados.length}
             rowsPerPageOptions={[5, 10, 20, 50, 100]}
+            paginatorTemplate="FirstPageLink PrevPageLink PageLinks NextPageLink LastPageLink CurrentPageReport RowsPerPageDropdown"
+            currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} Registros"
+            filterDisplay="menu"
             showGridlines
             stripedRows
             emptyMessage={<div className="dataTables_empty">Nenhum resultado encontrado </div>}

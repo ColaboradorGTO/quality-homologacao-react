@@ -9,12 +9,12 @@ import { get } from "../api/funcRequest";
 import { useQuery } from "react-query";
 
 const ActionPesquisaHome = lazy(() => import("../componets/Cadastro/Components/ActionHome/actionPesquisaHome").then(module => ({ default: module.ActionPesquisaHome })));
-const ActionPesquisaNFE = lazy(() => import("../componets/Cadastro/Components/ActionNotasFiscais/actionPesquisaNotasNFE").then(module => ({ default: module.ActionPesquisaNFE })));
 const ActionPesquisaProdutosAvulso = lazy(() => import("../componets/Cadastro/Components/ActionProdutosAvulso/actionPesquisaProdutosAvulso").then(module => ({ default: module.ActionPesquisaProdutosAvulso })));
 const ActionPesquisaEstilos = lazy(() => import("../componets/Cadastro/Components/ActionEstilos/actionPesquisaEstilos").then(module => ({ default: module.ActionPesquisaEstilos })));
+const ActionPesquisaNFE = lazy(() => import("../componets/Cadastro/Components/ActionNotasFiscais/actionPesquisaNotasNFE").then(module => ({ default: module.ActionPesquisaNFE })));
+const ActionPesquisaPreco = lazy(() => import("../componets/Cadastro/Components/ActionListaPreco/actionPesquisaPreco").then(module => ({ default: module.ActionPesquisaPreco })));
 const ActionPesquisaAlteracaoPreco = lazy(() => import("../componets/Cadastro/Components/ActionAlteracaoPrecoProduto/actionPesquisaAlteracaoPreco").then(module => ({ default: module.ActionPesquisaAlteracaoPreco })));
 const ActionPesquisaProdutoEtiqueta = lazy(() => import("../componets/Cadastro/Components/ActionProdutoEtiqueta/actionPesquisaProdutoEtiqueta").then(module => ({ default: module.ActionPesquisaProdutoEtiqueta })));
-const ActionPesquisaPreco = lazy(() => import("../componets/Cadastro/Components/ActionListaPreco/actionPesquisaPreco").then(module => ({ default: module.ActionPesquisaPreco })));
 
 export const DashBoardCadastro = () => {
   const [usuarioLogado, setUsuarioLogado] = useState(null);
@@ -22,43 +22,61 @@ export const DashBoardCadastro = () => {
   const selectedModule = JSON.parse(storedModule);
   const [resumoVisivel, setResumoVisivel] = useState(true);
   const [componentToShow, setComponentToShow] = useState("");
+  const [menuSelected, setMenuSelected] = useState(null);
   const navigate = useNavigate();
+
 
   useEffect(() => {
     const usuarioArmazenado = localStorage.getItem('usuario');
-
     if (usuarioArmazenado) {
-      try {
-        const parsedUsuario = JSON.parse(usuarioArmazenado);
-        setUsuarioLogado(parsedUsuario);
-    
-      } catch (error) {
-        console.error('Erro ao parsear o usuário do localStorage:', error);
-      }
-    } else {
-
-      navigate('/');
+      const parsedUsuario = JSON.parse(usuarioArmazenado);
+      setUsuarioLogado(parsedUsuario);
     }
-  }, [navigate]);
+  }, []);
 
   useEffect(() => {
+    const storedMenuFilho = JSON.parse(localStorage.getItem('menufilhoSelecionado'));
+
+    if (storedMenuFilho) {
+      setMenuSelected(selectedModule);
+    }
+
   }, [usuarioLogado]);
 
 
   const { data: optionsModulosPage = [], error: errorModulos, isLoading: isLoadingModulos, refetch: refetchModulos } = useQuery(
-    'menus-usuario',
+    ['menus-usuario', usuarioLogado, selectedModule],
     async () => {
+   
       const response = await get(`/menus-usuario?idUsuario=${usuarioLogado?.id}&idModulo=${selectedModule?.ID}`);
-      
       return response.data;
     },
     { enabled: Boolean(usuarioLogado?.id), staleTime: 5 * 60 * 1000, }
   );
-
+  
   function handleShowComponent(componentName) {
-    setComponentToShow(componentName);
+    const menuFilhoSelecionado = selectedModule.menuPai.menuFilho.find(
+      menu => menu.URL === componentName
+    );
+  
+    if (menuFilhoSelecionado) {
+      // Salvar todas as informações do menu selecionado no localStorage
+      localStorage.setItem('menuFilhoSelecionado', JSON.stringify({
+        ID: menuFilhoSelecionado.ID,
+        DSNOME: menuFilhoSelecionado.DSNOME,
+        URL: menuFilhoSelecionado.URL,
+        ALTERAR: menuFilhoSelecionado.ALTERAR,
+        CRIAR: menuFilhoSelecionado.CRIAR,
+        VISUALIZAR: menuFilhoSelecionado.VISUALIZAR,
+        N1: menuFilhoSelecionado.N1,
+        N2: menuFilhoSelecionado.N2,
+        N3: menuFilhoSelecionado.N3,
+        N4: menuFilhoSelecionado.N4,
+        ADMINISTRADOR: menuFilhoSelecionado.ADMINISTRADOR
+      }));
+    }
+    setComponentToShow(componentName); 
   }
-
 
   let component = null;
 
@@ -67,26 +85,26 @@ export const DashBoardCadastro = () => {
   //   break;
   switch (componentToShow) {
     case "/cadastro/ActionPesquisaHome":
-      component = < ActionPesquisaHome />;
+      component = < ActionPesquisaHome usuarioLogado={usuarioLogado} />;
       break;
     case "/cadastro/ActionPesquisaProdutosAvulso":
-      component = <ActionPesquisaProdutosAvulso />;
+      component = <ActionPesquisaProdutosAvulso usuarioLogado={usuarioLogado} />;
       break;
-    case "/cadastro/ActionPesquisaEstilos":
-      component = <ActionPesquisaEstilos />;
+    case "/cadastro/ActionPesquisaEstilo":
+      component = <ActionPesquisaEstilos usuarioLogado={usuarioLogado} />;
       break;
-    case "/cadastro/ActionPesquisaNFE":
-      component = <ActionPesquisaNFE />;
+    case "/cadastro/CadastroActionCadEditNFE":
+      component = <ActionPesquisaNFE usuarioLogado={usuarioLogado} />;
       break;
     case "/cadastro/ActionPesquisaProdutoEtiqueta":
-      component = <ActionPesquisaProdutoEtiqueta />;
+      component = <ActionPesquisaProdutoEtiqueta usuarioLogado={usuarioLogado} />;
       break;
 
     case "/cadastro/ActionPesquisaAlteracaoPreco":
-      component = <ActionPesquisaAlteracaoPreco />;
+      component = <ActionPesquisaAlteracaoPreco usuarioLogado={usuarioLogado} />;
       break;
     case "/cadastro/ActionPesquisaPreco":
-      component = <ActionPesquisaPreco />;
+      component = <ActionPesquisaPreco usuarioLogado={usuarioLogado} />;
       break;
     default:
       component = null;
@@ -119,7 +137,7 @@ export const DashBoardCadastro = () => {
                             <Suspense fallback={<div>Loading...</div>}>
                             {resumoVisivel && !componentToShow && (
 
-                              <ActionPesquisaHome />
+                              <ActionPesquisaHome usuarioLogado={usuarioLogado} />
                             )}
 
 
