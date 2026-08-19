@@ -499,7 +499,7 @@ export const ActionMain = ({
   placeHolderInputFieldComissao,
   placeHolderInputFieldObsFornecedor,
   placeHolderInputFieldVendedor,
-  
+
   labelMultSelectGrupo,
   labelMultSelectSubGrupo,
   labelMultSelectMarca,
@@ -604,6 +604,7 @@ export const ActionMain = ({
   styleProdutoVendido,
   styleVendedor,
   styleVendasResumida,
+  styleImportar,
   // Funções
 
   onButtonClickSearch,
@@ -645,6 +646,7 @@ export const ActionMain = ({
   corVendasVendedor,
   corTypeSaldo,
   corProdutoVendido,
+  corImportar,
 
   MenuTreeSelectComponent,
   valueTreeSelect,
@@ -2069,11 +2071,13 @@ export const ActionMain = ({
                         // nome="Vendas por Produto"
                         textButton={linkImportar}
                         onClickButtonType={onButtonClickImportar}
-                        cor="success"
+                        cor= { corImportar || '"success"'}
                         tipo="button"
                         Icon={GoUpload}
                         iconColor="#fff"
                         iconSize={16}
+                        style={styleImportar}
+
                       />
                     )}
 
