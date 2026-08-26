@@ -232,7 +232,7 @@ export const FormularioCadastrar = ({
                                         clearErrors={clearErrors}
                                         value={dataAdmissao}
                                         onChangeModal={e => setDataAdmissao(e.target.value)}
-                                        // min={minDataAdmissao}
+                                        min={minDataAdmissao}
                                     // max={maxDataAdmissao}
                                     />
                                 )}
