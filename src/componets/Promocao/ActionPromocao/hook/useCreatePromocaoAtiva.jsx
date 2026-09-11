@@ -4,7 +4,7 @@ import { useQuery } from "react-query"
 import Swal from "sweetalert2"
 import { getDataAtual, getDataTresMesesAtras } from "../../../../utils/dataAtual"
 import * as XLSX from 'xlsx';
-import { optionsMecanica } from "../../../../../mecanica"
+import { optionsMecanica, optionsMecanicaCompleta } from "../../../../../mecanica"
 import { useNavigate } from "react-router-dom"
 import axios from "axios";
 import ExcelJS from "exceljs";
@@ -745,19 +745,19 @@ export const useCreatePromocaoAtiva = ({ }) => {
       const promocoesAtivas = responsePromocao.data;
       setDadosPromocoesAtivas(promocoesAtivas);
 
-      if (!mecanicaSelecionada) {
-        Swal.fire({
-          position: 'center',
-          icon: 'error',
-          title: 'Selecione uma mecânica!',
-          customClass: {
-            container: 'custom-swal',
-          },
-          showConfirmButton: false,
-          timer: 3000,
-        })
-        return;
-      }
+      // if (!mecanicaSelecionada) {
+      //   Swal.fire({
+      //     position: 'center',
+      //     icon: 'error',
+      //     title: 'Selecione uma mecânica!',
+      //     customClass: {
+      //       container: 'custom-swal',
+      //     },
+      //     showConfirmButton: false,
+      //     timer: 3000,
+      //   })
+      //   return;
+      // }
 
       if (!empresaSelecionada || empresaSelecionada.length == 0) {
         Swal.fire({
@@ -1119,19 +1119,19 @@ export const useCreatePromocaoAtiva = ({ }) => {
   const onSubmitEstrutura = async (data) => {
   
     try {
-      if (!mecanicaSelecionada) {
-        Swal.fire({
-          position: 'center',
-          icon: 'error',
-          title: 'Selecione uma mecânica!',
-          customClass: {
-            container: 'custom-swal',
-          },
-          showConfirmButton: false,
-          timer: 3000,
-        })
-        return;
-      }
+      // if (!mecanicaSelecionada) {
+      //   Swal.fire({
+      //     position: 'center',
+      //     icon: 'error',
+      //     title: 'Selecione uma mecânica!',
+      //     customClass: {
+      //       container: 'custom-swal',
+      //     },
+      //     showConfirmButton: false,
+      //     timer: 3000,
+      //   })
+      //   return;
+      // }
 
       if (!empresaSelecionada || empresaSelecionada.length == 0) {
         Swal.fire({
@@ -1388,6 +1388,7 @@ export const useCreatePromocaoAtiva = ({ }) => {
     optionsMarcas,
     optionsEmpresas,
     optionsMecanica,
+    optionsMecanicaCompleta,
     dadosMecanicas,
     mostrarProdutosSelecionados,
     handleFileUpload,

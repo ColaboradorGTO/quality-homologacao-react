@@ -27,7 +27,37 @@
   14 se aplicação destinos for por todos os produtos, os produtos origem e destino precisam ser o mesmos. 
 
   
+<!--  
 
+  //  TPAPARTIRDE = 0 // aplicação destino por pares
+  //  TPAPARTIRDE = 1 // aplicação destino em todos os produtos
+  //  TPAPARTIRDE = 2 // aplicação destino no ultimo após entrada da promoção
+  //  TPAPARTIRDE = 3 // aplicação destino menos na primeira
+  //  TPAPARTIRDE = 4 // aplicação destino em 1(um) produto
+
+  // TABELAS RESUMOPROMOCAOMARKETING
+  // TPAPLICADOA = 1->APLICADO A VALOR 
+  // 2-> APLICADO A QUANTIDADE
+  // TPFATORPROMO = USADO PARA O PDV IDENTIFICAR A PROMOCAO
+  // 	TPFATORPROMO = 0 // por valor final
+  //  TPFATORPROMO = 1 // por valor desconto
+  // 	TPFATORPROMO = 2 // por percentual desconto
+  
+  pegando por base as regras acima, da mecânica de promoção, o que será feito é o seguinte:
+  TPAPLICADOA = 1->APLICADO A VALOR // 2-> APLICADO A QUANTIDADE será ou no valor ou na quantidade
+  depois o usuario irá escolher 
+  TPAPARTIRDE = 0 aplicação destino por pares, se o usuario escolher
+  TPAPARTIRDE = 1 aplicação destino em todos os produtos, se o usuario escolher
+  TPAPARTIRDE = 2 aplicação destino no ultimo após entrada da promoção, se o usuario escolher
+  TPAPARTIRDE = 3 aplicação destino menos na primeira, se o usuario escolher
+  TPAPARTIRDE = 4 aplicação destino em um produto 
+
+
+  preciso mapear uma promoção
+  TPAPLICADOA = 1 -> APLICADO A VALOR
+  TPFATORPROMO = 0 por valor final
+  TPAPARTIRDE = 4 aplicação destino em um produto 
+-->
 
 
 # Cadastro de Promoções - Regras de Negócio

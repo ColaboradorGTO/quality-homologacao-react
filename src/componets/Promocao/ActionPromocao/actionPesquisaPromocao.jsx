@@ -76,6 +76,7 @@ export const ActionPesquisaPromocao = ({ }) => {
     optionsMarcas,
     optionsEmpresas,
     optionsMecanica,
+    optionsMecanicaCompleta,
     dadosMecanicas,
     mecanicaSelecionadaEdicao,
     setMecanicaSelecionadaEdicao,
@@ -172,17 +173,31 @@ export const ActionPesquisaPromocao = ({ }) => {
 
   const handleChangeMecanica = useCallback((selectedValue) => {
 
+      
+      setMecanicaSelecionada(selectedValue.MECANICA);
+      setMecanicaSelecionadaEdicao(selectedValue.label)
+      setAplicacaoDestinoSelecionada(selectedValue.APLICAODESTINO);
+      setTipoDescontoSelecionado(selectedValue.TIPODESCONTO);
+    
+      // console.log(mecanicaSelecionada, 'mecanicaSelecionada')
+      // console.log(mecanicaSelecionadaEdicao, 'mecanicaSelecionadaEdicao')
+      // console.log(aplicacaoDestinoSelecionada, 'aplicaoDestinoSelecionada')
+      // console.log(tipoDescontoSelecionado, 'tipoDescontoSelecionado AQUI')
+  }, []);
 
-    const selectedOption = dadosMecanicas.find(option => option.ID == selectedValue);
+  // const handleChangeMecanica = useCallback((selectedValue) => {
 
-    if (selectedOption) {
-      setMecanicaSelecionada(selectedOption.MECANICA);
-      setMecanicaSelecionadaEdicao(selectedOption.DESCRICAO)
-      setAplicacaoDestinoSelecionada(selectedOption.APLICACAODESTINO);
-      setTipoDescontoSelecionado(selectedOption.TIPODESCONTO);
-    }
-    console.log(mecanicaSelecionadaEdicao, 'mecanicaSelecionadaEdicao')
-  }, [dadosMecanicas, setMecanicaSelecionada, setAplicacaoDestinoSelecionada, setTipoDescontoSelecionado,]);
+
+  //   const selectedOption = dadosMecanicas.find(option => option.ID == selectedValue);
+
+  //   if (selectedOption) {
+  //     setMecanicaSelecionada(selectedOption.MECANICA);
+  //     setMecanicaSelecionadaEdicao(selectedOption.DESCRICAO)
+  //     setAplicacaoDestinoSelecionada(selectedOption.APLICACAODESTINO);
+  //     setTipoDescontoSelecionado(selectedOption.TIPODESCONTO);
+  //   }
+  //   console.log(mecanicaSelecionadaEdicao, 'mecanicaSelecionadaEdicao')
+  // }, [dadosMecanicas, setMecanicaSelecionada, setAplicacaoDestinoSelecionada, setTipoDescontoSelecionado,]);
 
 
   const handleEditarMecanica = () => {
@@ -365,19 +380,32 @@ export const ActionPesquisaPromocao = ({ }) => {
         linkComponent={["Cadastro de Promoções"]}
         title="Cadastro de Promoções"
 
-        InputSelectMecanicaComponent={InputSelectActionPromocao}
-        labelSelectMecanica={"Mecanica"}
-        optionsMecanica={dadosMecanicas.map((item) => ({
-          value: item.ID,
-          label: `${item.ID} - ${item.DESCRICAO}`,
-          APLICAODESTINO: item.APLICAODESTINO,
-          TIPODESCONTO: item.TIPODESCONTO
-        }))}
-        defaultValueSelectMecanica={mecanicaSelecionada}
-        onChangeSelectMecanica={(e) => handleChangeMecanica(e.value)}
-        styleMecanica={customStyles}
+        // InputSelectMecanicaComponent={InputSelectActionPromocao}
+        // labelSelectMecanica={"Mecanica"}
+        // optionsMecanica={dadosMecanicas.map((item) => ({
+        //   value: item.ID,
+        //   label: `${item.ID} - ${item.DESCRICAO}`,
+        //   APLICAODESTINO: item.APLICAODESTINO,
+        //   TIPODESCONTO: item.TIPODESCONTO
+        // }))}
+        // defaultValueSelectMecanica={mecanicaSelecionada}
+        // onChangeSelectMecanica={(e) => handleChangeMecanica(e.value)}
+        // styleMecanica={customStyles}
         // valueSelectMecanica={mecanicaSelecionada}
         // readOnlyMecanica={mecanicaSelecionada === 0 ? true : false}
+
+        InputSelectMecanicaComponent={InputSelectActionPromocao}
+        labelSelectMecanica={"Mecanica"}
+        optionsMecanica={optionsMecanicaCompleta?.map((item) => ({
+          value: item.value,
+          label: `${item.value} - ${item.label}`,
+          APLICAODESTINO: item.aplicacaoDestino,
+          TIPODESCONTO: item.tipoDesconto,
+          MECANICA: item.mecanica
+        }))}
+        defaultValueSelectMecanica={mecanicaSelecionada}
+        onChangeSelectMecanica={(e) => handleChangeMecanica(e)}
+        styleMecanica={customStyles}
 
         InputFieldPrecoComponent={InputFieldAction}
         labelInputPreco={"Criar Nova Mecânica"}
