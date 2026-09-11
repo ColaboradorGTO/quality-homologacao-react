@@ -83,6 +83,7 @@ export const ActionEditarPromocaoAtiva = ({ dadosPromocao, handleClickIncluir, a
     optionsMarcas,
     optionsEmpresas,
     optionsMecanica,
+    optionsMecanicaCompleta,
     dadosMecanicas,
     mecanicaSelecionadaEdicao,
     setMecanicaSelecionadaEdicao,
@@ -160,17 +161,31 @@ export const ActionEditarPromocaoAtiva = ({ dadosPromocao, handleClickIncluir, a
   };
 
   const handleChangeMecanica = useCallback((selectedValue) => {
-    const selectedOption = dadosMecanicas.find(option => option.ID == selectedValue);
+    const selectedOption = optionsMecanicaCompleta?.find(option => option.value == selectedValue);
+
 
     if (selectedOption) {
-      setMecanicaSelecionada(selectedOption.ID);
-      setMecanicaSelecionadaEdicao(selectedOption.DESCRICAO)
-      setAplicacaoDestinoSelecionada(selectedOption.APLICAODESTINO);
-      setTipoDescontoSelecionado(selectedOption.TIPODESCONTO);
+      setMecanicaSelecionada(selectedOption.value);
+      setMecanicaSelecionadaEdicao(selectedOption.label)
+      setAplicacaoDestinoSelecionada(selectedOption.aplicacaoDestino);
+      setTipoDescontoSelecionado(selectedOption.tipoDesconto);
     } else {
       console.log('Nenhuma opção encontrada para o valor:', selectedValue);
     }
-  }, [mecanicaSelecionada, mecanicaSelecionadaEdicao, setMecanicaSelecionada, setAplicacaoDestinoSelecionada, setTipoDescontoSelecionado,]);
+  }, []);
+
+  // const handleChangeMecanica = useCallback((selectedValue) => {
+  //   const selectedOption = dadosMecanicas.find(option => option.ID == selectedValue);
+
+  //   if (selectedOption) {
+  //     setMecanicaSelecionada(selectedOption.ID);
+  //     setMecanicaSelecionadaEdicao(selectedOption.DESCRICAO)
+  //     setAplicacaoDestinoSelecionada(selectedOption.APLICAODESTINO);
+  //     setTipoDescontoSelecionado(selectedOption.TIPODESCONTO);
+  //   } else {
+  //     console.log('Nenhuma opção encontrada para o valor:', selectedValue);
+  //   }
+  // }, [mecanicaSelecionada, mecanicaSelecionadaEdicao, setMecanicaSelecionada, setAplicacaoDestinoSelecionada, setTipoDescontoSelecionado,]);
 
   useEffect(() => {
     if (tipoDescontoSelecionado == 0) {
@@ -200,10 +215,71 @@ export const ActionEditarPromocaoAtiva = ({ dadosPromocao, handleClickIncluir, a
     onSubmit();
   }
 
+  // const mecanicaInicial = useMemo(() => {
+  //   if (dadosPromocao && dadosPromocao[0] && optionsMecanica.length > 0) {
+  //     const promocao = dadosPromocao[0];
+  //     const mecanicaEncontrada = optionsMecanica.find(mecanica =>
+  //       mecanica.aplicacaoDestino == promocao.TPAPARTIRDE &&
+  //       mecanica.mecanica == promocao.TPAPLICADOA &&
+  //       mecanica.tipoDesconto == promocao.TPFATORPROMO
+  //     );
+
+  //     return mecanicaEncontrada ? mecanicaEncontrada.value : null;
+  //   }
+  //   return null;
+  // }, [dadosPromocao]);
+
+
+  // const mecanicaCorrespondente = useMemo(() => {
+  //   if (mecanicaInicial && dadosMecanicas.length > 0) {
+  //     const mecanica = dadosMecanicas.find(m => {
+  //       const mecanicaOriginal = optionsMecanica.find(opt => opt.value === mecanicaInicial);
+  //       return mecanicaOriginal &&
+  //         m.MECANICA === mecanicaOriginal.mecanica &&
+  //         m.APLICACAODESTINO === mecanicaOriginal.aplicacaoDestino &&
+  //         m.TIPODESCONTO === mecanicaOriginal.tipoDesconto;
+  //     });
+
+  //     if (mecanica) {
+  //       if (!mecanicaSelecionada) {
+  //         setMecanicaSelecionada(mecanica.ID);
+  //         setMecanicaSelecionadaEdicao(mecanica.DESCRICAO);
+  //         setAplicacaoDestinoSelecionada(mecanica.APLICACAODESTINO);
+  //         setTipoDescontoSelecionado(mecanica.TIPODESCONTO);
+  //       }
+  //       return mecanica;
+  //     }
+  //   }
+  //   return null;
+  // }, [mecanicaInicial, dadosMecanicas, optionsMecanica]);
+
+  // const valorSelecionado = useMemo(() => {
+  //   if (mecanicaSelecionada && dadosMecanicas.length > 0) {
+  //     const mecanica = dadosMecanicas.find(item => item.ID === mecanicaSelecionada);
+  //     return mecanica ? {
+  //       value: mecanica.ID,
+  //       label: mecanica.DESCRICAO,
+  //       APLICAODESTINO: mecanica.APLICACAODESTINO,
+  //       TIPODESCONTO: mecanica.TIPODESCONTO
+  //     } : null;
+  //   }
+  //   return null;
+  // }, [mecanicaSelecionada, dadosMecanicas]);
+
+  // useEffect(() => {
+  //   if (mecanicaCorrespondente) {
+  //     setMecanicaSelecionada(mecanicaCorrespondente.ID);
+  //     setMecanicaSelecionadaEdicao(mecanicaCorrespondente.DESCRICAO);
+  //     setAplicacaoDestinoSelecionada(mecanicaCorrespondente.APLICACAODESTINO);
+  //     setTipoDescontoSelecionado(mecanicaCorrespondente.TIPODESCONTO);
+  //   }
+
+  // }, [mecanicaCorrespondente]);
+
   const mecanicaInicial = useMemo(() => {
-    if (dadosPromocao && dadosPromocao[0] && optionsMecanica.length > 0) {
+    if (dadosPromocao && dadosPromocao[0] && optionsMecanicaCompleta.length > 0) {
       const promocao = dadosPromocao[0];
-      const mecanicaEncontrada = optionsMecanica.find(mecanica =>
+      const mecanicaEncontrada = optionsMecanicaCompleta.find(mecanica =>
         mecanica.aplicacaoDestino == promocao.TPAPARTIRDE &&
         mecanica.mecanica == promocao.TPAPLICADOA &&
         mecanica.tipoDesconto == promocao.TPFATORPROMO
@@ -214,49 +290,54 @@ export const ActionEditarPromocaoAtiva = ({ dadosPromocao, handleClickIncluir, a
     return null;
   }, [dadosPromocao]);
 
-
   const mecanicaCorrespondente = useMemo(() => {
-    if (mecanicaInicial && dadosMecanicas.length > 0) {
-      const mecanica = dadosMecanicas.find(m => {
-        const mecanicaOriginal = optionsMecanica.find(opt => opt.value === mecanicaInicial);
+    if (mecanicaInicial && optionsMecanicaCompleta.length > 0) {
+      const mecanica = optionsMecanicaCompleta.find(m => {
+        const mecanicaOriginal = optionsMecanicaCompleta.find(opt => opt.value === mecanicaInicial);
+
         return mecanicaOriginal &&
-          m.MECANICA === mecanicaOriginal.mecanica &&
-          m.APLICACAODESTINO === mecanicaOriginal.aplicacaoDestino &&
-          m.TIPODESCONTO === mecanicaOriginal.tipoDesconto;
+          m.mecanica === mecanicaOriginal.mecanica &&
+          m.aplicacaoDestino === mecanicaOriginal.aplicacaoDestino &&
+          m.tipoDesconto === mecanicaOriginal.tipoDesconto;
       });
+
 
       if (mecanica) {
         if (!mecanicaSelecionada) {
-          setMecanicaSelecionada(mecanica.ID);
-          setMecanicaSelecionadaEdicao(mecanica.DESCRICAO);
-          setAplicacaoDestinoSelecionada(mecanica.APLICACAODESTINO);
-          setTipoDescontoSelecionado(mecanica.TIPODESCONTO);
+          setMecanicaSelecionada(mecanica.value);
+          setMecanicaSelecionadaEdicao(mecanica.label);
+          setAplicacaoDestinoSelecionada(mecanica.aplicacaoDestino);
+          setTipoDescontoSelecionado(mecanica.tipoDesconto);
         }
+
         return mecanica;
       }
+
     }
     return null;
   }, [mecanicaInicial, dadosMecanicas, optionsMecanica]);
 
   const valorSelecionado = useMemo(() => {
-    if (mecanicaSelecionada && dadosMecanicas.length > 0) {
-      const mecanica = dadosMecanicas.find(item => item.ID === mecanicaSelecionada);
+    if (mecanicaSelecionada && optionsMecanicaCompleta.length > 0) {
+      const mecanica = optionsMecanicaCompleta.find(item => item.value === mecanicaSelecionada);
+
       return mecanica ? {
-        value: mecanica.ID,
-        label: mecanica.DESCRICAO,
-        APLICAODESTINO: mecanica.APLICACAODESTINO,
-        TIPODESCONTO: mecanica.TIPODESCONTO
+        value: mecanica.value,
+        label:` ${mecanica.value} - ${mecanica.label}`,
+        APLICAODESTINO: mecanica.aplicacaoDestino,
+        TIPODESCONTO: mecanica.tipoDesconto
       } : null;
     }
+
     return null;
-  }, [mecanicaSelecionada, dadosMecanicas]);
+  }, [mecanicaSelecionada, optionsMecanicaCompleta]);
 
   useEffect(() => {
     if (mecanicaCorrespondente) {
-      setMecanicaSelecionada(mecanicaCorrespondente.ID);
-      setMecanicaSelecionadaEdicao(mecanicaCorrespondente.DESCRICAO);
-      setAplicacaoDestinoSelecionada(mecanicaCorrespondente.APLICACAODESTINO);
-      setTipoDescontoSelecionado(mecanicaCorrespondente.TIPODESCONTO);
+      setMecanicaSelecionada(mecanicaCorrespondente.value);
+      setMecanicaSelecionadaEdicao(mecanicaCorrespondente.label);
+      setAplicacaoDestinoSelecionada(mecanicaCorrespondente.aplicacaoDestino);
+      setTipoDescontoSelecionado(mecanicaCorrespondente.tipoDesconto);
     }
 
   }, [mecanicaCorrespondente]);

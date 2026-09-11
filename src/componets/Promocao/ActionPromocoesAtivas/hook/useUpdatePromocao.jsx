@@ -4,7 +4,7 @@ import { useQuery } from "react-query"
 import Swal from "sweetalert2"
 import { getDataAtual, getDataTresMesesAtras } from "../../../../utils/dataAtual"
 import * as XLSX from 'xlsx';
-import { optionsMecanica } from "../../../../../mecanica"
+import { optionsMecanica, optionsMecanicaCompleta, } from "../../../../../mecanica"
 import { useNavigate } from "react-router-dom"
 import axios from "axios";
 import ExcelJS from "exceljs";
@@ -1558,6 +1558,7 @@ export const useUpdatePromocaoAtiva = ({ dadosPromocao }) => {
     optionsMarcas,
     optionsEmpresas,
     optionsMecanica,
+    optionsMecanicaCompleta,
     dadosMecanicas,
     mostrarProdutosSelecionados,
     handleFileUpload,
